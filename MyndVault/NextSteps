@@ -1,0 +1,29 @@
+
+NEXT STEPS:
+
+!!  Recording cannot exceed 25 Mb
+
+!! change leaked top button to simple buttons in the view with 'gobackward' SF, in a gray.opacity circle
+
+!! await MainActor.run { ... } instead of DispatchQueu.Main in async/await context
+
+-- All transitions to be opacity.
+
+
+1. delete item (locally and in the Pinecone), and Edit it. (updating the Pinecone)
+
+3. Notifications (UserNotification) with the To-Do.
+
+4. Widget with easy ask - insert (save new)
+
+5. Check the whole app and replace all throw ... with AppError, check if additional cases are needed in the enum
+
+6. Fail gracefully, all Errors in the API Operations should envoke some View and 'reset' the app for new recording
+
+7. User LogIn , make seperate Pinecone index.
+
+8. How to monitor user's  consumption/ credits
+
+9. Firstly how to add Subscription (RevenueCat?)
+
+10. UI Theme. make it nice, (!?) Use LottieFiles.

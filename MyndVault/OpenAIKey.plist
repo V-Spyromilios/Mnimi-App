@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>OPENAI_API_KEY</key>
+	<string>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</string>
+	<key>PINECONE_KEY</key>
+	<string>c49e248f-a8f0-4e0e-8609-515995ecc92a</string>
+</dict>
+</plist>
