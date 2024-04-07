@@ -8,25 +8,75 @@
 import SwiftUI
 import SwiftData
 
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+
+        FirebaseApp.configure()
+        requestNotificationPermission()
+        return true
+    }
+
+    
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if granted {
+                print("Permission granted")
+            } else if let error = error {
+                print("Permission denied: \(error.localizedDescription)")
+            }
+        }
+    }
+
+
+}
+
+
+
 @main
 struct MyndVaultApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @ObservedObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
+    var openAiManager = OpenAIManager()
+    var pineconeManager = PineconeManager()
+    var audioManager = AudioManager.shared
+    var progressTracker = ProgressTracker.shared
+    var notificationsManager = NotificationViewModel()
+    var speechManager = SpeechRecognizerManager()
+    var keyboardResponder = KeyboardResponder()
+    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
+    
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(sharedModelContainer)
+
+        WindowGroup(content: {
+            
+            Group {
+                if cloudKitViewModel.userIsSignedIn {
+
+                    ContentView()
+                        .environmentObject(openAiManager)
+                        .environmentObject(pineconeManager)
+                        .environmentObject(audioManager)
+                        .environmentObject(progressTracker)
+                        .environmentObject(notificationsManager)
+                        .environmentObject(cloudKitViewModel)
+                        .environmentObject(speechManager)
+                        .environmentObject(keyboardResponder)
+                        .implementPopupView()
+                        
+                }
+                
+                else if cloudKitViewModel.isLoading {
+                    LoadingView()
+                }
+                else if cloudKitViewModel.CKError != "" {
+                   
+                    ContentUnavailableView("iCloud Error", image: "exclamationmark.icloud.fill", description: Text(cloudKitViewModel.CKError)).offset(y: 70)
+                }
+            }
+        })
     }
 }
