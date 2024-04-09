@@ -17,7 +17,8 @@ final class CloudKitViewModel: ObservableObject {
     @Published var useriD: CKRecord.ID?
     @Published var fetchedNamespaceDict: [CKRecord.ID: NamespaceItem] = [:]
     
-    private var db = CKContainer.default().privateCloudDatabase
+    private var db: CKDatabase?
+    
     static let shared = CloudKitViewModel()
     
     init() {
@@ -30,12 +31,12 @@ final class CloudKitViewModel: ObservableObject {
     func fetchNameSpace() async throws {
         
         let query = CKQuery(recordType: "NamespaceItem", predicate: NSPredicate(value: true))
-        let rs = try await db.records(matching: query)
-        let returnedRecords = rs.matchResults.compactMap { try? $0.1.get() }
+        let rs = try await db?.records(matching: query)
+        let returnedRecords = rs?.matchResults.compactMap { try? $0.1.get() }
         print("CK - fetch name seems ok")
         
         await MainActor.run {
-            returnedRecords.forEach { record in
+            returnedRecords?.forEach { record in
                 fetchedNamespaceDict[record.recordID] = NamespaceItem(record: record)
             }
         }
@@ -43,7 +44,7 @@ final class CloudKitViewModel: ObservableObject {
     
     func saveNamespaceItem(ns: NamespaceItem) async throws {
         
-        try await db.save(ns.record) // the record in the extension of the NamepaceItem
+        try await db?.save(ns.record) // the record in the extension of the NamepaceItem
     }
     
     func getiCloudStatus() async {
@@ -55,6 +56,7 @@ final class CloudKitViewModel: ObservableObject {
                 switch accountStatus {
                 case .available:
                     self.userIsSignedIn = true
+                    self.db = CKContainer.default().privateCloudDatabase
                 case .couldNotDetermine, .restricted, .noAccount, .temporarilyUnavailable:
                     self.userIsSignedIn = false
                 @unknown default:

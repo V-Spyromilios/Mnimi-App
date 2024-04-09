@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Firebase
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -65,8 +66,6 @@ struct MyndVaultApp: App {
                         .environmentObject(cloudKitViewModel)
                         .environmentObject(speechManager)
                         .environmentObject(keyboardResponder)
-                        .implementPopupView()
-                        
                 }
                 
                 else if cloudKitViewModel.isLoading {

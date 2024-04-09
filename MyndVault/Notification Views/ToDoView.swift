@@ -24,21 +24,22 @@ struct ToDoView: View {
     var body: some View {
         VStack {
             Text("Notifications").font(.title).bold().padding()
-            
-            // Directly using condition to decide between List and alternative view
+
             if !manager.scheduledNotifications.isEmpty || !manager.deliveredNotifications.isEmpty {
                 List {
-                    Section(header: Text("Scheduled Notifications")) {
-                        ForEach(manager.scheduledNotifications) { notification in
-                            NavigationLink(destination: NotificationDetailView(notification: notification)) {
-                                VStack(alignment: .leading) {
-                                    Text(notification.title).font(.headline)
-                                    Text(notification.body).font(.subheadline)
+                    if manager.scheduledNotifications.count >= 1 {
+                        Section(header: Text("Scheduled Notifications")) {
+                            ForEach(manager.scheduledNotifications) { notification in
+                                NavigationLink(destination: NotificationDetailView(notification: notification)) {
+                                    VStack(alignment: .leading) {
+                                        Text(notification.title).font(.headline)
+                                        Text(notification.body).font(.subheadline)
+                                    }
                                 }
-                            }
-                        }.onDelete(perform: manager.removeScheduledNotification)
+                            }.onDelete(perform: manager.removeScheduledNotification)
+                        }
                     }
-
+                    if manager.deliveredNotifications.count >= 1 {
                     Section(header: Text("Delivered Notifications")) {
                         ForEach(manager.deliveredNotifications) { notification in
                             VStack(alignment: .leading) {
@@ -48,6 +49,7 @@ struct ToDoView: View {
                             .foregroundStyle(.gray)
                         }.onDelete(perform: manager.removeDeliveredNotification)
                     }
+                }
                 }.listStyle(InsetGroupedListStyle())
             } else {
                 ContentUnavailableView("Notifications will appear here", systemImage: "bell.slash.fill")
