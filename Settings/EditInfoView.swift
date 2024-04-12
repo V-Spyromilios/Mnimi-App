@@ -21,12 +21,12 @@ struct EditInfoView: View {
     @EnvironmentObject var openAiManager: OpenAIManager
     @State var showProgress: Bool = false
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    
    
 
     var body: some View {
         ZStack {
-            
-            
+
             VStack {
                 if showProgress {
                     ProgressView()
@@ -38,7 +38,7 @@ struct EditInfoView: View {
             if viewModel.showTopBar {
                 TopNotificationBar(message: "Info saved successfully !", show: $viewModel.showTopBar)
                     .transition(.move(edge: .top))
-                    .animation(.easeInOut, value: viewModel.showTopBar)
+//                    .animation(.easeInOut, value: viewModel.showTopBar)
                     .onDisappear {
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -56,7 +56,8 @@ struct EditInfoView: View {
                             await upsertEditedInfo()
                             pineconeManager.clearManager()
                             openAiManager.clearManager()
-                        }
+                            
+                            }
                         withAnimation {
                             showProgress = false
                         }
@@ -83,8 +84,12 @@ struct EditInfoView: View {
                 print("EditInfoView :: Error while upserting: \(error.localizedDescription)")
             }
             if pineconeManager.upsertSuccesful {
+                DispatchQueue.main.async {
+                    pineconeManager.refreshAfterEditing = true
+                }
                 do {
                     try await pineconeManager.refreshNamespacesIDs()
+                    
                 } catch {
                     //Show Error Alert
                     print("EditInfoView :: Error refreshNamespacesIDs: \(error.localizedDescription)")

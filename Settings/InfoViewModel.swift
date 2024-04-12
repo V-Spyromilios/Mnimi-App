@@ -9,8 +9,10 @@ import Foundation
 import SwiftUI
 
 class EditInfoViewModel: ObservableObject {
+
     @Published var showConfirmation: Bool = false
     @Published var showTopBar: Bool = false
+
     @Published var id: String
     @Published var timestamp: String
     @Published var relevantFor: String

@@ -33,6 +33,7 @@ final class PineconeManager: ObservableObject {
     @Published var progressText: String = ""
     var pineconeIndex: String?
     var cancellables = Set<AnyCancellable>()
+    @Published var refreshAfterEditing: Bool = false
     
     
     init(cloudKitViewModel: CloudKitViewModel = .shared) {
@@ -46,17 +47,17 @@ final class PineconeManager: ObservableObject {
         upsertSuccesful = false
     }
     
-    private func getIDs() {
-        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1.3) {
-            Task {
-                do {
-                    try await self.fetchAllNamespaceIDs()
-                } catch {
-                    print("Error fetchAllNamespaceIDs: \(error)")
-                }
-            }
-        }
-    }
+//    private func getIDs() {
+//        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1.3) {
+//            Task {
+//                do {
+//                    try await self.fetchAllNamespaceIDs()
+//                } catch {
+//                    print("Error fetchAllNamespaceIDs: \(error)")
+//                }
+//            }
+//        }
+//    }
 //    var pineconeIndexCreated: Bool {
 //        didSet {
 //            UserDefaults.standard.set(pineconeIndexCreated, forKey: "pineconeIndexCreated")
@@ -105,6 +106,7 @@ final class PineconeManager: ObservableObject {
     func refreshNamespacesIDs() async throws {
         do {
             try await fetchAllNamespaceIDs()
+            try await fetchDataForIds()
         } catch {
             throw error
         }
@@ -143,7 +145,7 @@ final class PineconeManager: ObservableObject {
                 }
             }
         }
-        if !self.isDataSorted {
+        if !self.isDataSorted || self.refreshAfterEditing{
             do {
                 try await fetchDataForIds()
                 
@@ -184,7 +186,7 @@ final class PineconeManager: ObservableObject {
             Vector(id: id, metadata: vector.metadata)
         }
             .sorted { lhs, rhs in
-                guard let lhsTimestamp = lhs.metadata["timestamp"], //TODO: change to timestamp
+                guard let lhsTimestamp = lhs.metadata["timestamp"],
                       let rhsTimestamp = rhs.metadata["timestamp"],
                       let lhsDate = dateFormatter.date(from: lhsTimestamp),
                       let rhsDate = dateFormatter.date(from: rhsTimestamp) else {
@@ -192,7 +194,6 @@ final class PineconeManager: ObservableObject {
                 }
                 return lhsDate > rhsDate // `<` for ascending
             }
-        
         await MainActor.run {
             self.pineconeFetchedVectors = sortedVectors
         }

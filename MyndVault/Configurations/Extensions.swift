@@ -150,7 +150,7 @@ struct TopNotificationBar: View {
                 .padding(.horizontal)
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity)
-                .background(Color.green.opacity(0.3))
+                .background(Color.green)
                 .cornerRadius(rectCornerRad)
                 .gesture(DragGesture().onEnded { value in
                     if value.translation.height < 0 {

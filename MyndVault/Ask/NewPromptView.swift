@@ -33,7 +33,7 @@ struct NewPromptView: View {
     @State var thrownError: String = ""
     @State var apiCallInProgress: Bool = false
     
-    @FocusState private var focusField: Field?
+//    @FocusState private var focusField: Field?
 
     private enum Field {
         case addNew
@@ -116,7 +116,6 @@ struct NewPromptView: View {
                     }
                 )
             }
-        
     }
 
     //MARK: addNewInfo
@@ -135,8 +134,8 @@ struct NewPromptView: View {
                 .frame(minHeight: 100)
                 .padding(.bottom)
                 .onAppear { }
-                .onSubmit { focusField = .relevantFor }
-                .focused($focusField, equals: .addNew)
+//                .onSubmit { focusField = .relevantFor }
+//                .focused($focusField, equals: .addNew)
         }
         HStack {
             Image(systemName: "person.bubble").bold()
@@ -155,9 +154,9 @@ struct NewPromptView: View {
                 }
                 .padding(.bottom, 50)
                 .onSubmit {
-                    focusField = nil //TODO: test if dismisses the keyboard
+//                    focusField = nil //TODO: test if dismisses the keyboard
                 }
-                .focused($focusField, equals: .relevantFor)
+//                .focused($focusField, equals: .relevantFor)
                 
         HStack {
         Button(action: {
@@ -182,7 +181,7 @@ struct NewPromptView: View {
                     
                 } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ")}
             }
-            focusField = nil
+//            focusField = nil
             self.apiCallInProgress = false
         }) {
             ZStack {
@@ -268,9 +267,9 @@ struct NewPromptView: View {
             }
             .padding(.bottom)
             .onSubmit {
-              focusField = nil
+//              focusField = nil
             }
-            .focused($focusField, equals: .question)
+            //.focused($focusField, equals: .question)
             
         HStack {
            
@@ -310,7 +309,7 @@ struct NewPromptView: View {
                         }
                     }
                 }
-                focusField = nil
+//                focusField = nil
             }) {
                 ZStack {
                     RoundedRectangle(cornerRadius: rectCornerRad)

@@ -39,7 +39,6 @@ struct InfoView: View {
                             .opacity(0.3)
                             .foregroundColor(Color.gray)
                     }
-                
                     .frame(minHeight: 100)
                     .padding(.bottom)
                     .onAppear { }
@@ -71,7 +70,6 @@ struct InfoView: View {
                 Button(action: {
                     DispatchQueue.main.async {
                         viewModel.showConfirmation = true
-                        print("Button changed showConfirmation to \(viewModel.showConfirmation.description)")
                     }
                 }) {
                     ZStack {
@@ -85,6 +83,18 @@ struct InfoView: View {
                     .padding(.bottom, keyboardResponder.currentHeight > 0 ? 25: 0) //Check if correct
             }
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                HStack {
+                    Spacer()
+                    Button {
+                        hideKeyboard()
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -92,8 +102,6 @@ struct InfoView: View {
     InfoView(viewModel: EditInfoViewModel(vector: Vector(id: "1234", metadata: ["Test":"test"])))
         .environmentObject(OpenAIManager())
         .environmentObject(PineconeManager())
-       
         .environmentObject(ProgressTracker())
-        
         .environmentObject(KeyboardResponder())
 }

@@ -16,37 +16,45 @@ struct InfosView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject var pineconeManger: PineconeManager
     @EnvironmentObject var audioManager: AudioManager
-    @State private var vectorsAreLoading = false
-    
-    
+    @State private var vectorsAreLoading = true
+
     var body: some View {
-        
         NavigationStack {
 
                 if !pineconeManger.pineconeFetchedVectors.isEmpty {
                     ScrollView {
+                       
                         ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
+                            
                             NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
-                                
                                 InfosViewListCellView(data: data).padding()
                             }
                         }
+                    }.refreshable {
+                        Task {
+                            do {
+                                try await pineconeManger.refreshNamespacesIDs()
+                            } catch  {
+                                print("Error refreshing: \(error.localizedDescription)")
+                            }
+                        }
+                       
                     }
                 } else if vectorsAreLoading {
                     ProgressView()
                 }
-                else {
-                    ProgressView()
-//                    ContentUnavailableView(label: {
-//                        Label("No Saved Info", systemImage: "tray.2").foregroundStyle(.yellow)
-//                    }, description: {
-//                        Text(" Saved Info will be shown here.")}
-//                                           
-//                    ).offset(y: -60)
-//                    
+                else if !vectorsAreLoading {
+                    
+                    ContentUnavailableView(label: {
+                        Label("No Saved Info", systemImage: "tray.2")
+                    }, description: {
+                        Text(" Saved Info will be shown here.")}
+                                           
+                    ).offset(y: -60)
                 }
-            
-        }.background {
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
             Color.gray.opacity(0.5).ignoresSafeArea()
         }
         
@@ -67,12 +75,13 @@ struct InfosView: View {
         }
         //TODO: show loading/progress and if fetch fails then ContentUnavailableView..
         .onAppear {
+            self.vectorsAreLoading = true
             fetchPineconeEntries()
         }
     }
     
     private func fetchPineconeEntries() {
-        self.vectorsAreLoading = true
+       print("HERE try await pineconeManger.fetchAllNamespaceIDs()")
         Task {
             do {
                 try await pineconeManger.fetchAllNamespaceIDs()
