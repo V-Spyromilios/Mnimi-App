@@ -23,7 +23,7 @@ struct RecordingsSettingsView: View {
                 })
                 .offset(y: -60)
             } else {
-                // List shown when there are audio files
+
                 List {
                     ForEach(viewModel.audioFiles, id: \.self) { recording in
                         Text("h")

@@ -32,7 +32,7 @@ final class OpenAIManager: ObservableObject {
     private var lastGptAudioResponse: URL?
     var cancellables = Set<AnyCancellable>()
     
-    
+
     init() {
         
         if let savedLanguage = UserDefaults.standard.string(forKey: "selectedPromptLanguage"),
@@ -61,6 +61,7 @@ final class OpenAIManager: ObservableObject {
         embeddingsCompleted = false
         gptResponseForAudioGeneration = nil
         stringResponseOnQuestion = ""
+        progressText = ""
         //        print("clearManager() called.")
     }
 

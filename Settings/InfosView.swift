@@ -7,54 +7,50 @@
 
 import SwiftUI
 
+//TODO: pull down to refresh the view with progressView, scroll down to show search textField (look at printscreens for iMessages impl).
 
+//TODO: Progress View when the view appears and Content Unavailable if there are no Entries.
 struct InfosView: View {
     
     @Environment(\.colorScheme) var colorScheme
-    @Environment(\.modelContext) var modelContext
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject var pineconeManger: PineconeManager
-    
-    @ObservedObject var viewModel = RecordingsViewModel()
     @EnvironmentObject var audioManager: AudioManager
-    @State var isEditViewPresented: Bool = false
+    @State private var vectorsAreLoading = false
     
-    let dateFormatter = DateFormatter()
-    //    @State var upsertedData: [[String: String]] = [[:]]
-    
-    @State var ids:[String] = []
-    
-    init() {
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-    }
     
     var body: some View {
+        
         NavigationStack {
-            if !pineconeManger.pineconeFetchedVectors.isEmpty {
-                List {
-                    ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
-                        NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
-                            VStack {
-                                InfosViewListCellView(data: data)
-                              
+
+                if !pineconeManger.pineconeFetchedVectors.isEmpty {
+                    ScrollView {
+                        ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
+                            NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
+                                
+                                InfosViewListCellView(data: data).padding()
                             }
                         }
                     }
-                    .onDelete(perform: deleteInfo)
+                } else if vectorsAreLoading {
+                    ProgressView()
                 }
-            } else {
-                ContentUnavailableView(label: {
-                    Label("No Saved Info", systemImage: "tray.2").foregroundStyle(.yellow)
-                }, description: {
-                    Text(" Saved Info will be shown here.")}
-                                       
-                ).offset(y: -60)
-            }
+                else {
+                    ProgressView()
+//                    ContentUnavailableView(label: {
+//                        Label("No Saved Info", systemImage: "tray.2").foregroundStyle(.yellow)
+//                    }, description: {
+//                        Text(" Saved Info will be shown here.")}
+//                                           
+//                    ).offset(y: -60)
+//                    
+                }
+            
+        }.background {
+            Color.gray.opacity(0.5).ignoresSafeArea()
         }
-
-        .navigationTitle("info")
+        
+        .navigationTitle("Manage Info")
         .navigationBarBackButtonHidden(true)
         .toolbar {
             
@@ -71,15 +67,20 @@ struct InfosView: View {
         }
         //TODO: show loading/progress and if fetch fails then ContentUnavailableView..
         .onAppear {
-            Task {
-                do {
-                    try await pineconeManger.fetchAllNamespaceIDs()
-                } catch {
-                    print("Error :: try await pineconeManger.fetchAllNamespaceIDs():: \(error)")
-                }
+            fetchPineconeEntries()
+        }
+    }
+    
+    private func fetchPineconeEntries() {
+        self.vectorsAreLoading = true
+        Task {
+            do {
+                try await pineconeManger.fetchAllNamespaceIDs()
+            } catch {
+                print("Error :: try await pineconeManger.fetchAllNamespaceIDs():: \(error)")
             }
         }
-        
+        self.vectorsAreLoading = false
     }
     //TODO: swipe left to show alert dialog for confirmation and then to call this
     private func deleteInfo(at offsets: IndexSet) {
@@ -106,7 +107,7 @@ struct InfosView: View {
             }
         }
     }
-
+    
 }
 
 #Preview {

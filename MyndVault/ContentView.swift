@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+//import SwiftData
 import Network
 
 struct ContentView: View {
@@ -136,5 +136,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: ResponseModel.self, inMemory: true)
+//        .modelContainer(for: ResponseModel.self, inMemory: true)
 }

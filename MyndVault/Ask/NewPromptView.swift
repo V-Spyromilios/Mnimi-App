@@ -8,7 +8,6 @@
 import SwiftUI
 import NotificationCenter
 import Network
-import SwiftData
 
 
 struct NewPromptView: View {
@@ -17,12 +16,12 @@ struct NewPromptView: View {
     @State var showNetworkError = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
-    @EnvironmentObject var pineconeManger: PineconeManager
+    @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var audioManager: AudioManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var notificationManager: NotificationViewModel
     @EnvironmentObject var keyboardResponder: KeyboardResponder
-    @Environment(\.modelContext) var modelContext
+//    @Environment(\.modelContext) var modelContext
     
     @State var selectedType: typeOptions = .question
     @State var question: String = ""
@@ -33,10 +32,6 @@ struct NewPromptView: View {
     @State var replyText: String = ""
     @State var thrownError: String = ""
     @State var apiCallInProgress: Bool = false
-    let rectCornerRad: CGFloat = 50
-    var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opacity(0.3), Color.yellow.opacity(0.6), Color.yellow]), startPoint: .top, endPoint: .bottom)
-    
-    var greenGradient = LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.3), Color.green.opacity(0.6), Color.green]), startPoint: .top, endPoint: .bottom)
     
     @FocusState private var focusField: Field?
 
@@ -117,7 +112,7 @@ struct NewPromptView: View {
                     message: Text("Please check your internet connection and try again."),
                     dismissButton: .cancel(Text("OK")) {
                         openAiManager.clearManager()
-                        pineconeManger.clearManager()
+                        pineconeManager.clearManager()
                     }
                 )
             }
@@ -168,7 +163,7 @@ struct NewPromptView: View {
         Button(action: {
             self.apiCallInProgress = true
             Task {
-//                await openAiManager.analyzeTranscript(whisperResponse: self.newInfo, userIsAsking: false)
+
                 await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
                
                 if openAiManager.embeddingsCompleted {
@@ -178,7 +173,7 @@ struct NewPromptView: View {
                     let metadata = toDictionary(type: "GeneralKnowledge", desc: self.newInfo, relevantFor: self.relevantFor)
                         do {
                             
-                            try await pineconeManger.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
+                            try await pineconeManager.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
 
                         } catch(let error) {
                             print("Error while upserting catched by the View: \(error.localizedDescription)")
@@ -195,53 +190,49 @@ struct NewPromptView: View {
                     .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
                     .frame(height: 70)
                     .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
-                Text("Add").font(.title3).bold().foregroundColor(.white)
+                Text("Add").font(.title2).bold().foregroundColor(.white)
             }
         }.frame(maxWidth: .infinity) // to get all 'safe' width, in all possible screens
                 .padding(.bottom, keyboardResponder.currentHeight > 0 ? 25: 0) //Check if correct
             Spacer()
             
-            if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManger.progressText != "") && thrownError == "" {
-                CircularProgressView(progressTracker: progressTracker).padding(.trailing, 8)
+            if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManager.progressText != "") && thrownError == "" {
+                CircularProgressView(progressTracker: progressTracker).padding(.horizontal)
             }
             if thrownError != "" {
                 Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.yellow).font(.largeTitle).frame(width: 60, height: 60)
                     .animation(.easeInOut, value: thrownError)
             }
-            if thrownError == "" && pineconeManger.upsertSuccesful {
+            if thrownError == "" && pineconeManager.upsertSuccesful {
                 Image(systemName: "checkmark.icloud.fill").foregroundStyle(.green).font(.largeTitle).frame(width: 60, height: 60)
-                    .animation(.easeInOut, value: pineconeManger.upsertSuccesful)
+                    .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
             }
            
         }.frame(height: 68)
-
-        if openAiManager.progressText != "" && thrownError == "" {
-            Text(openAiManager.progressText).font(.caption2)
-                .animation(.easeInOut, value: openAiManager.progressText)
-        }
-        if pineconeManger.progressText != "" && thrownError == "" {
-            Text(pineconeManger.progressText).font(.caption2)
-                .animation(.easeInOut, value: pineconeManger.progressText)
-        }
-        else if thrownError != "" || pineconeManger.upsertSuccesful {
-            VStack {
+        HStack {
+                if openAiManager.progressText != "" && thrownError == "" {
+                    Text(openAiManager.progressText).font(.caption2).padding(.top, 12)
+                        .animation(.easeInOut, value: openAiManager.progressText)
+                }
+                if pineconeManager.progressText != "" && thrownError == "" {
+                    Text(pineconeManager.progressText).font(.caption2).padding(.top, 12)
+                        .animation(.easeInOut, value: pineconeManager.progressText)
+                }
+                else if thrownError != "" || pineconeManager.upsertSuccesful {
               
                     if thrownError != "" {
-                        Text(thrownError).font(.caption2).bold()
+                        Text(thrownError).font(.caption2).bold().padding(.top, 12)
                             .animation(.easeInOut, value: thrownError)
                     } else {
-                        Text("Info Saved!").font(.caption2).bold()
-                            .animation(.easeInOut, value: pineconeManger.upsertSuccesful)
+                        Text("Info Saved!").font(.caption2).bold().padding(.top, 12)
+                            .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
                     }
-                
-                
-                HStack {
                     Spacer()
                     Button(action: {
                         withAnimation {
                             progressTracker.progress = 0.0 //check if ok
                             openAiManager.clearManager()
-                            pineconeManger.clearManager()
+                            pineconeManager.clearManager()
                             self.newInfo = ""
                             self.relevantFor = ""
                             self.thrownError = ""
@@ -251,28 +242,15 @@ struct NewPromptView: View {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(thrownError == "" ? greenGradient : yellowGradient)
                                 .frame(height: 60)
-                                .shadow(color: thrownError == "" ? .green : .yellow.opacity(0.9), radius: 3, x: 3, y: 3) // subtle shadow for a lifted effect
-                            Text(thrownError == "" ? "OK" : "Reset").font(.title3).bold().foregroundColor(.white)
+                                .shadow(color: thrownError == "" ? .green : .yellow.opacity(0.9), radius: 3, x: 3, y: 3)
+                            Text(thrownError == "" ? "OK" : "Reset").font(.title2).bold().foregroundColor(.white)
                         }
                     }).frame(width: 70, height: 60).padding(.trailing, 8)
-                }
-            }.animation(.easeInOut, value: pineconeManger.upsertSuccesful)
-        }
+            }
+        }.frame(maxWidth: .infinity)
+            .padding(.bottom, max(0, keyboardResponder.currentHeight))// Ensure non-negative padding
+        .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
         
-    }
-
-    //MARK: private toDictionary()
-    private func toDictionary(type: String, desc: String, relevantFor: String) -> [String: String] {
-
-        let isoDateFormatter = ISO8601DateFormatter()
-        let timestamp = isoDateFormatter.string(from: Date())
-
-        return [
-            "type": type,
-            "description": desc,
-            "relevantFor": relevantFor,
-            "timestamp": timestamp
-        ]
     }
 
     //MARK: questionView()
@@ -289,10 +267,6 @@ struct NewPromptView: View {
                     .foregroundColor(Color.gray)
             }
             .padding(.bottom)
-            .onAppear {
-                withAnimation {
-                    focusField = .question}
-            }
             .onSubmit {
               focusField = nil
             }
@@ -312,7 +286,7 @@ struct NewPromptView: View {
                         do {
                             ProgressTracker.shared.setProgress(to: 0.35)
                             
-                            try await pineconeManger.queryPinecone(vector: openAiManager.embeddingsFromQuestion, metadata: metadata)
+                            try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion, metadata: metadata)
                         } catch {
                             print("try await pineconeManger.queryPinecone: \(error)")
                             thrownError = error.localizedDescription
@@ -321,7 +295,7 @@ struct NewPromptView: View {
                         
                         print("returned from queryPinecone")
                     }
-                    if let pineconeResponse = pineconeManger.pineconeQueryResponse {
+                    if let pineconeResponse = pineconeManager.pineconeQueryResponse {
                         let question = self.question
                         print("returned from gptMetadataResponseOnQuestion?.description")
                         do {
@@ -332,7 +306,7 @@ struct NewPromptView: View {
                         }
                         await MainActor.run {
                             openAiManager.progressText = ""
-                            pineconeManger.progressText = ""
+                            pineconeManager.progressText = ""
                         }
                     }
                 }
@@ -343,7 +317,7 @@ struct NewPromptView: View {
                         .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
                         .frame(height: 70)
                         .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
-                    Text("Go").font(.title3).bold().foregroundColor(.white)
+                    Text("Go").font(.title2).bold().foregroundColor(.white)
                 }
                 .contentShape(Rectangle())
             }.frame(maxWidth: .infinity)
@@ -353,7 +327,7 @@ struct NewPromptView: View {
             if thrownError != "" {
                 Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.yellow).font(.largeTitle).frame(width: 60, height: 60).animation(.easeInOut, value: thrownError)
             }
-            if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManger.progressText != "") && thrownError == "" {
+            if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManager.progressText != "") && thrownError == "" {
                 CircularProgressView(progressTracker: progressTracker).padding(.trailing, 8)
                    
             }
@@ -367,9 +341,9 @@ struct NewPromptView: View {
             Text(openAiManager.progressText).font(.caption2)
                 .animation(.easeInOut, value: openAiManager.progressText)
         }
-        if pineconeManger.progressText != "" && thrownError == "" {
-            Text(pineconeManger.progressText).font(.caption2)
-                .animation(.easeInOut, value: pineconeManger.progressText)
+        if pineconeManager.progressText != "" && thrownError == "" {
+            Text(pineconeManager.progressText).font(.caption2)
+                .animation(.easeInOut, value: pineconeManager.progressText)
         }
         else if thrownError != "" || (openAiManager.stringResponseOnQuestion != "" && progressTracker.progress >= 0.99) {
             VStack {
@@ -386,7 +360,7 @@ struct NewPromptView: View {
                         withAnimation {
                             progressTracker.progress = 0.0 //check if ok
                             openAiManager.clearManager()
-                            pineconeManger.clearManager()
+                            pineconeManager.clearManager()
                             self.question = ""
                             self.thrownError = ""
                             
@@ -397,7 +371,7 @@ struct NewPromptView: View {
                                 .fill(thrownError == "" ? greenGradient : yellowGradient)
                                 .frame(height: 70)
                                 .shadow(color: thrownError == "" ? .green : .yellow.opacity(0.9), radius: 3, x: 3, y: 3) // subtle shadow for a lifted effect
-                            Text(thrownError == "" ? "OK" : "Reset").font(.title3).bold().foregroundColor(.white)
+                            Text(thrownError == "" ? "OK" : "Reset").font(.title2).bold().foregroundColor(.white)
                         }
                     }).frame(maxWidth: .infinity)
                 }
@@ -443,7 +417,7 @@ struct NewPromptView: View {
                         .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
                         .frame(height: 70)
                         .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
-                    Text("Save").font(.title3).bold().foregroundColor(.white)
+                    Text("Save").font(.title2).bold().foregroundColor(.white)
                 } .padding(.vertical, 8)
                 .contentShape(Rectangle())
             }.frame(maxWidth: .infinity)
@@ -489,4 +463,11 @@ struct NewPromptView: View {
 
 #Preview {
     NewPromptView()
+        .environmentObject(OpenAIManager())
+        .environmentObject(PineconeManager())
+        .environmentObject(AudioManager())
+        .environmentObject(ProgressTracker())
+        .environmentObject(NotificationViewModel())
+        .environmentObject(KeyboardResponder())
 }
+

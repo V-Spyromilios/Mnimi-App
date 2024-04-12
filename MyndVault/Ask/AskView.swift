@@ -10,7 +10,7 @@ import AVFAudio
 
 struct AskView: View {
     @Environment(\.colorScheme) var colorScheme
-    @Environment(\.modelContext) var modelContext
+//    @Environment(\.modelContext) var modelContext
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManger: PineconeManager
     @EnvironmentObject var audioManager: AudioManager

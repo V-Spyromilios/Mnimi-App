@@ -12,9 +12,7 @@ struct PromptLanguageView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     @State private var selectedLanguage: LanguageCode {
-        didSet {
-            saveLanguageSelection(language: selectedLanguage)
-        }
+        didSet { saveLanguageSelection(language: selectedLanguage) }
     }
 
     init() {
@@ -38,10 +36,7 @@ struct PromptLanguageView: View {
                 }
             }
             .contentShape(Rectangle())
-            .onTapGesture {
-                self.selectedLanguage = language
-                // Save the selected language to app settings or user defaults if needed
-            }
+            .onTapGesture { self.selectedLanguage = language }
         }
         .navigationTitle("Prompt Language")
         .navigationBarBackButtonHidden(true)

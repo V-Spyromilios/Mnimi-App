@@ -37,8 +37,6 @@ final class PineconeManager: ObservableObject {
     
     init(cloudKitViewModel: CloudKitViewModel = .shared) {
             self.CKviewModel = cloudKitViewModel
-
-   
         }
     
     func clearManager() {
@@ -46,7 +44,6 @@ final class PineconeManager: ObservableObject {
         receivedError = nil
         pineconeQueryResponse = nil
         upsertSuccesful = false
-        
     }
     
     private func getIDs() {
@@ -104,6 +101,14 @@ final class PineconeManager: ObservableObject {
 //        }
 //        task.resume()
 //    }
+    
+    func refreshNamespacesIDs() async throws {
+        do {
+            try await fetchAllNamespaceIDs()
+        } catch {
+            throw error
+        }
+    }
 
     func fetchAllNamespaceIDs() async throws {
         
@@ -179,17 +184,16 @@ final class PineconeManager: ObservableObject {
             Vector(id: id, metadata: vector.metadata)
         }
             .sorted { lhs, rhs in
-                guard let lhsTimestamp = lhs.metadata["relevantFor"], //TODO: change to timestamp
-                      let rhsTimestamp = rhs.metadata["relevantFor"],
+                guard let lhsTimestamp = lhs.metadata["timestamp"], //TODO: change to timestamp
+                      let rhsTimestamp = rhs.metadata["timestamp"],
                       let lhsDate = dateFormatter.date(from: lhsTimestamp),
                       let rhsDate = dateFormatter.date(from: rhsTimestamp) else {
                     return false
                 }
-                return lhsDate > rhsDate // Sort in descending order; use `<` for ascending
+                return lhsDate > rhsDate // `<` for ascending
             }
         
         await MainActor.run {
-//            self.pineconeFetchedResponseFromID = decodedResponse
             self.pineconeFetchedVectors = sortedVectors
         }
         self.isDataSorted = true
@@ -224,24 +228,23 @@ final class PineconeManager: ObservableObject {
         let (_, response) = try await URLSession.shared.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-            // Handle non-200 responses or throw an error as needed
             print("Failed to delete vectors. Status code: \(httpResponse.statusCode)")
             return false
         }
 
-        print("Vectors successfully deleted")
+        print("Vector with id: '\(id)' successfully deleted.")
         return true
     }
 
     
     func listPineconeIndexes() {
         guard let url = URL(string: "https://api.pinecone.io/indexes") else {
-            print("Invalid URL")
+            print("listPineconeIndexes :: Invalid URL")
             return
         }
         
         guard let apiKey = ApiConfiguration.pineconeKey else {
-            print("checkPineconeIndex :: unable to get the api key.")
+            print("listPineconeIndexes :: unable to get the api key.")
             return
         }
         print("Using API Key: \(apiKey)")
@@ -255,8 +258,8 @@ final class PineconeManager: ObservableObject {
                 return
             }
             if let httpResponse = response as? HTTPURLResponse {
-                    print("HTTP Status Code: \(httpResponse.statusCode)")
-                    print("Response Headers: \(httpResponse.allHeaderFields)")
+                    print("listPineconeIndexes :: HTTP Status Code: \(httpResponse.statusCode)")
+                    print("listPineconeIndexes :: Response Headers: \(httpResponse.allHeaderFields)")
                 }
             
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
@@ -369,7 +372,8 @@ final class PineconeManager: ObservableObject {
         }
         ProgressTracker.shared.setProgress(to: 0.7)
         guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/upsert") else {
-            throw AppNetworkError.unknownError("upsertDataToPinecone() :: Invalid URL to upsert!")
+            print("upsertDataToPinecone :: Invalid URL")
+            throw AppNetworkError.unknownError("upsertDataToPinecone() :: Invalid URL to upsert")
         }
         
         guard let apiKey = ApiConfiguration.pineconeKey else {
@@ -413,22 +417,9 @@ final class PineconeManager: ObservableObject {
         do {
             let _ = try await performHTTPRequest(request: request)
             await MainActor.run {
+
                 self.upsertSuccesful = true
-//                let stringDictionary: [String: String] = metadata.compactMapValues { value in
-//                    // Try to convert each value to a String
-//                    if let stringValue = value as? String {
-//                        return stringValue // Return the string value if successful
-//                    } else {
-//                        // If the value is not a String, you could convert it to a string
-//                        // or return nil to exclude it from the resulting dictionary
-//                        return "\(value)" // Convert non-string values to String
-//                        // return nil // Exclude non-string values
-//                    }
-//                }
-                
-                //save id and metadata to SwiftData, id is used to delete from Pinecone
-                
-                ProgressTracker.shared.setProgress(to: 0.99)
+                ProgressTracker.shared.setProgress(to: 0.98)
                 progressText = "Info saved!"
                 ProgressTracker.shared.setProgress(to: 1.0)
                 print("Upsert successful !")

@@ -14,8 +14,8 @@ struct ResponseDetailView: View {
     
     init(response: ResponseModel) {
         self.response = response
-        dateFormatter.dateStyle = .medium // Choose a style that suits your needs
-        dateFormatter.timeStyle = .short // Ignore the time part
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
     }
     // AudioManager.shared.playAudioFrom(url: response.recordingPath)

@@ -112,13 +112,13 @@ final class CloudKitViewModel: ObservableObject {
     }
     
     private func makeNewNamespace() async throws {
+
         guard let userID = useriD?.recordName else {
             print("CloudKitViewModel :: Unable to unwrap 'userID'.")
-            
             return
         }
-        let namespace = "\(userID.lowercased()):\(UUID().uuidString)"
-        
+
+        let namespace = userID.lowercased()
         do {
             let nsItem = NamespaceItem(namespace: namespace)
             print("(CK) new namespace:: nsItem:: \(nsItem)")

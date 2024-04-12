@@ -27,9 +27,6 @@
 		E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45692BC2A77E00945312 /* NotificationEditView.swift */; };
 		E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */; };
 		E82F45772BC2A77E00945312 /* ToDoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456B2BC2A77E00945312 /* ToDoView.swift */; };
-		E82F45812BC2A80C00945312 /* AskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45782BC2A80B00945312 /* AskView.swift */; };
-		E82F45822BC2A80C00945312 /* Button View.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45792BC2A80B00945312 /* Button View.swift */; };
-		E82F45832BC2A80C00945312 /* NewAskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457A2BC2A80B00945312 /* NewAskView.swift */; };
 		E82F45842BC2A80C00945312 /* NewPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457B2BC2A80B00945312 /* NewPromptView.swift */; };
 		E82F45852BC2A80C00945312 /* NewTextEditorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */; };
 		E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */; };
@@ -44,11 +41,11 @@
 		E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */; };
 		E8459ED92BC1EC2900CE34A7 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = E8459ED82BC1EC2900CE34A7 /* RevenueCat */; };
 		E8459EDB2BC1EC2900CE34A7 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = E8459EDA2BC1EC2900CE34A7 /* RevenueCatUI */; };
+		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
 		E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */; };
 		E8BFD3512BC58BC300355B44 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E8BFD3502BC58BC300355B44 /* FirebaseAnalytics */; };
 		E8BFD3532BC58BC300355B44 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = E8BFD3522BC58BC300355B44 /* FirebaseAppCheck */; };
 		E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */; };
-		E8FA7F0A2BC5BC320012EBF6 /* EditConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7EFF2BC5BC320012EBF6 /* EditConfirmView.swift */; };
 		E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */; };
 		E8FA7F0C2BC5BC320012EBF6 /* InfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* InfosView.swift */; };
 		E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */; };
@@ -82,9 +79,6 @@
 		E82F45692BC2A77E00945312 /* NotificationEditView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationEditView.swift; sourceTree = "<group>"; };
 		E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		E82F456B2BC2A77E00945312 /* ToDoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoView.swift; sourceTree = "<group>"; };
-		E82F45782BC2A80B00945312 /* AskView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AskView.swift; sourceTree = "<group>"; };
-		E82F45792BC2A80B00945312 /* Button View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Button View.swift"; sourceTree = "<group>"; };
-		E82F457A2BC2A80B00945312 /* NewAskView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewAskView.swift; sourceTree = "<group>"; };
 		E82F457B2BC2A80B00945312 /* NewPromptView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewPromptView.swift; sourceTree = "<group>"; };
 		E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewTextEditorsView.swift; sourceTree = "<group>"; };
 		E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewModel.swift; sourceTree = "<group>"; };
@@ -97,9 +91,10 @@
 		E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
+		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeveloperView.swift; sourceTree = "<group>"; };
-		E8FA7EFF2BC5BC320012EBF6 /* EditConfirmView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditConfirmView.swift; sourceTree = "<group>"; };
 		E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditInfoView.swift; sourceTree = "<group>"; };
 		E8FA7F012BC5BC320012EBF6 /* InfosView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfosView.swift; sourceTree = "<group>"; };
 		E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
@@ -109,6 +104,7 @@
 		E8FA7F062BC5BC320012EBF6 /* ResponseDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseDetailView.swift; sourceTree = "<group>"; };
 		E8FA7F072BC5BC320012EBF6 /* Settings View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Settings View.swift"; sourceTree = "<group>"; };
 		E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfosViewListCellView.swift; sourceTree = "<group>"; };
+		E8FA7F182BC5D3C60012EBF6 /* MyndVault.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyndVault.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,9 +182,6 @@
 		E82F457F2BC2A80B00945312 /* Ask */ = {
 			isa = PBXGroup;
 			children = (
-				E82F45782BC2A80B00945312 /* AskView.swift */,
-				E82F45792BC2A80B00945312 /* Button View.swift */,
-				E82F457A2BC2A80B00945312 /* NewAskView.swift */,
 				E82F457B2BC2A80B00945312 /* NewPromptView.swift */,
 				E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */,
 				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
@@ -218,6 +211,8 @@
 		E8459EC62BC1E3BE00CE34A7 /* MyndVault */ = {
 			isa = PBXGroup;
 			children = (
+				E8B72E902BC93B9600E0C90D /* Info.plist */,
+				E8FA7F182BC5D3C60012EBF6 /* MyndVault.entitlements */,
 				E82F45672BC2A77E00945312 /* Configurations */,
 				E82F456C2BC2A77E00945312 /* Notification Views */,
 				E82F45502BC2A72100945312 /* CloudKit */,
@@ -228,6 +223,7 @@
 				E82F457F2BC2A80B00945312 /* Ask */,
 				E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */,
 				E82F458D2BC2A95900945312 /* LoadingView.swift */,
+				E87FB25E2BC96EA000B1A16D /* InfoView.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
 				E8459ECF2BC1E3BE00CE34A7 /* Preview Content */,
@@ -247,7 +243,6 @@
 			isa = PBXGroup;
 			children = (
 				E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */,
-				E8FA7EFF2BC5BC320012EBF6 /* EditConfirmView.swift */,
 				E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */,
 				E8FA7F012BC5BC320012EBF6 /* InfosView.swift */,
 				E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */,
@@ -377,21 +372,19 @@
 				E82F45872BC2A80C00945312 /* TextEffectView.swift in Sources */,
 				E82F456E2BC2A77E00945312 /* Codables.swift in Sources */,
 				E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */,
+				E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */,
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
 				E82F45852BC2A80C00945312 /* NewTextEditorsView.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
-				E82F45822BC2A80C00945312 /* Button View.swift in Sources */,
 				E82F456D2BC2A77E00945312 /* ApiConfiguration.swift in Sources */,
 				E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */,
-				E8FA7F0A2BC5BC320012EBF6 /* EditConfirmView.swift in Sources */,
 				E82F455B2BC2A72100945312 /* ProgressTracker.swift in Sources */,
 				E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */,
 				E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
 				E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */,
-				E82F45812BC2A80C00945312 /* AskView.swift in Sources */,
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,
 				E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */,
 				E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */,
@@ -413,7 +406,6 @@
 				E82F45842BC2A80C00945312 /* NewPromptView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,
 				E82F458E2BC2A95900945312 /* LoadingView.swift in Sources */,
-				E82F45832BC2A80C00945312 /* NewAskView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -544,6 +536,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyndVault/MyndVault.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -551,8 +544,11 @@
 				DEVELOPMENT_TEAM = H4TST29A3U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mynd Vault";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -577,14 +573,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyndVault/MyndVault.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MyndVault/Preview Content\"";
 				DEVELOPMENT_TEAM = H4TST29A3U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mynd Vault";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
