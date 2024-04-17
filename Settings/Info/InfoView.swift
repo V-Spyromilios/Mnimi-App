@@ -18,8 +18,10 @@ struct InfoView: View {
     @FocusState private var focusField: Field?
     @State var thrownError: String = ""
     @State var apiCallInProgress: Bool = false
+    
+
     private enum Field {
-        case addNew
+        case edit
         case relevantFor
     }
     
@@ -29,8 +31,14 @@ struct InfoView: View {
                 Image(systemName: "rectangle.and.pencil.and.ellipsis").bold()
                 Text("Edit Info:").bold()
                 Spacer()
+                Button(action: {
+                    viewModel.showDeleteWarning = true
+                   
+                }, label: {
+                    Image(systemName: "trash").foregroundStyle(.red)
+                })
             }.font(.callout)
-                .padding(.bottom, 12)
+                .padding(.bottom, 12).padding(.top, 12)
             HStack {
                 TextEditor(text: $viewModel.description)
                     .overlay{
@@ -39,11 +47,11 @@ struct InfoView: View {
                             .opacity(0.3)
                             .foregroundColor(Color.gray)
                     }
-                    .frame(minHeight: 100)
+                    .frame(height: 100)
                     .padding(.bottom)
-                    .onAppear { }
+                    .onAppear { focusField = .edit }
                     .onSubmit { focusField = .relevantFor }
-                    .focused($focusField, equals: .addNew)
+                    .focused($focusField, equals: .edit)
             }
             HStack {
                 Image(systemName: "person.bubble").bold()
@@ -53,7 +61,7 @@ struct InfoView: View {
                 .padding(.bottom, 12)
             
             TextEditor(text: $viewModel.relevantFor)
-                .frame(minHeight: 40)
+                .frame(height: 40)
                 .overlay{
                     RoundedRectangle(cornerRadius: 10.0)
                         .stroke(lineWidth: 1)
@@ -62,14 +70,14 @@ struct InfoView: View {
                 }
                 .padding(.bottom, 50)
                 .onSubmit {
-                    focusField = nil //TODO: test if dismisses the keyboard
+                    focusField = nil
                 }
                 .focused($focusField, equals: .relevantFor)
-            
+           
             HStack {
                 Button(action: {
                     DispatchQueue.main.async {
-                        viewModel.showConfirmation = true
+                        viewModel.showEditConfirmation = true
                     }
                 }) {
                     ZStack {
@@ -79,9 +87,10 @@ struct InfoView: View {
                             .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
                         Text("Save").font(.title2).bold().foregroundColor(.white)
                     }
-                }.frame(maxWidth: .infinity) // to get all 'safe' width, in all possible screens
-                    .padding(.bottom, keyboardResponder.currentHeight > 0 ? 25: 0) //Check if correct
+                }.frame(maxWidth: .infinity)
+                    .padding(.bottom, keyboardResponder.currentHeight > 0 ? 25: 0)
             }
+            Spacer()
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {

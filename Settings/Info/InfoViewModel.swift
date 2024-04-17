@@ -10,7 +10,8 @@ import SwiftUI
 
 class EditInfoViewModel: ObservableObject {
 
-    @Published var showConfirmation: Bool = false
+    @Published var showEditConfirmation: Bool = false
+    @Published var showDeleteWarning: Bool = false
     @Published var showTopBar: Bool = false
 
     @Published var id: String

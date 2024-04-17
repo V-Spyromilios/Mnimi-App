@@ -14,6 +14,7 @@ struct NewPromptView: View {
     
     @ObservedObject var viewModel = SpeechRecognitionViewModel()
     @State var showNetworkError = false
+    @State var showAlert = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -21,7 +22,6 @@ struct NewPromptView: View {
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var notificationManager: NotificationViewModel
     @EnvironmentObject var keyboardResponder: KeyboardResponder
-//    @Environment(\.modelContext) var modelContext
     
     @State var selectedType: typeOptions = .question
     @State var question: String = ""
@@ -32,8 +32,6 @@ struct NewPromptView: View {
     @State var replyText: String = ""
     @State var thrownError: String = ""
     @State var apiCallInProgress: Bool = false
-    
-//    @FocusState private var focusField: Field?
 
     private enum Field {
         case addNew
@@ -90,17 +88,22 @@ struct NewPromptView: View {
                 
                 if selectedType == .addNew {
                     
-                    addNewInfo()
-                        .transition(.opacity)
+                    NewAddInfoView(newInfo: $newInfo, relevantFor: $relevantFor, apiCallInProgress: $apiCallInProgress, thrownError: $thrownError, showAlert: $showAlert)
+                                        .transition(.opacity)
+                                        .environmentObject(openAiManager)
+                                        .environmentObject(pineconeManager)
+                                        .environmentObject(progressTracker)
+                                        .environmentObject(keyboardResponder)
+                        
                 }
                 
                 if selectedType == .question {
                     questionView()
-                        .transition(.opacity)
+                       
                 }
                 if selectedType == .reminder {
                     reminderView()
-                        .transition(.opacity)
+
                 }
                 
             }
@@ -116,141 +119,155 @@ struct NewPromptView: View {
                     }
                 )
             }
-    }
-
-    //MARK: addNewInfo
-    @ViewBuilder
-    private func addNewInfo() -> some View {
-        
-        HStack {
-            TextEditor(text: $newInfo)
-                .overlay{
-                    RoundedRectangle(cornerRadius: 10.0)
-                        .stroke(lineWidth: 1)
-                        .opacity(0.3)
-                        .foregroundColor(Color.gray)
-                }
-
-                .frame(minHeight: 100)
-                .padding(.bottom)
-                .onAppear { }
-//                .onSubmit { focusField = .relevantFor }
-//                .focused($focusField, equals: .addNew)
-        }
-        HStack {
-            Image(systemName: "person.bubble").bold()
-            Text("Relevant For:").bold()
-            Spacer()
-        }.font(.callout)
-            .padding(.bottom, 12)
-
-        TextEditor(text: $relevantFor)
-                .frame(minHeight: 40)
-                .overlay{
-                    RoundedRectangle(cornerRadius: 10.0)
-                        .stroke(lineWidth: 1)
-                        .opacity(0.3)
-                        .foregroundColor(Color.gray)
-                }
-                .padding(.bottom, 50)
-                .onSubmit {
-//                    focusField = nil //TODO: test if dismisses the keyboard
-                }
-//                .focused($focusField, equals: .relevantFor)
-                
-        HStack {
-        Button(action: {
-            self.apiCallInProgress = true
-            Task {
-
-                await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
-               
-                if openAiManager.embeddingsCompleted {
-                    await MainActor.run {
-                        openAiManager.progressText = ""
-                    }
-                    let metadata = toDictionary(type: "GeneralKnowledge", desc: self.newInfo, relevantFor: self.relevantFor)
-                        do {
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("Error while saving."),
+                    message: Text(thrownError.description),
+                    dismissButton: .default(Text("OK")) {
+                        Task {
                             
-                            try await pineconeManager.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
-
-                        } catch(let error) {
-                            print("Error while upserting catched by the View: \(error.localizedDescription)")
-                            thrownError = error.localizedDescription
-                        }
-                    
-                } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ")}
-            }
-//            focusField = nil
-            self.apiCallInProgress = false
-        }) {
-            ZStack {
-                RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
-                    .frame(height: 70)
-                    .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
-                Text("Add").font(.title2).bold().foregroundColor(.white)
-            }
-        }.frame(maxWidth: .infinity) // to get all 'safe' width, in all possible screens
-                .padding(.bottom, keyboardResponder.currentHeight > 0 ? 25: 0) //Check if correct
-            Spacer()
-            
-            if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManager.progressText != "") && thrownError == "" {
-                CircularProgressView(progressTracker: progressTracker).padding(.horizontal)
-            }
-            if thrownError != "" {
-                Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.yellow).font(.largeTitle).frame(width: 60, height: 60)
-                    .animation(.easeInOut, value: thrownError)
-            }
-            if thrownError == "" && pineconeManager.upsertSuccesful {
-                Image(systemName: "checkmark.icloud.fill").foregroundStyle(.green).font(.largeTitle).frame(width: 60, height: 60)
-                    .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
-            }
-           
-        }.frame(height: 68)
-        HStack {
-                if openAiManager.progressText != "" && thrownError == "" {
-                    Text(openAiManager.progressText).font(.caption2).padding(.top, 12)
-                        .animation(.easeInOut, value: openAiManager.progressText)
-                }
-                if pineconeManager.progressText != "" && thrownError == "" {
-                    Text(pineconeManager.progressText).font(.caption2).padding(.top, 12)
-                        .animation(.easeInOut, value: pineconeManager.progressText)
-                }
-                else if thrownError != "" || pineconeManager.upsertSuccesful {
-              
-                    if thrownError != "" {
-                        Text(thrownError).font(.caption2).bold().padding(.top, 12)
-                            .animation(.easeInOut, value: thrownError)
-                    } else {
-                        Text("Info Saved!").font(.caption2).bold().padding(.top, 12)
-                            .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
-                    }
-                    Spacer()
-                    Button(action: {
-                        withAnimation {
-                            progressTracker.progress = 0.0 //check if ok
-                            openAiManager.clearManager()
                             pineconeManager.clearManager()
-                            self.newInfo = ""
-                            self.relevantFor = ""
-                            self.thrownError = ""
+                            openAiManager.clearManager()
+                            
                         }
-                    }, label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: rectCornerRad)
-                                .fill(thrownError == "" ? greenGradient : yellowGradient)
-                                .frame(height: 60)
-                                .shadow(color: thrownError == "" ? .green : .yellow.opacity(0.9), radius: 3, x: 3, y: 3)
-                            Text(thrownError == "" ? "OK" : "Reset").font(.title2).bold().foregroundColor(.white)
-                        }
-                    }).frame(width: 70, height: 60).padding(.trailing, 8)
+                        thrownError = ""
+                    }
+                )
             }
-        }.frame(maxWidth: .infinity)
-            .padding(.bottom, max(0, keyboardResponder.currentHeight))// Ensure non-negative padding
-        .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
-        
     }
+
+//    @ViewBuilder
+//    private func addNewInfo() -> some View {
+//        
+//        HStack {
+//            TextEditor(text: $newInfo)
+//                .overlay{
+//                    RoundedRectangle(cornerRadius: 10.0)
+//                        .stroke(lineWidth: 1)
+//                        .opacity(0.3)
+//                        .foregroundColor(Color.gray)
+//                }
+//
+//                .frame(minHeight: 100)
+//                .padding(.bottom)
+//                .onAppear { }
+////                .onSubmit { focusField = .relevantFor }
+////                .focused($focusField, equals: .addNew)
+//        }
+//        HStack {
+//            Image(systemName: "person.bubble").bold()
+//            Text("Relevant For:").bold()
+//            Spacer()
+//        }.font(.callout)
+//            .padding(.bottom, 12)
+//
+//        TextEditor(text: $relevantFor)
+//                .frame(minHeight: 40)
+//                .overlay{
+//                    RoundedRectangle(cornerRadius: 10.0)
+//                        .stroke(lineWidth: 1)
+//                        .opacity(0.3)
+//                        .foregroundColor(Color.gray)
+//                }
+//                .padding(.bottom, 50)
+//                .onSubmit {
+////                    focusField = nil //TODO: test if dismisses the keyboard -- It does not
+//                }
+////                .focused($focusField, equals: .relevantFor)
+//                
+//        HStack {
+//        Button(action: {
+//            self.apiCallInProgress = true
+//            Task {
+//
+//                await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
+//               
+//                if openAiManager.embeddingsCompleted {
+//                    await MainActor.run {
+//                        openAiManager.progressText = ""
+//                    }
+//                    let metadata = toDictionary(type: "GeneralKnowledge", desc: self.newInfo, relevantFor: self.relevantFor)
+//                        do {
+//                            
+//                            try await pineconeManager.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
+//
+//                        } catch(let error) {
+//                            print("Error while upserting catched by the View: \(error.localizedDescription)")
+//                            thrownError = error.localizedDescription
+//                        }
+//                    
+//                } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ")}
+//            }
+////            focusField = nil
+//            self.apiCallInProgress = false
+//        }) {
+//            ZStack {
+//                RoundedRectangle(cornerRadius: rectCornerRad)
+//                    .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
+//                    .frame(height: 70)
+//                    .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
+//                Text("Add").font(.title2).bold().foregroundColor(.white)
+//            }
+//        }.frame(maxWidth: .infinity) // to get all 'safe' width, in all possible screens
+//                .padding(.bottom, keyboardResponder.currentHeight > 0 ? 25: 0) //Check if correct
+//            Spacer()
+//            
+//            if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManager.progressText != "") && thrownError == "" {
+//                CircularProgressView(progressTracker: progressTracker).padding(.horizontal)
+//            }
+//            if thrownError != "" {
+//                Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.yellow).font(.largeTitle).frame(width: 60, height: 60)
+//                    .animation(.easeInOut, value: thrownError)
+//            }
+//            if thrownError == "" && pineconeManager.upsertSuccesful {
+//                Image(systemName: "checkmark.icloud.fill").foregroundStyle(.green).font(.largeTitle).frame(width: 60, height: 60)
+//                    .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
+//            }
+//           
+//        }.frame(height: 68)
+//        HStack {
+//                if openAiManager.progressText != "" && thrownError == "" {
+//                    Text(openAiManager.progressText).font(.caption2).padding(.top, 12)
+//                        .animation(.easeInOut, value: openAiManager.progressText)
+//                }
+//                if pineconeManager.progressText != "" && thrownError == "" {
+//                    Text(pineconeManager.progressText).font(.caption2).padding(.top, 12)
+//                        .animation(.easeInOut, value: pineconeManager.progressText)
+//                }
+//                else if thrownError != "" || pineconeManager.upsertSuccesful {
+//              
+//                    if thrownError != "" {
+//                        Text(thrownError).font(.caption2).bold().padding(.top, 12)
+//                            .animation(.easeInOut, value: thrownError)
+//                    } else {
+//                        Text("Info Saved!").font(.caption2).bold().padding(.top, 12)
+//                            .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
+//                    }
+//                    Spacer()
+//                    Button(action: {
+//                        withAnimation {
+//                            progressTracker.progress = 0.0 //check if ok
+//                            openAiManager.clearManager()
+//                            pineconeManager.clearManager()
+//                            self.newInfo = ""
+//                            self.relevantFor = ""
+//                            self.thrownError = ""
+//                        }
+//                    }, label: {
+//                        ZStack {
+//                            RoundedRectangle(cornerRadius: rectCornerRad)
+//                                .fill(thrownError == "" ? greenGradient : yellowGradient)
+//                                .frame(height: 60)
+//                                .shadow(color: thrownError == "" ? .green : .yellow.opacity(0.9), radius: 3, x: 3, y: 3)
+//                            Text(thrownError == "" ? "OK" : "Reset").font(.title2).bold().foregroundColor(.white)
+//                        }
+//                    }).frame(width: 70, height: 60).padding(.trailing, 8)
+//            }
+//        }.frame(maxWidth: .infinity)
+//            .padding(.bottom, max(0, keyboardResponder.currentHeight))// Ensure non-negative padding
+//        .animation(.easeInOut, value: pineconeManager.upsertSuccesful)
+//        
+//    }
 
     //MARK: questionView()
     @ViewBuilder

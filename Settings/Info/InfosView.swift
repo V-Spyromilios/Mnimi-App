@@ -17,41 +17,41 @@ struct InfosView: View {
     @EnvironmentObject var pineconeManger: PineconeManager
     @EnvironmentObject var audioManager: AudioManager
     @State private var vectorsAreLoading = true
-
+    
     var body: some View {
         NavigationStack {
-
-                if !pineconeManger.pineconeFetchedVectors.isEmpty {
-                    ScrollView {
-                       
-                        ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
-                            
-                            NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
-                                InfosViewListCellView(data: data).padding()
-                            }
-                        }
-                    }.refreshable {
-                        Task {
-                            do {
-                                try await pineconeManger.refreshNamespacesIDs()
-                            } catch  {
-                                print("Error refreshing: \(error.localizedDescription)")
-                            }
-                        }
-                       
-                    }
-                } else if vectorsAreLoading {
-                    ProgressView()
-                }
-                else if !vectorsAreLoading {
+            
+            if !pineconeManger.pineconeFetchedVectors.isEmpty {
+                ScrollView {
                     
-                    ContentUnavailableView(label: {
-                        Label("No Saved Info", systemImage: "tray.2")
-                    }, description: {
-                        Text(" Saved Info will be shown here.")}
-                                           
-                    ).offset(y: -60)
+                    ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
+                        
+                        NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
+                            InfosViewListCellView(data: data).padding()
+                        }
+                    }
+                }.refreshable {
+                    Task {
+                        do {
+                            try await pineconeManger.refreshNamespacesIDs()
+                        } catch  {
+                            print("Error refreshing: \(error.localizedDescription)")
+                        }
+                    }
+                    
                 }
+            } else if vectorsAreLoading {
+                ProgressView()
+            }
+            else if !vectorsAreLoading {
+                
+                ContentUnavailableView(label: {
+                    Label("No Saved Info", systemImage: "tray.2")
+                }, description: {
+                    Text(" Saved Info will be shown here.")}
+                                       
+                ).offset(y: -60)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
@@ -81,7 +81,7 @@ struct InfosView: View {
     }
     
     private func fetchPineconeEntries() {
-       print("HERE try await pineconeManger.fetchAllNamespaceIDs()")
+        print("HERE try await pineconeManger.fetchAllNamespaceIDs()")
         Task {
             do {
                 try await pineconeManger.fetchAllNamespaceIDs()
@@ -102,11 +102,9 @@ struct InfosView: View {
         for id in idsToDelete {
             Task {
                 do {
-                    // Assuming `deleteVector` removes the vector by its ID and returns a boolean indicating success
-                    let result = try await pineconeManger.deleteVector(id: id)
-                    if result {
+                    try await pineconeManger.deleteVector(id: id)
+                    if pineconeManger.vectorDeleted {
                         DispatchQueue.main.async {
-                            // Safely remove the item from the local data to reflect the change
                             pineconeManger.pineconeFetchedVectors.removeAll { $0.id == id }
                         }
                     }

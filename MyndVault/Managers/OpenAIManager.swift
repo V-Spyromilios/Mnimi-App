@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-final class OpenAIManager: ObservableObject {
+class OpenAIManager: ObservableObject {
     
     @Published var whisperResponse: String?
     @Published var gptResponse: ChatCompletionResponse?

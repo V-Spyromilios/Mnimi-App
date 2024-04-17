@@ -13,7 +13,7 @@ import SwiftUI
 // memoryindex HOST: https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io
 
 //MARK: create new index.
-final class PineconeManager: ObservableObject {
+class PineconeManager: ObservableObject {
   
 
     var CKviewModel: CloudKitViewModel
@@ -23,6 +23,7 @@ final class PineconeManager: ObservableObject {
     @Published var indexInfo: String?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
     @Published var upsertSuccesful: Bool = false
+    @Published var vectorDeleted: Bool = false
     
     private var isDataSorted: Bool = false
    
@@ -200,7 +201,8 @@ final class PineconeManager: ObservableObject {
         self.isDataSorted = true
     }
 
-    func deleteVector(id: String) async throws -> Bool {
+//MARK: deleteVector
+    func deleteVector(id: String) async throws {
         
         struct DeleteVectorsRequest: Codable {
             let ids: [String]
@@ -230,11 +232,15 @@ final class PineconeManager: ObservableObject {
 
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             print("Failed to delete vectors. Status code: \(httpResponse.statusCode)")
-            return false
+            DispatchQueue.main.async {
+                self.vectorDeleted = false
+            }
         }
-
+        DispatchQueue.main.async {
+            self.vectorDeleted = true
+        }
         print("Vector with id: '\(id)' successfully deleted.")
-        return true
+        
     }
 
     
