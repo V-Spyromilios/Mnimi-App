@@ -31,7 +31,6 @@ extension String {
 }
 
 
-
 struct Formatters {
     
     static var shared = Formatters()
@@ -72,7 +71,14 @@ extension View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
-    
+    func ErrorView(thrownError: String) -> some View {
+        VStack {
+            Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.yellow).font(.largeTitle)
+            Text(thrownError).font(.caption2).bold()
+        }
+        .animation(.easeOut, value: thrownError)
+    }
+
 }
 
 
@@ -162,7 +168,7 @@ struct TopNotificationBar: View {
             
             Spacer()
         }
-        .padding(.top, 14)
+//        .padding(.top, 14)
         .padding(.horizontal)
         .shadow(radius: 10)
         .onAppear {

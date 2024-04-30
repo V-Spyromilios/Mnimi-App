@@ -167,12 +167,12 @@ struct EmbeddingObject: Codable {
         case object, embedding, index
     }
     
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.embedding = try container.decode([Float].self, forKey: .embedding)
-        self.index = try container.decode(Int.self, forKey: .index)
-        self.object = try container.decode(String.self, forKey: .object)
-    }
+//    init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.embedding = try container.decode([Float].self, forKey: .embedding)
+//        self.index = try container.decode(Int.self, forKey: .index)
+//        self.object = try container.decode(String.self, forKey: .object)
+//    }
 }
 
 struct Usage: Codable {
@@ -184,25 +184,27 @@ struct Usage: Codable {
         case totalTokens = "total_tokens"
     }
     
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.promptTokens = try container.decode(Int.self, forKey: .promptTokens)
-        self.totalTokens = try container.decode(Int.self, forKey: .totalTokens)
-    }
+//    init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.promptTokens = try container.decode(Int.self, forKey: .promptTokens)
+//        self.totalTokens = try container.decode(Int.self, forKey: .totalTokens)
+//    }
 }
 
 //MARK: Pinecone Query Response
 struct PineconeQueryResponse: Codable {
     let matches: [Match]
+    let usage: PineconeSingleUsage
     
     enum CodingKeys: String, CodingKey {
-        case matches
+        case matches, usage
     }
     
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.matches = try container.decode([Match].self, forKey: .matches)
-    }
+//    init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.matches = try container.decode([Match].self, forKey: .matches)
+//        self.usage = try container.decode(PineconeSingleUsage.self, forKey: .usage)
+//    }
     
     func getMatchesDescription() -> [String] {
             var descriptions: [String] = []
@@ -221,20 +223,19 @@ struct PineconeQueryResponse: Codable {
 
 struct Match: Codable {
     let id: String
-    let score: Float
+    let score: Double
     let metadata: [String: String]
     
     enum CodingKeys: String, CodingKey {
         case id, score, metadata
     }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(String.self, forKey: .id)
-        self.score = try container.decode(Float.self, forKey: .score)
-        self.metadata = try container.decode([String: String].self, forKey: .metadata)
-    }
+
 }
+
+struct PineconeSingleUsage: Codable {
+        let readUnits: Int
+
+    }
 
 
 //MARK: to fetch Pinecone IDs of entries, to use this to get the saved info/metadata.

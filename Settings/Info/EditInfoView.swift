@@ -51,7 +51,7 @@ struct EditInfoView: View {
                     Task {
                         await upsertEditedInfo()
                         pineconeManager.clearManager()
-                        openAiManager.clearManager()
+                        await openAiManager.clearManager()
                         
                     }
                     withAnimation {
@@ -87,9 +87,10 @@ struct EditInfoView: View {
                                 
                             }
                         }
-                        
-                        pineconeManager.clearManager()
-                        openAiManager.clearManager()
+                        Task {
+                            pineconeManager.clearManager()
+                            await openAiManager.clearManager()
+                        }
                         showProgress = false
                     }
                 },

@@ -72,8 +72,8 @@ struct MyndVaultApp: App {
                     LoadingView()
                 }
                 else if cloudKitViewModel.CKError != "" {
-                   
-                    ContentUnavailableView("iCloud Error", image: "exclamationmark.icloud.fill", description: Text(cloudKitViewModel.CKError)).offset(y: 70)
+
+                    ContentUnavailableView("iCloud Error", systemImage: "exclamationmark.icloud.fill")
                 }
             }
         })

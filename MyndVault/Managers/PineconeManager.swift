@@ -154,6 +154,9 @@ class PineconeManager: ObservableObject {
                 print("Error  fetchDataForIds():: \(error)")
             }
         }
+        // 1RU per call
+        updateTokenUsage(api: "Pinecone", tokensUsed: 1, read: true)
+        
     }
     
     private func fetchDataForIds() async throws {
@@ -197,6 +200,8 @@ class PineconeManager: ObservableObject {
             }
         await MainActor.run {
             self.pineconeFetchedVectors = sortedVectors
+            let readUnits = self.pineconeFetchedVectors.count / 10 // a fetch request uses 1 RU for every 10 fetched records.
+            updateTokenUsage(api: "Pinecone", tokensUsed: readUnits, read: true)
         }
         self.isDataSorted = true
     }
@@ -238,6 +243,7 @@ class PineconeManager: ObservableObject {
         }
         DispatchQueue.main.async {
             self.vectorDeleted = true
+            updateTokenUsage(api: "Pinecone", tokensUsed: 7, read: false)
         }
         print("Vector with id: '\(id)' successfully deleted.")
         
@@ -437,6 +443,7 @@ class PineconeManager: ObservableObject {
         } catch {
             throw AppNetworkError.unknownError(error.localizedDescription)
         }
+        updateTokenUsage(api: "Pinecone", tokensUsed: 7, read: false)
     }
 
     private func performHTTPRequest(request: URLRequest) async throws -> Data {
@@ -513,8 +520,10 @@ class PineconeManager: ObservableObject {
                        print("queryPinecone Response Status Code != 200")
                         return
                     }
-                   
-
+                    
+//                    if let jsonString = String(data: data, encoding: .utf8) {
+//                        print("Raw JSON before decoding: \(jsonString)")
+//                    }
                     let decoder = JSONDecoder()
                     let pineconeResponse = try decoder.decode(PineconeQueryResponse.self, from: data)
 
@@ -531,6 +540,9 @@ class PineconeManager: ObservableObject {
                     ProgressTracker.shared.setProgress(to: 0.6)
                 } catch {
                     print("Error querying Pinecone: \(error)")
+                }
+                if let response = self.pineconeQueryResponse {
+                    updateTokenUsage(api: "Pinecone", tokensUsed: response.usage.readUnits, read: true)
                 }
             }
         }

@@ -42,10 +42,12 @@
 		E8459ED92BC1EC2900CE34A7 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = E8459ED82BC1EC2900CE34A7 /* RevenueCat */; };
 		E8459EDB2BC1EC2900CE34A7 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = E8459EDA2BC1EC2900CE34A7 /* RevenueCatUI */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
-		E8A37F642BD007F5004A98C9 /* NewAddInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A37F632BD007F5004A98C9 /* NewAddInfoView.swift */; };
 		E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */; };
 		E8BFD3512BC58BC300355B44 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E8BFD3502BC58BC300355B44 /* FirebaseAnalytics */; };
 		E8BFD3532BC58BC300355B44 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = E8BFD3522BC58BC300355B44 /* FirebaseAppCheck */; };
+		E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */; };
+		E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */; };
+		E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */; };
 		E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */; };
 		E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */; };
 		E8FA7F0C2BC5BC320012EBF6 /* InfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* InfosView.swift */; };
@@ -93,9 +95,11 @@
 		E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
-		E8A37F632BD007F5004A98C9 /* NewAddInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAddInfoView.swift; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionView.swift; sourceTree = "<group>"; };
+		E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAddInfoView.swift; sourceTree = "<group>"; };
+		E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManager.swift; sourceTree = "<group>"; };
 		E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeveloperView.swift; sourceTree = "<group>"; };
 		E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditInfoView.swift; sourceTree = "<group>"; };
 		E8FA7F012BC5BC320012EBF6 /* InfosView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfosView.swift; sourceTree = "<group>"; };
@@ -152,6 +156,7 @@
 				E82F45552BC2A72100945312 /* OpenAIManager.swift */,
 				E82F45562BC2A72100945312 /* PineconeManager.swift */,
 				E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */,
+				E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -181,16 +186,17 @@
 			path = "Notification Views";
 			sourceTree = "<group>";
 		};
-		E82F457F2BC2A80B00945312 /* Ask */ = {
+		E82F457F2BC2A80B00945312 /* Prompt Views */ = {
 			isa = PBXGroup;
 			children = (
+				E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */,
 				E82F457B2BC2A80B00945312 /* NewPromptView.swift */,
-				E8A37F632BD007F5004A98C9 /* NewAddInfoView.swift */,
+				E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */,
 				E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */,
 				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
 				E82F457E2BC2A80B00945312 /* TextEffectView.swift */,
 			);
-			path = Ask;
+			path = "Prompt Views";
 			sourceTree = "<group>";
 		};
 		E8459EBB2BC1E3BE00CE34A7 = {
@@ -223,7 +229,7 @@
 				E82F45532BC2A72100945312 /* Progress */,
 				E82F454C2BC2A6D100945312 /* NextSteps */,
 				E82F454B2BC2A6D100945312 /* OpenAIKey.plist */,
-				E82F457F2BC2A80B00945312 /* Ask */,
+				E82F457F2BC2A80B00945312 /* Prompt Views */,
 				E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */,
 				E82F458D2BC2A95900945312 /* LoadingView.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
@@ -393,7 +399,7 @@
 				E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */,
 				E82F455B2BC2A72100945312 /* ProgressTracker.swift in Sources */,
 				E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */,
-				E8A37F642BD007F5004A98C9 /* NewAddInfoView.swift in Sources */,
+				E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */,
 				E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
 				E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */,
@@ -413,8 +419,10 @@
 				E82F45742BC2A77E00945312 /* NotificationDetailView.swift in Sources */,
 				E8FA7F112BC5BC320012EBF6 /* ResponseDetailView.swift in Sources */,
 				E82F45732BC2A77E00945312 /* ResponseModel.swift in Sources */,
+				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
 				E8FA7F0F2BC5BC320012EBF6 /* RecordingsSettingsView.swift in Sources */,
+				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
 				E82F45842BC2A80C00945312 /* NewPromptView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,
 				E82F458E2BC2A95900945312 /* LoadingView.swift in Sources */,

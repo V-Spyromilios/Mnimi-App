@@ -29,7 +29,9 @@ class OpenAIManager: ObservableObject {
     @Published var embeddingsCompleted: Bool = false
     @Published var gptResponseForAudioGeneration: String?
     @Published var progressText: String = ""
+    @Published var thrownError: String = ""
     private var lastGptAudioResponse: URL?
+    private var tokensRequired:Int = 0
     var cancellables = Set<AnyCancellable>()
     
 
@@ -45,23 +47,25 @@ class OpenAIManager: ObservableObject {
 
     
     //MARK: clearManager
-    func clearManager() {
-        
-        whisperResponse = nil
-        gptResponse = nil
-        gptMetadataResponse = nil
-        
-        gptResponseOnQuestion = nil
-        gptMetadataResponseOnQuestion = nil
-        
-        embeddings = []
-        embeddingsFromQuestion = []
-        
-        questionEmbeddingsCompleted = false
-        embeddingsCompleted = false
-        gptResponseForAudioGeneration = nil
-        stringResponseOnQuestion = ""
-        progressText = ""
+    func clearManager() async {
+        await MainActor.run {
+            whisperResponse = nil
+            gptResponse = nil
+            gptMetadataResponse = nil
+            
+            gptResponseOnQuestion = nil
+            gptMetadataResponseOnQuestion = nil
+            
+            embeddings = []
+            embeddingsFromQuestion = []
+            
+            questionEmbeddingsCompleted = false
+            embeddingsCompleted = false
+            gptResponseForAudioGeneration = nil
+            stringResponseOnQuestion = ""
+            progressText = ""
+            thrownError = ""
+        }
         //        print("clearManager() called.")
     }
 
@@ -100,6 +104,9 @@ class OpenAIManager: ObservableObject {
                 self.whisperResponse = transcriptionResponse.response
             }
         } catch {
+            await MainActor.run {
+                self.thrownError = error.localizedDescription
+            }
             print("Error on completion of transcriptResponse: \(error)")
         }
     }
@@ -158,6 +165,9 @@ class OpenAIManager: ObservableObject {
                 print(json)
             }
         } catch {
+            await MainActor.run {
+                self.thrownError = error.localizedDescription
+            }
             print("Error serializing JSON: \(error.localizedDescription)")
         }
         return try JSONDecoder().decode(TranscriptionResponse.self, from: data)
@@ -199,6 +209,9 @@ class OpenAIManager: ObservableObject {
             await self.processResponse(data: data, responseError: nil, userIsAsking: userIsAsking)
             
         } catch {
+            await MainActor.run {
+                self.thrownError = error.localizedDescription
+            }
             print("analyzeTranscript :: Error: \(error.localizedDescription)")
         }
     }
@@ -220,8 +233,7 @@ class OpenAIManager: ObservableObject {
             let response = try JSONDecoder().decode(ChatCompletionResponse.self, from: data)
             if let firstChoice = response.choices.first {
                 let content = firstChoice.message.content
-                
-                //                let delimiter = "\nMetadata:\n"
+
                 let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
                 let parts = trimmedContent.components(separatedBy: CharacterSet.newlines).map { $0.trimmingCharacters(in: .whitespaces) }
                 if let metadataIndex = parts.firstIndex(where: { $0 == "Metadata:" }) {
@@ -242,15 +254,31 @@ class OpenAIManager: ObservableObject {
                                     self.gptMetadataResponse = metadata
                                 }
                             }
+
                         } catch let DecodingError.dataCorrupted(context) {
+                            await MainActor.run {
+                                self.thrownError = "DecodingError 202.1"
+                            }
                             print("processResponse() :: Data corrupted: \(context)")
                         } catch let DecodingError.keyNotFound(key, context) {
+                            await MainActor.run {
+                                self.thrownError = "DecodingError 202.2"
+                            }
                             print("processResponse() :: Key '\(key)' not found: \(context.debugDescription), codingPath: \(context.codingPath)")
                         } catch let DecodingError.valueNotFound(value, context) {
+                            await MainActor.run {
+                                self.thrownError = "DecodingError 202.3"
+                            }
                             print("processResponse() :: Value '\(value)' not found: \(context.debugDescription), codingPath: \(context.codingPath)")
                         } catch let DecodingError.typeMismatch(type, context) {
+                            await MainActor.run {
+                                self.thrownError = "DecodingError 202.4"
+                            }
                             print("processResponse() :: Type '\(type)' mismatch: \(context.debugDescription), codingPath: \(context.codingPath)")
                         } catch {
+                            await MainActor.run {
+                                self.thrownError = "DecodingError 202.5"
+                            }
                             print("processResponse() :: Unknown error: \(error)")
                         }
                     }
@@ -259,6 +287,9 @@ class OpenAIManager: ObservableObject {
                 }
             }
         } catch let decodingError {
+            await MainActor.run {
+                self.thrownError = decodingError.localizedDescription
+            }
             print("processResponse() :: JSON Parsing catched error: \(decodingError)")
         }
     }
@@ -303,8 +334,12 @@ class OpenAIManager: ObservableObject {
                 } else {
                     self.embeddingsCompleted = true
                 }
+                self.tokensRequired = response.usage.totalTokens
             }
         } catch {
+            await MainActor.run {
+                self.thrownError = error.localizedDescription
+            }
             print("Error fetching embeddings: \(error)")
         }
         if isQuestion {
@@ -312,6 +347,7 @@ class OpenAIManager: ObservableObject {
         } else {
             ProgressTracker.shared.setProgress(to: 0.6)
         }
+        updateTokenUsage(api: "OpenAI", tokensUsed: tokensRequired, read: false)
     }
     
     
@@ -375,7 +411,7 @@ class OpenAIManager: ObservableObject {
         }
         ProgressTracker.shared.setProgress(to: 0.75)
         
-        try await convertTextToSpeech(text: gptResponse, apiKey: apiKey)
+//        try await convertTextToSpeech(text: gptResponse, apiKey: apiKey)
     }
     
     private func getGptResponse(apiKey: String, vectorResponses: [String], question: String) async throws -> String {
@@ -410,10 +446,11 @@ class OpenAIManager: ObservableObject {
         guard let firstChoice = gptResponse.choices.first else {
             throw NSError(domain: "AppError", code: 3, userInfo: [NSLocalizedDescriptionKey: "No choices in GPT response"])
         }
-        
+        updateTokenUsage(api: "OpenAI", tokensUsed: gptResponse.usage.totalTokens, read: false)
         return firstChoice.message.content
     }
     
+    //MARK: covert Text to Speech
     private func convertTextToSpeech(text: String, apiKey: String) async throws {
         guard let url = URL(string: "https://api.openai.com/v1/audio/speech") else {
             throw AppNetworkError.invalidTTSURL
@@ -439,9 +476,7 @@ class OpenAIManager: ObservableObject {
         try await saveAndPlayAudio(data: data)
     }
     
-    
-    
-    
+
     @MainActor
     private func saveAndPlayAudio(data: Data) async throws {
         let fileManager = FileManager.default

@@ -12,24 +12,26 @@ struct CustomTabBarView: View {
     @EnvironmentObject var notificationsManager: NotificationViewModel
     @Binding var tabSelection: Int
     @Namespace private var animation
-    
-    // State variables for animation
+
     @State private var gearIsAnimating: Bool = false
     @State private var quoteIsAnimating: Bool = true
     @State private var listIsAnimating: Bool = false
     var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opacity(0.3),Color.orange.opacity(0.3), Color.orange.opacity(0.6), Color.orange.opacity(0.8),Color.orange, Color.yellow.opacity(0.4)]), startPoint: .top, endPoint: .bottom)
+    
+    var blueGradient = LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen.opacity(0.5),Color.britishRacingGreen.opacity(0.8), Color.britishRacingGreen]), startPoint: .top, endPoint: .bottom)
    
     
     var body: some View {
         ZStack {
             Capsule()
-                .foregroundStyle(yellowGradient)
+                .foregroundStyle(blueGradient)
                 .frame(height: 70)
+                .shadow(radius: 8)
 
-            HStack(alignment: .bottom) {
+            HStack(alignment: .bottom, spacing: 45) {
 
                 // quote.bubble Button
-                tabBarButton(imageName: quoteIsAnimating ? "quote.bubble.fill" : "quote.bubble", tabId: 1, isAnimating: $quoteIsAnimating).padding(.leading)
+                tabBarButton(imageName: quoteIsAnimating ? "quote.bubble.fill" : "quote.bubble", tabId: 1, isAnimating: $quoteIsAnimating)
 
                 ZStack {
                 tabBarButton(imageName: listIsAnimating ? "list.clipboard.fill": "list.clipboard", tabId: 2, isAnimating: $listIsAnimating, notificationsCount: notificationsManager.scheduledNotifications.count).padding(.horizontal)
@@ -48,7 +50,7 @@ struct CustomTabBarView: View {
                     }
                 }
                 // Gear Button
-                tabBarButton(imageName: gearIsAnimating ? "gearshape.2.fill" : "gearshape.2", tabId: 3, isAnimating: $gearIsAnimating, isGear: true).padding(.trailing)
+                tabBarButton(imageName: gearIsAnimating ? "gearshape.2.fill" : "gearshape.2", tabId: 3, isAnimating: $gearIsAnimating, isGear: true)
             }
             .frame(height: 70) // Same as capsule height
         }
@@ -63,9 +65,9 @@ struct CustomTabBarView: View {
                 toggleAnimation(for: tabId - 1)
             }) {
                 Image(systemName: imageName)
-                                   .font(.title)
+                                   .font(.largeTitle)
                                    .foregroundStyle(.white)
-                                   .padding(.horizontal)
+                                  
             }
             //                if tabSelection == tabId {
             //                    Capsule()
