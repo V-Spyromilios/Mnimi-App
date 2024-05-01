@@ -27,12 +27,11 @@ struct PromptLanguageView: View {
     var body: some View {
         List(LanguageCode.allCases, id: \.self) { language in
             HStack {
-
-                Text(language.flagEmoji).font(.title3)
+                
                 Text(language.displayName)
                 if language == selectedLanguage {
                     Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(.orange)
+                    Text(language.flagEmoji).font(.title3)
                 }
             }
             .contentShape(Rectangle())

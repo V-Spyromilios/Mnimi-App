@@ -92,7 +92,7 @@ struct NewAddInfoView: View {
                         .padding(.horizontal)
                     ClearButton
                 }
-                if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManager.progressText != "") && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                if progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                     CircularProgressView(progressTracker: progressTracker).padding()
                 }
                 
@@ -174,9 +174,6 @@ struct NewAddInfoView: View {
         await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
         
         if openAiManager.embeddingsCompleted {
-            await MainActor.run {
-                openAiManager.progressText = ""
-            }
             let metadata = toDictionary(type: "GeneralKnowledge", desc: self.newInfo, relevantFor: self.relevantFor)
             do {
                 //MARK: TEST THROW

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+//MARK: DEPRICATED
+
 struct LoadingView: View {
     var body: some View {
         VStack {

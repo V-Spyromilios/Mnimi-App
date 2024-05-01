@@ -16,19 +16,19 @@ struct QuestionView: View {
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
+    @State private var showSettings: Bool = false
     
     var body: some View {
         NavigationStack {
         ScrollView {
-            //        VStack {
+
             HStack {
                 Image(systemName: "questionmark.bubble").bold()
                 Text("Query").bold()
                 Spacer()
             }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
                 .navigationTitle("Search 🔍")
-            //                .transition(.opacity)
-//                .padding(.bottom, 12)
+
             TextEditor(text: $question)
                 .fontDesign(.rounded)
                 .font(.title2)
@@ -63,7 +63,7 @@ struct QuestionView: View {
                         .padding(.horizontal)
                     ClearButton
                 }
-                if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManager.progressText != "") && thrownError == "" && openAiManager.thrownError == "" && (pineconeManager.receivedError == nil) {
+                if progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && (pineconeManager.receivedError == nil) {
                     CircularProgressView(progressTracker: progressTracker).padding()
                 }
                 else if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
@@ -98,7 +98,18 @@ struct QuestionView: View {
                         }
                     }
                 }
+                ToolbarItemGroup(placement: .topBarLeading) {
+                        Button {
+                            showSettings.toggle()
+                        } label: {
+                            Circle().foregroundStyle(.white).frame(height: 30).shadow(radius: 10)
+                                .overlay {
+                                    Image(systemName: "gearshape") }
+                        }
+                }
             }
+        }.fullScreenCover(isPresented: $showSettings){
+            SettingsView(showSettings: $showSettings)
         }
     }
     }
@@ -156,9 +167,7 @@ struct QuestionView: View {
             await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             if openAiManager.questionEmbeddingsCompleted {
                 let metadata = toDictionary(type: "question", desc: self.question, relevantFor: "")
-                await MainActor.run {
-                    openAiManager.progressText = ""
-                }
+
                 do {
                     ProgressTracker.shared.setProgress(to: 0.35)
                     try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion, metadata: metadata)
@@ -173,10 +182,6 @@ struct QuestionView: View {
                         thrownError = error.localizedDescription
                         withAnimation {
                             clearButtonIsVisible = true }
-                    }
-                    await MainActor.run {
-                        openAiManager.progressText = ""
-                        pineconeManager.progressText = ""
                     }
                 }
             }
@@ -197,7 +202,7 @@ struct QuestionView_Previews: PreviewProvider {
         let pineconeManager = PineconeManager()
         let progressTracker = ProgressTracker()
         
-        QuestionView(question: .constant("What is the name of my manager?"),
+        QuestionView(question: .constant("What is the name of my manager ?"),
                      thrownError: .constant(""))
         .environmentObject(openAiManager)
         .environmentObject(pineconeManager)

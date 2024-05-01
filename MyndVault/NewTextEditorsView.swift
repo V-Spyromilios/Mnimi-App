@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+
+//MARK: DEPRICATED
 struct NewTextEditorsView: View {
     
     @EnvironmentObject var openAiManager: OpenAIManager

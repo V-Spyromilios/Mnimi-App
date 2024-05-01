@@ -71,19 +71,14 @@ struct AddNotificationView: View {
                                 .foregroundColor(Color.gray)
                         }
                         .padding(.bottom)
-                    
-                    
-                    
                 }
-                
-                
+
                 HStack {
-                    
                     Image(systemName: "clock").bold()
                         .font(.callout)
                     Text("When?").bold()
                         .font(.callout)
-                    
+
                     DatePicker(
                         "",
                         selection: $date,
@@ -106,7 +101,6 @@ struct AddNotificationView: View {
                     Spacer()
                 }
                 Spacer()
-                    
             }.padding()
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
@@ -131,9 +125,7 @@ struct AddNotificationView: View {
             )
         }
     }
-    
-    
-    
+
     private func scheduleNotification() {
         
         let content = UNMutableNotificationContent()

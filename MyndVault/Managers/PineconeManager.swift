@@ -31,7 +31,6 @@ class PineconeManager: ObservableObject {
     @Published var pineconeIDs: [String] = []
     @Published var pineconeFetchedResponseFromID: PineconeFetchResponseFromID?
     @Published var pineconeFetchedVectors: [Vector] = []
-    @Published var progressText: String = ""
     var pineconeIndex: String?
     var cancellables = Set<AnyCancellable>()
     @Published var refreshAfterEditing: Bool = false
@@ -42,7 +41,6 @@ class PineconeManager: ObservableObject {
         }
     
     func clearManager() {
-        progressText = ""
         receivedError = nil
         pineconeQueryResponse = nil
         upsertSuccesful = false
@@ -380,9 +378,7 @@ class PineconeManager: ObservableObject {
     // https://{index_host}/vectors/upsert
     func upsertDataToPinecone(id: String, vector: [Float], metadata: [String: Any]) async throws {
         print("Upserting to Pinecone...")
-        await MainActor.run {
-            progressText = "Upserting to Database..."
-        }
+
         ProgressTracker.shared.setProgress(to: 0.7)
         guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/upsert") else {
             print("upsertDataToPinecone :: Invalid URL")
@@ -412,10 +408,8 @@ class PineconeManager: ObservableObject {
             ],
             "namespace": namespace
         ]
-        await MainActor.run {
-            progressText = "Attached vectors to payload."
-            ProgressTracker.shared.setProgress(to: 0.8)
-        }
+        ProgressTracker.shared.setProgress(to: 0.8)
+        
         guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else { throw AppCKError.UnableToGetNameSpace }
 
         payload["namespace"] = namespace
@@ -433,12 +427,9 @@ class PineconeManager: ObservableObject {
 
                 self.upsertSuccesful = true
                 ProgressTracker.shared.setProgress(to: 0.98)
-                progressText = "Info saved!"
+               
                 ProgressTracker.shared.setProgress(to: 1.0)
                 print("Upsert successful !")
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                    self?.progressText = ""
-                }
             }
         } catch {
             throw AppNetworkError.unknownError(error.localizedDescription)
@@ -473,10 +464,7 @@ class PineconeManager: ObservableObject {
     //MARK: queryPinecone
     func queryPinecone(vector: [Float], metadata: [String: String], topK: Int = 1, includeValues: Bool = false) async throws {
 
-        ProgressTracker.shared.setProgress(to: 0.4)
-        await MainActor.run {
-            progressText = "Querying Database..."
-        }
+        ProgressTracker.shared.setProgress(to: 0.42)
         await withTaskGroup(of: Void.self) { taskGroup in
             taskGroup.addTask(priority: .background) { [weak self] in
                 guard let self = self else { return }
@@ -529,7 +517,6 @@ class PineconeManager: ObservableObject {
 
                     await MainActor.run {
                         ProgressTracker.shared.setProgress(to: 0.55)
-                        self.progressText = "Database Response: \(httpResponse.statusCode)"
                         self.pineconeQueryResponse = pineconeResponse
                     }
 
@@ -545,10 +532,6 @@ class PineconeManager: ObservableObject {
                     updateTokenUsage(api: "Pinecone", tokensUsed: response.usage.readUnits, read: true)
                 }
             }
-        }
-        
-        await MainActor.run {
-            self.progressText = ""
         }
     }
 

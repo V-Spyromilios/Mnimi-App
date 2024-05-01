@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+//MARK: DEPRICATED
 struct CoolButtonView: View {
     @Environment(\.colorScheme) var colorScheme
     var isRecording: Bool

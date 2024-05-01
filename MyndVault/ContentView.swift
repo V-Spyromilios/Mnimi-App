@@ -25,7 +25,6 @@ struct ContentView: View {
     @State var showNetworkError = false
     @EnvironmentObject var speechManager: SpeechRecognizerManager
     
-    
     // for the Question view:
     @State var question: String = ""
     @State var thrownError: String = "" //common with NewAddInfo
@@ -41,6 +40,7 @@ struct ContentView: View {
     var body: some View {
            
                 TabView(selection: $tabSelection) {
+
                     QuestionView(question: $question, thrownError: $thrownError).tag(1)
                     
                     NewAddInfoView(newInfo: $newInfo, relevantFor: $relevantFor, apiCallInProgress: $apiCallInProgress, thrownError: $thrownError, showAlert: $showAlert, showTopBar: $showTopBar, topBarMessage: $topBarMessage).tag(2)
@@ -50,10 +50,7 @@ struct ContentView: View {
                         .environmentObject(keyboardResponder)
                     
                     VaultView().tag(3)
-
                     NotificationsView().tag(4)
-//                    SettingsView().tag(3) //TODO: move to button
-                    
                 }
                 .overlay(alignment: .bottom) {
                     if !keyboardAppeared {
@@ -64,35 +61,17 @@ struct ContentView: View {
                             .padding(.horizontal)
                             .shadow(radius: 8)
                     }
-//                    else {
-//                        HStack {
-//                            Spacer()
-//                            Button {
-//                                hideKeyboard()
-//                            } label: {
-//                                Image(systemName: "keyboard.chevron.compact.down")
-//                                    .transition(.asymmetric(insertion: .opacity.combined(with: .move(edge: .bottom)), removal: .opacity))
-//                                    .animation(.easeInOut(duration: 0.3), value: keyboardAppeared)
-//                            }
-//                        }.padding(.trailing,12)
-//                            .padding(.bottom, 8)
-//                    }
                 }
-            
                 .onAppear {
                     speechManager.requestSpeechAuthorization()
-                    
                 }
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
                     if !hasInternet {
                         showNetworkError = true
                     }
-                    
                 }
                 .onChange(of: keyboardResponder.currentHeight) { _, height in
-                    
                         keyboardAppeared = height > 0
-                    
                     
                     withAnimation(.easeInOut(duration: 0.3).delay(height > 0 ? 0.3 : 0)) {
                         hideKyeboardButton = height > 0
@@ -105,58 +84,10 @@ struct ContentView: View {
                         dismissButton: .default(Text("OK"))
                     )
                 }
-        
     }
 }
-        
-//        .background {
-////            Image("AppIcon").resizable().frame(minHeight: 300)
-//        }
-
-//        NavigationSplitView {
-//            List {
-//                ForEach(items) { item in
-//                    NavigationLink {
-//                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-//                    } label: {
-//                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-//                    }
-//                }
-//                .onDelete(perform: deleteItems)
-//            }
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    EditButton()
-//                }
-//                ToolbarItem {
-//                    Button(action: addItem) {
-//                        Label("Add Item", systemImage: "plus")
-//                    }
-//                }
-//            }
-//        } detail: {
-//            Text("Select an item")
-//        }
-
-
-//    private func addItem() {
-//        withAnimation {
-//            let newItem = Item(timestamp: Date())
-//            modelContext.insert(newItem)
-//        }
-//    }
-//
-//    private func deleteItems(offsets: IndexSet) {
-//        withAnimation {
-//            for index in offsets {
-//                modelContext.delete(items[index])
-//            }
-//        }
-//    }
-//}
     
 
 #Preview {
     ContentView()
-//        .modelContainer(for: ResponseModel.self, inMemory: true)
 }

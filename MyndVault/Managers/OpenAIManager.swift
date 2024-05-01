@@ -28,7 +28,6 @@ class OpenAIManager: ObservableObject {
     @Published var questionEmbeddingsCompleted: Bool = false
     @Published var embeddingsCompleted: Bool = false
     @Published var gptResponseForAudioGeneration: String?
-    @Published var progressText: String = ""
     @Published var thrownError: String = ""
     private var lastGptAudioResponse: URL?
     private var tokensRequired:Int = 0
@@ -63,7 +62,6 @@ class OpenAIManager: ObservableObject {
             embeddingsCompleted = false
             gptResponseForAudioGeneration = nil
             stringResponseOnQuestion = ""
-            progressText = ""
             thrownError = ""
         }
         //        print("clearManager() called.")
@@ -307,10 +305,7 @@ class OpenAIManager: ObservableObject {
     // call with MetadataResponse.description
     func requestEmbeddings(for text: String, isQuestion: Bool) async {
         print("request Embeddings called..")
-        ProgressTracker.shared.setProgress(to: 0.1)
-        await MainActor.run {
-            progressText = "Requesting Embeddings..."
-        }
+        ProgressTracker.shared.setProgress(to: 0.12)
         do {
             let response = try await fetchEmbeddings(for: text)
             print("Embeddings Fetch completed successfully.")
@@ -328,8 +323,6 @@ class OpenAIManager: ObservableObject {
                 
                 if isQuestion {
                     self.questionEmbeddingsCompleted = true
-                        progressText = "Embeddings Received..."
-                    
                     print("$questionEmbeddingsCompleted = true and Embeddings: OK")
                 } else {
                     self.embeddingsCompleted = true
@@ -349,9 +342,8 @@ class OpenAIManager: ObservableObject {
         }
         updateTokenUsage(api: "OpenAI", tokensUsed: tokensRequired, read: false)
     }
-    
-    
-    
+
+
     // https://api.openai.com/v1/embeddings POST
     //model: text-embedding-3-large
     // inputText: description of the gpt-4 response.
@@ -387,7 +379,6 @@ class OpenAIManager: ObservableObject {
         }
         ProgressTracker.shared.setProgress(to: 0.2)
         await MainActor.run {
-            progressText = "Embeddings status: \(httpResponse.statusCode)"
         }
         let decoder = JSONDecoder()
         return try decoder.decode(EmbeddingsResponse.self, from: data)
@@ -396,9 +387,6 @@ class OpenAIManager: ObservableObject {
     
     
     func getGptResponseAndConvertTextToSpeech(queryMatches: [String], question: String) async throws {
-        await MainActor.run {
-            progressText = "Forming response..."
-        }
 
         ProgressTracker.shared.setProgress(to: 0.7)
         guard let apiKey = ApiConfiguration.openAIKey else {
@@ -417,9 +405,6 @@ class OpenAIManager: ObservableObject {
     private func getGptResponse(apiKey: String, vectorResponses: [String], question: String) async throws -> String {
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             throw AppNetworkError.invalidOpenAiURL
-        }
-        await MainActor.run {
-            progressText = "Forming response for Audio..."
         }
         let prompt = getGptPromptForAudio(vectorResponses: vectorResponses, question: question)
         
@@ -455,9 +440,6 @@ class OpenAIManager: ObservableObject {
         guard let url = URL(string: "https://api.openai.com/v1/audio/speech") else {
             throw AppNetworkError.invalidTTSURL
         }
-        await MainActor.run {
-            progressText = "Converting text to Speech"
-        }
         ProgressTracker.shared.setProgress(to: 0.75)
         let requestBody: [String: Any] = [
             "model": "tts-1",
@@ -492,19 +474,12 @@ class OpenAIManager: ObservableObject {
             }
             try data.write(to: fileURL)
             lastGptAudioResponse = fileURL
-            await MainActor.run {
-                progressText = "Audio received."
-            }
+            
             print("Audio [Reply] saved: \(fileURL.path)")
             ProgressTracker.shared.setProgress(to: 0.99)
             AudioManager.shared.playAudioFrom(url: fileURL)
-            
-            
         } catch {
             throw AppNetworkError.unknownError("saveAndPlayAudio() :: Failed to save audio: \(error.localizedDescription)")
-        }
-        await MainActor.run {
-            progressText = ""
         }
     }
     
@@ -550,7 +525,7 @@ class OpenAIManager: ObservableObject {
                     - Relevant Information 1: \(firstVector)
                     - Relevant Information 2: \(secondVector)
                 
-                    Using the user's question and the information provided, generate a comprehensive and informative reply that addresses the user's inquiry, integrating insights from the relevant information found. if relevant for your reply, today is \(readableDateString), and the current time in ISO8601 format is \(isoDateString). Don't return full dates and time unless necessary. If the information from the vector database does not directly relate to the user's question or seems ambiguous, use your best judgment to provide a helpful response. Highlight any uncertainties and suggest user to provide additional information that might be required for a more accurate answer.
+                    Using the user's question and the information provided, generate a comprehensive, informative and concise reply that addresses the user's inquiry, using the relevant information. If relevant for your reply, today is \(readableDateString), and the current time in ISO8601 format is \(isoDateString). Don't return full dates and time unless necessary. If the information from the vector database does not directly relate to the user's question or seems ambiguous, use your best judgment to provide a helpful response. Highlight any uncertainties and suggest user to provide additional information to the app in order to provide more accurate answers in the future.
                 
                     The response should be clear, engaging, concise, short and suitable for converting to audio to be read to the user.
                 """
@@ -593,6 +568,18 @@ class OpenAIManager: ObservableObject {
                 
                                         Die Antwort sollte klar, ansprechend, präzise, kurz und geeignet sein, um in Audio umgewandelt und dem Benutzer vorgelesen zu werden.
                 """
+        case .greek:
+            return """
+                Είστε ένας Βοηθός Τεχνητής Νοημοσύνης και έχετε κληθεί να παρέχετε συνοπτικές πληροφορίες σχετικά με ένα συγκεκριμένο θέμα. Παρακάτω βρίσκονται η ερώτηση του χρήστη και μία ή δύο σχετικές πληροφορίες όπως ανακτήθηκαν από τη βάση δεδομένων:
+                                
+                                    - Ερώτηση Χρήστη: \(question)
+                                    - Σχετική Πληροφορία 1: \(firstVector)
+                                    - Σχετική Πληροφορία 2: \(secondVector)
+                                
+                                    Χρησιμοποιώντας την ερώτηση του χρήστη και τις πληροφορίες που παρέχονται, δημιουργήστε μια κατανοητή και ενημερωτική απάντηση που απαντά στην ερώτηση του χρήστη, ενσωματώνοντας τις απαραίτητες πληροφορίες από τις σχετικές πληροφορίες που βρέθηκαν. Εάν είναι σχετικό για την απάντησή σας, σήμερα είναι \(readableDateString), και η τρέχουσα ώρα σε μορφή ISO8601 είναι \(isoDateString). Μην επιστρέφετε πλήρεις ημερομηνίες και ώρες εκτός αν είναι απαραίτητο. Εάν οι πληροφορίες από τη βάση δεδομένων διανυσμάτων δεν σχετίζονται άμεσα με την ερώτηση του χρήστη ή φαίνονται ασαφείς, χρησιμοποιήστε την καλύτερη κρίση σας για να παράσχετε μια χρήσιμη απάντηση. Τονίστε τυχόν αβεβαιότητες και προτείνετε στον χρήστη να παρέχει επιπλέον πληροφορίες στην εφαρμογή που μπορεί να απαιτούνται για μια πιο ακριβή απάντηση.
+                                
+                                    Η απάντηση πρέπει να είναι σαφής, συνοπτική, σύντομη και κατάλληλη για μετατροπή σε ηχητικό μήνυμα για ανάγνωση στον χρήστη.
+"""
         }
     }
     
@@ -607,6 +594,8 @@ class OpenAIManager: ObservableObject {
                 return "Der Benutzer stellt eine Frage. Bitte transkribieren Sie die Frage genau, einschließlich Zögern wie 'ähm' und Hintergrundgeräusche."
             case .spanish:
                 return "El usuario está haciendo una pregunta. Transcriba la pregunta con precisión, incluyendo vacilaciones como 'ehm' y ruidos de fondo."
+            case .greek:
+                return "Ο χρήστης κάνει μια ερώτηση. Παρακαλώ καταγράψτε την ερώτηση με ακρίβεια, αποκλείοντας οποιαδήποτε δισταγμούς όπως 'ααα' και θορύβους φόντου."
             }
         } else {
             switch selectedLanguage {
@@ -618,6 +607,8 @@ class OpenAIManager: ObservableObject {
                 return "Dies ist eine Audioaufnahme vom Benutzer und kann Zögern wie 'ähm' und Hintergrundgeräusche enthalten. Bitte geben Sie das Transkript zurück."
             case .spanish:
                 return "Esta es una grabación de audio del usuario y puede incluir vacilaciones como 'ehm' y ruidos de fondo. Por favor, devuelva la transcripción."
+            case .greek:
+                return "Αυτή είναι μια ηχογράφηση από τον χρήστη και μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα' και θορύβους φόντου. Παρακαλώ επιστρέψτε την απομαγνητοφώνηση."
             }
         }
     }
@@ -713,6 +704,25 @@ class OpenAIManager: ObservableObject {
                                     }
                         
                         """
+            case .greek:
+                return """
+                "Παρακαλώ αναλύστε την παρακάτω απομαγνητοφώνηση της ερώτησης του χρήστη, η οποία έγινε σε πιθανώς θορυβώδες περιβάλλον. Η απομαγνητοφώνηση που δημιουργήθηκε από το μοντέλο Whisper μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα', θορύβους φόντου και αβέβαιες μεταγραφές (π.χ., '[ακατανόητο]'). Τα καθήκοντά σας είναι να:
+                1. Αναγνωρίστε και διορθώστε τυχόν γραμματικά λάθη, διασφαλίζοντας ότι η γλώσσα είναι καθαρή και επαγγελματική.
+                2. Αφαιρέστε πλήρως τις μη λεκτικές ενδείξεις (π.χ., 'ααα') και τις ενδείξεις θορύβου φόντου, καθώς αυτές δεν συμβάλλουν στο ερώτημα της βάσης δεδομένων. Μην κάνετε σημειώσεις· απλώς παραλείψτε αυτά τα στοιχεία για σαφήνεια.
+                3. Καθαρίστε ασαφείς προτάσεις, πιθανώς με αναδιατύπωση, διατηρώντας την αρχική πρόθεση. Επικεντρωθείτε στο να διατηρήσετε την ουσία της ερωτημένης ερώτησης. Κάντε εκπαιδευμένες εικασίες για το συμπλήρωμα ή την παράλειψη αβέβαιων μεταγραφών με βάση το περιεχόμενο, δίνοντας προτεραιότητα στη συνοχή και τη σχετικότητα της ερώτησης.
+                4. Εξάγετε και διατυπώστε συνοπτικά την ερώτηση ή το αίτημα που τέθηκε από τον χρήστη. Αυτό θα χρησιμοποιηθεί για ερώτημα σε μια βάση δεδομένων διανυσμάτων και πρέπει να είναι ακριβές και στο σημείο. Τονίστε τυχόν στοιχεία δράσης ή κρίσιμους όρους που είναι ουσιαστικοί για την ανάκτηση των πλέον σχετικών πληροφοριών από τη βάση δεδομένων. Αναθέστε αυτό στο κλειδί 'description' του Metadata.
+                5. Συμπεριλάβετε οποιαδήποτε σχετική πληροφορία πλαισίου που θα μπορούσε να ισχύει συνεπώς για τα ερωτήματα που επεξεργάζονται, ενισχύοντας την ακρίβεια της αναζήτησης στη βάση δεδομένων.
+
+                Παρακαλώ διαμορφώστε την απάντησή σας για να περιλαμβάνει και την διατυπωμένη ερώτηση όπως την έθεσε ο χρήστης και τα αντίστοιχα metadata, όπως φαίνεται στο παρακάτω παράδειγμα. Το 'type' πρέπει να είναι 'Question'!
+
+                Metadata:
+                {
+                  "type": "Question",
+                  "description": "Ποιες είναι οι ώρες λειτουργίας της τοπικής βιβλιοθήκης;",
+                  "keywords": ["ώρες λειτουργίας", "τοπική βιβλιοθήκη"],
+                  "relevantFor": "αναζήτηση πληροφοριών τοπικής βιβλιοθήκης"
+                }
+                """
             }
         } else {
             
@@ -727,7 +737,7 @@ Please analyze the following transcript of a user's voice note recorded in a pos
        a. General Knowledge: Information the user wants to remember, including the relevant person if mentioned. If relevant person is not mentioned should default to user.
        b. To-Do: Tasks or events the user wishes to set a notification for, including extracting the relevant date and time if mentioned, and the relevant person or context. Specifically, if the user does not specify a date and time, calculate it given that the current date and time is \(dateString) in ISO8601 format.
 
-    5. For each entry, provide a structured output that includes the metadata in JSON format. The metadata should include the type (GeneralKnowledge and/or To-Do), the description,the relevant person, and if applicable, the date, time.
+    5. For each entry, provide a structured output that includes the metadata in JSON format. The metadata should include the type (GeneralKnowledge or To-Do), the description,the relevant person, and if applicable, the date, time.
 
 Please format your response to include both the structured description and the corresponding metadata as shown in the following examples. 'type' should be either 'ToDo' or 'GeneralKnowledge'.
 
@@ -752,58 +762,144 @@ Metadata:
 }
 
 """
-                //TODO: other languages do not have the new, corrected english prompt. translate and paste below.
             case .french:
                 return """
-            Veuillez analyser la transcription suivante d'une note vocale d'un utilisateur enregistrée dans un environnement potentiellement bruyant. La transcription générée par le modèle Whisper peut inclure des hésitations telles que 'euh' et des bruits de fond. Vos tâches sont de :
-            
-            Identifier et corriger les erreurs grammaticales.
-            Retirer ou noter les indices non verbaux (par ex., 'euh') et les indications de bruit de fond.
-            Clarifier les phrases peu claires, éventuellement en les reformulant, tout en conservant l'intention originale.
-            Extraire et mettre en évidence les éléments d'action et les connaissances générales. Catégorisez spécifiquement la sortie en :
-            a. Connaissance Générale : Informations que l'utilisateur souhaite se rappeler, y compris la personne pertinente ou le contexte si mentionné.
-            b. À Faire : Tâches ou événements pour lesquels l'utilisateur souhaite définir une notification, y compris l'extraction de la date et de l'heure pertinentes si mentionnées et de la personne ou du contexte pertinent.
-            Pour chaque entrée, fournissez une sortie structurée qui inclut la description et, le cas échéant, la date et l'heure de l'événement ou de la tâche, ainsi que la personne ou le contexte pertinent.
-            Veuillez formater votre réponse comme suit :
-            Pour les entrées de Connaissance Générale : Commencez par "Connaissance Générale :" suivi des informations, y compris toute personne pertinente ou contexte.
-            Pour les éléments À Faire : Commencez par "À Faire :" suivi de la tâche. Si une date et une heure sont mentionnées, incluez-les au format "Date : [date], Heure : [heure]." Incluez également toute personne ou contexte pertinent.
-            Réponse exemple :
-            Connaissance Générale : Le nom de l'enseignant de mon fils Lucas est M. Dubois. Pertinent pour : Guillaume.
-            À Faire : Planifier une réunion avec M. Dubois, Date : [date], Heure : [heure]. Pertinent pour les activités scolaires de Guillaume.
+            Veuillez analyser la transcription suivante d'une note vocale d'un utilisateur enregistrée dans un environnement possiblement bruyant. La transcription générée par le modèle Whisper peut inclure des hésitations telles que 'euh' et des bruits de fond. Vos tâches sont les suivantes :
+                1. Identifier et corriger toutes les erreurs grammaticales.
+                2. Supprimer ou noter tous les indices non verbaux (par exemple, 'euh') et les indications de bruit de fond.
+                3. Clarifier les phrases floues, éventuellement en les reformulant, tout en préservant l'intention originale.
+                4. Extraire et mettre en évidence les éléments d'action et les connaissances générales. Dans les cas où le contenu s'applique à ces deux catégories, comme un rendez-vous qui est à la fois une tâche et contient des informations importantes, fournir des entrées pour 'À faire' et 'Connaissances générales' :
+                   a. Connaissances générales : Informations que l'utilisateur souhaite se rappeler, y compris la personne concernée si elle est mentionnée. Si la personne concernée n'est pas mentionnée, elle doit par défaut être l'utilisateur.
+                   b. À faire : Tâches ou événements pour lesquels l'utilisateur souhaite définir une notification, y compris l'extraction de la date et de l'heure pertinentes si elles sont mentionnées, et la personne ou le contexte concerné. Spécifiquement, si l'utilisateur ne spécifie pas de date et d'heure, calculez-la étant donné que la date et l'heure actuelles sont \(dateString) au format ISO8601.
+
+                5. Pour chaque entrée, fournissez une sortie structurée incluant les métadonnées au format JSON. Les métadonnées doivent inclure le type (ConnaissancesGénérales ou ÀFaire), la description, la personne concernée, et si applicable, la date, l'heure.
+
+            Veuillez formater votre réponse pour inclure à la fois la description structurée et les métadonnées correspondantes comme montré dans les exemples suivants. Le 'type' devrait être soit 'ToDo' soit 'GeneralKnowledge'.
+
+            Connaissances Générales : Le nom du professeur de mon fils Charlie est John Williams. Pertinent pour : Charlie.
+
+            Metadata :
+            {
+              "type": "GeneralKnowledge",
+              "description": "Le nom du professeur de mon fils Charlie est John Williams.",
+              "relevantFor": "Charlie"
+            }
+
+            À Faire : Programmer une réunion avec John Williams, Date : YYYY-MM-DD, Heure : HH:MM. Pertinent pour : les activités scolaires de Charlie.
+
+            Metadata :
+            {
+              "type": "ToDo",
+              "description": "Programmer une réunion avec John Williams.",
+              "date": "YYYY-MM-DD",
+              "time": "HH:MM",
+              "relevantFor": "les activités scolaires de Charlie"
+            }
+
             """
             case .german:
                 return """
-"Bitte analysieren Sie das folgende Transkript einer Sprachnotiz eines Benutzers, die in einer möglicherweise lauten Umgebung aufgenommen wurde. Das Transkript wurde vom Whisper-Modell generiert und kann Zögern wie 'ähm' und Hintergrundgeräusche enthalten. Ihre Aufgaben sind:
-    Identifizieren und korrigieren Sie grammatische Fehler.
-    Entfernen oder notieren Sie nonverbale Hinweise (z.B. 'ähm') und Anzeichen von Hintergrundgeräuschen.
-    Klären Sie unklare Sätze, eventuell durch Umformulierung, unter Beibehaltung der ursprünglichen Absicht.
-    Extrahieren und heben Sie handlungsrelevante Punkte und Allgemeinwissen hervor. Kategorisieren Sie spezifisch das Ergebnis in:
-    a. Allgemeinwissen: Informationen, die der Benutzer sich merken möchte, einschließlich der relevanten Person oder des Kontextes, falls erwähnt.
-    b. Zu erledigen: Aufgaben oder Ereignisse, für die der Benutzer eine Benachrichtigung einstellen möchte, einschließlich der Extrahierung des relevanten Datums und der Zeit, falls erwähnt, und der relevanten Person oder des Kontexts.
-    Geben Sie für jeden Eintrag eine strukturierte Ausgabe an, die die Beschreibung und gegebenenfalls das Datum und die Zeit der Veranstaltung oder Aufgabe sowie die relevante Person oder den Kontext enthält.
-    Bitte formatieren Sie Ihre Antwort wie folgt:
-    Für Einträge zum Allgemeinwissen: Beginnen Sie mit "Allgemeinwissen:", gefolgt von den Informationen, einschließlich aller relevanten Personen oder Kontexte.
-    Für Zu erledigen-Einträge: Beginnen Sie mit "Zu erledigen:", gefolgt von der Aufgabe. Wenn ein Datum und eine Zeit genannt werden, fügen Sie diese im Format "Datum: [Datum], Zeit: [Zeit]." ein. Schließen Sie auch alle relevanten Personen oder Kontexte ein.
-    Beispielantwort:
-    Allgemeinwissen: Der Name des Lehrers meines Sohnes Max ist Herr Schmidt. Relevant für: Max.
-    Zu erledigen: Vereinbaren Sie ein Treffen mit Herrn Schmidt, Datum: [Datum], Zeit: [Zeit]. Relevant für: Max’ schulische Aktivitäten.
+Bitte analysieren Sie das folgende Transkript einer Sprachnotiz eines Benutzers, aufgenommen in einer möglicherweise lauten Umgebung. Das durch das Whisper-Modell erstellte Transkript kann Zögern wie 'ähm' und Hintergrundgeräusche enthalten. Ihre Aufgaben sind:
+    1. Identifizieren und korrigieren Sie jegliche Grammatikfehler.
+    2. Entfernen oder notieren Sie jegliche nonverbale Hinweise (z.B. 'ähm') und Anzeigen von Hintergrundgeräuschen.
+    3. Klären Sie unklare Sätze, eventuell durch Umformulierung, wobei die ursprüngliche Absicht beibehalten wird.
+    4. Extrahieren und heben Sie Handlungsanweisungen und Allgemeinwissen hervor. In Fällen, in denen der Inhalt auf beide Kategorien zutrifft, wie bei einem Termin, der sowohl eine Aufgabe ist als auch wichtige Informationen enthält, erstellen Sie Einträge für 'To-Do' und 'Allgemeinwissen':
+       a. Allgemeinwissen: Informationen, die der Benutzer sich merken möchte, einschließlich der betreffenden Person, falls erwähnt. Wenn keine relevante Person erwähnt wird, sollte standardmäßig der Benutzer gemeint sein.
+       b. To-Do: Aufgaben oder Ereignisse, für die der Benutzer eine Benachrichtigung einstellen möchte, einschließlich der Extraktion des relevanten Datums und der Uhrzeit, falls erwähnt, und der betreffenden Person oder des Kontexts. Speziell, wenn der Benutzer kein Datum und keine Uhrzeit angibt, berechnen Sie dies, da das aktuelle Datum und die Uhrzeit \(dateString) im ISO8601-Format sind.
+
+    5. Für jeden Eintrag liefern Sie eine strukturierte Ausgabe, die die Metadaten im JSON-Format enthält. Die Metadaten sollten den Typ (GeneralKnowledge oder To-Do), die Beschreibung, die relevante Person und gegebenenfalls das Datum, die Uhrzeit umfassen.
+
+Bitte formatieren Sie Ihre Antwort so, dass sie sowohl die strukturierte Beschreibung als auch die entsprechenden Metadaten wie in den folgenden Beispielen enthält. Der 'Type' sollte entweder 'To-Do' oder 'GeneralKnowledge' sein.
+
+Allgemeinwissen: Der Name des Lehrers meines Sohnes Charlie ist John Williams. Relevant für: Charlie.
+
+Metadata:
+{
+  "type": "GeneralKnowledge",
+  "description": "Der Name des Lehrers meines Sohnes Charlie ist John Williams.",
+  "relevantFor": "Charlie"
+}
+
+To-Do: Planen Sie ein Treffen mit John Williams, Datum: YYYY-MM-DD, Uhrzeit: HH:MM. Relevant für: Charlies schulische Aktivitäten.
+
+Metadata:
+{
+  "type": "To-Do",
+  "description": "Planen Sie ein Treffen mit John Williams.",
+  "date": "YYYY-MM-DD",
+  "time": "HH:MM",
+  "relevantFor": "Charlies schulische Aktivitäten"
+}
+
 """
             case .spanish:
                 return """
-Por favor, analice la siguiente transcripción de una nota de voz de un usuario grabada en un entorno posiblemente ruidoso. La transcripción generada por el modelo Whisper puede incluir hesitaciones como 'ehm' y ruidos de fondo. Sus tareas son:
-Identificar y corregir errores gramaticales.
-Eliminar o anotar cualquier indicio no verbal (p.ej., 'ehm') y señales de ruido de fondo.
-Aclarar frases poco claras, posiblemente reformulándolas, manteniendo la intención original.
-Extraer y resaltar elementos de acción e información general. Específicamente, categorice la salida en:
-a. Conocimiento General: Información que el usuario desea recordar, incluyendo la persona relevante o el contexto si se menciona.
-b. Tareas: Tareas o eventos para los cuales el usuario desea configurar una notificación, incluyendo la extracción de la fecha y hora relevantes si se mencionan y la persona o contexto relevante.
-Para cada entrada, proporcione una salida estructurada que incluya la descripción y, si es aplicable, la fecha y hora del evento o tarea, y la persona o contexto relevante.
-Por favor, formatee su respuesta de la siguiente manera:
-Para entradas de Conocimiento General: Comience con "Conocimiento General:" seguido de la información, incluyendo cualquier persona relevante o contexto.
-Para las tareas: Comience con "Tareas:" seguido de la tarea. Si se menciona una fecha y hora, inclúyalas en el formato "Fecha: [fecha], Hora: [hora]." Incluya también cualquier persona o contexto relevante.
-Respuesta de ejemplo:
-Conocimiento General: El nombre del maestro de mi hijo Carlos es Juan Martínez. Relevante para: Carlos.
-Tareas: Programar una reunión con Juan Martínez, Fecha: [fecha], Hora: [hora]. Relevante para las actividades escolares de Carlos.
+Por favor, analice la siguiente transcripción de una nota de voz de un usuario grabada en un entorno posiblemente ruidoso. La transcripción generada por el modelo Whisper puede incluir hesitaciones como 'eh' y ruidos de fondo. Sus tareas son:
+    1. Identificar y corregir cualquier error gramatical.
+    2. Eliminar o anotar cualquier señal no verbal (por ejemplo, 'eh') y señales de ruido de fondo.
+    3. Aclarar oraciones poco claras, posiblemente reformulándolas, manteniendo la intención original.
+    4. Extraer y destacar elementos accionables y conocimientos generales. En casos donde el contenido se aplica a ambas categorías, como una cita que es tanto una tarea como contiene información significativa, proporcione entradas para 'Pendientes' y 'Conocimiento General':
+       a. Conocimiento General: Información que el usuario desea recordar, incluyendo la persona relevante si se menciona. Si no se menciona a la persona relevante, debería referirse por defecto al usuario.
+       b. Pendientes: Tareas o eventos para los cuales el usuario desea configurar una notificación, incluyendo la extracción de la fecha y hora relevantes si se mencionan, y la persona o contexto relevante. Específicamente, si el usuario no especifica una fecha y hora, calcúlela dado que la fecha y hora actuales son \(dateString) en formato ISO8601.
+
+    5. Para cada entrada, proporcione una salida estructurada que incluya los metadatos en formato JSON. Los metadatos deben incluir el tipo (GeneralKnowledge o To-Do), la descripción, la persona relevante y, si aplica, la fecha, la hora.
+
+Por favor, formatee su respuesta para incluir tanto la descripción estructurada como los metadatos correspondientes como se muestra en los siguientes ejemplos. El 'tipo' debe ser 'To-Do' o 'GeneralKnowledge'.
+
+Conocimiento General: El nombre del profesor de mi hijo Charlie es John Williams. Relevante para: Charlie.
+
+Metadata:
+{
+  "type": "GeneralKnowledge",
+  "description": "El nombre del profesor de mi hijo Charlie es John Williams.",
+  "relevantFor": "Charlie"
+}
+
+Pendientes: Programar una reunión con John Williams, Fecha: YYYY-MM-DD, Hora: HH:MM. Relevante para: actividades escolares de Charlie.
+
+Metadata:
+{
+  "type": "To-Do",
+  "description": "Programar una reunión con John Williams.",
+  "date": "YYYY-MM-DD",
+  "time": "HH:MM",
+  "relevantFor": "actividades escolares de Charlie"
+}
+
+"""
+            case .greek:
+                return """
+Παρακαλώ αναλύστε την παρακάτω απομαγνητοφώνηση μιας φωνητικής σημείωσης χρήστη που ηχογραφήθηκε σε πιθανώς θορυβώδες περιβάλλον. Η απομαγνητοφώνηση που δημιουργήθηκε από το μοντέλο Whisper μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα' και θορύβους φόντου. Τα καθήκοντά σας είναι:
+    1. Να αναγνωρίσετε και να διορθώσετε οποιαδήποτε γραμματικά λάθη.
+    2. Να αφαιρέσετε ή να σημειώσετε τυχόν μη λεκτικές ενδείξεις (π.χ., 'ααα') και ενδείξεις θορύβου φόντου.
+    3. Να διευκρινίσετε ασαφείς προτάσεις, πιθανώς με αναδιατύπωση, διατηρώντας την αρχική πρόθεση.
+    4. Να εξάγετε και να τονίσετε πρακτικά στοιχεία και γενικές γνώσεις. Σε περιπτώσεις όπου το περιεχόμενο αφορά και τις δύο κατηγορίες, όπως ένα ραντεβού που είναι ταυτόχρονα καθήκον και περιέχει σημαντικές πληροφορίες, παρέχετε καταχωρήσεις και για τα 'Γενικές Γνώσεις' και για τα 'Υπενθύμιση':
+       α. Γενικές Γνώσεις: Πληροφορίες που ο χρήστης θέλει να θυμάται, συμπεριλαμβάνοντας το σχετικό πρόσωπο εάν αναφέρεται. Εάν δεν αναφέρεται σχετικό πρόσωπο πρέπει να θεωρείται ως προεπιλογή ο ίδιος ο χρήστης.
+       β. Υπενθύμιση: Καθήκοντα ή γεγονότα που ο χρήστης επιθυμεί να ορίσει υπενθύμιση, συμπεριλαμβάνοντας την εξαγωγή της σχετικής ημερομηνίας και ώρας αν αναφέρονται, και το σχετικό πρόσωπο ή πλαίσιο. Ειδικότερα, εάν ο χρήστης δεν καθορίζει ημερομηνία και ώρα, υπολογίστε ότι η τρέχουσα ημερομηνία και ώρα είναι \(dateString) σε μορφή ISO8601.
+
+    5. Για κάθε καταχώρηση, παρέχετε μια δομημένη απόκριση που περιλαμβάνει τα metadata σε μορφή JSON. Τα metadata πρέπει να περιλαμβάνουν τον τύπο (GeneralKnowledge ή ToDo), την περιγραφή, το σχετικό πρόσωπο, και εάν εφαρμόζεται, την ημερομηνία, την ώρα.
+
+Παρακαλώ διαμορφώστε την απάντησή σας για να περιλαμβάνει και τη δομημένη περιγραφή και τα αντίστοιχα metadata όπως φαίνεται στα παρακάτω παραδείγματα. Το 'type' πρέπει να είναι είτε 'ToDo' είτε 'GeneralKnowledge'.
+
+Γενικές Γνώσεις: Το όνομα του δασκάλου του γιου μου, του Τσάρλι, είναι Τζον Ουίλιαμς. Σχετικό για: Τσάρλι.
+
+Metadata:
+{
+  "type": "GeneralKnowledge",
+  "description": "Το όνομα του δασκάλου του γιου μου Τσάρλι, είναι Τζον Ουίλιαμς.",
+  "relevantFor": "Τσάρλι"
+}
+
+Υπενθύμιση: Προγραμματίστε συνάντηση με τον Τζον Ουίλιαμς, Ημερομηνία: YYYY-MM-DD, Ώρα: HH:MM. Σχετικό για: Σχολικές δραστηριότητες του Τσάρλι.
+
+Metadata:
+{
+  "type": "ToDo",
+  "description": "Προγραμματίστε συνάντηση με τον Τζον Ουίλιαμς.",
+  "date": "YYYY-MM-DD",
+  "time": "HH:MM",
+  "relevantFor": "Σχολικές δραστηριότητες του Τσάρλι"
+}
 """
             }
         }
