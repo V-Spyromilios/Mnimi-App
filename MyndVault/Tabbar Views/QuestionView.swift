@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct QuestionView: View {
+
     @Binding var question: String
-    
     @Binding var thrownError: String
     @State var goButtonIsVisible: Bool = true
     @State private var clearButtonIsVisible: Bool = false
@@ -18,12 +18,22 @@ struct QuestionView: View {
     @EnvironmentObject var progressTracker: ProgressTracker
     
     var body: some View {
-        VStack {
+        NavigationStack {
+        ScrollView {
+            //        VStack {
+            HStack {
+                Image(systemName: "questionmark.bubble").bold()
+                Text("Query").bold()
+                Spacer()
+            }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
+                .navigationTitle("Search 🔍")
+            //                .transition(.opacity)
+//                .padding(.bottom, 12)
             TextEditor(text: $question)
                 .fontDesign(.rounded)
                 .font(.title2)
                 .multilineTextAlignment(.leading)
-                .frame(height: 80)
+                .frame(height: 110)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .shadow(radius: 5)
                 .overlay {
@@ -33,11 +43,7 @@ struct QuestionView: View {
                         .foregroundColor(Color.gray)
                 }
                 .padding(.bottom)
-                .padding(.horizontal, 6)
-                .padding(.top, 7)
-               
-            
-            //            ScrollView {
+                .padding(.horizontal, 7)
             VStack {
                 if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
                     ErrorView(thrownError: thrownError)
@@ -80,8 +86,21 @@ struct QuestionView: View {
                     ClearButton
                 }
             }
-            //            }
+            
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    HStack {
+                        Spacer()
+                        Button {
+                            hideKeyboard()
+                        } label: {
+                            Image(systemName: "keyboard.chevron.compact.down")
+                        }
+                    }
+                }
+            }
         }
+    }
     }
     private var GoButton: some View {
         Button(action: performTask) {

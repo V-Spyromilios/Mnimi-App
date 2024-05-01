@@ -24,13 +24,41 @@ struct NewAddInfoView: View {
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     
     var body: some View {
-        //        ZStack {
-        VStack {
-            HStack {
-                TextEditor(text: $newInfo)
+        NavigationStack {
+        ScrollView {
+            VStack {
+                HStack {
+                    Image(systemName: "plus.bubble").bold()
+                    Text("info").bold()
+                    Spacer()
+                }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
+                HStack {
+                    TextEditor(text: $newInfo)
+                        .fontDesign(.rounded)
+                        .font(.title2)
+                        .frame(height: 110)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .shadow(radius: 5)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(0.3)
+                                .foregroundColor(Color.gray)
+                        )
+                        .padding(.bottom)
+                        .padding(.horizontal, 7)
+                }
+                HStack {
+                    Image(systemName: "person.bubble").bold()
+                    Text("Relevant For:").bold()
+                    Spacer()
+                }.font(.callout).padding(.horizontal, 7)
+                    .padding(.bottom, 8)
+                
+                TextEditor(text: $relevantFor)
                     .fontDesign(.rounded)
                     .font(.title2)
-                    .frame(minHeight: 80, maxHeight: 90)
+                    .frame(minHeight: 40, maxHeight: 50)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(radius: 5)
                     .overlay(
@@ -40,63 +68,52 @@ struct NewAddInfoView: View {
                             .foregroundColor(Color.gray)
                     )
                     .padding(.bottom)
-                    .padding(.horizontal, 6)
-                    .padding(.top, 7)
-            }
-            HStack {
-                Image(systemName: "person.bubble").bold()
-                Text("Relevant For:").bold()
-                Spacer()
-            }.font(.callout)
-                .padding(.bottom, 12)
-            
-            TextEditor(text: $relevantFor)
-                .fontDesign(.rounded)
-                .font(.title2)
-                .frame(minHeight: 40, maxHeight: 50)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .shadow(radius: 5)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10.0)
-                        .stroke(lineWidth: 1)
-                        .opacity(0.3)
-                        .foregroundColor(Color.gray)
-                )
-                .padding(.bottom)
-                .padding(.horizontal, 6)
-            
-            
-            //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
-            
-            
-            if self.thrownError != "" {
-                ErrorView(thrownError: thrownError)
-                    .padding(.top)
-                    .padding(.horizontal)
-                ClearButton
-            }
-            else if pineconeManager.receivedError != nil {
-                ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
-                    .padding(.top)
-                    .padding(.horizontal)
-                ClearButton
-            }
-            else if openAiManager.thrownError != "" {
-                ErrorView(thrownError: openAiManager.thrownError)
-                    .padding(.top)
-                    .padding(.horizontal)
-                ClearButton
-            }
-            if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManager.progressText != "") && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                CircularProgressView(progressTracker: progressTracker).padding()
-            }
-            
-            else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                SaveButton
-            }
-            
+                    .padding(.horizontal, 7)
+                
+                
+                //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
+                
+                
+                if self.thrownError != "" {
+                    ErrorView(thrownError: thrownError)
+                        .padding(.top)
+                        .padding(.horizontal)
+                    ClearButton
+                }
+                else if pineconeManager.receivedError != nil {
+                    ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
+                        .padding(.top)
+                        .padding(.horizontal)
+                    ClearButton
+                }
+                else if openAiManager.thrownError != "" {
+                    ErrorView(thrownError: openAiManager.thrownError)
+                        .padding(.top)
+                        .padding(.horizontal)
+                    ClearButton
+                }
+                if progressTracker.progress < 0.99 && (openAiManager.progressText != "" || pineconeManager.progressText != "") && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                    CircularProgressView(progressTracker: progressTracker).padding()
+                }
+                
+                else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                    SaveButton
+                }
+            }.navigationTitle("Add New 📝")
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        HStack {
+                            Spacer()
+                            Button {
+                                hideKeyboard()
+                            } label: {
+                                Image(systemName: "keyboard.chevron.compact.down")
+                            }
+                        }
+                    }
+                }
         }
-        //        }
+    }
     }
     
     private var SaveButton: some View {

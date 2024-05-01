@@ -1,26 +1,25 @@
 //
-//  InfosViewListCellView.swift
+//  SwiftUIView.swift
 //  MyndVault
 //
-//  Created by Evangelos Spyromilios on 09.04.24.
+//  Created by Evangelos Spyromilios on 01.05.24.
 //
 
 import SwiftUI
 
-struct InfosViewListCellView: View {
-    
-    let data: Vector
-    
+struct NotificationsListCell: View {
+
+    var notification: CustomNotification
     var body: some View {
         HStack {
         VStack(alignment: .leading, spacing: 8) {
-            Text("\(data.metadata["description"] ?? "Empty note.")").lineLimit(2).truncationMode(.tail).font(.subheadline)
+            Text(notification.title).lineLimit(2).truncationMode(.tail).font(.subheadline)
                 .fontDesign(.rounded)
                 .fontWeight(.semibold).padding(.horizontal).padding(.top, 4)
             HStack {
-                Text("\(data.metadata["relevantFor"] ?? "Relevant for?")").lineLimit(1).truncationMode(.tail).font(.footnote).fontWeight(.thin).padding(.leading)
+                Text(notification.body).lineLimit(1).truncationMode(.tail).font(.footnote).fontWeight(.thin).padding(.leading)
                 Spacer()
-                if let date = dateFromISO8601(isoDate: data.metadata["timestamp"] ?? "") {
+                if let date = dateFromISO8601(isoDate: notification.date?.description ?? "") {
                     let displayDate = formatDateForDisplay(date: date)
                     Text(displayDate).font(.footnote).fontWeight(.thin).padding(.trailing)
                 }
@@ -41,7 +40,6 @@ struct InfosViewListCellView: View {
     }
 }
 
-
 #Preview {
-    InfosViewListCellView(data: Vector(id: "2034-1", metadata: ["description": "Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon,", "relevantFor": "User1 ithe main user in this app, and this is a long line", "timestamp": "2024-04-28T14:28:00Z"]))
+    NotificationsListCell(notification: CustomNotification(id: "A22-C", title: "Demo", body: "nice notification!"))
 }

@@ -16,7 +16,7 @@ struct SettingsView: View {
                 List {
                     NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language") }
                     
-                    NavigationLink(destination: InfosView()) { Text("Saved info") }
+                    NavigationLink(destination: VaultView()) { Text("Saved info") }
                     
                     NavigationLink(destination: DeveloperView()) { Text("Developer") }
                     

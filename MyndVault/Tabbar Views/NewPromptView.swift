@@ -106,7 +106,7 @@ struct NewPromptView: View {
                     
                 }
                 if selectedType == .reminder {
-                    reminderView()
+//                    reminderView()
                     
                 }
             }
@@ -128,7 +128,7 @@ struct NewPromptView: View {
         .alert(isPresented: $showNetworkError) {
             Alert(
                 title: Text("No Internet Connection"),
-                message: Text("Please check your internet connection and try again."),
+                message: Text("Please activate your WiFi or Mobile Data connection."),
                 dismissButton: .cancel(Text("OK")) {
                     self.question = ""
                     self.relevantFor = ""
@@ -155,94 +155,7 @@ struct NewPromptView: View {
             )
         }
     }
-    
-    
-    //MARK: reminderView()
-    @ViewBuilder
-    private func reminderView() -> some View {
-        HStack {
-            TextEditor(text: $reminderText)
-                .fontDesign(.rounded)
-                .font(.title2)
-                .multilineTextAlignment(.leading)
-                .frame(minHeight: 80, maxHeight: 90)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .shadow(radius: 5)
-                .overlay{
-                    RoundedRectangle(cornerRadius: 10.0)
-                        .stroke(lineWidth: 1)
-                        .opacity(0.3)
-                        .foregroundColor(Color.gray)
-                }
-                .padding(.bottom)
-                .padding(.horizontal, 6)
-                .padding(.top, 7)
-                .onAppear { }
-        }
-        
-        HStack {
-            
-            Image(systemName: "clock").bold()
-                .font(.callout)
-            Text("When?").bold()
-                .font(.callout)
-            
-            DatePicker(
-                "",
-                selection: $reminderDate,
-                displayedComponents: [.date, .hourAndMinute]
-            ).padding(.vertical, 8)
-        }
-        HStack {
-            Button(action: {
-                Task { scheduleNotification() }
-            }) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: rectCornerRad)
-                        .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
-                        .frame(height: 60)
-                        .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
-                    Text("Save").font(.title2).bold().foregroundColor(.white)
-                } .padding(.vertical, 8)
-                    .contentShape(Rectangle())
-            }.frame(maxWidth: .infinity)
-            Spacer()
-        }
-    }
-    
-    //MARK: scheduleNotifications()
-    private func scheduleNotification() {
-        
-        let content = UNMutableNotificationContent()
-        content.title = "Reminder !"
-        content.body = self.reminderText
-        content.sound = UNNotificationSound.defaultCritical
-        
-        let triggerDate = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: self.reminderDate)
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
-        
-        let identifier = UUID().uuidString
-        
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                DispatchQueue.main.async {
-                    //TODO: Show Error pop-up
-                    print("Error scheduling notification: \(error.localizedDescription)")
-                }
-            }
-            else if error == nil {
-                DispatchQueue.main.async {
-                    //TODO: Show Confirmation pop-up
-                    print("Notification scheduled for (date): \(self.reminderDate)")
-                    notificationManager.fetchScheduledNotifications()
-                    //MARK: HERE
-                }
-            }
-        }
-    }
+
     
 }
 

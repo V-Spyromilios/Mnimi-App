@@ -11,33 +11,38 @@ struct CustomTabBarView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject var notificationsManager: NotificationViewModel
     @Binding var tabSelection: Int
-    @Namespace private var animation
+    @State private var questionIsAnimating: Bool = true
+    @State private var plusIsAnimating: Bool = false
+    @State private var archiveIsAnimating: Bool = false
+    @State private var todoIsAnimating: Bool = false
 
-    @State private var gearIsAnimating: Bool = false
-    @State private var quoteIsAnimating: Bool = true
-    @State private var listIsAnimating: Bool = false
     var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opacity(0.3),Color.orange.opacity(0.3), Color.orange.opacity(0.6), Color.orange.opacity(0.8),Color.orange, Color.yellow.opacity(0.4)]), startPoint: .top, endPoint: .bottom)
     
-    var blueGradient = LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen.opacity(0.5),Color.britishRacingGreen.opacity(0.8), Color.britishRacingGreen]), startPoint: .top, endPoint: .bottom)
+    var brGreenGradient = LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen.opacity(0.5),Color.britishRacingGreen.opacity(0.8), Color.britishRacingGreen]), startPoint: .top, endPoint: .bottom)
    
     
     var body: some View {
         ZStack {
             Capsule()
-                .foregroundStyle(blueGradient)
+                .foregroundStyle(brGreenGradient)
                 .frame(height: 70)
                 .shadow(radius: 8)
 
             HStack(alignment: .bottom, spacing: 45) {
 
-                // quote.bubble Button
-                tabBarButton(imageName: quoteIsAnimating ? "quote.bubble.fill" : "quote.bubble", tabId: 1, isAnimating: $quoteIsAnimating)
+                tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 1, isAnimating: $questionIsAnimating).padding(.leading)
+                
+                tabBarButton(imageName: plusIsAnimating ? "plus.bubble.fill" : "plus.bubble", tabId: 2, isAnimating: $plusIsAnimating)
+                
+                tabBarButton(imageName: archiveIsAnimating ? "archivebox.fill" : "archivebox", tabId: 3, isAnimating: $archiveIsAnimating)
 
                 ZStack {
-                tabBarButton(imageName: listIsAnimating ? "list.clipboard.fill": "list.clipboard", tabId: 2, isAnimating: $listIsAnimating, notificationsCount: notificationsManager.scheduledNotifications.count).padding(.horizontal)
+                tabBarButton(imageName: notificationsManager.scheduledNotifications.count > 0
+                             ? (todoIsAnimating ? "bell.and.waves.left.and.right.fill" : "bell.and.waves.left.and.right")
+                             : (todoIsAnimating ? "bell.fill" : "bell"), tabId: 4, isAnimating: $todoIsAnimating, notificationsCount: notificationsManager.scheduledNotifications.count).padding(.horizontal)
                     if notificationsManager.scheduledNotifications.count > 0 {
                         
-                        // custom badge implementation
+                        // custom badge
                         Text("\(notificationsManager.scheduledNotifications.count)")
                             .font(.caption2)
                             .bold()
@@ -45,12 +50,9 @@ struct CustomTabBarView: View {
                             .frame(width: 18, height: 18)
                             .background(Color.red)
                             .clipShape(Circle())
-                        
                             .offset(x: 10, y: -10)
                     }
                 }
-                // Gear Button
-                tabBarButton(imageName: gearIsAnimating ? "gearshape.2.fill" : "gearshape.2", tabId: 3, isAnimating: $gearIsAnimating, isGear: true)
             }
             .frame(height: 70) // Same as capsule height
         }
@@ -62,11 +64,11 @@ struct CustomTabBarView: View {
                 withAnimation {
                     tabSelection = tabId
                 }
-                toggleAnimation(for: tabId - 1)
+                toggleFocus(for: tabId)
             }) {
                 Image(systemName: imageName)
                                    .font(.largeTitle)
-                                   .foregroundStyle(.white)
+                                   .foregroundStyle(isAnimating.wrappedValue ? .white : .white.opacity(0.9))
                                   
             }
             //                if tabSelection == tabId {
@@ -83,26 +85,25 @@ struct CustomTabBarView: View {
             //                        .offset(y: 7)
             //                        .clipped()
             //                }
-
     }
     
-    private func toggleAnimation(for index: Int) {
+    private func toggleFocus(for index: Int) {
 
-        gearIsAnimating = false
-        listIsAnimating = false
-        quoteIsAnimating = false
+        questionIsAnimating = false
+        archiveIsAnimating = false
+        plusIsAnimating = false
+        todoIsAnimating = false
 
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            switch index + 1 {
+            switch index {
             case 1:
-                quoteIsAnimating = true
+                questionIsAnimating = true
             case 2:
-                listIsAnimating = true
+                plusIsAnimating = true
             case 3:
-                gearIsAnimating = true
-
+                archiveIsAnimating = true
+            case 4:
+                todoIsAnimating = true
             default: break
             }
-//        }
     }
 }

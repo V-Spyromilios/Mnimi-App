@@ -26,7 +26,7 @@
 		E82F45742BC2A77E00945312 /* NotificationDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45682BC2A77E00945312 /* NotificationDetailView.swift */; };
 		E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45692BC2A77E00945312 /* NotificationEditView.swift */; };
 		E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */; };
-		E82F45772BC2A77E00945312 /* ToDoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456B2BC2A77E00945312 /* ToDoView.swift */; };
+		E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456B2BC2A77E00945312 /* NotificationsView.swift */; };
 		E82F45842BC2A80C00945312 /* NewPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457B2BC2A80B00945312 /* NewPromptView.swift */; };
 		E82F45852BC2A80C00945312 /* NewTextEditorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */; };
 		E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */; };
@@ -45,12 +45,14 @@
 		E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */; };
 		E8BFD3512BC58BC300355B44 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E8BFD3502BC58BC300355B44 /* FirebaseAnalytics */; };
 		E8BFD3532BC58BC300355B44 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = E8BFD3522BC58BC300355B44 /* FirebaseAppCheck */; };
+		E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */; };
+		E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */; };
 		E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */; };
 		E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */; };
 		E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */; };
 		E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */; };
 		E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */; };
-		E8FA7F0C2BC5BC320012EBF6 /* InfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* InfosView.swift */; };
+		E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* VaultView.swift */; };
 		E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */; };
 		E8FA7F0E2BC5BC320012EBF6 /* PromptLanguageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */; };
 		E8FA7F0F2BC5BC320012EBF6 /* RecordingsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F042BC5BC320012EBF6 /* RecordingsSettingsView.swift */; };
@@ -81,7 +83,7 @@
 		E82F45682BC2A77E00945312 /* NotificationDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationDetailView.swift; sourceTree = "<group>"; };
 		E82F45692BC2A77E00945312 /* NotificationEditView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationEditView.swift; sourceTree = "<group>"; };
 		E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
-		E82F456B2BC2A77E00945312 /* ToDoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoView.swift; sourceTree = "<group>"; };
+		E82F456B2BC2A77E00945312 /* NotificationsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		E82F457B2BC2A80B00945312 /* NewPromptView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewPromptView.swift; sourceTree = "<group>"; };
 		E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewTextEditorsView.swift; sourceTree = "<group>"; };
 		E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewModel.swift; sourceTree = "<group>"; };
@@ -97,12 +99,14 @@
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsListCell.swift; sourceTree = "<group>"; };
+		E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNotificationView.swift; sourceTree = "<group>"; };
 		E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionView.swift; sourceTree = "<group>"; };
 		E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAddInfoView.swift; sourceTree = "<group>"; };
 		E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManager.swift; sourceTree = "<group>"; };
 		E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeveloperView.swift; sourceTree = "<group>"; };
 		E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditInfoView.swift; sourceTree = "<group>"; };
-		E8FA7F012BC5BC320012EBF6 /* InfosView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfosView.swift; sourceTree = "<group>"; };
+		E8FA7F012BC5BC320012EBF6 /* VaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
 		E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptLanguageView.swift; sourceTree = "<group>"; };
 		E8FA7F042BC5BC320012EBF6 /* RecordingsSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordingsSettingsView.swift; sourceTree = "<group>"; };
@@ -181,27 +185,25 @@
 				E82F45682BC2A77E00945312 /* NotificationDetailView.swift */,
 				E82F45692BC2A77E00945312 /* NotificationEditView.swift */,
 				E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */,
-				E82F456B2BC2A77E00945312 /* ToDoView.swift */,
 			);
 			path = "Notification Views";
 			sourceTree = "<group>";
 		};
-		E82F457F2BC2A80B00945312 /* Prompt Views */ = {
+		E82F457F2BC2A80B00945312 /* Tabbar Views */ = {
 			isa = PBXGroup;
 			children = (
 				E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */,
 				E82F457B2BC2A80B00945312 /* NewPromptView.swift */,
 				E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */,
-				E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */,
-				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
-				E82F457E2BC2A80B00945312 /* TextEffectView.swift */,
+				E82F456B2BC2A77E00945312 /* NotificationsView.swift */,
 			);
-			path = "Prompt Views";
+			path = "Tabbar Views";
 			sourceTree = "<group>";
 		};
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */,
 				E8FA7F082BC5BC320012EBF6 /* Settings */,
 				E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */,
 				E8459EC62BC1E3BE00CE34A7 /* MyndVault */,
@@ -229,8 +231,12 @@
 				E82F45532BC2A72100945312 /* Progress */,
 				E82F454C2BC2A6D100945312 /* NextSteps */,
 				E82F454B2BC2A6D100945312 /* OpenAIKey.plist */,
-				E82F457F2BC2A80B00945312 /* Prompt Views */,
+				E82F457F2BC2A80B00945312 /* Tabbar Views */,
 				E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */,
+				E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */,
+				E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */,
+				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
+				E82F457E2BC2A80B00945312 /* TextEffectView.swift */,
 				E82F458D2BC2A95900945312 /* LoadingView.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
@@ -251,7 +257,7 @@
 			isa = PBXGroup;
 			children = (
 				E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */,
-				E8FA7F012BC5BC320012EBF6 /* InfosView.swift */,
+				E8FA7F012BC5BC320012EBF6 /* VaultView.swift */,
 				E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */,
 				E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */,
 				E87FB25E2BC96EA000B1A16D /* InfoView.swift */,
@@ -393,6 +399,7 @@
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
+				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
 				E82F45852BC2A80C00945312 /* NewTextEditorsView.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
 				E82F456D2BC2A77E00945312 /* ApiConfiguration.swift in Sources */,
@@ -407,11 +414,12 @@
 				E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */,
 				E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */,
 				E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */,
-				E8FA7F0C2BC5BC320012EBF6 /* InfosView.swift in Sources */,
+				E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */,
 				E8FA7F0E2BC5BC320012EBF6 /* PromptLanguageView.swift in Sources */,
 				E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */,
 				E8FA7F102BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift in Sources */,
-				E82F45772BC2A77E00945312 /* ToDoView.swift in Sources */,
+				E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */,
+				E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */,
 				E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */,
 				E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */,
 				E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */,

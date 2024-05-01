@@ -13,6 +13,10 @@ struct ContentView: View {
    
     @ObservedObject var networkManager = NetworkManager()
     
+    @EnvironmentObject var openAiManager: OpenAIManager
+    @EnvironmentObject var pineconeManager: PineconeManager
+    @EnvironmentObject var progressTracker: ProgressTracker
+    
     @EnvironmentObject private var keyboardResponder: KeyboardResponder
     @State var keyboardAppeared: Bool = false
     @State var hideKyeboardButton: Bool = false
@@ -21,16 +25,34 @@ struct ContentView: View {
     @State var showNetworkError = false
     @EnvironmentObject var speechManager: SpeechRecognizerManager
     
+    
+    // for the Question view:
+    @State var question: String = ""
+    @State var thrownError: String = "" //common with NewAddInfo
+    
+    //for the NewAddInfo
+    @State var newInfo: String = ""
+    @State var apiCallInProgress: Bool = false
+    @State var relevantFor: String = ""
+    @State var showAlert = false
+    @State var showTopBar: Bool = false
+    @State var topBarMessage: String = ""
+    
     var body: some View {
-
-        NavigationStack {
            
                 TabView(selection: $tabSelection) {
+                    QuestionView(question: $question, thrownError: $thrownError).tag(1)
                     
-                    //               AskView().keyboardResponsive().tag(1)
-                    NewPromptView().tag(1)
-                    ToDoView().tag(2)
-                    SettingsView().tag(3)
+                    NewAddInfoView(newInfo: $newInfo, relevantFor: $relevantFor, apiCallInProgress: $apiCallInProgress, thrownError: $thrownError, showAlert: $showAlert, showTopBar: $showTopBar, topBarMessage: $topBarMessage).tag(2)
+                        .environmentObject(openAiManager)
+                        .environmentObject(pineconeManager)
+                        .environmentObject(progressTracker)
+                        .environmentObject(keyboardResponder)
+                    
+                    VaultView().tag(3)
+
+                    NotificationsView().tag(4)
+//                    SettingsView().tag(3) //TODO: move to button
                     
                 }
                 .overlay(alignment: .bottom) {
@@ -42,19 +64,19 @@ struct ContentView: View {
                             .padding(.horizontal)
                             .shadow(radius: 8)
                     }
-                    else {
-                        HStack {
-                            Spacer()
-                            Button {
-                                hideKeyboard()
-                            } label: {
-                                Image(systemName: "keyboard.chevron.compact.down")
-                                    .transition(.asymmetric(insertion: .opacity.combined(with: .move(edge: .bottom)), removal: .opacity))
-                                    .animation(.easeInOut(duration: 0.3), value: keyboardAppeared)
-                            }
-                        }.padding(.trailing,12)
-                            .padding(.bottom, 8)
-                    }
+//                    else {
+//                        HStack {
+//                            Spacer()
+//                            Button {
+//                                hideKeyboard()
+//                            } label: {
+//                                Image(systemName: "keyboard.chevron.compact.down")
+//                                    .transition(.asymmetric(insertion: .opacity.combined(with: .move(edge: .bottom)), removal: .opacity))
+//                                    .animation(.easeInOut(duration: 0.3), value: keyboardAppeared)
+//                            }
+//                        }.padding(.trailing,12)
+//                            .padding(.bottom, 8)
+//                    }
                 }
             
                 .onAppear {
@@ -83,7 +105,7 @@ struct ContentView: View {
                         dismissButton: .default(Text("OK"))
                     )
                 }
-        }
+        
     }
 }
         

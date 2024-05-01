@@ -21,12 +21,26 @@ class NotificationViewModel: ObservableObject {
     @Published var scheduledNotifications: [CustomNotification] = []
 
     init() {
-        self.deliveredNotifications = deliveredNotifications
-        self.scheduledNotifications = scheduledNotifications
+//        self.deliveredNotifications = deliveredNotifications
+//        self.scheduledNotifications = scheduledNotifications
         
         fetchDeliveredNotifications()
         fetchScheduledNotifications()
     }
+    
+    func fetchMockNotifications() {
+        self.scheduledNotifications = [
+            CustomNotification(id: "1234", title: "Meeting", body: "Team meeting at 3 PM"),
+            CustomNotification(id: "49403", title: "Dinner", body: "Dinner with family at 7 PM"),
+            CustomNotification(id: "1234", title: "Meeting", body: "Team meeting at 3 PM"),
+            CustomNotification(id: "49403", title: "Dinner", body: "Dinner with family at 7 PM"),
+            CustomNotification(id: "1234", title: "Meeting", body: "Team meeting at 3 PM"),
+            CustomNotification(id: "49403", title: "Dinner", body: "Dinner with family at 7 PM"),
+            CustomNotification(id: "1234", title: "Meeting", body: "Team meeting at 3 PM"),
+            CustomNotification(id: "49403", title: "Dinner", body: "Dinner with family at 7 PM")
+            ]
+    }
+    
     func fetchDeliveredNotifications() {
 
         UNUserNotificationCenter.current().getDeliveredNotifications { deliveredNotifications in

@@ -30,24 +30,23 @@ struct InfoView: View {
             HStack {
                 Image(systemName: "rectangle.and.pencil.and.ellipsis").bold()
                 Text("Edit Info:").bold()
-                Spacer()
-                Button(action: {
-                    viewModel.showDeleteWarning = true
-                   
-                }, label: {
-                    Image(systemName: "trash").foregroundStyle(.red)
-                })
+                Spacer() //or .frame(alignment:) in the hstack
             }.font(.callout)
                 .padding(.bottom, 12).padding(.top, 12)
             HStack {
                 TextEditor(text: $viewModel.description)
+                    .fontDesign(.rounded)
+                    .font(.title2)
+                    .multilineTextAlignment(.leading)
+                    .frame(height: 80)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(radius: 5)
                     .overlay{
                         RoundedRectangle(cornerRadius: 10.0)
                             .stroke(lineWidth: 1)
                             .opacity(0.3)
                             .foregroundColor(Color.gray)
                     }
-                    .frame(height: 100)
                     .padding(.bottom)
                     .onAppear { focusField = .edit }
                     .onSubmit { focusField = .relevantFor }
@@ -61,7 +60,12 @@ struct InfoView: View {
                 .padding(.bottom, 12)
             
             TextEditor(text: $viewModel.relevantFor)
+                .fontDesign(.rounded)
+                .font(.title2)
+                .multilineTextAlignment(.leading)
                 .frame(height: 40)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .shadow(radius: 5)
                 .overlay{
                     RoundedRectangle(cornerRadius: 10.0)
                         .stroke(lineWidth: 1)
@@ -76,6 +80,7 @@ struct InfoView: View {
            
             HStack {
                 Button(action: {
+                    hideKeyboard()
                     DispatchQueue.main.async {
                         viewModel.showEditConfirmation = true
                     }
@@ -83,7 +88,7 @@ struct InfoView: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: rectCornerRad)
                             .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
-                            .frame(height: 70)
+                            .frame(height: 60)
                             .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
                         Text("Save").font(.title2).bold().foregroundColor(.white)
                     }
@@ -103,7 +108,19 @@ struct InfoView: View {
                     }
                 }
             }
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                
+                Button(action: {
+                    viewModel.showDeleteWarning = true
+                   
+                }, label: {
+                    Image(systemName: "trash").foregroundStyle(.red)
+                        .imageScale(.large)
+                        .accessibilityLabel("Delete info")
+                })
+            }
         }
+        
     }
 }
 
