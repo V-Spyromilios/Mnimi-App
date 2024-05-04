@@ -392,17 +392,23 @@ class OpenAIManager: ObservableObject {
         guard let apiKey = ApiConfiguration.openAIKey else {
             throw AppNetworkError.apiKeyNotFound
         }
-        
+        ProgressTracker.shared.setProgress(to: 0.75)
         let gptResponse = try await getGptResponse(apiKey: apiKey, vectorResponses: queryMatches, question: question)
         await MainActor.run {
             self.stringResponseOnQuestion = gptResponse
+            ProgressTracker.shared.setProgress(to: 0.97)
+            ProgressTracker.shared.setProgress(to: 0.99)
+            print(gptResponse)
         }
-        ProgressTracker.shared.setProgress(to: 0.75)
+        
+        
         
 //        try await convertTextToSpeech(text: gptResponse, apiKey: apiKey)
     }
     
     private func getGptResponse(apiKey: String, vectorResponses: [String], question: String) async throws -> String {
+        print("Inside getGptResponse....")
+        ProgressTracker.shared.setProgress(to: 0.8)
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             throw AppNetworkError.invalidOpenAiURL
         }
@@ -419,24 +425,38 @@ class OpenAIManager: ObservableObject {
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-        
+        ProgressTracker.shared.setProgress(to: 0.9)
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            print(AppNetworkError.invalidResponse)
             throw AppNetworkError.invalidResponse
         }
-        
+
         let decoder = JSONDecoder()
-        let gptResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
-        guard let firstChoice = gptResponse.choices.first else {
-            throw NSError(domain: "AppError", code: 3, userInfo: [NSLocalizedDescriptionKey: "No choices in GPT response"])
+        do {
+            let gptResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
+            guard let firstChoice = gptResponse.choices.first else {
+                let errorInfo = """
+            GPT response does not have choices:
+            Response: \(String(data: data, encoding: .utf8) ?? "No response data")
+            """
+//                print(errorInfo)
+                throw NSError(domain: "AppError", code: 3, userInfo: [NSLocalizedDescriptionKey: errorInfo])
+            }
+            updateTokenUsage(api: "OpenAI", tokensUsed: gptResponse.usage.totalTokens, read: false)
+            return firstChoice.message.content
         }
-        updateTokenUsage(api: "OpenAI", tokensUsed: gptResponse.usage.totalTokens, read: false)
-        return firstChoice.message.content
+        catch {
+            print("Error decoding GPT response: \(error)")
+//                   print("Response data: \(String(data: data, encoding: .utf8) ?? "No response data")")
+                   throw error
+        }
     }
     
-    //MARK: covert Text to Speech
+    //MARK: covert Text to Speech DEPRICATED
     private func convertTextToSpeech(text: String, apiKey: String) async throws {
+        
         guard let url = URL(string: "https://api.openai.com/v1/audio/speech") else {
             throw AppNetworkError.invalidTTSURL
         }

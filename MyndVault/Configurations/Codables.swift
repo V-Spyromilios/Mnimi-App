@@ -30,7 +30,7 @@ struct ChatCompletionResponse: Codable {
     let object: String
     let created: Int
     let model: String
-    let systemFingerprint: String
+    let systemFingerprint: String?
     let choices: [Choice]
     let usage: Usage
     
@@ -45,7 +45,7 @@ struct ChatCompletionResponse: Codable {
         self.object = try container.decode(String.self, forKey: .object)
         self.created = try container.decode(Int.self, forKey: .created)
         self.model = try container.decode(String.self, forKey: .model)
-        self.systemFingerprint = try container.decode(String.self, forKey: .systemFingerprint)
+        self.systemFingerprint = try container.decodeIfPresent(String.self, forKey: .systemFingerprint)
         self.choices = try container.decode([Choice].self, forKey: .choices)
         self.usage = try container.decode(Usage.self, forKey: .usage)
     }

@@ -15,9 +15,8 @@ struct EditInfoView: View {
     @State var showProgress: Bool = false
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State var topBarMessage: String = ""
-    
-    
-    
+
+
     var body: some View {
         ZStack {
             
@@ -136,12 +135,11 @@ struct EditInfoView: View {
 
 
 #Preview {
+
     EditInfoView(viewModel: EditInfoViewModel(vector: Vector(id: "uuid-test01", metadata: [
         "timestamp":"2024",
         "relevantFor":"Charlie",
         "description":"Pokemon",
     ])))
-    .environmentObject(PineconeManager())
-    .environmentObject(OpenAIManager())
     
 }

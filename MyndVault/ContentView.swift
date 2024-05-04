@@ -16,11 +16,12 @@ struct ContentView: View {
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     @EnvironmentObject private var keyboardResponder: KeyboardResponder
     @State var keyboardAppeared: Bool = false
     @State var hideKyeboardButton: Bool = false
-    @State var tabSelection: Int = 1
+    @State private var tabSelection: Int = 1
     @State var showEditors: Bool = true
     @State var showNetworkError = false
     @EnvironmentObject var speechManager: SpeechRecognizerManager
@@ -28,6 +29,7 @@ struct ContentView: View {
     // for the Question view:
     @State var question: String = ""
     @State var thrownError: String = "" //common with NewAddInfo
+    @State private var showSettings: Bool = false  //common with NewAddInfo
     
     //for the NewAddInfo
     @State var newInfo: String = ""
@@ -38,30 +40,41 @@ struct ContentView: View {
     @State var topBarMessage: String = ""
     
     var body: some View {
-           
-                TabView(selection: $tabSelection) {
-
-                    QuestionView(question: $question, thrownError: $thrownError).tag(1)
-                    
-                    NewAddInfoView(newInfo: $newInfo, relevantFor: $relevantFor, apiCallInProgress: $apiCallInProgress, thrownError: $thrownError, showAlert: $showAlert, showTopBar: $showTopBar, topBarMessage: $topBarMessage).tag(2)
-                        .environmentObject(openAiManager)
-                        .environmentObject(pineconeManager)
-                        .environmentObject(progressTracker)
-                        .environmentObject(keyboardResponder)
-                    
-                    VaultView().tag(3)
-                    NotificationsView().tag(4)
+        ZStack {
+            TabView(selection: $tabSelection) {
+                
+                QuestionView(question: $question, thrownError: $thrownError, showSettings: $showSettings).tag(1)
+                
+                NewAddInfoView(newInfo: $newInfo, relevantFor: $relevantFor, apiCallInProgress: $apiCallInProgress, thrownError: $thrownError, showAlert: $showAlert, showTopBar: $showTopBar, topBarMessage: $topBarMessage, showSettings: $showSettings).tag(2)
+                    .environmentObject(openAiManager)
+                    .environmentObject(pineconeManager)
+                    .environmentObject(progressTracker)
+                    .environmentObject(keyboardResponder)
+                
+                VaultView().tag(3)
+                NotificationsView().tag(4)
+            }
+            .overlay(alignment: .bottom) {
+                if !keyboardAppeared {
+                    CustomTabBarView(tabSelection: $tabSelection)
+                        .transition(.move(edge: .bottom))
+                        .edgesIgnoringSafeArea(.bottom)
+                        .animation(.easeInOut, value: keyboardAppeared)
+                        .padding(.horizontal)
+                        .shadow(radius: 8)
                 }
-                .overlay(alignment: .bottom) {
-                    if !keyboardAppeared {
-                        CustomTabBarView(tabSelection: $tabSelection)
-                            .transition(.move(edge: .bottom))
-                            .edgesIgnoringSafeArea(.bottom)
-                            .animation(.easeInOut, value: keyboardAppeared)
-                            .padding(.horizontal)
-                            .shadow(radius: 8)
+            }
+            if showTopBar {
+                TopNotificationBar(message: topBarMessage, show: $showTopBar)
+                    .transition(.move(edge: .top))
+                    .onDisappear {
+                        presentationMode.wrappedValue.dismiss()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                            topBarMessage = ""
+                        }
                     }
-                }
+            }
+        }
                 .onAppear {
                     speechManager.requestSpeechAuthorization()
                 }

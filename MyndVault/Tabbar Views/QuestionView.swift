@@ -16,7 +16,7 @@ struct QuestionView: View {
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
-    @State private var showSettings: Bool = false
+    @Binding var showSettings: Bool
     
     var body: some View {
         NavigationStack {
@@ -63,11 +63,11 @@ struct QuestionView: View {
                         .padding(.horizontal)
                     ClearButton
                 }
-                if progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && (pineconeManager.receivedError == nil) {
-                    CircularProgressView(progressTracker: progressTracker).padding()
-                }
-                else if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                     GoButton
+                }
+                else if progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && (pineconeManager.receivedError == nil) {
+                    CircularProgressView(progressTracker: progressTracker).padding()
                 }
                 if openAiManager.stringResponseOnQuestion != "" {
                     Text(openAiManager.stringResponseOnQuestion)
@@ -95,6 +95,7 @@ struct QuestionView: View {
                             hideKeyboard()
                         } label: {
                             Image(systemName: "keyboard.chevron.compact.down")
+                                .accessibilityLabel("hide keyboard")
                         }
                     }
                 }
@@ -104,7 +105,8 @@ struct QuestionView: View {
                         } label: {
                             Circle().foregroundStyle(.white).frame(height: 30).shadow(radius: 10)
                                 .overlay {
-                                    Image(systemName: "gearshape") }
+                                    Image(systemName: "gearshape")
+                                    .accessibilityLabel("settings") }
                         }
                 }
             }
@@ -121,6 +123,7 @@ struct QuestionView: View {
                     .frame(height: 60)
                     .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
                 Text("Go").font(.title2).bold().foregroundColor(.white)
+                    .accessibilityLabel("Go")
             }
             .contentShape(Rectangle())
         }
@@ -136,6 +139,7 @@ struct QuestionView: View {
                     .frame(height: 60)
                     .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
                 Text("OK").font(.title2).bold().foregroundColor(.white)
+                    .accessibilityLabel("Clear") 
             }
             .contentShape(Rectangle())
         }
@@ -203,7 +207,7 @@ struct QuestionView_Previews: PreviewProvider {
         let progressTracker = ProgressTracker()
         
         QuestionView(question: .constant("What is the name of my manager ?"),
-                     thrownError: .constant(""))
+                     thrownError: .constant(""), showSettings: .constant(false))
         .environmentObject(openAiManager)
         .environmentObject(pineconeManager)
         .environmentObject(progressTracker)

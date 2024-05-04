@@ -84,7 +84,9 @@ extension View {
 
 
 class KeyboardResponder: ObservableObject {
+
     @Published var currentHeight: CGFloat = 0
+    private var keyboardVisible = false
     
     init() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -100,6 +102,8 @@ class KeyboardResponder: ObservableObject {
             let keyboardHeight = keyboardFrame.cgRectValue.height
             DispatchQueue.main.async {
                 self.currentHeight = keyboardHeight
+                self.keyboardVisible = true
+                print("Keyboard height changed to: \(keyboardHeight)")
             }
         }
     }
@@ -107,6 +111,7 @@ class KeyboardResponder: ObservableObject {
     @objc func keyboardWillHide(notification: Notification) {
         DispatchQueue.main.async {
             self.currentHeight = 0
+            self.keyboardVisible = false
         }
     }
 }

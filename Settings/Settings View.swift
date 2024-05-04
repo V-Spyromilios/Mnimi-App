@@ -37,7 +37,7 @@ struct SettingsView: View {
                             .overlay {
                                 Image(systemName: "xmark") }
                             
-                    }.padding(.trailing)
+                    }.padding()
                 }
             }
         }

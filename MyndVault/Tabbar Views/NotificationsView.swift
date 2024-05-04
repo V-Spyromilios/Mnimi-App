@@ -68,9 +68,11 @@ struct NotificationsView: View {
                         showAddNotificationSheet.toggle()
                         
                     }) {
-                        Image(systemName: "plus")
-                            .imageScale(.large)
-                            .accessibilityLabel("Add new reminder")
+                        Circle().foregroundStyle(.white).frame(height: 30).shadow(radius: 10)
+                            .overlay {
+                                Image(systemName: "plus")
+                                    .imageScale(.large)
+                                .accessibilityLabel("Schedule new notification") }
                     }
                 }
             }

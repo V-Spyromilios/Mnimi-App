@@ -19,7 +19,6 @@ struct CustomTabBarView: View {
     var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opacity(0.3),Color.orange.opacity(0.3), Color.orange.opacity(0.6), Color.orange.opacity(0.8),Color.orange, Color.yellow.opacity(0.4)]), startPoint: .top, endPoint: .bottom)
     
     var brGreenGradient = LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen.opacity(0.5),Color.britishRacingGreen.opacity(0.8), Color.britishRacingGreen]), startPoint: .top, endPoint: .bottom)
-   
     
     var body: some View {
         ZStack {
@@ -29,17 +28,17 @@ struct CustomTabBarView: View {
                 .shadow(radius: 8)
 
             HStack(alignment: .bottom, spacing: 45) {
-
-                tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 1, isAnimating: $questionIsAnimating).padding(.leading)
                 
-                tabBarButton(imageName: plusIsAnimating ? "plus.bubble.fill" : "plus.bubble", tabId: 2, isAnimating: $plusIsAnimating)
+                tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 1).padding(.leading)
                 
-                tabBarButton(imageName: archiveIsAnimating ? "archivebox.fill" : "archivebox", tabId: 3, isAnimating: $archiveIsAnimating)
+                tabBarButton(imageName: plusIsAnimating ? "plus.bubble.fill" : "plus.bubble", tabId: 2)
+                
+                tabBarButton(imageName: archiveIsAnimating ? "archivebox.fill" : "archivebox", tabId: 3)
 
                 ZStack {
                 tabBarButton(imageName: notificationsManager.scheduledNotifications.count > 0
                              ? (todoIsAnimating ? "bell.and.waves.left.and.right.fill" : "bell.and.waves.left.and.right")
-                             : (todoIsAnimating ? "bell.fill" : "bell"), tabId: 4, isAnimating: $todoIsAnimating, notificationsCount: notificationsManager.scheduledNotifications.count).padding(.horizontal)
+                             : (todoIsAnimating ? "bell.fill" : "bell"), tabId: 4).padding(.horizontal)
                     if notificationsManager.scheduledNotifications.count > 0 {
                         
                         // custom badge
@@ -58,52 +57,14 @@ struct CustomTabBarView: View {
         }
     }
     
-    private func tabBarButton(imageName: String, tabId: Int, isAnimating: Binding<Bool>, isGear: Bool = false, notificationsCount: Int = 0) -> some View {
-
-            Button(action: {
-                withAnimation {
-                    tabSelection = tabId
-                }
-                toggleFocus(for: tabId)
-            }) {
-                Image(systemName: imageName)
-                                   .font(.largeTitle)
-                                   .foregroundStyle(isAnimating.wrappedValue ? .white : .white.opacity(0.9))
-                                  
-            }
-            //                if tabSelection == tabId {
-            //                    Capsule()
-            //                        .frame(height: 8)
-            //                        .offset(y: 7)
-            //                        .foregroundStyle(.white)
-            //                        .matchedGeometryEffect(id: "SelectedTabId", in: animation)
-            //                        .clipped()
-            //                } else {
-            //                    Capsule()
-            //                        .frame(height: 8)
-            //                        .foregroundStyle(.clear)
-            //                        .offset(y: 7)
-            //                        .clipped()
-            //                }
+    private func tabBarButton(imageName: String, tabId: Int) -> some View {
+        Button(action: {
+                tabSelection = tabId
+        }) {
+            Image(systemName: imageName)
+                .font(.largeTitle)
+                .foregroundStyle(tabSelection == tabId ? .white : .white.opacity(0.6))
+        }
     }
-    
-    private func toggleFocus(for index: Int) {
 
-        questionIsAnimating = false
-        archiveIsAnimating = false
-        plusIsAnimating = false
-        todoIsAnimating = false
-
-            switch index {
-            case 1:
-                questionIsAnimating = true
-            case 2:
-                plusIsAnimating = true
-            case 3:
-                archiveIsAnimating = true
-            case 4:
-                todoIsAnimating = true
-            default: break
-            }
-    }
 }
