@@ -23,22 +23,22 @@ struct CustomTabBarView: View {
     var body: some View {
         ZStack {
             Capsule()
-                .foregroundStyle(brGreenGradient)
-                .frame(height: 70)
-                .shadow(radius: 8)
+                .foregroundStyle(Color.britishRacingGreen) //instead of the gradient above
+                .frame(height: 60)
+                .shadow(radius: 12)
 
-            HStack(alignment: .bottom, spacing: 45) {
-                
-                tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 1).padding(.leading)
-                
+            HStack(alignment: .bottom) {
+                Spacer()
+                tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 1)
+                Spacer()
                 tabBarButton(imageName: plusIsAnimating ? "plus.bubble.fill" : "plus.bubble", tabId: 2)
-                
-                tabBarButton(imageName: archiveIsAnimating ? "archivebox.fill" : "archivebox", tabId: 3)
-
+                Spacer()
+                tabBarButton(imageName: archiveIsAnimating ? "tray.fill" : "tray", tabId: 3) .offset(y: -5)
+                Spacer()
                 ZStack {
                 tabBarButton(imageName: notificationsManager.scheduledNotifications.count > 0
                              ? (todoIsAnimating ? "bell.and.waves.left.and.right.fill" : "bell.and.waves.left.and.right")
-                             : (todoIsAnimating ? "bell.fill" : "bell"), tabId: 4).padding(.horizontal)
+                             : (todoIsAnimating ? "bell.fill" : "bell"), tabId: 4)
                     if notificationsManager.scheduledNotifications.count > 0 {
                         
                         // custom badge
@@ -52,8 +52,9 @@ struct CustomTabBarView: View {
                             .offset(x: 10, y: -10)
                     }
                 }
+                Spacer()
             }
-            .frame(height: 70) // Same as capsule height
+            .frame(height: 60) // Same as capsule height
         }
     }
     

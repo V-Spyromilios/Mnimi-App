@@ -67,7 +67,10 @@ struct NewAddInfoView: View {
                                                 Button {
                                                     showSettings.toggle()
                                                 } label: {
-                                                    Circle().foregroundStyle(.white).frame(height: 30).shadow(radius: 10)
+                                                    Circle()
+                                                        .foregroundStyle(.white)
+                                                        .frame(height: 30)
+                                                        .shadow(radius: toolbarButtonShadow)
                                                         .overlay {
                                                             Image(systemName: "gearshape")
                                                             .accessibilityLabel("Settings") }
@@ -146,13 +149,15 @@ struct NewAddInfoView: View {
         Button(action: addNewInfoAction) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
+                    .fill(Color.customDarkBlue)
+                    .shadow(radius: 7)
                     .frame(height: 60)
-                    .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
+                    
                 Text("Save").font(.title2).bold().foregroundColor(.white)
                     .accessibilityLabel("save")
             }
             .contentShape(Rectangle())
+            .shadow(radius: 7)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 12)
@@ -166,13 +171,15 @@ struct NewAddInfoView: View {
         Button(action: performClearTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
+                    .fill(Color.customDarkBlue)
+                    
                     .frame(height: 60)
-                    .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
+                    
                 Text("OK").font(.title2).bold().foregroundColor(.white)
                     .accessibilityLabel("clear") 
             }
             .contentShape(Rectangle())
+            .shadow(radius: 7)
         }
         .padding(.top, 12)
         .padding(.horizontal)

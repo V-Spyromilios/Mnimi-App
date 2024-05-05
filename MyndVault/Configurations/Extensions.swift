@@ -16,6 +16,7 @@ var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opa
 
 var greenGradient = LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.3), Color.green.opacity(0.6), Color.green]), startPoint: .top, endPoint: .bottom)
 
+let toolbarButtonShadow: CGFloat = 6
 
 
 extension String {

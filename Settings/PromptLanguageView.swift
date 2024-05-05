@@ -11,10 +11,8 @@ struct PromptLanguageView: View {
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
-    @State private var selectedLanguage: LanguageCode {
-        didSet { saveLanguageSelection(language: selectedLanguage) }
-    }
-
+    @State private var selectedLanguage: LanguageCode
+    
     init() {
         if let savedLanguage = UserDefaults.standard.string(forKey: "selectedPromptLanguage"),
            let languageCode = LanguageCode(rawValue: savedLanguage) {
@@ -23,39 +21,44 @@ struct PromptLanguageView: View {
             _selectedLanguage = State(initialValue: .english)
         }
     }
-
     var body: some View {
         List(LanguageCode.allCases, id: \.self) { language in
-            HStack {
-                
-                Text(language.displayName)
-                if language == selectedLanguage {
+            Button(action: {
+                self.selectedLanguage = language
+                saveLanguageSelection(language: language)
+            }) {
+                HStack() {
+                    Text(language.displayName)
                     Spacer()
-                    Text(language.flagEmoji).font(.title3)
-                }
+                    if language == selectedLanguage {
+                        
+                        Text(language.flagEmoji).font(.title3)
+                    }
+                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                    .contentShape(Rectangle()) // otherwise only text listens for taps and changes language.
             }
-            .contentShape(Rectangle())
-            .onTapGesture { self.selectedLanguage = language }
         }
+        .buttonStyle(PlainButtonStyle())
+        .foregroundStyle(.black)
         .navigationTitle("Prompt Language")
         .navigationBarBackButtonHidden(true)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            self.presentationMode.wrappedValue.dismiss()
-                        }) {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                Text("Settings")
-                            }
-                        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Settings")
                     }
                 }
-    }
-
-    private func saveLanguageSelection(language: LanguageCode) {
-            UserDefaults.standard.set(language.rawValue, forKey: "selectedLanguage")
+            }
         }
+    }
+    
+    private func saveLanguageSelection(language: LanguageCode) {
+        UserDefaults.standard.set(language.rawValue, forKey: "selectedPromptLanguage")
+    }
 }
 
 #Preview {

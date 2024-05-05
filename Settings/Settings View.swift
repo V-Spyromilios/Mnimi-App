@@ -15,12 +15,6 @@ struct SettingsView: View {
         NavigationView {
             List {
                 NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language") }
-                
-                NavigationLink(destination: VaultView()) { Text("Saved info") }
-                
-                NavigationLink(destination: DeveloperView()) { Text("Developer") }
-                
-                NavigationLink(destination: RecordingsSettingsView()) { Text("Recordings") }
             }
             .navigationTitle("Settings")
             .toolbar {
@@ -30,18 +24,18 @@ struct SettingsView: View {
                             showSettings.toggle() }
                     } label: {
                         Circle()
-                          
+                        
                             .foregroundStyle(.white)
                             .frame(height: 30)
-                            .shadow(radius: 10)
+                            .shadow(radius: toolbarButtonShadow)
                             .overlay {
                                 Image(systemName: "xmark") }
-                            
+                        
                     }.padding()
                 }
             }
         }
-        }
+    }
 }
 
 #Preview {

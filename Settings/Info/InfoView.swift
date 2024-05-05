@@ -87,11 +87,11 @@ struct InfoView: View {
                 }) {
                     ZStack {
                         RoundedRectangle(cornerRadius: rectCornerRad)
-                            .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
+                            .fill(Color.customDarkBlue)
                             .frame(height: 60)
-                            .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
+                            .shadow(radius: 7)
                         Text("Save").font(.title2).bold().foregroundColor(.white)
-                    }
+                    } .shadow(radius: 7)
                 }.frame(maxWidth: .infinity)
                     .padding(.bottom, keyboardResponder.currentHeight > 0 ? 25: 0)
             }

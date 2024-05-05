@@ -62,6 +62,7 @@ struct ContentView: View {
                         .animation(.easeInOut, value: keyboardAppeared)
                         .padding(.horizontal)
                         .shadow(radius: 8)
+                        
                 }
             }
             if showTopBar {

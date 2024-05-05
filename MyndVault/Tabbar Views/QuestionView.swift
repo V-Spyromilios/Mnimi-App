@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct QuestionView: View {
-
+    
     @Binding var question: String
     @Binding var thrownError: String
     @State var goButtonIsVisible: Bool = true
@@ -20,111 +20,129 @@ struct QuestionView: View {
     
     var body: some View {
         NavigationStack {
-        ScrollView {
+            ScrollView {
+                
+                HStack {
+                    Image(systemName: "questionmark.bubble").bold()
+                    Text("Query").bold()
+                    Spacer()
+                }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
+                    .navigationTitle("Search 🔍")
+                
+                TextEditor(text: $question)
+                    .fontDesign(.rounded)
+                    .font(.title2)
+                    .multilineTextAlignment(.leading)
+                    .frame(height: 110)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(radius: 5)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10.0)
+                            .stroke(lineWidth: 1)
+                            .opacity(0.3)
+                            .foregroundColor(Color.gray)
+                    }
+                    .padding(.bottom)
+                    .padding(.horizontal, 7)
+                VStack {
+                    if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
+                        ErrorView(thrownError: thrownError)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                            .padding(.bottom)
+                    }
+                    else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
+                        ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                    }
+                    else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
+                        ErrorView(thrownError:  openAiManager.thrownError)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                            .padding(.bottom)
+                    }
+                    if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                        GoButton
+                            .padding(.bottom)
+                    }
+                    else if progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && (pineconeManager.receivedError == nil) {
+                        CircularProgressView(progressTracker: progressTracker).padding()
+                    }
+                    if openAiManager.stringResponseOnQuestion != "" {
+                        HStack {
+                            Image(systemName: "quote.bubble").bold()
+                            Text("Reply").bold()
+                            Spacer()
+                        }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white)) // Assuming a white background
+                                .shadow(radius: 5)
 
-            HStack {
-                Image(systemName: "questionmark.bubble").bold()
-                Text("Query").bold()
-                Spacer()
-            }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
-                .navigationTitle("Search 🔍")
-
-            TextEditor(text: $question)
-                .fontDesign(.rounded)
-                .font(.title2)
-                .multilineTextAlignment(.leading)
-                .frame(height: 110)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .shadow(radius: 5)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 10.0)
-                        .stroke(lineWidth: 1)
-                        .opacity(0.3)
-                        .foregroundColor(Color.gray)
-                }
-                .padding(.bottom)
-                .padding(.horizontal, 7)
-            VStack {
-                if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-                    ErrorView(thrownError: thrownError)
-                        .padding(.top)
-                        .padding(.horizontal)
-                    ClearButton
-                }
-                else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
-                    ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
-                        .padding(.top)
-                        .padding(.horizontal)
-                    ClearButton
-                }
-                else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-                    ErrorView(thrownError:  openAiManager.thrownError)
-                        .padding(.top)
-                        .padding(.horizontal)
-                    ClearButton
-                }
-                if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                    GoButton
-                }
-                else if progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && (pineconeManager.receivedError == nil) {
-                    CircularProgressView(progressTracker: progressTracker).padding()
-                }
-                if openAiManager.stringResponseOnQuestion != "" {
-                    Text(openAiManager.stringResponseOnQuestion)
-                        .fontDesign(.rounded)
-                        .fontWidth(.expanded)
-                        .font(.title2)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding()
-                        .shadow(radius: 7)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(0.3)
-                                .foregroundColor(Color.gray)
+                            Text(openAiManager.stringResponseOnQuestion)
+                                .padding(5)
+                                .font(.title2)
+                                .fontDesign(.rounded)
+                                .multilineTextAlignment(.leading)
+                                .frame(minHeight: 110)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
-                    ClearButton
+                        .padding(.bottom)
+                        .padding(.horizontal, 7)
+                        ClearButton
+                            .padding(.bottom)
+                    }
+
                 }
-            }
-            
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    HStack {
-                        Spacer()
-                        Button {
-                            hideKeyboard()
-                        } label: {
-                            Image(systemName: "keyboard.chevron.compact.down")
-                                .accessibilityLabel("hide keyboard")
+                
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        HStack {
+                            Spacer()
+                            Button {
+                                hideKeyboard()
+                            } label: {
+                                Image(systemName: "keyboard.chevron.compact.down")
+                                    .accessibilityLabel("hide keyboard")
+                            }
                         }
                     }
-                }
-                ToolbarItemGroup(placement: .topBarLeading) {
+                    ToolbarItemGroup(placement: .topBarLeading) {
                         Button {
                             showSettings.toggle()
                         } label: {
-                            Circle().foregroundStyle(.white).frame(height: 30).shadow(radius: 10)
+                            Circle()
+                                .foregroundStyle(.white)
+                                .frame(height: 30)
+                                .shadow(radius: toolbarButtonShadow)
                                 .overlay {
                                     Image(systemName: "gearshape")
                                     .accessibilityLabel("settings") }
                         }
+                    }
                 }
+            }.fullScreenCover(isPresented: $showSettings){
+                SettingsView(showSettings: $showSettings)
             }
-        }.fullScreenCover(isPresented: $showSettings){
-            SettingsView(showSettings: $showSettings)
         }
-    }
     }
     private var GoButton: some View {
         Button(action: performTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
+                    .fill(Color("customDarkBlue"))
+                    .shadow(radius: 7)
+//
                     .frame(height: 60)
-                    .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
                 Text("Go").font(.title2).bold().foregroundColor(.white)
                     .accessibilityLabel("Go")
             }
+            .shadow(radius: 7)
             .contentShape(Rectangle())
         }
         .padding(.horizontal)
@@ -135,11 +153,12 @@ struct QuestionView: View {
         Button(action: performClearTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.6), Color.blue]), startPoint: .top, endPoint: .bottom))
+                    .fill(Color.customDarkBlue)
+                    .shadow(radius: 7)
                     .frame(height: 60)
-                    .shadow(color: .blue.opacity(0.9), radius: 3, x: 3, y: 3)
+                    .shadow(radius: 7)
                 Text("OK").font(.title2).bold().foregroundColor(.white)
-                    .accessibilityLabel("Clear") 
+                    .accessibilityLabel("Clear")
             }
             .contentShape(Rectangle())
         }
@@ -147,6 +166,7 @@ struct QuestionView: View {
         .padding(.bottom, 12)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
+        .shadow(radius: 7)
     }
     
     private func performClearTask() {
@@ -171,7 +191,7 @@ struct QuestionView: View {
             await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             if openAiManager.questionEmbeddingsCompleted {
                 let metadata = toDictionary(type: "question", desc: self.question, relevantFor: "")
-
+                
                 do {
                     ProgressTracker.shared.setProgress(to: 0.35)
                     try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion, metadata: metadata)

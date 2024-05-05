@@ -27,7 +27,6 @@
 		E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45692BC2A77E00945312 /* NotificationEditView.swift */; };
 		E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */; };
 		E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456B2BC2A77E00945312 /* NotificationsView.swift */; };
-		E82F45842BC2A80C00945312 /* NewPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457B2BC2A80B00945312 /* NewPromptView.swift */; };
 		E82F45852BC2A80C00945312 /* NewTextEditorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */; };
 		E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */; };
 		E82F45872BC2A80C00945312 /* TextEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457E2BC2A80B00945312 /* TextEffectView.swift */; };
@@ -84,7 +83,6 @@
 		E82F45692BC2A77E00945312 /* NotificationEditView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationEditView.swift; sourceTree = "<group>"; };
 		E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		E82F456B2BC2A77E00945312 /* NotificationsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
-		E82F457B2BC2A80B00945312 /* NewPromptView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewPromptView.swift; sourceTree = "<group>"; };
 		E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewTextEditorsView.swift; sourceTree = "<group>"; };
 		E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewModel.swift; sourceTree = "<group>"; };
 		E82F457E2BC2A80B00945312 /* TextEffectView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextEffectView.swift; sourceTree = "<group>"; };
@@ -193,7 +191,6 @@
 			isa = PBXGroup;
 			children = (
 				E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */,
-				E82F457B2BC2A80B00945312 /* NewPromptView.swift */,
 				E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */,
 				E82F456B2BC2A77E00945312 /* NotificationsView.swift */,
 			);
@@ -431,7 +428,6 @@
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
 				E8FA7F0F2BC5BC320012EBF6 /* RecordingsSettingsView.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
-				E82F45842BC2A80C00945312 /* NewPromptView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,
 				E82F458E2BC2A95900945312 /* LoadingView.swift in Sources */,
 			);

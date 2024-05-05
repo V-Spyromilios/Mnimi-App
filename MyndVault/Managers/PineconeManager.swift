@@ -526,6 +526,7 @@ class PineconeManager: ObservableObject {
                     }
                     ProgressTracker.shared.setProgress(to: 0.6)
                 } catch {
+                    self.receivedError = error
                     print("Error querying Pinecone: \(error)")
                 }
                 if let response = self.pineconeQueryResponse {
