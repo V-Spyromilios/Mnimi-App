@@ -31,14 +31,14 @@ struct InfoView: View {
                 Image(systemName: "rectangle.and.pencil.and.ellipsis").bold()
                 Text("Edit Info:").bold()
                 Spacer() //or .frame(alignment:) in the hstack
-            }.font(.callout)
-                .padding(.bottom, 12).padding(.top, 12)
+            }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
+                
             HStack {
                 TextEditor(text: $viewModel.description)
                     .fontDesign(.rounded)
                     .font(.title2)
                     .multilineTextAlignment(.leading)
-                    .frame(height: 80)
+                    .frame(height: 110)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(radius: 5)
                     .overlay{
@@ -51,13 +51,15 @@ struct InfoView: View {
                     .onAppear { focusField = .edit }
                     .onSubmit { focusField = .relevantFor }
                     .focused($focusField, equals: .edit)
-            }
+            }.padding(.bottom)
+            .padding(.horizontal, 7)
+            
             HStack {
                 Image(systemName: "person.bubble").bold()
                 Text("Relevant For:").bold()
                 Spacer()
-            }.font(.callout)
-                .padding(.bottom, 12)
+            }.font(.callout).padding(.horizontal, 7)
+                .padding(.bottom, 8)
             
             TextEditor(text: $viewModel.relevantFor)
                 .fontDesign(.rounded)
@@ -72,29 +74,37 @@ struct InfoView: View {
                         .opacity(0.3)
                         .foregroundColor(Color.gray)
                 }
-                .padding(.bottom, 50)
+                .padding(.bottom)
+                .padding(.horizontal, 7)
                 .onSubmit {
                     focusField = nil
                 }
                 .focused($focusField, equals: .relevantFor)
            
-            HStack {
-                Button(action: {
-                    hideKeyboard()
-                    DispatchQueue.main.async {
-                        viewModel.showEditConfirmation = true
-                    }
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: rectCornerRad)
-                            .fill(Color.customDarkBlue)
-                            .frame(height: 60)
-                            .shadow(radius: 7)
-                        Text("Save").font(.title2).bold().foregroundColor(.white)
-                    } .shadow(radius: 7)
-                }.frame(maxWidth: .infinity)
-                    .padding(.bottom, keyboardResponder.currentHeight > 0 ? 25: 0)
+            Button(action:  {
+                DispatchQueue.main.async {
+                    self.viewModel.activeAlert = .editConfirmation
+                }
             }
+) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: rectCornerRad)
+                        .fill(Color.customDarkBlue)
+                        .shadow(radius: 7)
+                        .frame(height: 60)
+                        
+                    Text("Save").font(.title2).bold().foregroundColor(.white)
+                        .accessibilityLabel("save")
+                }
+                .contentShape(Rectangle())
+                .shadow(radius: 7)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 12)
+            .padding(.horizontal)
+            .animation(.easeInOut, value: keyboardResponder.currentHeight)
+            .id("SubmitButton")
+            .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
             Spacer()
         }
         .toolbar {
@@ -111,12 +121,18 @@ struct InfoView: View {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 
                 Button(action: {
-                    viewModel.showDeleteWarning = true
+                    self.viewModel.activeAlert = .deleteWarning
                    
                 }, label: {
-                    Image(systemName: "trash").foregroundStyle(.red)
-                        .imageScale(.large)
-                        .accessibilityLabel("Delete info")
+                    Circle()
+                        .foregroundStyle(.white)
+                        .frame(height: 30)
+                        .shadow(radius: toolbarButtonShadow)
+                        .overlay {
+                            Image(systemName: "trash")
+                                .foregroundStyle(.red)
+                                .accessibilityLabel("Delete info")
+                        }
                 })
             }
         }

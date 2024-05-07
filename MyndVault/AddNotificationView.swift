@@ -34,11 +34,6 @@ struct AddNotificationView: View {
                         .font(.title2)
                         .multilineTextAlignment(.leading)
                         .frame(height: 50)
-//                        .onAppear { focus = .notificationTitle }
-//                        .focused($focus, equals: .notificationTitle)
-//                        .onSubmit {
-//                            focus = .notificationBody
-//                        }
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .shadow(radius: 5)
                         .overlay{

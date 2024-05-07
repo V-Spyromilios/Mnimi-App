@@ -56,7 +56,6 @@ struct NotificationsView: View {
                                 .padding(.bottom)
                                 .foregroundStyle(.gray)
                         }
-                        .onDelete(perform: manager.removeDeliveredNotification)
                     }
                 }
                 .padding()
@@ -68,10 +67,12 @@ struct NotificationsView: View {
                         showAddNotificationSheet.toggle()
                         
                     }) {
-                        Circle().foregroundStyle(.white).frame(height: 30).shadow(radius: 10)
+                        Circle()
+                            .foregroundStyle(.white)
+                            .frame(height: 30)
+                            .shadow(radius: toolbarButtonShadow)
                             .overlay {
                                 Image(systemName: "plus")
-                                    .imageScale(.large)
                                 .accessibilityLabel("Schedule new notification") }
                     }
                 }

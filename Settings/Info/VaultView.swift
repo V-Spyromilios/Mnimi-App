@@ -21,6 +21,9 @@ struct VaultView: View {
         NavigationStack {
             
             ScrollView {
+                if vectorsAreLoading {
+                    ProgressView().font(.title).bold().padding(.top, 40)
+                }
                 if !pineconeManger.pineconeFetchedVectors.isEmpty {
                     
                     ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
@@ -31,9 +34,7 @@ struct VaultView: View {
                         }
                     }
                 }
-                else if vectorsAreLoading {
-                    ProgressView()
-                }
+                
                 else if !vectorsAreLoading {
                    
                     ContentUnavailableView(label: {
@@ -41,7 +42,7 @@ struct VaultView: View {
                     }, description: {
                         Text(" Saved Info will be shown here.")}
                                            
-                    ).padding(.top)
+                    )
                    
                 }
             }.refreshable {
@@ -70,7 +71,6 @@ struct VaultView: View {
     }
     
     private func fetchPineconeEntries() {
-       
         Task {
             do {
                 try await pineconeManger.fetchAllNamespaceIDs()
@@ -78,8 +78,11 @@ struct VaultView: View {
                 alertMessage = error.localizedDescription
                 showAlert.toggle()
             }
+            DispatchQueue.main.async {
+                
+                self.vectorsAreLoading = false
+            }
         }
-        self.vectorsAreLoading = false
     }
 
     private func deleteInfo(at offsets: IndexSet) {

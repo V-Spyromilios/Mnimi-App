@@ -40,6 +40,7 @@ struct NewAddInfoView: View {
                                 TextEditor(text: $newInfo)
                                     .fontDesign(.rounded)
                                     .font(.title2)
+                                    .multilineTextAlignment(.leading)
                                     .frame(height: 110)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                                     .shadow(radius: 5)
@@ -76,6 +77,7 @@ struct NewAddInfoView: View {
                                                             .accessibilityLabel("Settings") }
                                                 }
                                         }
+                                        
                                     }
                             }
                             HStack {

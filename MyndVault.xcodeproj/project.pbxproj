@@ -33,17 +33,12 @@
 		E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45802BC2A80C00945312 /* NetworkViewModel.swift */; };
 		E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45892BC2A85D00945312 /* CustomTapBarView.swift */; };
 		E82F458E2BC2A95900945312 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F458D2BC2A95900945312 /* LoadingView.swift */; };
-		E82F45912BC2A97B00945312 /* MijickPopupView in Frameworks */ = {isa = PBXBuildFile; productRef = E82F45902BC2A97B00945312 /* MijickPopupView */; };
 		E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */; };
 		E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */; };
 		E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */; };
 		E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */; };
-		E8459ED92BC1EC2900CE34A7 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = E8459ED82BC1EC2900CE34A7 /* RevenueCat */; };
-		E8459EDB2BC1EC2900CE34A7 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = E8459EDA2BC1EC2900CE34A7 /* RevenueCatUI */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
 		E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */; };
-		E8BFD3512BC58BC300355B44 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E8BFD3502BC58BC300355B44 /* FirebaseAnalytics */; };
-		E8BFD3532BC58BC300355B44 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = E8BFD3522BC58BC300355B44 /* FirebaseAppCheck */; };
 		E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */; };
 		E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */; };
 		E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */; };
@@ -58,8 +53,12 @@
 		E8FA7F102BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F052BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift */; };
 		E8FA7F112BC5BC320012EBF6 /* ResponseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F062BC5BC320012EBF6 /* ResponseDetailView.swift */; };
 		E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F072BC5BC320012EBF6 /* Settings View.swift */; };
-		E8FA7F142BC5BE940012EBF6 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = E8FA7F132BC5BE940012EBF6 /* FirebaseCrashlytics */; };
 		E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */; };
+		E8FD6B722BEA422F00A0BC15 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E8FD6B712BEA422F00A0BC15 /* FirebaseAnalytics */; };
+		E8FD6B742BEA422F00A0BC15 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = E8FD6B732BEA422F00A0BC15 /* FirebaseCrashlytics */; };
+		E8FD6B762BEA422F00A0BC15 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = E8FD6B752BEA422F00A0BC15 /* FirebasePerformance */; };
+		E8FD6B782BEA426A00A0BC15 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = E8FD6B772BEA426A00A0BC15 /* RevenueCat */; };
+		E8FD6B7A2BEA426A00A0BC15 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = E8FD6B792BEA426A00A0BC15 /* RevenueCatUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -120,12 +119,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E8459EDB2BC1EC2900CE34A7 /* RevenueCatUI in Frameworks */,
-				E82F45912BC2A97B00945312 /* MijickPopupView in Frameworks */,
-				E8BFD3512BC58BC300355B44 /* FirebaseAnalytics in Frameworks */,
-				E8FA7F142BC5BE940012EBF6 /* FirebaseCrashlytics in Frameworks */,
-				E8BFD3532BC58BC300355B44 /* FirebaseAppCheck in Frameworks */,
-				E8459ED92BC1EC2900CE34A7 /* RevenueCat in Frameworks */,
+				E8FD6B782BEA426A00A0BC15 /* RevenueCat in Frameworks */,
+				E8FD6B722BEA422F00A0BC15 /* FirebaseAnalytics in Frameworks */,
+				E8FD6B742BEA422F00A0BC15 /* FirebaseCrashlytics in Frameworks */,
+				E8FD6B7A2BEA426A00A0BC15 /* RevenueCatUI in Frameworks */,
+				E8FD6B762BEA422F00A0BC15 /* FirebasePerformance in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,12 +292,11 @@
 			);
 			name = MyndVault;
 			packageProductDependencies = (
-				E8459ED82BC1EC2900CE34A7 /* RevenueCat */,
-				E8459EDA2BC1EC2900CE34A7 /* RevenueCatUI */,
-				E82F45902BC2A97B00945312 /* MijickPopupView */,
-				E8BFD3502BC58BC300355B44 /* FirebaseAnalytics */,
-				E8BFD3522BC58BC300355B44 /* FirebaseAppCheck */,
-				E8FA7F132BC5BE940012EBF6 /* FirebaseCrashlytics */,
+				E8FD6B712BEA422F00A0BC15 /* FirebaseAnalytics */,
+				E8FD6B732BEA422F00A0BC15 /* FirebaseCrashlytics */,
+				E8FD6B752BEA422F00A0BC15 /* FirebasePerformance */,
+				E8FD6B772BEA426A00A0BC15 /* RevenueCat */,
+				E8FD6B792BEA426A00A0BC15 /* RevenueCatUI */,
 			);
 			productName = MyndVault;
 			productReference = E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */;
@@ -576,8 +573,9 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIStatusBarHidden = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -612,8 +610,9 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIStatusBarHidden = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -679,34 +678,27 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E82F45902BC2A97B00945312 /* MijickPopupView */ = {
+		E8FD6B712BEA422F00A0BC15 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E82F458F2BC2A97B00945312 /* XCRemoteSwiftPackageReference "PopupView" */;
-			productName = MijickPopupView;
+			productName = FirebaseAnalytics;
 		};
-		E8459ED82BC1EC2900CE34A7 /* RevenueCat */ = {
+		E8FD6B732BEA422F00A0BC15 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseCrashlytics;
+		};
+		E8FD6B752BEA422F00A0BC15 /* FirebasePerformance */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebasePerformance;
+		};
+		E8FD6B772BEA426A00A0BC15 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E8459ED72BC1EC2900CE34A7 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCat;
 		};
-		E8459EDA2BC1EC2900CE34A7 /* RevenueCatUI */ = {
+		E8FD6B792BEA426A00A0BC15 /* RevenueCatUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E8459ED72BC1EC2900CE34A7 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCatUI;
-		};
-		E8BFD3502BC58BC300355B44 /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E8BFD34F2BC58BC300355B44 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		E8BFD3522BC58BC300355B44 /* FirebaseAppCheck */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E8BFD34F2BC58BC300355B44 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAppCheck;
-		};
-		E8FA7F132BC5BE940012EBF6 /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

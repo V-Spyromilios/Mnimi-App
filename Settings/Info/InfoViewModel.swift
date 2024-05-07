@@ -10,8 +10,15 @@ import SwiftUI
 
 class EditInfoViewModel: ObservableObject {
 
-    @Published var showEditConfirmation: Bool = false
-    @Published var showDeleteWarning: Bool = false
+    enum ActiveAlert: Identifiable {
+        case editConfirmation, deleteWarning
+        
+        var id: Self {
+                self
+            }
+    }
+
+    @Published var activeAlert: ActiveAlert?
     @Published var showTopBar: Bool = false
 
     @Published var id: String

@@ -11,7 +11,7 @@ import UserNotifications
 struct CustomNotification: Identifiable {
     let id: String
     var title: String
-    var body: String
+    var notificationBody: String
     var date: Date?
 
 }
@@ -30,14 +30,14 @@ class NotificationViewModel: ObservableObject {
     
     func fetchMockNotifications() {
         self.scheduledNotifications = [
-            CustomNotification(id: "1234", title: "Meeting", body: "Team meeting at 3 PM"),
-            CustomNotification(id: "49403", title: "Dinner", body: "Dinner with family at 7 PM"),
-            CustomNotification(id: "1234", title: "Meeting", body: "Team meeting at 3 PM"),
-            CustomNotification(id: "49403", title: "Dinner", body: "Dinner with family at 7 PM"),
-            CustomNotification(id: "1234", title: "Meeting", body: "Team meeting at 3 PM"),
-            CustomNotification(id: "49403", title: "Dinner", body: "Dinner with family at 7 PM"),
-            CustomNotification(id: "1234", title: "Meeting", body: "Team meeting at 3 PM"),
-            CustomNotification(id: "49403", title: "Dinner", body: "Dinner with family at 7 PM")
+            CustomNotification(id: "1234", title: "Meeting", notificationBody: "Team meeting at 3 PM"),
+            CustomNotification(id: "49403", title: "Dinner", notificationBody: "Dinner with family at 7 PM"),
+            CustomNotification(id: "1234", title: "Meeting", notificationBody: "Team meeting at 3 PM"),
+            CustomNotification(id: "49403", title: "Dinner", notificationBody: "Dinner with family at 7 PM"),
+            CustomNotification(id: "1234", title: "Meeting", notificationBody: "Team meeting at 3 PM"),
+            CustomNotification(id: "49403", title: "Dinner", notificationBody: "Dinner with family at 7 PM"),
+            CustomNotification(id: "1234", title: "Meeting", notificationBody: "Team meeting at 3 PM"),
+            CustomNotification(id: "49403", title: "Dinner", notificationBody: "Dinner with family at 7 PM")
             ]
     }
     
@@ -49,7 +49,7 @@ class NotificationViewModel: ObservableObject {
                     CustomNotification(
                         id: notification.request.identifier,
                         title: notification.request.content.title,
-                        body: notification.request.content.body
+                        notificationBody: notification.request.content.body
                     )
                 }
             }
@@ -73,7 +73,7 @@ class NotificationViewModel: ObservableObject {
                    return CustomNotification(
                         id: notification.identifier,
                         title: notification.content.title,
-                        body: notification.content.body,
+                        notificationBody: notification.content.body,
                         date: date
                     )
                 }

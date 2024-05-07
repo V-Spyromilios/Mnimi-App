@@ -17,7 +17,7 @@ struct NotificationsListCell: View {
                 .fontDesign(.rounded)
                 .fontWeight(.semibold).padding(.horizontal).padding(.top, 4)
             HStack {
-                Text(notification.body).lineLimit(1).truncationMode(.tail).font(.footnote).fontWeight(.thin).padding(.leading)
+                Text(notification.notificationBody).lineLimit(1).truncationMode(.tail).font(.footnote).fontWeight(.thin).padding(.leading)
                 Spacer()
                 if let date = dateFromISO8601(isoDate: notification.date?.description ?? "") {
                     let displayDate = formatDateForDisplay(date: date)
@@ -41,5 +41,5 @@ struct NotificationsListCell: View {
 }
 
 #Preview {
-    NotificationsListCell(notification: CustomNotification(id: "A22-C", title: "Demo", body: "nice notification!"))
+    NotificationsListCell(notification: CustomNotification(id: "A22-C", title: "Demo", notificationBody: "nice notification!"))
 }
