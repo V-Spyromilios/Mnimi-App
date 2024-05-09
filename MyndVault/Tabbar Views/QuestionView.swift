@@ -185,6 +185,9 @@ struct QuestionView: View {
     }
     
     private func performTask() {
+
+        if question.count < 8 { return }
+
         hideKeyboard()
         withAnimation {
             goButtonIsVisible = false }

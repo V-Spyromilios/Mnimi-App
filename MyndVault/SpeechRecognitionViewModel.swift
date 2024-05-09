@@ -10,92 +10,92 @@ import Speech
 import AVFoundation
 import SwiftUI
 
-class SpeechRecognitionViewModel: ObservableObject {
-    @Published var text: String = ""
-    @Published var isListening = false
-
-    private var speechRecognizer = SFSpeechRecognizer()
-    private var audioEngine = AVAudioEngine()
-    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
-    private var recognitionTask: SFSpeechRecognitionTask?
-    private var currentTextField: Binding<String>?
-
-    func startListening(for textFieldBinding: Binding<String>) {
-        if isListening { //so no concurrent sessions are running
-            stopListening()
-        }
-
-        currentTextField = textFieldBinding //bind to passed textField
-        text = ""
-        isListening = true
-
-        if recognitionTask != nil {
-            recognitionTask?.cancel()
-            recognitionTask = nil
-        }
-
-        //set up Audio Session for capturing the mic/ managing the audio hardware
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        } catch {
-            print("Failed to set audio session category: \(error)")
-            return
-        }
-
-        recognitionRequest = SFSpeechAudioBufferRecognitionRequest() //provides Audio to speech recogniser
-
-        let inputNode = audioEngine.inputNode
-
-        guard let recognitionRequest = recognitionRequest else {
-            fatalError("Unable to create a SFSpeechAudioBufferRecognitionRequest object")
-        }
-
-        recognitionRequest.shouldReportPartialResults = true //not waiting for the whole audio
-
-        //start recognision task on recogniser. task is sending Audio to apple
-        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { [weak self] result, error in //update the bound tField and stops when isFinal or Error occurs
-            var isFinal = false
-
-            if let result = result {
-                DispatchQueue.main.async {
-                    self?.currentTextField?.wrappedValue = result.bestTranscription.formattedString
-                    isFinal = result.isFinal
-                }
-            }
-
-            if error != nil || isFinal {
-                self?.stopListening()
-            }
-        }
-
-        //install tap on the node to capture audio. inputnode == microphone
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        //bufferSize = chunks of audio captured and send to recogniser
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer, _) in
-            recognitionRequest.append(buffer) //append audio to recogniser
-        }
-
-        audioEngine.prepare() //prepare to ..
-
-        do {
-            try audioEngine.start() //and start capturing audio from the mic, and provide it to the recognision
-        } catch {
-            print("audioEngine couldn't start because of an error: \(error)")
-        }
-    }
-
-    func stopListening() {
-
-        audioEngine.stop()
-        recognitionRequest?.endAudio()
-        audioEngine.inputNode.removeTap(onBus: 0)
-        recognitionTask = nil
-        recognitionRequest = nil
-        isListening = false
-    }
-}
+//class SpeechRecognitionViewModel: ObservableObject {
+//    @Published var text: String = ""
+//    @Published var isListening = false
+//
+//    private var speechRecognizer = SFSpeechRecognizer()
+//    private var audioEngine = AVAudioEngine()
+//    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
+//    private var recognitionTask: SFSpeechRecognitionTask?
+//    private var currentTextField: Binding<String>?
+//
+//    func startListening(for textFieldBinding: Binding<String>) {
+//        if isListening { //so no concurrent sessions are running
+//            stopListening()
+//        }
+//
+//        currentTextField = textFieldBinding //bind to passed textField
+//        text = ""
+//        isListening = true
+//
+//        if recognitionTask != nil {
+//            recognitionTask?.cancel()
+//            recognitionTask = nil
+//        }
+//
+//        //set up Audio Session for capturing the mic/ managing the audio hardware
+//        let audioSession = AVAudioSession.sharedInstance()
+//        do {
+//            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+//            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+//        } catch {
+//            print("Failed to set audio session category: \(error)")
+//            return
+//        }
+//
+//        recognitionRequest = SFSpeechAudioBufferRecognitionRequest() //provides Audio to speech recogniser
+//
+//        let inputNode = audioEngine.inputNode
+//
+//        guard let recognitionRequest = recognitionRequest else {
+//            fatalError("Unable to create a SFSpeechAudioBufferRecognitionRequest object")
+//        }
+//
+//        recognitionRequest.shouldReportPartialResults = true //not waiting for the whole audio
+//
+//        //start recognision task on recogniser. task is sending Audio to apple
+//        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { [weak self] result, error in //update the bound tField and stops when isFinal or Error occurs
+//            var isFinal = false
+//
+//            if let result = result {
+//                DispatchQueue.main.async {
+//                    self?.currentTextField?.wrappedValue = result.bestTranscription.formattedString
+//                    isFinal = result.isFinal
+//                }
+//            }
+//
+//            if error != nil || isFinal {
+//                self?.stopListening()
+//            }
+//        }
+//
+//        //install tap on the node to capture audio. inputnode == microphone
+//        let recordingFormat = inputNode.outputFormat(forBus: 0)
+//        //bufferSize = chunks of audio captured and send to recogniser
+//        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer, _) in
+//            recognitionRequest.append(buffer) //append audio to recogniser
+//        }
+//
+//        audioEngine.prepare() //prepare to ..
+//
+//        do {
+//            try audioEngine.start() //and start capturing audio from the mic, and provide it to the recognision
+//        } catch {
+//            print("audioEngine couldn't start because of an error: \(error)")
+//        }
+//    }
+//
+//    func stopListening() {
+//
+//        audioEngine.stop()
+//        recognitionRequest?.endAudio()
+//        audioEngine.inputNode.removeTap(onBus: 0)
+//        recognitionTask = nil
+//        recognitionRequest = nil
+//        isListening = false
+//    }
+//}
 
 
 /*

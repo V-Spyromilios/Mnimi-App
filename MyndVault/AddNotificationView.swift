@@ -124,6 +124,8 @@ struct AddNotificationView: View {
 
     private func scheduleNotification() {
         
+        if notificationTitle.isEmpty || notificationBody.isEmpty { return }
+
         let content = UNMutableNotificationContent()
         content.title = self.notificationTitle != "" ? self.notificationTitle : "Mynd Vault Notification!"
         content.body = self.notificationBody

@@ -150,7 +150,6 @@
 		E82F45582BC2A72100945312 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
-				E82F45892BC2A85D00945312 /* CustomTapBarView.swift */,
 				E82F45802BC2A80C00945312 /* NetworkViewModel.swift */,
 				E82F45542BC2A72100945312 /* AudioManager.swift */,
 				E82F45552BC2A72100945312 /* OpenAIManager.swift */,
@@ -264,6 +263,7 @@
 			children = (
 				E8A37F622BD00675004A98C9 /* Info */,
 				E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */,
+				E82F45892BC2A85D00945312 /* CustomTapBarView.swift */,
 				E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */,
 				E8FA7F042BC5BC320012EBF6 /* RecordingsSettingsView.swift */,
 				E8FA7F052BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift */,

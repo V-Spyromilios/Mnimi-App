@@ -18,7 +18,6 @@ struct EditInfoView: View {
     
     
     var body: some View {
-        
        
         ZStack {
             if viewModel.showTopBar {
@@ -53,12 +52,12 @@ struct EditInfoView: View {
                             await openAiManager.clearManager()
                             DispatchQueue.main.async {
                                 showProgress = false
-                                viewModel.activeAlert = nil // Resetting the activeAlert after action
+                                viewModel.activeAlert = nil // Resetting the activeAlert
                             }
                         }
                     },
                     secondaryButton: .cancel {
-                        viewModel.activeAlert = nil // Resetting the activeAlert when canceled
+                        viewModel.activeAlert = nil // Resetting the activeAlert.
                     }
                 )
             case .deleteWarning:

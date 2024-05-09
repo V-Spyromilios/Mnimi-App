@@ -28,8 +28,8 @@ struct NotificationDetailView: View {
     @State private var showDeleteAlert: Bool = false
     
     init(notification: CustomNotification) {
+
         self.notification = notification
-        
         _viewModel = StateObject(wrappedValue: CountdownTimer(targetDate: notification.date ?? .now + 2))
     }
     
@@ -49,48 +49,28 @@ struct NotificationDetailView: View {
                 .padding(.bottom, 20)
             
             
-            Text(viewModel.timeRemaining)
-                .contentTransition(.numericText())
-            
             Text(formatDate(notification.date))
                 .font(.title2)
                 .fontDesign(.rounded)
                 .fontWeight(.medium)
                 .foregroundColor(.secondary)
-                .padding(.bottom, 18)
+                
             
+            Text(viewModel.timeRemaining)
+                .font(.caption)
+                .contentTransition(.numericText())
+                .padding(.bottom, 18)
+
         }.frame(maxWidth: .infinity)
         
             .padding(.horizontal)
-        //        .padding(.vertical, 20)
             .background(Color(UIColor.systemBackground))
             .cornerRadius(10)
             .shadow(radius: 5)
             .scaleEffect(scale)
-            .gesture(
-                LongPressGesture(minimumDuration: 0.5)
-                    .updating($isLongPressing) { currentState, state, transaction in
-                        state = currentState
-                    }
-                    .onChanged { _ in
-                        withAnimation(.spring()) {
-                            scale = isLongPressing ? 1.1 : 1.0
-                            shadowRadius = isLongPressing ? 20 : 10
-                            
-                        }
-                    }
-                    .onEnded { _ in
-                        withAnimation(.spring()) {
-                            scale = 1.0
-                            shadowRadius = 10
-                            showPopover = true
-                        }
-                        //                        if isLongPressing {
-                        
-                        print("showPopover: \(showPopover)")
-                        //                        }
-                    }
-            )
+            .onTapGesture {
+                showPopover = true
+            }
             .popover(isPresented: $showPopover, attachmentAnchor: .point(.bottom), content: {
                 popOverContent()
             })
@@ -99,9 +79,7 @@ struct NotificationDetailView: View {
             .sheet(isPresented: $showNotificationEdit) {
                 NotificationEditView(notification: notification)
             }
-            
-            }
-
+    }
     
     private func formatDate(_ date: Date?) -> String {
         guard let date = date else { return "No date provided" }
@@ -116,14 +94,14 @@ struct NotificationDetailView: View {
             ForEach(popUpOptions, id: \.self) { option in
                 Button(action: {
                     
-                        if option == "Delete" {
-                            Task {
-                                
-                                manager.deleteNotification(with: notification.id)
-                            }
-                        } else {
-                            self.showNotificationEdit.toggle()
+                    if option == "Delete" {
+                        Task {
+                            
+                            manager.deleteNotification(with: notification.id)
                         }
+                    } else {
+                        self.showNotificationEdit.toggle()
+                    }
                     
                 }, label: {
                     if option == popUpOptions.first {

@@ -17,30 +17,10 @@ struct CustomNotification: Identifiable {
 }
 
 class NotificationViewModel: ObservableObject {
-    @Published var deliveredNotifications: [CustomNotification] = []
     @Published var scheduledNotifications: [CustomNotification] = []
 
     init() {
-//        self.deliveredNotifications = deliveredNotifications
-//        self.scheduledNotifications = scheduledNotifications
-        
-        fetchDeliveredNotifications()
         fetchScheduledNotifications()
-    }
-
-    func fetchDeliveredNotifications() {
-
-        UNUserNotificationCenter.current().getDeliveredNotifications { deliveredNotifications in
-            DispatchQueue.main.async {
-                self.deliveredNotifications = deliveredNotifications.map { notification in
-                    CustomNotification(
-                        id: notification.request.identifier,
-                        title: notification.request.content.title,
-                        notificationBody: notification.request.content.body
-                    )
-                }
-            }
-        }
     }
     
     func fetchScheduledNotifications() {
@@ -64,7 +44,6 @@ class NotificationViewModel: ObservableObject {
                         date: date
                     )
                 }
-                print(self.deliveredNotifications)
             }
         }
         print("Fetched \(scheduledNotifications.count) scheduled notifications")
@@ -74,7 +53,6 @@ class NotificationViewModel: ObservableObject {
     func deleteNotification(with id: String) {
      
         scheduledNotifications.removeAll { $0.id == id }
-        deliveredNotifications.removeAll { $0.id == id }
 
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
     }

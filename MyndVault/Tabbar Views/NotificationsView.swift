@@ -31,20 +31,8 @@ struct NotificationsView: View {
                             NotificationDetailView(notification: notification)
                                 .padding(.bottom).padding(.horizontal, 7)
                         }
-                    }
-                    
-                    if !manager.deliveredNotifications.isEmpty {
-                        Text("Delivered")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .textCase(.uppercase)
-                            .padding(.vertical)
-                        
-                        ForEach(manager.deliveredNotifications) { notification in
-                            NotificationDetailView(notification: notification).padding(.bottom).padding(.horizontal, 7)
-                            
-                        }
+                    } else {
+                        ContentUnavailableView("No Notifications yet!", systemImage: "bell.slash.fill", description: Text("Start by adding a new Notification.")).offset(y: 70)
                     }
                 }
             }

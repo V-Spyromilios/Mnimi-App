@@ -215,6 +215,9 @@ struct NewAddInfoView: View {
     }
     
     private func addNewInfoAction() {
+        
+        if newInfo.count < 5 || relevantFor.isEmpty { return }
+
         hideKeyboard()
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
