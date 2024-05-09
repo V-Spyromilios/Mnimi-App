@@ -16,7 +16,8 @@ struct SettingsView: View {
             List {
                 NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language") }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Settings ⚙️")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {

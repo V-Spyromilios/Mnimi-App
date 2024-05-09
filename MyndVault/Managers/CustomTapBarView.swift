@@ -16,24 +16,25 @@ struct CustomTabBarView: View {
     @State private var archiveIsAnimating: Bool = false
     @State private var todoIsAnimating: Bool = false
 
+    let customTabbarHeight: CGFloat = 83
+
     var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opacity(0.3),Color.orange.opacity(0.3), Color.orange.opacity(0.6), Color.orange.opacity(0.8),Color.orange, Color.yellow.opacity(0.4)]), startPoint: .top, endPoint: .bottom)
     
     var brGreenGradient = LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen.opacity(0.5),Color.britishRacingGreen.opacity(0.8), Color.britishRacingGreen]), startPoint: .top, endPoint: .bottom)
     
     var body: some View {
         ZStack {
-            Capsule()
-                .foregroundStyle(Color.britishRacingGreen) //instead of the gradient above
-                .frame(height: 60)
-                .shadow(radius: 12)
+            Rectangle()
+                .foregroundStyle(Color.britishRacingGreen)
+                .frame(height: customTabbarHeight)
 
-            HStack(alignment: .bottom) {
+            HStack(alignment: .top) {
                 Spacer()
                 tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 1)
                 Spacer()
                 tabBarButton(imageName: plusIsAnimating ? "plus.bubble.fill" : "plus.bubble", tabId: 2)
                 Spacer()
-                tabBarButton(imageName: archiveIsAnimating ? "tray.fill" : "tray", tabId: 3) .offset(y: -5)
+                tabBarButton(imageName: archiveIsAnimating ? "tray.fill" : "tray", tabId: 3) .offset(y: -1)
                 Spacer()
                 ZStack {
                 tabBarButton(imageName: notificationsManager.scheduledNotifications.count > 0
@@ -54,7 +55,7 @@ struct CustomTabBarView: View {
                 }
                 Spacer()
             }
-            .frame(height: 60) // Same as capsule height
+            .frame(height: customTabbarHeight) // ! Same as capsule height !
         }
     }
     

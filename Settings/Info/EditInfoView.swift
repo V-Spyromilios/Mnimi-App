@@ -79,6 +79,7 @@ struct EditInfoView: View {
                             if pineconeManager.vectorDeleted {
                                 topBarMessage = "Info deleted!"
                                 viewModel.showTopBar = true
+                                try await pineconeManager.fetchAllNamespaceIDs()
                             }
                             DispatchQueue.main.async {
                                 showProgress = false
@@ -92,46 +93,6 @@ struct EditInfoView: View {
                 )
             }
         }
-
-        
-//        .alert(isPresented: $viewModel.showDeleteWarning) {
-//            Alert(
-//                title: Text("Delete Info?"),
-//                message: Text("Are you sure you want to delete this info?"),
-//                primaryButton: .destructive(Text("OK")) {
-//                    withAnimation {
-//                        showProgress = true
-//                        
-//                        Task {
-//                            do {
-//                                try await pineconeManager.deleteVector(id: viewModel.id)
-//                                
-//                            } catch {
-//                                
-//                                topBarMessage = "Unable to Delete, \(error.localizedDescription)."
-//                                viewModel.showTopBar = true
-//                                
-//                                
-//                            }
-//                            if pineconeManager.vectorDeleted {
-//                                
-//                                topBarMessage = "Info deleted!"
-//                                viewModel.showTopBar = true
-//                                
-//                            }
-//                        }
-//                        Task {
-//                            pineconeManager.clearManager()
-//                            await openAiManager.clearManager()
-//                        }
-//                        showProgress = false
-//                    }
-//                },
-//                secondaryButton: .cancel()
-//            )
-//        }
-        
-        
     }
     
     //TODO: This also needs Progress View
@@ -157,7 +118,7 @@ struct EditInfoView: View {
                     try await pineconeManager.refreshNamespacesIDs()
                     
                 } catch {
-                    //Show Error Alert
+                    //show Error Alert
                     print("EditInfoView :: Error refreshNamespacesIDs: \(error.localizedDescription)")
                 }
                 DispatchQueue.main.async {
@@ -177,6 +138,5 @@ struct EditInfoView: View {
         "relevantFor":"Charlie",
         "description":"Pokemon",
     ])))
-    
-    
+
 }

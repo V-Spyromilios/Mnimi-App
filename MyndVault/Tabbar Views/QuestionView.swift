@@ -28,6 +28,7 @@ struct QuestionView: View {
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
                     .navigationTitle("Search 🔍")
+                    .navigationBarTitleDisplayMode(.inline)
                 
                 TextEditor(text: $question)
                     .fontDesign(.rounded)
@@ -112,7 +113,7 @@ struct QuestionView: View {
                             }
                         }
                     }
-                    ToolbarItemGroup(placement: .topBarLeading) {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
                         Button {
                             showSettings.toggle()
                         } label: {
@@ -121,7 +122,7 @@ struct QuestionView: View {
                                 .frame(height: 30)
                                 .shadow(radius: toolbarButtonShadow)
                                 .overlay {
-                                    Image(systemName: "gearshape")
+                                    Text("⚙️")
                                     .accessibilityLabel("settings") }
                         }
                     }

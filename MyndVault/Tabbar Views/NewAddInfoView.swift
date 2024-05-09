@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import KeyboardObserving
 
 struct NewAddInfoView: View {
     @Binding var newInfo: String
@@ -25,72 +26,23 @@ struct NewAddInfoView: View {
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     
     var body: some View {
-        ScrollViewReader { scrollViewProxy in
+       
             GeometryReader { geometry in
                 NavigationStack {
-                    ScrollView {
-                        VStack {
+//                    ScrollView {
+                    VStack {
+                        HStack {
+                            Image(systemName: "plus.bubble").bold()
+                            Text("info").bold()
                             Spacer()
-                            HStack {
-                                Image(systemName: "plus.bubble").bold()
-                                Text("info").bold()
-                                Spacer()
-                            }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
-                            HStack {
-                                TextEditor(text: $newInfo)
-                                    .fontDesign(.rounded)
-                                    .font(.title2)
-                                    .multilineTextAlignment(.leading)
-                                    .frame(height: 110)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    .shadow(radius: 5)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10.0)
-                                            .stroke(lineWidth: 1)
-                                            .opacity(0.3)
-                                            .foregroundColor(Color.gray)
-                                    )
-                                    .padding(.bottom)
-                                    .padding(.horizontal, 7)
-                                    .toolbar {
-                                        ToolbarItemGroup(placement: .keyboard) {
-                                            HStack {
-                                                Spacer()
-                                                Button {
-                                                    hideKeyboard()
-                                                } label: {
-                                                    Image(systemName: "keyboard.chevron.compact.down")
-                                                        .accessibilityLabel("hide keyboard")
-                                                }
-                                            }
-                                        }
-                                        ToolbarItemGroup(placement: .topBarLeading) {
-                                                Button {
-                                                    showSettings.toggle()
-                                                } label: {
-                                                    Circle()
-                                                        .foregroundStyle(.white)
-                                                        .frame(height: 30)
-                                                        .shadow(radius: toolbarButtonShadow)
-                                                        .overlay {
-                                                            Image(systemName: "gearshape")
-                                                            .accessibilityLabel("Settings") }
-                                                }
-                                        }
-                                        
-                                    }
-                            }
-                            HStack {
-                                Image(systemName: "person.bubble").bold()
-                                Text("Relevant For:").bold()
-                                Spacer()
-                            }.font(.callout).padding(.horizontal, 7)
-                                .padding(.bottom, 8)
+                        }.font(.callout).padding(.top,12).padding(.bottom, 8).padding(.horizontal, 7)
                             
-                            TextEditor(text: $relevantFor)
+                        HStack {
+                            TextEditor(text: $newInfo)
                                 .fontDesign(.rounded)
                                 .font(.title2)
-                                .frame(minHeight: 40, maxHeight: 50)
+                                .multilineTextAlignment(.leading)
+                                .frame(height: 110)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .shadow(radius: 5)
                                 .overlay(
@@ -101,48 +53,106 @@ struct NewAddInfoView: View {
                                 )
                                 .padding(.bottom)
                                 .padding(.horizontal, 7)
-                            
-                            
-                            //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
-                            
-                            
-                            if self.thrownError != "" {
-                                ErrorView(thrownError: thrownError)
-                                    .padding(.top)
-                                    .padding(.horizontal)
-                                ClearButton
-                            }
-                            else if pineconeManager.receivedError != nil {
-                                ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
-                                    .padding(.top)
-                                    .padding(.horizontal)
-                                ClearButton
-                            }
-                            else if openAiManager.thrownError != "" {
-                                ErrorView(thrownError: openAiManager.thrownError)
-                                    .padding(.top)
-                                    .padding(.horizontal)
-                                ClearButton
-                            }
-                            if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                                SaveButton
-                                    .onChange(of: keyboardResponder.currentHeight) {
-                                        
-                                        withAnimation {
-                                            scrollViewProxy.scrollTo("SubmitButton", anchor: .bottom)
+                                .toolbar {
+                                    ToolbarItemGroup(placement: .keyboard) {
+                                        HStack {
+                                            Spacer()
+                                            Button {
+                                                hideKeyboard()
+                                            } label: {
+                                                Image(systemName: "keyboard.chevron.compact.down")
+                                                    .accessibilityLabel("hide keyboard")
+                                            }
                                         }
                                     }
-                                    .padding(.bottom, keyboardResponder.currentHeight > 0 ? 8: 0)
-                            }
-                            else if progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                                CircularProgressView(progressTracker: progressTracker).padding()
-                            }
-                            Spacer().frame(height: keyboardResponder.currentHeight)
-                        }.navigationTitle("Add New 📝")
+                                    ToolbarItemGroup(placement: .topBarTrailing) {
+                                        Button {
+                                            showSettings.toggle()
+                                        } label: {
+                                            Circle()
+                                                .foregroundStyle(.white)
+                                                .frame(height: 30)
+                                                .shadow(radius: toolbarButtonShadow)
+                                                .overlay {
+                                                    Text("⚙️")
+                                                    .accessibilityLabel("Settings") }
+                                        }
+                                    }
+                                    
+                                }
+                        }
+                        HStack {
+                            Image(systemName: "person.bubble").bold()
+                            Text("Relevant For:").bold()
+                            Spacer()
+                        }.font(.callout).padding(.horizontal, 7)
+                            .padding(.bottom, 8)
+                        
+                        TextEditor(text: $relevantFor)
+                            .fontDesign(.rounded)
+                            .font(.title2)
+                            .frame(height: 50)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .shadow(radius: 5)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10.0)
+                                    .stroke(lineWidth: 1)
+                                    .opacity(0.3)
+                                    .foregroundColor(Color.gray)
+                            )
+                            .padding(.bottom, 8)
+                            .padding(.horizontal, 7)
+                        
+                        
+                        //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
+                        
+                        
+                        if self.thrownError != "" {
+                            ErrorView(thrownError: thrownError)
+                                .padding(.top)
+                                .padding(.horizontal)
+                            ClearButton
+                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                        }
+                        else if pineconeManager.receivedError != nil {
+                            ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
+                                .padding(.top)
+                                .padding(.horizontal)
+                            ClearButton
+                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                        }
+                        else if openAiManager.thrownError != "" {
+                            ErrorView(thrownError: openAiManager.thrownError)
+                                .padding(.top)
+                                .padding(.horizontal)
+                            ClearButton
+                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                        }
+                        else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                            SaveButton
+//                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                                
+                            //                                    .onChange(of: keyboardResponder.currentHeight) {
+                            //
+                            //                                        withAnimation {
+                            //                                            scrollViewProxy.scrollTo("SubmitButton", anchor: .bottom)
+                            //                                        }
+                            //                                    }
+                               
+                                
+                        }
+                        if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                            CircularProgressView(progressTracker: progressTracker).padding()
+                        }
+                        Spacer()
+                        //                                .frame(height: keyboardResponder.currentHeight)
+                            .navigationTitle("Add New 📝")
+                            .navigationBarTitleDisplayMode(.inline)
                     }
-                }
+//                }
+                }.keyboardObserving()
             }
-        }.fullScreenCover(isPresented: $showSettings) {
+        .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
         }
     }
@@ -165,8 +175,8 @@ struct NewAddInfoView: View {
         .padding(.top, 12)
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
-        .id("SubmitButton")
-        .padding(.bottom, keyboardResponder.currentHeight > 0 ? 10 : 0)
+//        .id("SubmitButton")
+//        .padding(.bottom, keyboardResponder.currentHeight > 0 ? 10 : 0)
     }
     
     private var ClearButton: some View {
@@ -185,7 +195,7 @@ struct NewAddInfoView: View {
         }
         .padding(.top, 12)
         .padding(.horizontal)
-        .padding(.bottom, keyboardResponder.currentHeight > 0 ? 10 + keyboardResponder.currentHeight : 10)
+//        .padding(.bottom, 10)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
         .frame(maxWidth: .infinity)
     }
@@ -219,8 +229,8 @@ struct NewAddInfoView: View {
             let metadata = toDictionary(type: "GeneralKnowledge", desc: self.newInfo, relevantFor: self.relevantFor)
             do {
                 //MARK: TEST THROW
-                //                let miaMalakia = AppCKError.UnableToGetNameSpace
-                //                throw miaMalakia
+//                                let miaMalakia = AppCKError.UnableToGetNameSpace
+//                                throw miaMalakia
                 try await pineconeManager.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
                 if pineconeManager.upsertSuccesful {
                     await MainActor.run {

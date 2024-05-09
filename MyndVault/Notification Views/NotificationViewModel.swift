@@ -27,20 +27,7 @@ class NotificationViewModel: ObservableObject {
         fetchDeliveredNotifications()
         fetchScheduledNotifications()
     }
-    
-    func fetchMockNotifications() {
-        self.scheduledNotifications = [
-            CustomNotification(id: "1234", title: "Meeting", notificationBody: "Team meeting at 3 PM"),
-            CustomNotification(id: "49403", title: "Dinner", notificationBody: "Dinner with family at 7 PM"),
-            CustomNotification(id: "1234", title: "Meeting", notificationBody: "Team meeting at 3 PM"),
-            CustomNotification(id: "49403", title: "Dinner", notificationBody: "Dinner with family at 7 PM"),
-            CustomNotification(id: "1234", title: "Meeting", notificationBody: "Team meeting at 3 PM"),
-            CustomNotification(id: "49403", title: "Dinner", notificationBody: "Dinner with family at 7 PM"),
-            CustomNotification(id: "1234", title: "Meeting", notificationBody: "Team meeting at 3 PM"),
-            CustomNotification(id: "49403", title: "Dinner", notificationBody: "Dinner with family at 7 PM")
-            ]
-    }
-    
+
     func fetchDeliveredNotifications() {
 
         UNUserNotificationCenter.current().getDeliveredNotifications { deliveredNotifications in
@@ -82,21 +69,14 @@ class NotificationViewModel: ObservableObject {
         }
         print("Fetched \(scheduledNotifications.count) scheduled notifications")
     }
+
     
-    func removeDeliveredNotification(at indexSet: IndexSet) {
+    func deleteNotification(with id: String) {
+     
+        scheduledNotifications.removeAll { $0.id == id }
+        deliveredNotifications.removeAll { $0.id == id }
 
-        let identifiersToRemove = indexSet.map { deliveredNotifications[$0].id }
-        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: identifiersToRemove)
-
-        deliveredNotifications.remove(atOffsets: indexSet)
-    }
-    
-    func removeScheduledNotification(at indexSet: IndexSet) {
-
-        let identifiersToRemove = indexSet.map { scheduledNotifications[$0].id }
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiersToRemove)
-
-        scheduledNotifications.remove(atOffsets: indexSet)
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
     }
 
 }

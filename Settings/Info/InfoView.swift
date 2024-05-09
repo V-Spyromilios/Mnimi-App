@@ -129,8 +129,7 @@ struct InfoView: View {
                         .frame(height: 30)
                         .shadow(radius: toolbarButtonShadow)
                         .overlay {
-                            Image(systemName: "trash")
-                                .foregroundStyle(.red)
+                            Text("🗑️")
                                 .accessibilityLabel("Delete info")
                         }
                 })

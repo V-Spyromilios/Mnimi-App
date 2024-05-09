@@ -41,6 +41,7 @@ struct PromptLanguageView: View {
         .buttonStyle(PlainButtonStyle())
         .foregroundStyle(.black)
         .navigationTitle("Prompt Language")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -49,7 +50,7 @@ struct PromptLanguageView: View {
                 }) {
                     HStack {
                         Image(systemName: "chevron.left")
-                        Text("Settings")
+                        Text("⚙️")
                     }
                 }
             }

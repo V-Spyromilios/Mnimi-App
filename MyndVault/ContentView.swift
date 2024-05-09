@@ -53,18 +53,29 @@ struct ContentView: View {
                 
                 VaultView().tag(3)
                 NotificationsView().tag(4)
-            }
-            .overlay(alignment: .bottom) {
-                if !keyboardAppeared {
+            } .ignoresSafeArea(edges: .bottom)
+                .overlay(
                     CustomTabBarView(tabSelection: $tabSelection)
-                        .transition(.move(edge: .bottom))
-                        .edgesIgnoringSafeArea(.bottom)
-                        .animation(.easeInOut, value: keyboardAppeared)
-                        .padding(.horizontal)
-                        .shadow(radius: 8)
-                        
-                }
-            }
+                        .ignoresSafeArea()
+                        .animation(.easeInOut, value: keyboardAppeared),
+                    alignment: .bottom
+                )
+                .ignoresSafeArea(edges: .bottom)
+                .ignoresSafeArea(edges: .horizontal)
+                .shadow(color: .britishRacingGreen, radius: 10) 
+//            .overlay(alignment: .bottom) {
+//                if !keyboardAppeared {
+//                    CustomTabBarView(tabSelection: $tabSelection)
+//                        .transition(.move(edge: .bottom))
+//                        .ignoresSafeArea()
+//                        
+//                        .animation(.easeInOut, value: keyboardAppeared),
+//                       
+//                       
+////                        .shadow(radius: 8)
+//                        
+//                }
+//            }
             if showTopBar {
                 TopNotificationBar(message: topBarMessage, show: $showTopBar)
                     .transition(.move(edge: .top))

@@ -16,57 +16,80 @@ struct VaultView: View {
     @State private var vectorsAreLoading = true
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
-    
+    @State private var showErrorUnavailable: Bool = false
+    @State private var showUnavailable: Bool = false
+
     var body: some View {
         NavigationStack {
             
             ScrollView {
+                LazyVStack {
                 if vectorsAreLoading {
                     ProgressView().font(.title).bold().padding(.top, 40)
                 }
-                if !pineconeManger.pineconeFetchedVectors.isEmpty {
-                    
-                    ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
-                        
-                        NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
-                            InfosViewListCellView(data: data).padding()
+//                if !pineconeManger.pineconeFetchedVectors.isEmpty {
+                    if !vectorsAreLoading {
+                        ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
                             
+                            NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
+                                InfosViewListCellView(data: data).padding()
+                                
+                            }
                         }
                     }
-                }
+//                }}
                 
-                else if !vectorsAreLoading {
-                   
+                else if !vectorsAreLoading && pineconeManger.pineconeFetchedVectors.isEmpty && showUnavailable {
+                    
                     ContentUnavailableView(label: {
                         Label("No Saved Info", systemImage: "tray.2")
                     }, description: {
                         Text(" Saved Info will be shown here.")}
                                            
-                    )
-                   
+                    ).offset(y: 50)
+                    
                 }
+                    if showErrorUnavailable && pineconeManger.pineconeFetchedVectors.isEmpty {
+                        ContentUnavailableView(label: {
+                            Label("Unable to fetch data", systemImage: "tray.2")
+                        }, description: {
+                            Text(" please check your connection.")}
+                                               
+                        ).offset(y: 50)
+                    }
+            }
             }.refreshable {
                 Task {
                     do {
                         try await pineconeManger.refreshNamespacesIDs()
                     } catch  {
+                        showErrorUnavailable  = true
                         print("Error refreshing: \(error.localizedDescription)")
                     }
                 }
             }
             .navigationTitle("Vault 🗃️")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Error fetching Info"),
                 message: Text(alertMessage),
-                dismissButton: .cancel()
+                dismissButton: .default(Text("OK"))
             )
         }
         .onAppear {
-            self.vectorsAreLoading = true
-            fetchPineconeEntries()
+            if pineconeManger.pineconeFetchedVectors.isEmpty {
+                self.vectorsAreLoading = true
+                fetchPineconeEntries()
+            }
+        }
+        .onReceive(pineconeManger.$pineconeFetchedVectors) { _ in
+            print("Fetched Vectors changed.")
+            if pineconeManger.pineconeFetchedVectors.isEmpty {
+                showUnavailable = true
+            }
         }
     }
     

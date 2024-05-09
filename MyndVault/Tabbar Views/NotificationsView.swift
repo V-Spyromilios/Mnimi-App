@@ -11,21 +11,14 @@ import UserNotifications
 struct NotificationsView: View {
     
     @EnvironmentObject var manager: NotificationViewModel
-    @State var showAddNotificationSheet = false
+    @State private var showAddNotification: Bool = false
     
-    let dateFormatter = DateFormatter()
-    
-    init() {
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.timeZone = TimeZone.current
-    }
+    @State var selectedNotification: CustomNotification?
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading) {
+                LazyVStack(alignment: .leading) {
                     if !manager.scheduledNotifications.isEmpty {
                         Text("Scheduled")
                             .font(.headline)
@@ -33,14 +26,11 @@ struct NotificationsView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .textCase(.uppercase)
                             .padding(.bottom)
-                        
-                        ForEach(manager.scheduledNotifications) { notification in
-                            NavigationLink(destination: NotificationDetailView(notification: notification)) {
-                                NotificationsListCell(notification: notification)
-                                    .padding(.bottom)
-                            }
+                        ForEach(manager.scheduledNotifications) {notification in
+                            
+                            NotificationDetailView(notification: notification)
+                                .padding(.bottom).padding(.horizontal, 7)
                         }
-                        .onDelete(perform: manager.removeScheduledNotification)
                     }
                     
                     if !manager.deliveredNotifications.isEmpty {
@@ -52,36 +42,34 @@ struct NotificationsView: View {
                             .padding(.vertical)
                         
                         ForEach(manager.deliveredNotifications) { notification in
-                            NotificationsListCell(notification: notification)
-                                .padding(.bottom)
-                                .foregroundStyle(.gray)
+                            NotificationDetailView(notification: notification).padding(.bottom).padding(.horizontal, 7)
+                            
                         }
                     }
                 }
-                .padding()
             }
             .navigationTitle("Notifications 🔔")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showAddNotificationSheet.toggle()
-                        
-                    }) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        withAnimation {
+                            showAddNotification.toggle() }
+                    } label: {
                         Circle()
+                        
                             .foregroundStyle(.white)
                             .frame(height: 30)
                             .shadow(radius: toolbarButtonShadow)
                             .overlay {
-                                Image(systemName: "plus")
-                                .accessibilityLabel("Schedule new notification") }
-                    }
+                                Text("➕")}
+                    }.padding()
                 }
             }
-            .sheet(isPresented: $showAddNotificationSheet) {
-                AddNotificationView(dismissAction: {
-                    showAddNotificationSheet = false
-                })
-            }
+        }.sheet(isPresented: $showAddNotification) {
+            AddNotificationView(dismissAction: {
+                showAddNotification = false
+            })
         }
     }
 }
@@ -89,7 +77,7 @@ struct NotificationsView: View {
 struct NotificationsView_Previews: PreviewProvider {
     static var previews: some View {
         let manager = NotificationViewModel()
-        manager.fetchMockNotifications()
+       
         
         return NotificationsView()
             .environmentObject(manager)

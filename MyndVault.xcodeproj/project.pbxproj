@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E813C76B2BECDE8C00E3088D /* KeyboardObserving in Frameworks */ = {isa = PBXBuildFile; productRef = E813C76A2BECDE8C00E3088D /* KeyboardObserving */; };
+		E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E813C76C2BECF51900E3088D /* CountdownTimer.swift */; };
 		E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */ = {isa = PBXBuildFile; fileRef = E82F454B2BC2A6D100945312 /* OpenAIKey.plist */; };
 		E82F454E2BC2A6D100945312 /* NextSteps in Resources */ = {isa = PBXBuildFile; fileRef = E82F454C2BC2A6D100945312 /* NextSteps */; };
 		E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */; };
@@ -27,9 +29,7 @@
 		E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45692BC2A77E00945312 /* NotificationEditView.swift */; };
 		E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */; };
 		E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456B2BC2A77E00945312 /* NotificationsView.swift */; };
-		E82F45852BC2A80C00945312 /* NewTextEditorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */; };
 		E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */; };
-		E82F45872BC2A80C00945312 /* TextEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457E2BC2A80B00945312 /* TextEffectView.swift */; };
 		E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45802BC2A80C00945312 /* NetworkViewModel.swift */; };
 		E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45892BC2A85D00945312 /* CustomTapBarView.swift */; };
 		E82F458E2BC2A95900945312 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F458D2BC2A95900945312 /* LoadingView.swift */; };
@@ -62,6 +62,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E813C76C2BECF51900E3088D /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		E82F454B2BC2A6D100945312 /* OpenAIKey.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = OpenAIKey.plist; sourceTree = "<group>"; };
 		E82F454C2BC2A6D100945312 /* NextSteps */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NextSteps; sourceTree = "<group>"; };
 		E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitViewModel.swift; sourceTree = "<group>"; };
@@ -82,9 +83,7 @@
 		E82F45692BC2A77E00945312 /* NotificationEditView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationEditView.swift; sourceTree = "<group>"; };
 		E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		E82F456B2BC2A77E00945312 /* NotificationsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
-		E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewTextEditorsView.swift; sourceTree = "<group>"; };
 		E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewModel.swift; sourceTree = "<group>"; };
-		E82F457E2BC2A80B00945312 /* TextEffectView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextEffectView.swift; sourceTree = "<group>"; };
 		E82F45802BC2A80C00945312 /* NetworkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkViewModel.swift; sourceTree = "<group>"; };
 		E82F45892BC2A85D00945312 /* CustomTapBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTapBarView.swift; sourceTree = "<group>"; };
 		E82F458D2BC2A95900945312 /* LoadingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
@@ -124,6 +123,7 @@
 				E8FD6B742BEA422F00A0BC15 /* FirebaseCrashlytics in Frameworks */,
 				E8FD6B7A2BEA426A00A0BC15 /* RevenueCatUI in Frameworks */,
 				E8FD6B762BEA422F00A0BC15 /* FirebasePerformance in Frameworks */,
+				E813C76B2BECDE8C00E3088D /* KeyboardObserving in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,6 +181,7 @@
 				E82F45682BC2A77E00945312 /* NotificationDetailView.swift */,
 				E82F45692BC2A77E00945312 /* NotificationEditView.swift */,
 				E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */,
+				E813C76C2BECF51900E3088D /* CountdownTimer.swift */,
 			);
 			path = "Notification Views";
 			sourceTree = "<group>";
@@ -229,9 +230,7 @@
 				E82F457F2BC2A80B00945312 /* Tabbar Views */,
 				E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */,
 				E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */,
-				E82F457C2BC2A80B00945312 /* NewTextEditorsView.swift */,
 				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
-				E82F457E2BC2A80B00945312 /* TextEffectView.swift */,
 				E82F458D2BC2A95900945312 /* LoadingView.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
@@ -297,6 +296,7 @@
 				E8FD6B752BEA422F00A0BC15 /* FirebasePerformance */,
 				E8FD6B772BEA426A00A0BC15 /* RevenueCat */,
 				E8FD6B792BEA426A00A0BC15 /* RevenueCatUI */,
+				E813C76A2BECDE8C00E3088D /* KeyboardObserving */,
 			);
 			productName = MyndVault;
 			productReference = E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */;
@@ -330,6 +330,7 @@
 				E8459ED72BC1EC2900CE34A7 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				E82F458F2BC2A97B00945312 /* XCRemoteSwiftPackageReference "PopupView" */,
 				E8BFD34F2BC58BC300355B44 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				E813C7692BECDE8C00E3088D /* XCRemoteSwiftPackageReference "KeyboardObserving" */,
 			);
 			productRefGroup = E8459EC52BC1E3BE00CE34A7 /* Products */;
 			projectDirPath = "";
@@ -386,15 +387,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				E82F455C2BC2A72100945312 /* AudioManager.swift in Sources */,
-				E82F45872BC2A80C00945312 /* TextEffectView.swift in Sources */,
 				E82F456E2BC2A77E00945312 /* Codables.swift in Sources */,
 				E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */,
+				E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */,
 				E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */,
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
 				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
-				E82F45852BC2A80C00945312 /* NewTextEditorsView.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
 				E82F456D2BC2A77E00945312 /* ApiConfiguration.swift in Sources */,
 				E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */,
@@ -651,6 +651,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		E813C7692BECDE8C00E3088D /* XCRemoteSwiftPackageReference "KeyboardObserving" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nickffox/KeyboardObserving.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		E82F458F2BC2A97B00945312 /* XCRemoteSwiftPackageReference "PopupView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Mijick/PopupView.git";
@@ -678,6 +686,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E813C76A2BECDE8C00E3088D /* KeyboardObserving */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E813C7692BECDE8C00E3088D /* XCRemoteSwiftPackageReference "KeyboardObserving" */;
+			productName = KeyboardObserving;
+		};
 		E8FD6B712BEA422F00A0BC15 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAnalytics;
