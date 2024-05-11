@@ -10,13 +10,13 @@ import SwiftUI
 struct QuestionView: View {
     
     @Binding var question: String
-    @Binding var thrownError: String
+    @State var thrownError: String = ""
     @State var goButtonIsVisible: Bool = true
     @State private var clearButtonIsVisible: Bool = false
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
-    @Binding var showSettings: Bool
+    @State private var showSettings: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -34,7 +34,7 @@ struct QuestionView: View {
                     .fontDesign(.rounded)
                     .font(.title2)
                     .multilineTextAlignment(.leading)
-                    .frame(height: 110)
+                    .frame(height: textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(radius: 5)
                     .overlay {
@@ -90,7 +90,7 @@ struct QuestionView: View {
                                 .font(.title2)
                                 .fontDesign(.rounded)
                                 .multilineTextAlignment(.leading)
-                                .frame(minHeight: 110)
+                                .frame(minHeight: textEditorHeight)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                         .padding(.bottom)
@@ -115,7 +115,9 @@ struct QuestionView: View {
                     }
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         Button {
-                            showSettings.toggle()
+                            print("Before toggling settings: \(showSettings)")
+                                showSettings.toggle()
+                                print("After toggling settings: \(showSettings)")
                         } label: {
                             Circle()
                                 .foregroundStyle(.white)
@@ -146,6 +148,7 @@ struct QuestionView: View {
             .shadow(radius: 7)
             .contentShape(Rectangle())
         }
+        .padding(.top, 12)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
     }
@@ -194,18 +197,17 @@ struct QuestionView: View {
         Task {
             await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             if openAiManager.questionEmbeddingsCompleted {
-                let metadata = toDictionary(type: "question", desc: self.question, relevantFor: "")
                 
                 do {
                     ProgressTracker.shared.setProgress(to: 0.35)
-                    try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion, metadata: metadata)
+                    try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
                 } catch {
                     thrownError = error.localizedDescription
                     clearButtonIsVisible = true
                 }
                 if let pineconeResponse = pineconeManager.pineconeQueryResponse {
                     do {
-                        try await openAiManager.getGptResponseAndConvertTextToSpeech(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
+                        try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
                     } catch {
                         thrownError = error.localizedDescription
                         withAnimation {
@@ -230,8 +232,7 @@ struct QuestionView_Previews: PreviewProvider {
         let pineconeManager = PineconeManager()
         let progressTracker = ProgressTracker()
         
-        QuestionView(question: .constant("What is the name of my manager ?"),
-                     thrownError: .constant(""), showSettings: .constant(false))
+        QuestionView(question: .constant("What is the name of my manager ?"))
         .environmentObject(openAiManager)
         .environmentObject(pineconeManager)
         .environmentObject(progressTracker)

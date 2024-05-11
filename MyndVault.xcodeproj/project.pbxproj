@@ -188,6 +188,7 @@
 		E82F457F2BC2A80B00945312 /* Tabbar Views */ = {
 			isa = PBXGroup;
 			children = (
+				E8FA7F012BC5BC320012EBF6 /* VaultView.swift */,
 				E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */,
 				E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */,
 				E82F456B2BC2A77E00945312 /* NotificationsView.swift */,
@@ -250,7 +251,6 @@
 			isa = PBXGroup;
 			children = (
 				E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */,
-				E8FA7F012BC5BC320012EBF6 /* VaultView.swift */,
 				E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */,
 				E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */,
 				E87FB25E2BC96EA000B1A16D /* InfoView.swift */,

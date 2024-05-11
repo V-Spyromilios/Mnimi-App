@@ -75,7 +75,7 @@ struct VaultView: View {
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Error fetching Info"),
-                message: Text(alertMessage),
+                message: Text("\(alertMessage), Scroll down to retry!"),
                 dismissButton: .default(Text("OK"))
             )
         }

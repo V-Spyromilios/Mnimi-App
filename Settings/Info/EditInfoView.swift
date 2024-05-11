@@ -14,27 +14,35 @@ struct EditInfoView: View {
     @EnvironmentObject var openAiManager: OpenAIManager
     @State var showProgress: Bool = false
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @State var topBarMessage: String = ""
-    
+    @State var popMessage: String = ""
+    @State var showPop: Bool = false
     
     var body: some View {
-       
+        
         ZStack {
-            if viewModel.showTopBar {
-                TopNotificationBar(message: topBarMessage, show: $viewModel.showTopBar)
-                    .transition(.move(edge: .top))
-                    .onDisappear {
-                        presentationMode.wrappedValue.dismiss()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            topBarMessage = ""
-                        }
-                    }
-            }
-            else if showProgress {
-                ProgressView()
-            }
             
             InfoView(viewModel: viewModel).opacity(showProgress ? 0.5 : 1.0)
+                .popover(isPresented: $showPop, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+                    VStack {
+                        Text(popMessage)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    .background(Color.britishRacingGreen)
+                    .ignoresSafeArea()
+                    .onAppear() {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+                            presentationMode.wrappedValue.dismiss()
+                            popMessage = ""
+                        }
+                    }
+                }
+            
+            
+            if showProgress {
+                ProgressView()
+            }
         }
         .alert(item: $viewModel.activeAlert) { alertType in
             switch alertType {
@@ -44,6 +52,7 @@ struct EditInfoView: View {
                     message: Text("Are you sure you want to save these changes?"),
                     primaryButton: .destructive(Text("OK")) {
                         withAnimation {
+                            hideKeyboard()
                             showProgress = true
                         }
                         Task {
@@ -52,7 +61,7 @@ struct EditInfoView: View {
                             await openAiManager.clearManager()
                             DispatchQueue.main.async {
                                 showProgress = false
-                                viewModel.activeAlert = nil // Resetting the activeAlert
+                                viewModel.activeAlert = nil // resetting the activeAlert
                             }
                         }
                     },
@@ -66,18 +75,19 @@ struct EditInfoView: View {
                     message: Text("Are you sure you want to delete this info?"),
                     primaryButton: .destructive(Text("OK")) {
                         withAnimation {
+                            hideKeyboard()
                             showProgress = true
                         }
                         Task {
                             do {
                                 try await pineconeManager.deleteVector(id: viewModel.id)
                             } catch {
-                                topBarMessage = "Unable to Delete, \(error.localizedDescription)."
-                                viewModel.showTopBar = true
+                                popMessage = "Unable to Delete, \(error.localizedDescription)."
+                                showPop = true
                             }
                             if pineconeManager.vectorDeleted {
-                                topBarMessage = "Info deleted!"
-                                viewModel.showTopBar = true
+                                popMessage = "Info deleted!"
+                                showPop = true
                                 try await pineconeManager.fetchAllNamespaceIDs()
                             }
                             DispatchQueue.main.async {
@@ -93,14 +103,11 @@ struct EditInfoView: View {
             }
         }
     }
-    
-    //TODO: This also needs Progress View
+
     private func upsertEditedInfo() async {
-        let metadata: [String: String] = [
-            "relevantFor": self.viewModel.relevantFor,
-            "description": self.viewModel.description,
-            "timestamp": self.viewModel.timestamp
-        ]
+        
+        let metadata = toDictionary(desc: self.viewModel.description)
+        
         await openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
         if !openAiManager.embeddings.isEmpty {
             do {
@@ -111,6 +118,7 @@ struct EditInfoView: View {
             }
             if pineconeManager.upsertSuccesful {
                 DispatchQueue.main.async {
+                    pineconeManager.isDataSorted = false
                     pineconeManager.refreshAfterEditing = true
                 }
                 do {
@@ -121,8 +129,8 @@ struct EditInfoView: View {
                     print("EditInfoView :: Error refreshNamespacesIDs: \(error.localizedDescription)")
                 }
                 DispatchQueue.main.async {
-                    topBarMessage = "Info saved successfully!"
-                    viewModel.showTopBar = true
+                    popMessage = "Info saved successfully!"
+                    showPop = true
                 }
             }
         }
@@ -134,8 +142,7 @@ struct EditInfoView: View {
     
     EditInfoView(viewModel: EditInfoViewModel(vector: Vector(id: "uuid-test01", metadata: [
         "timestamp":"2024",
-        "relevantFor":"Charlie",
         "description":"Pokemon",
     ])))
-
+    
 }

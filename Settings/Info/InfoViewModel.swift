@@ -8,29 +8,24 @@
 import Foundation
 import SwiftUI
 
-class EditInfoViewModel: ObservableObject {
+final class EditInfoViewModel: ObservableObject {
 
     enum ActiveAlert: Identifiable {
+
         case editConfirmation, deleteWarning
-        
-        var id: Self {
-                self
-            }
+        var id: Self { self }
     }
 
     @Published var activeAlert: ActiveAlert?
-    @Published var showTopBar: Bool = false
 
     @Published var id: String
     @Published var timestamp: String
-    @Published var relevantFor: String
     @Published var description: String
 
     init(vector: Vector) {
-        self.id = vector.id
         self.timestamp = vector.metadata["timestamp"] ?? ""
-        self.relevantFor = vector.metadata["relevantFor"] ?? ""
         self.description = vector.metadata["description"] ?? ""
+        self.id = vector.id
     }
 
 }

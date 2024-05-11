@@ -10,15 +10,17 @@ import KeyboardObserving
 
 struct NewAddInfoView: View {
     @Binding var newInfo: String
-    @Binding var relevantFor: String
+//    @Binding var relevantFor: String
     @Binding var apiCallInProgress: Bool
-    @Binding var thrownError: String
+    @State var thrownError: String = "" 
     @Binding var showAlert: Bool
-    @Binding var showTopBar: Bool
-    @Binding var topBarMessage: String
+    
+    @State private var showPopUp: Bool = false
+    @State private var popUpMessage: String = ""
+    
     @State private var clearButtonIsVisible: Bool = false
     @State private var saveButtonIsVisible: Bool = true
-    @Binding var showSettings: Bool
+    @State private var showSettings: Bool = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -42,7 +44,7 @@ struct NewAddInfoView: View {
                                 .fontDesign(.rounded)
                                 .font(.title2)
                                 .multilineTextAlignment(.leading)
-                                .frame(height: 110)
+                                .frame(height: textEditorHeight)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .shadow(radius: 5)
                                 .overlay(
@@ -80,28 +82,33 @@ struct NewAddInfoView: View {
                                     }
                                     
                                 }
+                        }.popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+                            VStack {
+                                Text(popUpMessage)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            }
+                            .background(Color.britishRacingGreen)
+                            .ignoresSafeArea()
+                            .presentationCompactAdaptation(.popover)
                         }
-                        HStack {
-                            Image(systemName: "person.bubble").bold()
-                            Text("Relevant For:").bold()
-                            Spacer()
-                        }.font(.callout).padding(.horizontal, 7)
-                            .padding(.bottom, 8)
+                       
                         
-                        TextEditor(text: $relevantFor)
-                            .fontDesign(.rounded)
-                            .font(.title2)
-                            .frame(height: 50)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .shadow(radius: 5)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10.0)
-                                    .stroke(lineWidth: 1)
-                                    .opacity(0.3)
-                                    .foregroundColor(Color.gray)
-                            )
-                            .padding(.bottom, 8)
-                            .padding(.horizontal, 7)
+//                        TextEditor(text: $relevantFor)
+//                            .fontDesign(.rounded)
+//                            .font(.title2)
+//                            .frame(height: 50)
+//                            .clipShape(RoundedRectangle(cornerRadius: 10))
+//                            .shadow(radius: 5)
+//                            .overlay(
+//                                RoundedRectangle(cornerRadius: 10.0)
+//                                    .stroke(lineWidth: 1)
+//                                    .opacity(0.3)
+//                                    .foregroundColor(Color.gray)
+//                            )
+//                            .padding(.bottom, 8)
+//                            .padding(.horizontal, 7)
                         
                         
                         //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
@@ -152,6 +159,7 @@ struct NewAddInfoView: View {
 //                }
                 }.keyboardObserving()
             }
+            
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
         }
@@ -216,7 +224,7 @@ struct NewAddInfoView: View {
     
     private func addNewInfoAction() {
         
-        if newInfo.count < 5 || relevantFor.isEmpty { return }
+        if newInfo.count < 5 { return }
 
         hideKeyboard()
         self.saveButtonIsVisible = false
@@ -229,7 +237,7 @@ struct NewAddInfoView: View {
         await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
         
         if openAiManager.embeddingsCompleted {
-            let metadata = toDictionary(type: "GeneralKnowledge", desc: self.newInfo, relevantFor: self.relevantFor)
+            let metadata = toDictionary(desc: self.newInfo)
             do {
                 //MARK: TEST THROW
 //                                let miaMalakia = AppCKError.UnableToGetNameSpace
@@ -237,9 +245,8 @@ struct NewAddInfoView: View {
                 try await pineconeManager.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
                 if pineconeManager.upsertSuccesful {
                     await MainActor.run {
-                        self.topBarMessage = "Info saved."
-                        self.showTopBar = true
-                        self.relevantFor = ""
+                        self.popUpMessage = "Info saved."
+                        self.showPopUp = true
                         self.newInfo = ""
                     }
                 }
@@ -258,7 +265,7 @@ struct NewAddInfoView: View {
         await MainActor.run {
             self.apiCallInProgress = false
             self.newInfo = ""
-            self.relevantFor = ""
+//            self.relevantFor = ""
             self.saveButtonIsVisible = true
         }
     }
@@ -271,11 +278,8 @@ struct NewAddInfoView_Previews: PreviewProvider {
         let openAI = OpenAIManager()
         let pinecone = PineconeManager()
         NewAddInfoView(newInfo: .constant("Test string"),
-                       relevantFor: .constant("Tester"), apiCallInProgress: .constant(false),
-                       thrownError: .constant(""),
-                       showAlert: .constant(false),
-                       showTopBar: .constant(false),
-                       topBarMessage: .constant(""), showSettings: .constant(false))
+                       apiCallInProgress: .constant(false),
+                       showAlert: .constant(false))
         .environmentObject(pinecone)
         .environmentObject(openAI)
         .environmentObject(progress)

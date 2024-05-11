@@ -15,14 +15,12 @@ final class ResponseModel {
     var type: String = ""
     var desc: String = ""
     var relevantFor: String = ""
-    var recordingPath: URL = URL(fileURLWithPath: "/Default")
     
-    init(timestamp: Date = Date(), id: UUID = UUID(), type: String = "", desc: String = "", relevantFor: String = "", recordingPath: URL = URL(fileURLWithPath: "/Default")) {
+    init(timestamp: Date = Date(), id: UUID = UUID(), type: String = "", desc: String = "", relevantFor: String = "") {
         self.timestamp = timestamp
         self.id = id
         self.type = type
         self.desc = desc
         self.relevantFor = relevantFor
-        self.recordingPath = recordingPath
     }
 }

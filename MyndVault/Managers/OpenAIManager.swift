@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class OpenAIManager: ObservableObject {
+final class OpenAIManager: ObservableObject {
     
     @Published var whisperResponse: String?
     @Published var gptResponse: ChatCompletionResponse?
@@ -68,28 +68,28 @@ class OpenAIManager: ObservableObject {
     }
 
     //MARK: performAIOperations (DEPRECATED)
-    func performOpenAiOperations(filepath: URL, language: LanguageCode? = nil, userAskingQuestion: Bool) async {
-        
-        print("performOpenAiOperations Called")
-        if userAskingQuestion {
-            ProgressTracker.shared.setProgress(to: 0.22)
-            await requestTranscript(for: filepath, userAskingQuestion: userAskingQuestion)
-            ProgressTracker.shared.setProgress(to: 0.42)
-            
-            if let whisperResponse  = self.whisperResponse {
-                await analyzeTranscript(whisperResponse: whisperResponse, userIsAsking: userAskingQuestion)
-            }
-        } else { // !! USer is not Asking! --> add new !!
-            
-            await requestTranscript(for: filepath, userAskingQuestion: userAskingQuestion)
-            ProgressTracker.shared.setProgress(to: 0.42)
-            
-            if let whisperResponse  = self.whisperResponse {
-                await analyzeTranscript(whisperResponse: whisperResponse, userIsAsking: userAskingQuestion)
-            }
-        }
-        
-    }
+//    func performOpenAiOperations(filepath: URL, language: LanguageCode? = nil, userAskingQuestion: Bool) async {
+//        
+//        print("performOpenAiOperations Called")
+//        if userAskingQuestion {
+//            ProgressTracker.shared.setProgress(to: 0.22)
+//            await requestTranscript(for: filepath, userAskingQuestion: userAskingQuestion)
+//            ProgressTracker.shared.setProgress(to: 0.42)
+//            
+//            if let whisperResponse  = self.whisperResponse {
+//                await analyzeTranscript(whisperResponse: whisperResponse, userIsAsking: userAskingQuestion)
+//            }
+//        } else { // !! USer is not Asking! --> add new !!
+//            
+//            await requestTranscript(for: filepath, userAskingQuestion: userAskingQuestion)
+//            ProgressTracker.shared.setProgress(to: 0.42)
+//            
+//            if let whisperResponse  = self.whisperResponse {
+//                await analyzeTranscript(whisperResponse: whisperResponse, userIsAsking: userAskingQuestion)
+//            }
+//        }
+//        
+//    }
     
 
 //MARK: requestTranscript
@@ -384,9 +384,9 @@ class OpenAIManager: ObservableObject {
         return try decoder.decode(EmbeddingsResponse.self, from: data)
     }
     
+
     
-    
-    func getGptResponseAndConvertTextToSpeech(queryMatches: [String], question: String) async throws {
+    func getGptResponse(queryMatches: [String], question: String) async throws {
 
         ProgressTracker.shared.setProgress(to: 0.7)
         guard let apiKey = ApiConfiguration.openAIKey else {
@@ -400,14 +400,12 @@ class OpenAIManager: ObservableObject {
             ProgressTracker.shared.setProgress(to: 0.99)
             print(gptResponse)
         }
-        
-        
-        
+
 //        try await convertTextToSpeech(text: gptResponse, apiKey: apiKey)
     }
     
     private func getGptResponse(apiKey: String, vectorResponses: [String], question: String) async throws -> String {
-        print("Inside getGptResponse....")
+
         ProgressTracker.shared.setProgress(to: 0.8)
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             throw AppNetworkError.invalidOpenAiURL
@@ -415,7 +413,7 @@ class OpenAIManager: ObservableObject {
         let prompt = getGptPromptForAudio(vectorResponses: vectorResponses, question: question)
         
         let requestBody: [String: Any] = [
-            "model": "gpt-4-0125-preview",  //to turbo
+            "model": "gpt-4-0125-preview",  //to turbo to kalo
             "temperature": 0,
             "messages": [["role": "system", "content": prompt]]
         ]
@@ -425,6 +423,7 @@ class OpenAIManager: ObservableObject {
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+
         ProgressTracker.shared.setProgress(to: 0.9)
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -455,67 +454,66 @@ class OpenAIManager: ObservableObject {
     }
     
     //MARK: covert Text to Speech DEPRICATED
-    private func convertTextToSpeech(text: String, apiKey: String) async throws {
-        
-        guard let url = URL(string: "https://api.openai.com/v1/audio/speech") else {
-            throw AppNetworkError.invalidTTSURL
-        }
-        ProgressTracker.shared.setProgress(to: 0.75)
-        let requestBody: [String: Any] = [
-            "model": "tts-1",
-            "input": text,
-            "voice": "alloy"
-        ]
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-        
-        let (data, _) = try await URLSession.shared.data(for: request)
-        ProgressTracker.shared.setProgress(to: 0.85)
-        try await saveAndPlayAudio(data: data)
-    }
-    
-
-    @MainActor
-    private func saveAndPlayAudio(data: Data) async throws {
-        let fileManager = FileManager.default
-        guard let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            throw AppNetworkError.unknownError("saveAndPlayAudio() :: Could not find the document directory.")
-        }
-        
-        let fileURL = documentDirectory.appendingPathComponent("GptReply\(Date()).mp3")
-        
-        do {
-            if (self.gptMetadataResponseOnQuestion != nil) {
-                self.gptMetadataResponseOnQuestion?.fileUrl = fileURL
-            }
-            try data.write(to: fileURL)
-            lastGptAudioResponse = fileURL
-            
-            print("Audio [Reply] saved: \(fileURL.path)")
-            ProgressTracker.shared.setProgress(to: 0.99)
-            AudioManager.shared.playAudioFrom(url: fileURL)
-        } catch {
-            throw AppNetworkError.unknownError("saveAndPlayAudio() :: Failed to save audio: \(error.localizedDescription)")
-        }
-    }
+//    private func convertTextToSpeech(text: String, apiKey: String) async throws {
+//        
+//        guard let url = URL(string: "https://api.openai.com/v1/audio/speech") else {
+//            throw AppNetworkError.invalidTTSURL
+//        }
+//        ProgressTracker.shared.setProgress(to: 0.75)
+//        let requestBody: [String: Any] = [
+//            "model": "tts-1",
+//            "input": text,
+//            "voice": "alloy"
+//        ]
+//        
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "POST"
+//        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+//        
+//        let (data, _) = try await URLSession.shared.data(for: request)
+//        ProgressTracker.shared.setProgress(to: 0.85)
+//        try await saveAndPlayAudio(data: data)
+//    }
+//    
+//
+//    //MARK: DEPRICATED
+//    @MainActor
+//    private func saveAndPlayAudio(data: Data) async throws {
+//        let fileManager = FileManager.default
+//        guard let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+//            throw AppNetworkError.unknownError("saveAndPlayAudio() :: Could not find the document directory.")
+//        }
+//        
+//        let fileURL = documentDirectory.appendingPathComponent("GptReply\(Date()).mp3")
+//        
+//        do {
+//            if (self.gptMetadataResponseOnQuestion != nil) {
+//                self.gptMetadataResponseOnQuestion?.fileUrl = fileURL
+//            }
+//            try data.write(to: fileURL)
+//            lastGptAudioResponse = fileURL
+//            
+//            print("Audio [Reply] saved: \(fileURL.path)")
+//            ProgressTracker.shared.setProgress(to: 0.99)
+//            AudioManager.shared.playAudioFrom(url: fileURL)
+//        } catch {
+//            throw AppNetworkError.unknownError("saveAndPlayAudio() :: Failed to save audio: \(error.localizedDescription)")
+//        }
+//    }
     
     
     private func getGptPromptForAudio(vectorResponses: [String], question: String) -> String {
-//        let now = Date()
-        // For ISO8601 date-time string
+
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.timeZone = TimeZone.current
         isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let isoDateString = isoFormatter.string(from: Date()) // Use for precise timestamps
-        
-        // For human-readable date string with day of the week
+
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEEE, MMMM d, yyyy" // Format: Day, Month Date, Year
-        let readableDateString = dateFormatter.string(from: Date()) // "Sunday, March 3, 2024"
+        dateFormatter.dateFormat = "EEEE, MMMM d, yyyy"
+        let readableDateString = dateFormatter.string(from: Date())
         
         
         var firstVector: String = ""

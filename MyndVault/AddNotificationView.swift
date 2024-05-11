@@ -33,7 +33,7 @@ struct AddNotificationView: View {
                         .fontDesign(.rounded)
                         .font(.title2)
                         .multilineTextAlignment(.leading)
-                        .frame(height: 50)
+                        .frame(height: smallTextEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .shadow(radius: 5)
                         .overlay{
@@ -56,7 +56,7 @@ struct AddNotificationView: View {
                         .fontDesign(.rounded)
                         .font(.title2)
                         .multilineTextAlignment(.leading)
-                        .frame(height: 90)
+                        .frame(height: textEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .shadow(radius: 5)
                         .overlay{

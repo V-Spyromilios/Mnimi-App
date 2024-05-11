@@ -29,7 +29,7 @@ struct NotificationEditView: View {
                 Spacer()
             }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
             
-            TextEditor(text: $title).frame(height: 100)
+            TextEditor(text: $title).frame(height: smallTextEditorHeight)
                 .fontDesign(.rounded)
                 .font(.title2)
                 .multilineTextAlignment(.leading)
@@ -55,7 +55,7 @@ struct NotificationEditView: View {
             }.font(.callout).padding(.horizontal, 7)
                 .padding(.bottom, 8)
             
-            TextEditor(text: $notificationBody).frame(height: 100)
+            TextEditor(text: $notificationBody).frame(height: textEditorHeight)
                 .fontDesign(.rounded)
                 .font(.title2)
                 .multilineTextAlignment(.leading)

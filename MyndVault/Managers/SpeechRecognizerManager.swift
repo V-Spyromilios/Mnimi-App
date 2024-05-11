@@ -8,7 +8,7 @@
 import Foundation
 import Speech
 
-class SpeechRecognizerManager: ObservableObject {
+final class SpeechRecognizerManager: ObservableObject {
     @Published var isAuthorized: Bool = false
     @Published var authorizationMessage: String = ""
 

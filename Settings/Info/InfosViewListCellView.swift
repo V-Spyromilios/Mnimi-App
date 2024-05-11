@@ -16,14 +16,13 @@ struct InfosViewListCellView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(data.metadata["description"] ?? "Empty note.")").lineLimit(2).truncationMode(.tail).font(.subheadline)
                 .fontDesign(.rounded)
-                .fontWeight(.semibold).padding(.horizontal).padding(.top, 4)
+                .fontWeight(.semibold).padding(.horizontal).padding(.top, 4).padding(.bottom)
             HStack {
-                Text("\(data.metadata["relevantFor"] ?? "Relevant for?")").lineLimit(1).truncationMode(.tail).font(.footnote).fontWeight(.thin).padding(.leading)
-                Spacer()
+                
                 if let date = dateFromISO8601(isoDate: data.metadata["timestamp"] ?? "") {
                     let displayDate = formatDateForDisplay(date: date)
-                    Text(displayDate).font(.footnote).fontWeight(.thin).padding(.trailing)
-                }
+                    Text(displayDate).italic().font(.footnote).fontWeight(.thin).padding(.horizontal).foregroundStyle(.secondary)
+                } else { Text("Date?")}
                 Spacer()
                 
             }.padding(.bottom, 4)
@@ -43,5 +42,5 @@ struct InfosViewListCellView: View {
 
 
 #Preview {
-    InfosViewListCellView(data: Vector(id: "2034-1", metadata: ["description": "Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon,", "relevantFor": "User1 ithe main user in this app, and this is a long line", "timestamp": "2024-04-28T14:28:00Z"]))
+    InfosViewListCellView(data: Vector(id: "2034-1", metadata: ["description": "Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon,", "timestamp": "2024-04-28T14:28:00Z"]))
 }

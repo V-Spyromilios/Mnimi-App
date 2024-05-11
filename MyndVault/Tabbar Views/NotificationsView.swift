@@ -26,10 +26,11 @@ struct NotificationsView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .textCase(.uppercase)
                             .padding(.bottom)
+                            .padding(.leading, 9)
                         ForEach(manager.scheduledNotifications) {notification in
                             
                             NotificationDetailView(notification: notification)
-                                .padding(.bottom).padding(.horizontal, 7)
+                                .padding(.bottom).padding(.horizontal, 9)
                         }
                     } else {
                         ContentUnavailableView("No Notifications yet!", systemImage: "bell.slash.fill", description: Text("Start by adding a new Notification.")).offset(y: 70)

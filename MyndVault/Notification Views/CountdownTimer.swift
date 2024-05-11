@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class CountdownTimer: ObservableObject {
+final class CountdownTimer: ObservableObject {
     @Published var timeRemaining: String = ""
     private var timer: AnyCancellable?
 

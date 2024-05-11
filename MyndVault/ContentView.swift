@@ -28,24 +28,21 @@ struct ContentView: View {
     
     // for the Question view:
     @State var question: String = ""
-    @State var thrownError: String = "" //common with NewAddInfo
-    @State private var showSettings: Bool = false  //common with NewAddInfo
     
     //for the NewAddInfo
     @State var newInfo: String = ""
     @State var apiCallInProgress: Bool = false
-    @State var relevantFor: String = ""
     @State var showAlert = false
-    @State var showTopBar: Bool = false
+//    @State var showTopBar: Bool = false
     @State var topBarMessage: String = ""
     
     var body: some View {
         ZStack {
             TabView(selection: $tabSelection) {
                 
-                QuestionView(question: $question, thrownError: $thrownError, showSettings: $showSettings).tag(1)
+                QuestionView(question: $question).tag(1)
                 
-                NewAddInfoView(newInfo: $newInfo, relevantFor: $relevantFor, apiCallInProgress: $apiCallInProgress, thrownError: $thrownError, showAlert: $showAlert, showTopBar: $showTopBar, topBarMessage: $topBarMessage, showSettings: $showSettings).tag(2)
+                NewAddInfoView(newInfo: $newInfo, apiCallInProgress: $apiCallInProgress, showAlert: $showAlert).tag(2)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
                     .environmentObject(progressTracker)
@@ -76,16 +73,16 @@ struct ContentView: View {
 //                        
 //                }
 //            }
-            if showTopBar {
-                TopNotificationBar(message: topBarMessage, show: $showTopBar)
-                    .transition(.move(edge: .top))
-                    .onDisappear {
-                        presentationMode.wrappedValue.dismiss()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                            topBarMessage = ""
-                        }
-                    }
-            }
+//            if showTopBar {
+//                TopNotificationBar(message: topBarMessage, show: $showTopBar)
+//                    .transition(.move(edge: .top))
+//                    .onDisappear {
+//                        presentationMode.wrappedValue.dismiss()
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+//                            topBarMessage = ""
+//                        }
+//                    }
+//            }
         }
                 .onAppear {
                     speechManager.requestSpeechAuthorization()

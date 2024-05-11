@@ -8,7 +8,9 @@
 import Foundation
 import SwiftUI
 
-class RecordingsViewModel: ObservableObject {
+
+//TODO: DEPRICATED
+final class RecordingsViewModel: ObservableObject {
     @Published var audioFiles: [URL] = []
 //    @EnvironmentObject var audioManager: AudioManager
     

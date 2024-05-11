@@ -17,6 +17,8 @@ let rectCornerRad: CGFloat = 50
 //var greenGradient = LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.3), Color.green.opacity(0.6), Color.green]), startPoint: .top, endPoint: .bottom)
 
 let toolbarButtonShadow: CGFloat = 6
+let textEditorHeight: CGFloat = 140
+let smallTextEditorHeight: CGFloat = 50 //
 
 
 extension String {
@@ -84,7 +86,7 @@ extension View {
 
 
 
-class KeyboardResponder: ObservableObject {
+final class KeyboardResponder: ObservableObject {
 
     @Published var currentHeight: CGFloat = 0
     private var keyboardVisible = false
@@ -122,8 +124,10 @@ class KeyboardResponder: ObservableObject {
 
 func dateFromISO8601(isoDate: String) -> Date? {
     let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
     return formatter.date(from: isoDate)
 }
+
 
 func formatDateForDisplay(date: Date) -> String {
     let dateFormatter = DateFormatter()
@@ -140,12 +144,10 @@ func currentDateToISO8601() -> String {
     return timestamp
 }
 
-func toDictionary(type: String, desc: String, relevantFor: String) -> [String: String] {
+func toDictionary(desc: String) -> [String: String] {
     
     return [
-        "type": type,
         "description": desc,
-        "relevantFor": relevantFor,
         "timestamp": currentDateToISO8601()
     ]
 }

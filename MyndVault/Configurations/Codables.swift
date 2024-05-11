@@ -210,8 +210,8 @@ struct PineconeQueryResponse: Codable {
             var descriptions: [String] = []
 
             for match in matches {
-                print("Matches : \(match.metadata)")
-                if let description = match.metadata["description"] { // Extract the "description" value from each match's metadata
+                print("Matches : \(String(describing: match.metadata))")
+                if let description = match.metadata?["description"] { // Extract the "description" value from each match's metadata
                     descriptions.append(description)
                 }
             }
@@ -224,7 +224,7 @@ struct PineconeQueryResponse: Codable {
 struct Match: Codable {
     let id: String
     let score: Double
-    let metadata: [String: String]
+    let metadata: [String: String]?
     
     enum CodingKeys: String, CodingKey {
         case id, score, metadata

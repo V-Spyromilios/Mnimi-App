@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-class ProgressTracker: ObservableObject {
+final class ProgressTracker: ObservableObject {
 
     @Published var progress: CGFloat = 0.0
     static var shared = ProgressTracker()

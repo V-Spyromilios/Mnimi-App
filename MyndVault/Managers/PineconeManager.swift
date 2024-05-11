@@ -13,7 +13,7 @@ import SwiftUI
 // memoryindex HOST: https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io
 
 //MARK: create new index.
-class PineconeManager: ObservableObject {
+final class PineconeManager: ObservableObject {
   
 
     var CKviewModel: CloudKitViewModel
@@ -25,7 +25,7 @@ class PineconeManager: ObservableObject {
     @Published var upsertSuccesful: Bool = false
     @Published var vectorDeleted: Bool = false
     
-    private var isDataSorted: Bool = false
+    var isDataSorted: Bool = false
    
     @Published var pineconeIDResponse: PineconeIDResponse?
     @Published var pineconeIDs: [String] = []
@@ -146,6 +146,7 @@ class PineconeManager: ObservableObject {
         }
         if !self.isDataSorted || self.refreshAfterEditing{
             do {
+                print("Data is not sorted, calling fetchData...")
                 try await fetchDataForIds()
                 
             } catch {
@@ -158,7 +159,6 @@ class PineconeManager: ObservableObject {
     }
     
     private func fetchDataForIds() async throws {
-        
         guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
@@ -180,13 +180,13 @@ class PineconeManager: ObservableObject {
         request.httpMethod = "GET"
         
         let (data, _) = try await URLSession.shared.data(for: request)
-        
         let decodedResponse = try JSONDecoder().decode(PineconeFetchResponseFromID.self, from: data)
         let dateFormatter = ISO8601DateFormatter()
-        let sortedVectors = decodedResponse.vectors.map { (id, vector) -> Vector in
-            // given that `Vector(metadata:)`  & has the timestamp in the metadata
-            Vector(id: id, metadata: vector.metadata)
-        }
+        
+        if !isDataSorted {
+            let sortedVectors = decodedResponse.vectors.map { (id, vector) -> Vector in
+                Vector(id: id, metadata: vector.metadata)
+            }
             .sorted { lhs, rhs in
                 guard let lhsTimestamp = lhs.metadata["timestamp"],
                       let rhsTimestamp = rhs.metadata["timestamp"],
@@ -194,15 +194,71 @@ class PineconeManager: ObservableObject {
                       let rhsDate = dateFormatter.date(from: rhsTimestamp) else {
                     return false
                 }
-                return lhsDate > rhsDate // `<` for ascending
+                return lhsDate > rhsDate // Change to `<` for ascending order
             }
-        await MainActor.run {
-            self.pineconeFetchedVectors = sortedVectors
-            let readUnits = self.pineconeFetchedVectors.count / 10 // a fetch request uses 1 RU for every 10 fetched records.
-            updateTokenUsage(api: "Pinecone", tokensUsed: readUnits, read: true)
+            await MainActor.run {
+                self.pineconeFetchedVectors = sortedVectors
+            }
+            self.isDataSorted = true
+        } else {
+            await MainActor.run {
+                self.pineconeFetchedVectors = decodedResponse.vectors.map { (id, vector) -> Vector in
+                    Vector(id: id, metadata: vector.metadata)
+                }
+            }
         }
-        self.isDataSorted = true
+
+        let readUnits = self.pineconeFetchedVectors.count / 10 // a fetch request uses 1 RU for every 10 fetched records.
+        updateTokenUsage(api: "Pinecone", tokensUsed: readUnits, read: true)
     }
+
+    
+//    private func fetchDataForIds() async throws {
+//        
+//        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+//            throw AppCKError.UnableToGetNameSpace
+//        }
+//        
+//        guard let apiKey = ApiConfiguration.pineconeKey else {
+//            throw AppNetworkError.apiKeyNotFound
+//        }
+//        
+//        var urlComponents = URLComponents(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/fetch")!
+//        urlComponents.queryItems = self.pineconeIDs.map { URLQueryItem(name: "ids", value: $0) }
+//        urlComponents.queryItems?.append(URLQueryItem(name: "namespace", value: namespace))
+//        
+//        guard let url = urlComponents.url else {
+//            throw URLError(.badURL)
+//        }
+//        
+//        var request = URLRequest(url: url)
+//        request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
+//        request.httpMethod = "GET"
+//        
+//        let (data, _) = try await URLSession.shared.data(for: request)
+//        
+//        let decodedResponse = try JSONDecoder().decode(PineconeFetchResponseFromID.self, from: data)
+//        let dateFormatter = ISO8601DateFormatter()
+//        let sortedVectors = decodedResponse.vectors.map { (id, vector) -> Vector in
+//            // given that `Vector(metadata:)`  & has the timestamp in the metadata
+//            Vector(id: id, metadata: vector.metadata)
+//        }
+//            .sorted { lhs, rhs in
+//                guard let lhsTimestamp = lhs.metadata["timestamp"],
+//                      let rhsTimestamp = rhs.metadata["timestamp"],
+//                      let lhsDate = dateFormatter.date(from: lhsTimestamp),
+//                      let rhsDate = dateFormatter.date(from: rhsTimestamp) else {
+//                    return false
+//                }
+//                return lhsDate > rhsDate // `<` for ascending
+//            }
+//        await MainActor.run {
+//            self.pineconeFetchedVectors = sortedVectors
+//            let readUnits = self.pineconeFetchedVectors.count / 10 // a fetch request uses 1 RU for every 10 fetched records.
+//            updateTokenUsage(api: "Pinecone", tokensUsed: readUnits, read: true)
+//        }
+//        self.isDataSorted = true
+//    }
 
 //MARK: deleteVector
     func deleteVector(id: String) async throws {
@@ -382,7 +438,7 @@ class PineconeManager: ObservableObject {
         ProgressTracker.shared.setProgress(to: 0.7)
         guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/upsert") else {
             print("upsertDataToPinecone :: Invalid URL")
-            throw AppNetworkError.unknownError("upsertDataToPinecone() :: Invalid URL to upsert")
+            throw AppNetworkError.unknownError("ERROR upsertDataToPinecone() :: Invalid URL")
         }
         
         guard let apiKey = ApiConfiguration.pineconeKey else {
@@ -398,7 +454,7 @@ class PineconeManager: ObservableObject {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
         
-        var payload: [String: Any] = [
+        let payload: [String: Any] = [
             "vectors": [
                 [
                     "id": id,
@@ -410,15 +466,15 @@ class PineconeManager: ObservableObject {
         ]
         ProgressTracker.shared.setProgress(to: 0.8)
         
-        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else { throw AppCKError.UnableToGetNameSpace }
-
-        payload["namespace"] = namespace
+//        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else { throw AppCKError.UnableToGetNameSpace }
+//
+//        payload["namespace"] = namespace
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
             request.httpBody = jsonData
             ProgressTracker.shared.setProgress(to: 0.85)
         } catch {
-            throw AppNetworkError.serializationError("Upsert :: jsonData")
+            throw AppNetworkError.serializationError("ERROR Upsert :: jsonData")
         }
         
         do {
@@ -462,7 +518,8 @@ class PineconeManager: ObservableObject {
     }
 
     //MARK: queryPinecone
-    func queryPinecone(vector: [Float], metadata: [String: String], topK: Int = 1, includeValues: Bool = false) async throws {
+    //topK = 2 if they prompt to gpt clearly states that second may be irrelevant!
+    func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) async throws {
 
         ProgressTracker.shared.setProgress(to: 0.42)
         await withTaskGroup(of: Void.self) { taskGroup in
@@ -483,16 +540,17 @@ class PineconeManager: ObservableObject {
                     request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
 
-                    guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else { throw AppCKError.UnableToGetNameSpace
-                    } //TODO: lack of 'await' was returning Error, WHY is not func!?
+                    guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else { 
+                        throw AppCKError.UnableToGetNameSpace
+                    }
+
                     ProgressTracker.shared.setProgress(to: 0.45)
                     print("Namespace: \(namespace)")
                     let requestBody: [String: Any] = [
                         "vector": vector,
                         "topK": topK,
-                        // "metadata": metadata,
                         "includeValues": includeValues,
-                        "includeMetadata": true,
+                        "includeMetadata": true, //Remove Metadata
                         "namespace": namespace
                     ]
                     
@@ -501,9 +559,9 @@ class PineconeManager: ObservableObject {
 
                     let (data, response) = try await URLSession.shared.data(for: request)
 
-//                    if let responseBody = String(data: data, encoding: .utf8) {
-//                                print("Response Body: \(responseBody)")
-//                            }
+                    if let responseBody = String(data: data, encoding: .utf8) {
+                                print("Response Body: \(responseBody)")
+                            }
                     guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                        print("queryPinecone Response Status Code != 200")
                         return
@@ -524,9 +582,11 @@ class PineconeManager: ObservableObject {
                         print("Match ID: \(match.id), Score: \(match.score)")
                         print("Query Response: \(match.metadata.debugDescription)")
                     }
-                    ProgressTracker.shared.setProgress(to: 0.6)
+                    ProgressTracker.shared.setProgress(to: 0.62)
                 } catch {
-                    self.receivedError = error
+                    await MainActor.run {
+                        self.receivedError = error
+                    }
                     print("Error querying Pinecone: \(error)")
                 }
                 if let response = self.pineconeQueryResponse {

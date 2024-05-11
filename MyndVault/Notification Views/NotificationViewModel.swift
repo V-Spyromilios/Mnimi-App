@@ -16,7 +16,7 @@ struct CustomNotification: Identifiable {
 
 }
 
-class NotificationViewModel: ObservableObject {
+final class NotificationViewModel: ObservableObject {
     @Published var scheduledNotifications: [CustomNotification] = []
 
     init() {

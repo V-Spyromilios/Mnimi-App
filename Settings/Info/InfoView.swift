@@ -22,7 +22,6 @@ struct InfoView: View {
 
     private enum Field {
         case edit
-        case relevantFor
     }
     
     var body: some View {
@@ -38,7 +37,7 @@ struct InfoView: View {
                     .fontDesign(.rounded)
                     .font(.title2)
                     .multilineTextAlignment(.leading)
-                    .frame(height: 110)
+                    .frame(height: textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(radius: 5)
                     .overlay{
@@ -49,37 +48,9 @@ struct InfoView: View {
                     }
                     .padding(.bottom)
                     .onAppear { focusField = .edit }
-                    .onSubmit { focusField = .relevantFor }
                     .focused($focusField, equals: .edit)
             }.padding(.bottom)
             .padding(.horizontal, 7)
-            
-            HStack {
-                Image(systemName: "person.bubble").bold()
-                Text("Relevant For:").bold()
-                Spacer()
-            }.font(.callout).padding(.horizontal, 7)
-                .padding(.bottom, 8)
-            
-            TextEditor(text: $viewModel.relevantFor)
-                .fontDesign(.rounded)
-                .font(.title2)
-                .multilineTextAlignment(.leading)
-                .frame(height: 40)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .shadow(radius: 5)
-                .overlay{
-                    RoundedRectangle(cornerRadius: 10.0)
-                        .stroke(lineWidth: 1)
-                        .opacity(0.3)
-                        .foregroundColor(Color.gray)
-                }
-                .padding(.bottom)
-                .padding(.horizontal, 7)
-                .onSubmit {
-                    focusField = nil
-                }
-                .focused($focusField, equals: .relevantFor)
            
             Button(action:  {
                 DispatchQueue.main.async {
