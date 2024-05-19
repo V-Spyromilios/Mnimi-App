@@ -19,9 +19,8 @@ struct NotificationDetailView: View {
     @GestureState private var isLongPressing = false
     
     var notification: CustomNotification
+    var shadowRadius: CGFloat = 10
     @StateObject var viewModel: CountdownTimer
-    @State var scale: CGFloat = 1.0
-    @State var shadowRadius: CGFloat = 10
     
     @State var showAddNotificationSheet = false
     @State private var showNotificationEdit: Bool = false
@@ -34,53 +33,57 @@ struct NotificationDetailView: View {
     }
     
     var body: some View {
-        
-        VStack(alignment: .leading, spacing: 10) {
-            
-            Text(notification.title)
-                .font(.title)
-                .fontWeight(.bold)
-                .fontDesign(.rounded)
-                .padding(.bottom, 2)
-                .padding(.top, 5)
-            
-            Text(notification.notificationBody)
-                .italic()
-                .padding(.bottom, 20)
-            
+       
+            VStack {
+                HStack {
+                    Text(notification.title)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .fontDesign(.rounded)
+                        .padding(.bottom, 2)
+                        .padding(.top, 5)
+                        .padding(.leading)
+                    Spacer()
+                }
+                HStack {
+                    Text(notification.notificationBody)
+                        .italic()
+                        .padding(.bottom, 20)
+                        .padding(.leading)
+                    Spacer()
+                }
             
             Text(formatDate(notification.date))
                 .font(.title2)
                 .fontDesign(.rounded)
                 .fontWeight(.medium)
                 .foregroundColor(.secondary)
-                
+                .padding(.bottom)
+            
             
             Text(viewModel.timeRemaining)
                 .font(.caption)
                 .contentTransition(.numericText())
                 .padding(.bottom, 18)
-
+            
         }.frame(maxWidth: .infinity)
+    
         
-            .padding(.horizontal)
-            .background(Color(UIColor.systemBackground))
+//            .padding(.horizontal)
+            .background(Color.white)
             .cornerRadius(10)
-            .shadow(radius: 5)
-            .scaleEffect(scale)
+            .shadow(radius: shadowRadius)
             .onTapGesture {
                 showPopover = true
             }
             .popover(isPresented: $showPopover, attachmentAnchor: .point(.bottom), content: {
                 popOverContent()
             })
-        
-        
             .sheet(isPresented: $showNotificationEdit) {
                 NotificationEditView(notification: notification)
             }
     }
-    
+
     private func formatDate(_ date: Date?) -> String {
         guard let date = date else { return "No date provided" }
         let dateFormatter = DateFormatter()

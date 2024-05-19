@@ -38,6 +38,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct MyndVaultApp: App {
 
+    @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
+
     @ObservedObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
     var openAiManager = OpenAIManager()
     var pineconeManager = PineconeManager()
@@ -46,6 +48,7 @@ struct MyndVaultApp: App {
     var notificationsManager = NotificationViewModel()
     var speechManager = SpeechRecognizerManager()
     var keyboardResponder = KeyboardResponder()
+    @StateObject var authManager = AuthenticationManager()
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
@@ -54,28 +57,60 @@ struct MyndVaultApp: App {
 
         WindowGroup(content: {
             
-            Group {
-                if cloudKitViewModel.userIsSignedIn {
-
-                    ContentView()
-                        .environmentObject(openAiManager)
-                        .environmentObject(pineconeManager)
-                        .environmentObject(audioManager)
-                        .environmentObject(progressTracker)
-                        .environmentObject(notificationsManager)
-                        .environmentObject(cloudKitViewModel)
-                        .environmentObject(speechManager)
-                        .environmentObject(keyboardResponder)
-                }
+            if isFirstLaunch {
+                InitialSetupView()
+                    .environmentObject(openAiManager)
+                    .environmentObject(pineconeManager)
+                    .environmentObject(audioManager)
+                    .environmentObject(progressTracker)
+                    .environmentObject(notificationsManager)
+                    .environmentObject(cloudKitViewModel)
+                    .environmentObject(speechManager)
+                    .environmentObject(keyboardResponder)
+                    .statusBar(hidden: true)
+            }
+            else  {
                 
-                else if cloudKitViewModel.isLoading {
-                    LoadingView()
-                }
-                else if cloudKitViewModel.CKError != "" {
-
-                    ContentUnavailableView("iCloud Error", systemImage: "exclamationmark.icloud.fill")
+                Group {
+                    if cloudKitViewModel.userIsSignedIn {
+                        
+                        FaceIDView()
+                            .environmentObject(openAiManager)
+                            .environmentObject(pineconeManager)
+                            .environmentObject(audioManager)
+                            .environmentObject(progressTracker)
+                            .environmentObject(notificationsManager)
+                            .environmentObject(cloudKitViewModel)
+                            .environmentObject(speechManager)
+                            .environmentObject(keyboardResponder)
+                            .environmentObject(authManager)
+                            .statusBar(hidden: true)
+                    }
+                    
+                    else if cloudKitViewModel.isLoading {
+                        Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
+                    }
+                    else if cloudKitViewModel.CKError != "" {
+                        
+                        let error = cloudKitViewModel.CKError
+                        
+                        
+                        contentError(error: error.description)
+                        //                    ContentUnavailableView(title: "iCloud Unavailable", systemImage: "exclamationmark.icloud.fill")
+                        
+                    }
                 }
             }
         })
     }
+
+    private func contentError(error: String) -> some View {
+        VStack{
+            Image(systemName: "exclamationmark.icloud.fill").resizable() .scaledToFit().padding(.bottom).frame(width: 90, height: 90)
+            Text("iCloud Error").font(.title).padding(.vertical)
+            Text(error).font(.title3).italic()
+        }.foregroundStyle(.gray)
+    }
 }
+
+

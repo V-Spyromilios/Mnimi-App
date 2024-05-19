@@ -19,9 +19,10 @@ struct SignUpWithPasswordView: View {
     var body: some View {
         ZStack {
             Color.britishRacingGreen.ignoresSafeArea()
-            Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).offset(y: -140).foregroundStyle(.white).fontDesign(.rounded)
+            VStack {
+            Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded)
 
-        VStack {
+                Spacer()
             TextField("Username", text: $username)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
@@ -35,13 +36,21 @@ struct SignUpWithPasswordView: View {
                 .padding()
             
             Button(action: signUp) {
-                Text("Sign Up")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
+               
+                ZStack {
+                    RoundedRectangle(cornerRadius: rectCornerRad)
+                        .fill(Color.customDarkBlue)
+                        .shadow(color: .gray, radius: 7)
+                        .frame(height: 60)
+                        
+                    Text("Sign Up").font(.title2).bold().foregroundColor(.white)
+                        .accessibilityLabel("save")
+                }
+                .contentShape(Rectangle())
+                .shadow(color: .gray, radius: 7)
+            }.padding(.top)
             .padding()
+                Spacer()
         }.frame(maxWidth: .infinity)
     }
         .alert(isPresented: $showAlert) {

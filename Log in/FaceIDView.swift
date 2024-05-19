@@ -31,14 +31,14 @@ struct FaceIDView: View {
             } else {
                 ZStack {
                     Color.britishRacingGreen.ignoresSafeArea()
+                    VStack {
                     Text("Mynd Vault 🗃️")
                         .font(.largeTitle)
                         .fontWeight(.semibold)
-                        .offset(y: -140)
+                        
                         .foregroundStyle(.white)
                         .fontDesign(.rounded)
-
-                    VStack {
+Spacer()
                         Image(systemName: "faceid")
                             .resizable()
                             .frame(width: 80, height: 80)
@@ -49,10 +49,13 @@ struct FaceIDView: View {
                             .fontWeight(.semibold)
                             .fontDesign(.rounded)
                             .foregroundStyle(.gray)
+                        Spacer()
                     }.padding(.top)
                     .onAppear(perform: authenticate)
                     .onTapGesture(perform: authenticate)
                 }
+                .statusBar(hidden: true) 
+              
             }
         }
         .alert(isPresented: $showError) {
@@ -81,7 +84,7 @@ struct FaceIDView: View {
                     .offset(y: -170)
                     .foregroundStyle(.white)
                     .fontDesign(.rounded)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 50)
                
                 VStack {
                     TextField("Username", text: $username)
@@ -94,19 +97,16 @@ struct FaceIDView: View {
 
                     Button(action: authenticateWithPassword) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.customDarkBlue)
-                                .shadow(color: .white, radius: 7)
+                                .shadow(color: .gray, radius: 7)
                                 .frame(height: 60)
-
-                            Text("Login")
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.white)
-                                .accessibilityLabel("Login")
+                                
+                            Text("Log in").font(.title2).bold().foregroundColor(.white)
+                                .accessibilityLabel("log in")
                         }
                         .contentShape(Rectangle())
-                        .shadow(radius: 7)
+                        .shadow(color: .gray, radius: 7)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 12)
@@ -114,7 +114,9 @@ struct FaceIDView: View {
                     .padding()
                 }
                 .frame(maxWidth: .infinity)
+                .statusBar(hidden: true) 
             }
+          
         }
 //        .fullScreenCover(isPresented: $showMainView) {
 //            if  authManager.isAuthenticated {

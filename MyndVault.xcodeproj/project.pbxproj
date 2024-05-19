@@ -32,12 +32,18 @@
 		E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */; };
 		E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45802BC2A80C00945312 /* NetworkViewModel.swift */; };
 		E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45892BC2A85D00945312 /* CustomTapBarView.swift */; };
-		E82F458E2BC2A95900945312 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F458D2BC2A95900945312 /* LoadingView.swift */; };
 		E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */; };
 		E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */; };
 		E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */; };
 		E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
+		E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */; };
+		E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5052BF8C1FA00F2A174 /* MainView.swift */; };
+		E8B4D5082BF8CD7F00F2A174 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5072BF8CD7F00F2A174 /* KeychainManager.swift */; };
+		E8B4D50A2BF8CE8000F2A174 /* SignUpWithPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */; };
+		E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */; };
+		E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */; };
+		E8B4D5102BF8F17400F2A174 /* LoggedOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */; };
 		E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */; };
 		E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */; };
 		E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */; };
@@ -86,13 +92,19 @@
 		E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewModel.swift; sourceTree = "<group>"; };
 		E82F45802BC2A80C00945312 /* NetworkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkViewModel.swift; sourceTree = "<group>"; };
 		E82F45892BC2A85D00945312 /* CustomTapBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTapBarView.swift; sourceTree = "<group>"; };
-		E82F458D2BC2A95900945312 /* LoadingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyndVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyndVaultApp.swift; sourceTree = "<group>"; };
 		E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
+		E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceIDView.swift; sourceTree = "<group>"; };
+		E8B4D5052BF8C1FA00F2A174 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		E8B4D5072BF8CD7F00F2A174 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpWithPasswordView.swift; sourceTree = "<group>"; };
+		E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSetupView.swift; sourceTree = "<group>"; };
+		E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
+		E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedOutView.swift; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsListCell.swift; sourceTree = "<group>"; };
@@ -199,6 +211,7 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8B4D5022BF8C07400F2A174 /* Log in */,
 				E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */,
 				E8FA7F082BC5BC320012EBF6 /* Settings */,
 				E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */,
@@ -231,7 +244,6 @@
 				E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */,
 				E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */,
 				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
-				E82F458D2BC2A95900945312 /* LoadingView.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
 				E8459ECF2BC1E3BE00CE34A7 /* Preview Content */,
@@ -256,6 +268,20 @@
 				E87FB25E2BC96EA000B1A16D /* InfoView.swift */,
 			);
 			path = Info;
+			sourceTree = "<group>";
+		};
+		E8B4D5022BF8C07400F2A174 /* Log in */ = {
+			isa = PBXGroup;
+			children = (
+				E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */,
+				E8B4D5052BF8C1FA00F2A174 /* MainView.swift */,
+				E8B4D5072BF8CD7F00F2A174 /* KeychainManager.swift */,
+				E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */,
+				E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */,
+				E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */,
+				E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */,
+			);
+			path = "Log in";
 			sourceTree = "<group>";
 		};
 		E8FA7F082BC5BC320012EBF6 /* Settings */ = {
@@ -387,12 +413,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				E82F455C2BC2A72100945312 /* AudioManager.swift in Sources */,
+				E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */,
 				E82F456E2BC2A77E00945312 /* Codables.swift in Sources */,
 				E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */,
 				E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */,
+				E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */,
+				E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */,
 				E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */,
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,
+				E8B4D5102BF8F17400F2A174 /* LoggedOutView.swift in Sources */,
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
 				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
@@ -404,6 +434,7 @@
 				E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
 				E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */,
+				E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */,
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,
 				E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */,
 				E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */,
@@ -413,6 +444,7 @@
 				E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */,
 				E8FA7F102BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift in Sources */,
 				E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */,
+				E8B4D5082BF8CD7F00F2A174 /* KeychainManager.swift in Sources */,
 				E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */,
 				E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */,
 				E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */,
@@ -426,7 +458,7 @@
 				E8FA7F0F2BC5BC320012EBF6 /* RecordingsSettingsView.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,
-				E82F458E2BC2A95900945312 /* LoadingView.swift in Sources */,
+				E8B4D50A2BF8CE8000F2A174 /* SignUpWithPasswordView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,6 +600,7 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mynd Vault";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mynd Vault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -605,6 +638,7 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mynd Vault";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mynd Vault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

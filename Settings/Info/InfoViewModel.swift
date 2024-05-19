@@ -17,14 +17,13 @@ final class EditInfoViewModel: ObservableObject {
     }
 
     @Published var activeAlert: ActiveAlert?
-
     @Published var id: String
     @Published var timestamp: String
     @Published var description: String
 
     init(vector: Vector) {
-        self.timestamp = vector.metadata["timestamp"] ?? ""
-        self.description = vector.metadata["description"] ?? ""
+        self.timestamp = vector.metadata["timestamp"]!
+        self.description = vector.metadata["description"]!
         self.id = vector.id
     }
 

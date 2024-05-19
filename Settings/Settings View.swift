@@ -8,13 +8,19 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject var authManager: AuthenticationManager
+    
     var viewModel = PineconeManager()
     @Binding var showSettings: Bool
+    
     var body: some View {
         
         NavigationView {
-            List {
-                NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language") }
+            VStack {
+                
+                List {
+                    NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language") }
+                }
             }
             .navigationTitle("Settings ⚙️")
             .navigationBarTitleDisplayMode(.inline)
@@ -29,15 +35,40 @@ struct SettingsView: View {
                             .foregroundStyle(.white)
                             .frame(height: 30)
                             .shadow(radius: toolbarButtonShadow)
+                            .accessibilityLabel("Close Settings")
                             .overlay {
                                 Image(systemName: "xmark") }
                         
                     }.padding()
+                    
                 }
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            authManager.logout() }
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .stroke(lineWidth: 1)
+                                .foregroundColor(.red)
+                                .frame(width: 30, height: 30)
+                            
+                            Circle()
+                                .foregroundStyle(.white)
+                                .frame(width: 30, height: 30)
+                                .shadow(radius: toolbarButtonShadow)
+                            Text("🚪")
+                        }.padding()
+                    }
+                    
+                }
+                
             }
-        }
+        }.statusBar(hidden: true)
+        
     }
 }
+
 
 #Preview {
     SettingsView(showSettings: .constant(true))
