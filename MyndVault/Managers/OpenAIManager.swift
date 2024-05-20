@@ -92,129 +92,129 @@ final class OpenAIManager: ObservableObject {
 //    }
     
 
-//MARK: requestTranscript
-    func requestTranscript(for filepath: URL, language: LanguageCode? = nil, userAskingQuestion: Bool) async {
-        
-        print("requestTranscript called")
-        do {
-            let transcriptionResponse = try await getTranscript(for: filepath, language: self.selectedLanguage, userAskingQuestion: userAskingQuestion)
-            await MainActor.run {
-                self.whisperResponse = transcriptionResponse.response
-            }
-        } catch {
-            await MainActor.run {
-                self.thrownError = error.localizedDescription
-            }
-            print("Error on completion of transcriptResponse: \(error)")
-        }
-    }
+//MARK: requestTranscript DEPRICATED
+//    func requestTranscript(for filepath: URL, language: LanguageCode? = nil, userAskingQuestion: Bool) async {
+//        
+//        print("requestTranscript called")
+//        do {
+//            let transcriptionResponse = try await getTranscript(for: filepath, language: self.selectedLanguage, userAskingQuestion: userAskingQuestion)
+//            await MainActor.run {
+//                self.whisperResponse = transcriptionResponse.response
+//            }
+//        } catch {
+//            await MainActor.run {
+//                self.thrownError = error.localizedDescription
+//            }
+//            print("Error on completion of transcriptResponse: \(error)")
+//        }
+//    }
 
-    //MARK: private getTranscript
-    private func getTranscript(for filepath: URL, language: LanguageCode, userAskingQuestion: Bool) async throws -> TranscriptionResponse {
-        
-        guard let url = URL(string: "https://api.openai.com/v1/audio/transcriptions") else {
-            throw URLError(.badURL)
-        }
-        
-        guard let apiKey = ApiConfiguration.openAIKey else {
-            
-            throw AppNetworkError.apiKeyNotFound //TODO: maake custom Error Across the app!
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
-        let boundary = "Boundary-\(UUID().uuidString)"
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        
-        // Append parts to the body
-        let parts = [
-            ("language", language.rawValue),
-            ("prompt", self.getWhisperPrompt(userAskingQuestion: userAskingQuestion)),
-            ("model", "whisper-1")
-        ]
-        
-        for (key, value) in parts {
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
-            body.append("\(value)\r\n".data(using: .utf8)!)
-        }
-        
-        // Append audio file data
-        if let fileData = try? Data(contentsOf: filepath) {
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"file\"; filename=\"recording.m4a\"\r\n".data(using: .utf8)!)
-            body.append("Content-Type: audio/m4a\r\n\r\n".data(using: .utf8)!)
-            body.append(fileData)
-            body.append("\r\n".data(using: .utf8)!)
-        }
-        
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        request.httpBody = body
-        
-        
-        let (data, _) = try await URLSession.shared.data(for: request)
-        do {
-            if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                print("DEBUG WHISPER RESPONSE:")
-                print(json)
-            }
-        } catch {
-            await MainActor.run {
-                self.thrownError = error.localizedDescription
-            }
-            print("Error serializing JSON: \(error.localizedDescription)")
-        }
-        return try JSONDecoder().decode(TranscriptionResponse.self, from: data)
-    }
+    //MARK: private getTranscript DEPRICATED
+//    private func getTranscript(for filepath: URL, language: LanguageCode, userAskingQuestion: Bool) async throws -> TranscriptionResponse {
+//        
+//        guard let url = URL(string: "https://api.openai.com/v1/audio/transcriptions") else {
+//            throw URLError(.badURL)
+//        }
+//        
+//        guard let apiKey = ApiConfiguration.openAIKey else {
+//            
+//            throw AppNetworkError.apiKeyNotFound //TODO: maake custom Error Across the app!
+//        }
+//        
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "POST"
+//        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+//        
+//        let boundary = "Boundary-\(UUID().uuidString)"
+//        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+//        
+//        var body = Data()
+//        
+//        // Append parts to the body
+//        let parts = [
+//            ("language", language.rawValue),
+//            ("prompt", self.getWhisperPrompt(userAskingQuestion: userAskingQuestion)),
+//            ("model", "whisper-1")
+//        ]
+//        
+//        for (key, value) in parts {
+//            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+//            body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+//            body.append("\(value)\r\n".data(using: .utf8)!)
+//        }
+//        
+//        // Append audio file data
+//        if let fileData = try? Data(contentsOf: filepath) {
+//            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+//            body.append("Content-Disposition: form-data; name=\"file\"; filename=\"recording.m4a\"\r\n".data(using: .utf8)!)
+//            body.append("Content-Type: audio/m4a\r\n\r\n".data(using: .utf8)!)
+//            body.append(fileData)
+//            body.append("\r\n".data(using: .utf8)!)
+//        }
+//        
+//        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+//        request.httpBody = body
+//        
+//        
+//        let (data, _) = try await URLSession.shared.data(for: request)
+//        do {
+//            if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+//                print("DEBUG WHISPER RESPONSE:")
+//                print(json)
+//            }
+//        } catch {
+//            await MainActor.run {
+//                self.thrownError = error.localizedDescription
+//            }
+//            print("Error serializing JSON: \(error.localizedDescription)")
+//        }
+//        return try JSONDecoder().decode(TranscriptionResponse.self, from: data)
+//    }
     
 
-    //MARK: analyzeTranscript
-    func analyzeTranscript(whisperResponse: String, userIsAsking: Bool) async {
-        
-        print("analyzeTranscript Called")
-        guard let url = URL(string: "https://api.openai.com/v1/chat/completions"),
-              let apiKey = ApiConfiguration.openAIKey else {
-            print("analyzeTranscript :: Invalid URL or API Key not found")
-            return
-        }
-        
-        let prompt = self.getGptPrompt(userIsAsking: userIsAsking)
-        let requestBody: [String: Any] = [
-            "model": "gpt-4-0125-preview",
-            "temperature": 0,
-            "messages": [
-                ["role": "system", "content": prompt],
-                ["role": "user", "content": whisperResponse]
-            ]
-        ]
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        ProgressTracker.shared.setProgress(to: 0.75)
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-            ProgressTracker.shared.setProgress(to: 0.85)
-            request.httpBody = jsonData
-            
-            let (data, _) = try await URLSession.shared.data(for: request)
-            
-            await self.processResponse(data: data, responseError: nil, userIsAsking: userIsAsking)
-            
-        } catch {
-            await MainActor.run {
-                self.thrownError = error.localizedDescription
-            }
-            print("analyzeTranscript :: Error: \(error.localizedDescription)")
-        }
-    }
+    //MARK: analyzeTranscript DEPRICATED
+//    func analyzeTranscript(whisperResponse: String, userIsAsking: Bool) async {
+//        
+//        print("analyzeTranscript Called")
+//        guard let url = URL(string: "https://api.openai.com/v1/chat/completions"),
+//              let apiKey = ApiConfiguration.openAIKey else {
+//            print("analyzeTranscript :: Invalid URL or API Key not found")
+//            return
+//        }
+//        
+//        let prompt = self.getGptPrompt(userIsAsking: userIsAsking)
+//        let requestBody: [String: Any] = [
+//            "model": "gpt-4-0125-preview",
+//            "temperature": 0,
+//            "messages": [
+//                ["role": "system", "content": prompt],
+//                ["role": "user", "content": whisperResponse]
+//            ]
+//        ]
+//        
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "POST"
+//        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//        ProgressTracker.shared.setProgress(to: 0.75)
+//        do {
+//            let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+//            ProgressTracker.shared.setProgress(to: 0.85)
+//            request.httpBody = jsonData
+//            
+//            let (data, _) = try await URLSession.shared.data(for: request)
+//            
+//            await self.processResponse(data: data, responseError: nil, userIsAsking: userIsAsking)
+//            
+//        } catch {
+//            await MainActor.run {
+//                self.thrownError = error.localizedDescription
+//            }
+//            print("analyzeTranscript :: Error: \(error.localizedDescription)")
+//        }
+//    }
     
-    //MARK: private processResponse
+    //MARK: private processResponse DEPRICATED
     private func processResponse(data: Data?, responseError: Error?, userIsAsking: Bool) async {
         
         print("processResponse called")
@@ -292,7 +292,7 @@ final class OpenAIManager: ObservableObject {
         }
     }
     
-    
+    //MARK: DEPRICATED
     func updateMetadataResponse(type: String, description: String, relevantFor: String) async {
         DispatchQueue.main.async {
             self.gptMetadataResponseOnQuestion?.type = type
@@ -301,7 +301,7 @@ final class OpenAIManager: ObservableObject {
         }
     }
     
-    //MARK: requestEmbeddings
+    //MARK: requestEmbeddings USED in QuestionView
     // call with MetadataResponse.description
     func requestEmbeddings(for text: String, isQuestion: Bool) async {
         print("request Embeddings called..")
@@ -347,7 +347,7 @@ final class OpenAIManager: ObservableObject {
     // https://api.openai.com/v1/embeddings POST
     //model: text-embedding-3-large
     // inputText: description of the gpt-4 response.
-    //MARK: private fetchEmbeddings
+    //MARK: private fetchEmbeddings USED in QuestionView
     private func fetchEmbeddings(for inputText: String) async throws -> EmbeddingsResponse {
         ProgressTracker.shared.setProgress(to: 0.15)
         guard let url = URL(string: "https://api.openai.com/v1/embeddings"),
@@ -386,6 +386,7 @@ final class OpenAIManager: ObservableObject {
     
 
     
+    //MARK: USED in QuestionView
     func getGptResponse(queryMatches: [String], question: String) async throws {
 
         ProgressTracker.shared.setProgress(to: 0.7)
@@ -395,22 +396,22 @@ final class OpenAIManager: ObservableObject {
         ProgressTracker.shared.setProgress(to: 0.75)
         let gptResponse = try await getGptResponse(apiKey: apiKey, vectorResponses: queryMatches, question: question)
         await MainActor.run {
+            ProgressTracker.shared.setProgress(to: 0.88)
             self.stringResponseOnQuestion = gptResponse
-            ProgressTracker.shared.setProgress(to: 0.97)
-            ProgressTracker.shared.setProgress(to: 0.99)
-            print(gptResponse)
+//            print(gptResponse)
         }
 
 //        try await convertTextToSpeech(text: gptResponse, apiKey: apiKey)
     }
-    
+
+    //MARK: USED in QuestionView
     private func getGptResponse(apiKey: String, vectorResponses: [String], question: String) async throws -> String {
 
         ProgressTracker.shared.setProgress(to: 0.8)
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             throw AppNetworkError.invalidOpenAiURL
         }
-        let prompt = getGptPromptForAudio(vectorResponses: vectorResponses, question: question)
+        let prompt = getGptPrompt(vectorResponses: vectorResponses, question: question)
         
         let requestBody: [String: Any] = [
             "model": "gpt-4-0125-preview",  //to turbo to kalo
@@ -424,7 +425,7 @@ final class OpenAIManager: ObservableObject {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
 
-        ProgressTracker.shared.setProgress(to: 0.9)
+        ProgressTracker.shared.setProgress(to: 0.85)
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
@@ -504,7 +505,7 @@ final class OpenAIManager: ObservableObject {
 //    }
     
     
-    private func getGptPromptForAudio(vectorResponses: [String], question: String) -> String {
+    private func getGptPrompt(vectorResponses: [String], question: String) -> String {
 
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.timeZone = TimeZone.current
@@ -600,326 +601,327 @@ final class OpenAIManager: ObservableObject {
 """
         }
     }
+
+    //MARK: DEPRICATED
+//    private func getWhisperPrompt(userAskingQuestion: Bool) -> String {
+//        if userAskingQuestion {
+//            switch selectedLanguage {
+//            case .english:
+//                return "The user is asking a question. Please transcribe the question accurately, excluding any hesitations like 'ahhm' and background noises."
+//            case .french:
+//                return "L'utilisateur pose une question. Veuillez transcrire la question avec précision, en incluant les hésitations comme 'euh' et les bruits de fond."
+//            case .german:
+//                return "Der Benutzer stellt eine Frage. Bitte transkribieren Sie die Frage genau, einschließlich Zögern wie 'ähm' und Hintergrundgeräusche."
+//            case .spanish:
+//                return "El usuario está haciendo una pregunta. Transcriba la pregunta con precisión, incluyendo vacilaciones como 'ehm' y ruidos de fondo."
+//            case .greek:
+//                return "Ο χρήστης κάνει μια ερώτηση. Παρακαλώ καταγράψτε την ερώτηση με ακρίβεια, αποκλείοντας οποιαδήποτε δισταγμούς όπως 'ααα' και θορύβους φόντου."
+//            }
+//        } else {
+//            switch selectedLanguage {
+//            case .english:
+//                return "This is an audio recording from the user and may include hesitations like 'ahhm' and background noises. Please return the transcript."
+//            case .french:
+//                return "Ceci est un enregistrement audio de l'utilisateur et peut inclure des hésitations comme 'euh' et des bruits de fond. Veuillez retourner la transcription."
+//            case .german:
+//                return "Dies ist eine Audioaufnahme vom Benutzer und kann Zögern wie 'ähm' und Hintergrundgeräusche enthalten. Bitte geben Sie das Transkript zurück."
+//            case .spanish:
+//                return "Esta es una grabación de audio del usuario y puede incluir vacilaciones como 'ehm' y ruidos de fondo. Por favor, devuelva la transcripción."
+//            case .greek:
+//                return "Αυτή είναι μια ηχογράφηση από τον χρήστη και μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα' και θορύβους φόντου. Παρακαλώ επιστρέψτε την απομαγνητοφώνηση."
+//            }
+//        }
+//    }
     
-    private func getWhisperPrompt(userAskingQuestion: Bool) -> String {
-        if userAskingQuestion {
-            switch selectedLanguage {
-            case .english:
-                return "The user is asking a question. Please transcribe the question accurately, excluding any hesitations like 'ahhm' and background noises."
-            case .french:
-                return "L'utilisateur pose une question. Veuillez transcrire la question avec précision, en incluant les hésitations comme 'euh' et les bruits de fond."
-            case .german:
-                return "Der Benutzer stellt eine Frage. Bitte transkribieren Sie die Frage genau, einschließlich Zögern wie 'ähm' und Hintergrundgeräusche."
-            case .spanish:
-                return "El usuario está haciendo una pregunta. Transcriba la pregunta con precisión, incluyendo vacilaciones como 'ehm' y ruidos de fondo."
-            case .greek:
-                return "Ο χρήστης κάνει μια ερώτηση. Παρακαλώ καταγράψτε την ερώτηση με ακρίβεια, αποκλείοντας οποιαδήποτε δισταγμούς όπως 'ααα' και θορύβους φόντου."
-            }
-        } else {
-            switch selectedLanguage {
-            case .english:
-                return "This is an audio recording from the user and may include hesitations like 'ahhm' and background noises. Please return the transcript."
-            case .french:
-                return "Ceci est un enregistrement audio de l'utilisateur et peut inclure des hésitations comme 'euh' et des bruits de fond. Veuillez retourner la transcription."
-            case .german:
-                return "Dies ist eine Audioaufnahme vom Benutzer und kann Zögern wie 'ähm' und Hintergrundgeräusche enthalten. Bitte geben Sie das Transkript zurück."
-            case .spanish:
-                return "Esta es una grabación de audio del usuario y puede incluir vacilaciones como 'ehm' y ruidos de fondo. Por favor, devuelva la transcripción."
-            case .greek:
-                return "Αυτή είναι μια ηχογράφηση από τον χρήστη και μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα' και θορύβους φόντου. Παρακαλώ επιστρέψτε την απομαγνητοφώνηση."
-            }
-        }
-    }
-    
-    
-    private func getGptPrompt(userIsAsking: Bool) -> String {
-        
-        let now = Date()
-        let formatter = ISO8601DateFormatter()
-        formatter.timeZone = TimeZone.current
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let dateString = formatter.string(from: now)
-        //        print("gpt prompted with \(dateString)")
-        
-        if userIsAsking {
-            switch selectedLanguage {
-            case .english:
-                return """
-                        Please analyze the following transcript of a user's question, recorded in a possibly noisy environment. The transcript generated by the Whisper model may include hesitations like 'ahhm', background noises, and uncertain transcriptions (e.g., '[inaudible]'). Your tasks are to:
-                        1. Identify and correct any grammatical errors, ensuring the language is clear and professional.
-                        2. Completely remove non-verbal cues (e.g., 'ahhm') and background noise indications, as these do not contribute to the database query. Do not annotate; simply omit these elements for clarity.
-                        3. Clarify unclear sentences, possibly by rephrasing, while maintaining the original intent. Focus on preserving the essence of the question asked. Make educated guesses to fill in or omit uncertain transcriptions based on context, prioritizing the overall coherence and relevance of the question.
-                        4. Extract and succinctly restate the question or inquiry posed by the user. This will be used to query a vector database and should be precise and to the point. Emphasize any actionable items or key terms that are critical for retrieving the most relevant information from the database. Assign this to the "description" key of the Metadata.
-                        5. Include any relevant contextual information that could consistently apply to the queries being processed, enhancing the precision of the database search.
-                        
-                        Please format your response to include both the refined question as asked by the user and the corresponding metadata, as shown in the following example. 'type' should be 'Question'!
-                        
-                        Metadata:
-                        {
-                          "type": "Question",
-                          "description": "What are the opening hours of the local library?",
-                          "keywords": ["opening hours", "local library"],
-                          "relevantFor": "local library information search"
-                        }
-                        """
-            case .spanish:
-                return """
-                        Por favor, analiza el siguiente transcripto de una pregunta de un usuario, grabada en un ambiente posiblemente ruidoso. El transcripto generado por el modelo Whisper puede incluir vacilaciones como 'ahhm', ruidos de fondo e transcripciones inciertas (p.ej., '[inaudible]'). Tus tareas son:
-                                                1. Identificar y corregir cualquier error gramatical, asegurando que el lenguaje sea claro y profesional.
-                                                2. Eliminar completamente las señales no verbales (p.ej., 'ahhm') y las indicaciones de ruido de fondo, ya que estos no contribuyen a la consulta de la base de datos. No anotes; simplemente omite estos elementos para claridad.
-                                                3. Aclarar oraciones poco claras, posiblemente reformulándolas, manteniendo la intención original. Concéntrate en preservar la esencia de la pregunta realizada. Haz conjeturas educadas para completar u omitir transcripciones inciertas basándote en el contexto, priorizando la coherencia general y la relevancia de la pregunta.
-                                                4. Extraer y reiterar de manera sucinta la pregunta o consulta planteada por el usuario. Esto se utilizará para consultar una base de datos vectorial y debe ser preciso y al punto. Enfatiza cualquier ítem de acción o términos clave que sean críticos para recuperar la información más relevante de la base de datos. Asigna esto a la clave "description" de los Metadatos.
-                                                5. Incluir cualquier información contextual relevante que podría aplicarse consistentemente a las consultas siendo procesadas, mejorando la precisión de la búsqueda en la base de datos.
-                        
-                                                Por favor, formatea tu respuesta para incluir tanto la pregunta refinada tal como la hizo el usuario como los metadatos correspondientes, como se muestra en el ejemplo:
-                        
-                                                Metadatos:
-                                                {
-                                                  "type": "Pregunta",
-                                                  "description": "¿Cuáles son los horarios de apertura de la biblioteca local?",
-                                                  "keywords": ["horarios de apertura", "biblioteca local"],
-                                                  "relevantFor": "búsqueda de información sobre biblioteca local"
-                                                }
-                        
-                        """
-            case .french:
-                return """
-                        Veuillez analyser le transcript suivant d'une question d'utilisateur, enregistrée dans un environnement potentiellement bruyant. Le transcript généré par le modèle Whisper peut inclure des hésitations telles que 'ahhm', des bruits de fond et des transcriptions incertaines (par ex., '[inaudible]'). Vos tâches sont de :
-                                                1. Identifier et corriger toute erreur grammaticale, en assurant que le langage est clair et professionnel.
-                                                2. Supprimer complètement les indices non verbaux (par ex., 'ahhm') et les indications de bruit de fond, car ils ne contribuent pas à la requête de la base de données. Ne pas annoter ; simplement omettre ces éléments pour plus de clarté.
-                                                3. Clarifier les phrases incertaines, éventuellement en les reformulant, tout en maintenant l'intention originale. Concentrez-vous sur la préservation de l'essence de la question posée. Faites des suppositions éclairées pour remplir ou omettre les transcriptions incertaines en fonction du contexte, en priorisant la cohérence globale et la pertinence de la question.
-                                                4. Extraire et reformuler de manière succincte la question ou la demande posée par l'utilisateur. Cela sera utilisé pour interroger une base de données vectorielle et doit être précis et concis. Soulignez tous les éléments d'action ou termes clés qui sont critiques pour récupérer les informations les plus pertinentes de la base de données. Assignez ceci à la clé "description" des Métadonnées.
-                                                5. Inclure toute information contextuelle pertinente qui pourrait s'appliquer de manière cohérente aux requêtes en cours de traitement, améliorant la précision de la recherche dans la base de données.
-                        
-                                                  Veuillez formater votre réponse pour inclure à la fois la question raffinée telle que posée par l'utilisateur et les métadonnées correspondantes, comme montré dans l'exemple :
-                        
-                                                Métadonnées :
-                                                {
-                                                  "type": "Question",
-                                                  "description": "Quels sont les horaires d'ouverture de la bibliothèque locale ?",
-                                                  "keywords": ["horaires d'ouverture", "bibliothèque locale"],
-                                                  "relevantFor": "recherche d'information sur la bibliothèque locale"
-                                                }
-                        
-                        """
-            case .german:
-                return """
-                        Bitte analysiere das folgende Transkript einer Benutzerfrage, aufgenommen in einer möglicherweise lauten Umgebung. Das durch das Whisper-Modell generierte Transkript kann Zögern wie 'ahhm', Hintergrundgeräusche und unsichere Transkriptionen (z.B. '[unverständlich]') enthalten. Deine Aufgaben sind:
-                                    1. Identifiziere und korrigiere jegliche grammatikalische Fehler, um sicherzustellen, dass die Sprache klar und professionell ist.
-                                    2. Entferne vollständig nicht-verbale Hinweise (z.B. 'ahhm') und Angaben zu Hintergrundgeräuschen, da diese nicht zur Datenbankabfrage beitragen. Nicht annotieren; einfach diese Elemente zur Klarheit weglassen.
-                                    3. Kläre unklare Sätze, möglicherweise durch Umformulierung, während du die ursprüngliche Absicht beibehältst. Konzentriere dich darauf, die Essenz der gestellten Frage zu bewahren. Mache gebildete Vermutungen, um unsichere Transkriptionen basierend auf dem Kontext zu ergänzen oder wegzulassen, wobei die Gesamtkohärenz und Relevanz der Frage Priorität haben.
-                                    4. Extrahiere und formuliere die vom Benutzer gestellte Frage oder Anfrage prägnant neu. Dies wird verwendet, um eine Vektor-Datenbank abzufragen und sollte präzise und auf den Punkt sein. Betone alle handlungsrelevanten Punkte oder Schlüsselbegriffe, die für die Abrufung der relevantesten Informationen aus der Datenbank entscheidend sind. Weise dies dem Schlüssel "description" der Metadaten zu.
-                                    5. Beziehe alle relevanten Kontextinformationen ein, die konsistent auf die verarbeiteten Anfragen angewendet werden könnten, um die Präzision der Datenbanksuche zu erhöhen.
-                        
-                                    Bitte formatiere deine Antwort so, dass sie sowohl die verfeinerte Frage, wie sie vom Benutzer gestellt wurde, als auch die entsprechenden Metadaten enthält, wie im Beispiel gezeigt:
-                        
-                                    Metadaten:
-                                    {
-                                      "type": "Frage",
-                                      "description": "Was sind die Öffnungszeiten der örtlichen Bibliothek?",
-                                      "keywords": ["Öffnungszeiten", "örtliche Bibliothek"],
-                                      "relevantFor": "Suche nach Informationen zur örtlichen Bibliothek"
-                                    }
-                        
-                        """
-            case .greek:
-                return """
-                "Παρακαλώ αναλύστε την παρακάτω απομαγνητοφώνηση της ερώτησης του χρήστη, η οποία έγινε σε πιθανώς θορυβώδες περιβάλλον. Η απομαγνητοφώνηση που δημιουργήθηκε από το μοντέλο Whisper μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα', θορύβους φόντου και αβέβαιες μεταγραφές (π.χ., '[ακατανόητο]'). Τα καθήκοντά σας είναι να:
-                1. Αναγνωρίστε και διορθώστε τυχόν γραμματικά λάθη, διασφαλίζοντας ότι η γλώσσα είναι καθαρή και επαγγελματική.
-                2. Αφαιρέστε πλήρως τις μη λεκτικές ενδείξεις (π.χ., 'ααα') και τις ενδείξεις θορύβου φόντου, καθώς αυτές δεν συμβάλλουν στο ερώτημα της βάσης δεδομένων. Μην κάνετε σημειώσεις· απλώς παραλείψτε αυτά τα στοιχεία για σαφήνεια.
-                3. Καθαρίστε ασαφείς προτάσεις, πιθανώς με αναδιατύπωση, διατηρώντας την αρχική πρόθεση. Επικεντρωθείτε στο να διατηρήσετε την ουσία της ερωτημένης ερώτησης. Κάντε εκπαιδευμένες εικασίες για το συμπλήρωμα ή την παράλειψη αβέβαιων μεταγραφών με βάση το περιεχόμενο, δίνοντας προτεραιότητα στη συνοχή και τη σχετικότητα της ερώτησης.
-                4. Εξάγετε και διατυπώστε συνοπτικά την ερώτηση ή το αίτημα που τέθηκε από τον χρήστη. Αυτό θα χρησιμοποιηθεί για ερώτημα σε μια βάση δεδομένων διανυσμάτων και πρέπει να είναι ακριβές και στο σημείο. Τονίστε τυχόν στοιχεία δράσης ή κρίσιμους όρους που είναι ουσιαστικοί για την ανάκτηση των πλέον σχετικών πληροφοριών από τη βάση δεδομένων. Αναθέστε αυτό στο κλειδί 'description' του Metadata.
-                5. Συμπεριλάβετε οποιαδήποτε σχετική πληροφορία πλαισίου που θα μπορούσε να ισχύει συνεπώς για τα ερωτήματα που επεξεργάζονται, ενισχύοντας την ακρίβεια της αναζήτησης στη βάση δεδομένων.
-
-                Παρακαλώ διαμορφώστε την απάντησή σας για να περιλαμβάνει και την διατυπωμένη ερώτηση όπως την έθεσε ο χρήστης και τα αντίστοιχα metadata, όπως φαίνεται στο παρακάτω παράδειγμα. Το 'type' πρέπει να είναι 'Question'!
-
-                Metadata:
-                {
-                  "type": "Question",
-                  "description": "Ποιες είναι οι ώρες λειτουργίας της τοπικής βιβλιοθήκης;",
-                  "keywords": ["ώρες λειτουργίας", "τοπική βιβλιοθήκη"],
-                  "relevantFor": "αναζήτηση πληροφοριών τοπικής βιβλιοθήκης"
-                }
-                """
-            }
-        } else {
-            
-            switch selectedLanguage {
-            case .english:
-                return """
-Please analyze the following transcript of a user's voice note recorded in a possibly noisy environment. The transcript generated by the whisper model may include hesitations like 'ahhm' and background noises. Your tasks are to:
-    1. Identify and correct any grammatical errors.
-    2. Remove or note any non-verbal cues (e.g., 'ahhm') and background noise indications.
-    3. Clarify unclear sentences, possibly by rephrasing, while maintaining the original intent.
-    4. Extract and highlight actionable items and general knowledge. In cases where the content applies to both categories, such as an appointment that is both a task and contains significant information, provide entries for both 'To-Do' and 'General Knowledge':
-       a. General Knowledge: Information the user wants to remember, including the relevant person if mentioned. If relevant person is not mentioned should default to user.
-       b. To-Do: Tasks or events the user wishes to set a notification for, including extracting the relevant date and time if mentioned, and the relevant person or context. Specifically, if the user does not specify a date and time, calculate it given that the current date and time is \(dateString) in ISO8601 format.
-
-    5. For each entry, provide a structured output that includes the metadata in JSON format. The metadata should include the type (GeneralKnowledge or To-Do), the description,the relevant person, and if applicable, the date, time.
-
-Please format your response to include both the structured description and the corresponding metadata as shown in the following examples. 'type' should be either 'ToDo' or 'GeneralKnowledge'.
-
-General Knowledge: The name of my son Charlie's teacher is John Williams. Relevant for: Charlie.
-
-Metadata:
-{
-  "type": "GeneralKnowledge",
-  "description": "The name of my son Charlie's teacher is John Williams.",
-  "relevantFor": "Charlie"
-}
-
-To-Do: Schedule a meeting with John Williams, Date: YYYY-MM-DD, Time: HH:MM. Relevant for: Charlie's school activities.
-
-Metadata:
-{
-  "type": "ToDo",
-  "description": "Schedule a meeting with John Williams.",
-  "date": "YYYY-MM-DD",
-  "time": "HH:MM",
-  "relevantFor": "Charlie's school activities"
-}
-
-"""
-            case .french:
-                return """
-            Veuillez analyser la transcription suivante d'une note vocale d'un utilisateur enregistrée dans un environnement possiblement bruyant. La transcription générée par le modèle Whisper peut inclure des hésitations telles que 'euh' et des bruits de fond. Vos tâches sont les suivantes :
-                1. Identifier et corriger toutes les erreurs grammaticales.
-                2. Supprimer ou noter tous les indices non verbaux (par exemple, 'euh') et les indications de bruit de fond.
-                3. Clarifier les phrases floues, éventuellement en les reformulant, tout en préservant l'intention originale.
-                4. Extraire et mettre en évidence les éléments d'action et les connaissances générales. Dans les cas où le contenu s'applique à ces deux catégories, comme un rendez-vous qui est à la fois une tâche et contient des informations importantes, fournir des entrées pour 'À faire' et 'Connaissances générales' :
-                   a. Connaissances générales : Informations que l'utilisateur souhaite se rappeler, y compris la personne concernée si elle est mentionnée. Si la personne concernée n'est pas mentionnée, elle doit par défaut être l'utilisateur.
-                   b. À faire : Tâches ou événements pour lesquels l'utilisateur souhaite définir une notification, y compris l'extraction de la date et de l'heure pertinentes si elles sont mentionnées, et la personne ou le contexte concerné. Spécifiquement, si l'utilisateur ne spécifie pas de date et d'heure, calculez-la étant donné que la date et l'heure actuelles sont \(dateString) au format ISO8601.
-
-                5. Pour chaque entrée, fournissez une sortie structurée incluant les métadonnées au format JSON. Les métadonnées doivent inclure le type (ConnaissancesGénérales ou ÀFaire), la description, la personne concernée, et si applicable, la date, l'heure.
-
-            Veuillez formater votre réponse pour inclure à la fois la description structurée et les métadonnées correspondantes comme montré dans les exemples suivants. Le 'type' devrait être soit 'ToDo' soit 'GeneralKnowledge'.
-
-            Connaissances Générales : Le nom du professeur de mon fils Charlie est John Williams. Pertinent pour : Charlie.
-
-            Metadata :
-            {
-              "type": "GeneralKnowledge",
-              "description": "Le nom du professeur de mon fils Charlie est John Williams.",
-              "relevantFor": "Charlie"
-            }
-
-            À Faire : Programmer une réunion avec John Williams, Date : YYYY-MM-DD, Heure : HH:MM. Pertinent pour : les activités scolaires de Charlie.
-
-            Metadata :
-            {
-              "type": "ToDo",
-              "description": "Programmer une réunion avec John Williams.",
-              "date": "YYYY-MM-DD",
-              "time": "HH:MM",
-              "relevantFor": "les activités scolaires de Charlie"
-            }
-
-            """
-            case .german:
-                return """
-Bitte analysieren Sie das folgende Transkript einer Sprachnotiz eines Benutzers, aufgenommen in einer möglicherweise lauten Umgebung. Das durch das Whisper-Modell erstellte Transkript kann Zögern wie 'ähm' und Hintergrundgeräusche enthalten. Ihre Aufgaben sind:
-    1. Identifizieren und korrigieren Sie jegliche Grammatikfehler.
-    2. Entfernen oder notieren Sie jegliche nonverbale Hinweise (z.B. 'ähm') und Anzeigen von Hintergrundgeräuschen.
-    3. Klären Sie unklare Sätze, eventuell durch Umformulierung, wobei die ursprüngliche Absicht beibehalten wird.
-    4. Extrahieren und heben Sie Handlungsanweisungen und Allgemeinwissen hervor. In Fällen, in denen der Inhalt auf beide Kategorien zutrifft, wie bei einem Termin, der sowohl eine Aufgabe ist als auch wichtige Informationen enthält, erstellen Sie Einträge für 'To-Do' und 'Allgemeinwissen':
-       a. Allgemeinwissen: Informationen, die der Benutzer sich merken möchte, einschließlich der betreffenden Person, falls erwähnt. Wenn keine relevante Person erwähnt wird, sollte standardmäßig der Benutzer gemeint sein.
-       b. To-Do: Aufgaben oder Ereignisse, für die der Benutzer eine Benachrichtigung einstellen möchte, einschließlich der Extraktion des relevanten Datums und der Uhrzeit, falls erwähnt, und der betreffenden Person oder des Kontexts. Speziell, wenn der Benutzer kein Datum und keine Uhrzeit angibt, berechnen Sie dies, da das aktuelle Datum und die Uhrzeit \(dateString) im ISO8601-Format sind.
-
-    5. Für jeden Eintrag liefern Sie eine strukturierte Ausgabe, die die Metadaten im JSON-Format enthält. Die Metadaten sollten den Typ (GeneralKnowledge oder To-Do), die Beschreibung, die relevante Person und gegebenenfalls das Datum, die Uhrzeit umfassen.
-
-Bitte formatieren Sie Ihre Antwort so, dass sie sowohl die strukturierte Beschreibung als auch die entsprechenden Metadaten wie in den folgenden Beispielen enthält. Der 'Type' sollte entweder 'To-Do' oder 'GeneralKnowledge' sein.
-
-Allgemeinwissen: Der Name des Lehrers meines Sohnes Charlie ist John Williams. Relevant für: Charlie.
-
-Metadata:
-{
-  "type": "GeneralKnowledge",
-  "description": "Der Name des Lehrers meines Sohnes Charlie ist John Williams.",
-  "relevantFor": "Charlie"
-}
-
-To-Do: Planen Sie ein Treffen mit John Williams, Datum: YYYY-MM-DD, Uhrzeit: HH:MM. Relevant für: Charlies schulische Aktivitäten.
-
-Metadata:
-{
-  "type": "To-Do",
-  "description": "Planen Sie ein Treffen mit John Williams.",
-  "date": "YYYY-MM-DD",
-  "time": "HH:MM",
-  "relevantFor": "Charlies schulische Aktivitäten"
-}
-
-"""
-            case .spanish:
-                return """
-Por favor, analice la siguiente transcripción de una nota de voz de un usuario grabada en un entorno posiblemente ruidoso. La transcripción generada por el modelo Whisper puede incluir hesitaciones como 'eh' y ruidos de fondo. Sus tareas son:
-    1. Identificar y corregir cualquier error gramatical.
-    2. Eliminar o anotar cualquier señal no verbal (por ejemplo, 'eh') y señales de ruido de fondo.
-    3. Aclarar oraciones poco claras, posiblemente reformulándolas, manteniendo la intención original.
-    4. Extraer y destacar elementos accionables y conocimientos generales. En casos donde el contenido se aplica a ambas categorías, como una cita que es tanto una tarea como contiene información significativa, proporcione entradas para 'Pendientes' y 'Conocimiento General':
-       a. Conocimiento General: Información que el usuario desea recordar, incluyendo la persona relevante si se menciona. Si no se menciona a la persona relevante, debería referirse por defecto al usuario.
-       b. Pendientes: Tareas o eventos para los cuales el usuario desea configurar una notificación, incluyendo la extracción de la fecha y hora relevantes si se mencionan, y la persona o contexto relevante. Específicamente, si el usuario no especifica una fecha y hora, calcúlela dado que la fecha y hora actuales son \(dateString) en formato ISO8601.
-
-    5. Para cada entrada, proporcione una salida estructurada que incluya los metadatos en formato JSON. Los metadatos deben incluir el tipo (GeneralKnowledge o To-Do), la descripción, la persona relevante y, si aplica, la fecha, la hora.
-
-Por favor, formatee su respuesta para incluir tanto la descripción estructurada como los metadatos correspondientes como se muestra en los siguientes ejemplos. El 'tipo' debe ser 'To-Do' o 'GeneralKnowledge'.
-
-Conocimiento General: El nombre del profesor de mi hijo Charlie es John Williams. Relevante para: Charlie.
-
-Metadata:
-{
-  "type": "GeneralKnowledge",
-  "description": "El nombre del profesor de mi hijo Charlie es John Williams.",
-  "relevantFor": "Charlie"
-}
-
-Pendientes: Programar una reunión con John Williams, Fecha: YYYY-MM-DD, Hora: HH:MM. Relevante para: actividades escolares de Charlie.
-
-Metadata:
-{
-  "type": "To-Do",
-  "description": "Programar una reunión con John Williams.",
-  "date": "YYYY-MM-DD",
-  "time": "HH:MM",
-  "relevantFor": "actividades escolares de Charlie"
-}
-
-"""
-            case .greek:
-                return """
-Παρακαλώ αναλύστε την παρακάτω απομαγνητοφώνηση μιας φωνητικής σημείωσης χρήστη που ηχογραφήθηκε σε πιθανώς θορυβώδες περιβάλλον. Η απομαγνητοφώνηση που δημιουργήθηκε από το μοντέλο Whisper μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα' και θορύβους φόντου. Τα καθήκοντά σας είναι:
-    1. Να αναγνωρίσετε και να διορθώσετε οποιαδήποτε γραμματικά λάθη.
-    2. Να αφαιρέσετε ή να σημειώσετε τυχόν μη λεκτικές ενδείξεις (π.χ., 'ααα') και ενδείξεις θορύβου φόντου.
-    3. Να διευκρινίσετε ασαφείς προτάσεις, πιθανώς με αναδιατύπωση, διατηρώντας την αρχική πρόθεση.
-    4. Να εξάγετε και να τονίσετε πρακτικά στοιχεία και γενικές γνώσεις. Σε περιπτώσεις όπου το περιεχόμενο αφορά και τις δύο κατηγορίες, όπως ένα ραντεβού που είναι ταυτόχρονα καθήκον και περιέχει σημαντικές πληροφορίες, παρέχετε καταχωρήσεις και για τα 'Γενικές Γνώσεις' και για τα 'Υπενθύμιση':
-       α. Γενικές Γνώσεις: Πληροφορίες που ο χρήστης θέλει να θυμάται, συμπεριλαμβάνοντας το σχετικό πρόσωπο εάν αναφέρεται. Εάν δεν αναφέρεται σχετικό πρόσωπο πρέπει να θεωρείται ως προεπιλογή ο ίδιος ο χρήστης.
-       β. Υπενθύμιση: Καθήκοντα ή γεγονότα που ο χρήστης επιθυμεί να ορίσει υπενθύμιση, συμπεριλαμβάνοντας την εξαγωγή της σχετικής ημερομηνίας και ώρας αν αναφέρονται, και το σχετικό πρόσωπο ή πλαίσιο. Ειδικότερα, εάν ο χρήστης δεν καθορίζει ημερομηνία και ώρα, υπολογίστε ότι η τρέχουσα ημερομηνία και ώρα είναι \(dateString) σε μορφή ISO8601.
-
-    5. Για κάθε καταχώρηση, παρέχετε μια δομημένη απόκριση που περιλαμβάνει τα metadata σε μορφή JSON. Τα metadata πρέπει να περιλαμβάνουν τον τύπο (GeneralKnowledge ή ToDo), την περιγραφή, το σχετικό πρόσωπο, και εάν εφαρμόζεται, την ημερομηνία, την ώρα.
-
-Παρακαλώ διαμορφώστε την απάντησή σας για να περιλαμβάνει και τη δομημένη περιγραφή και τα αντίστοιχα metadata όπως φαίνεται στα παρακάτω παραδείγματα. Το 'type' πρέπει να είναι είτε 'ToDo' είτε 'GeneralKnowledge'.
-
-Γενικές Γνώσεις: Το όνομα του δασκάλου του γιου μου, του Τσάρλι, είναι Τζον Ουίλιαμς. Σχετικό για: Τσάρλι.
-
-Metadata:
-{
-  "type": "GeneralKnowledge",
-  "description": "Το όνομα του δασκάλου του γιου μου Τσάρλι, είναι Τζον Ουίλιαμς.",
-  "relevantFor": "Τσάρλι"
-}
-
-Υπενθύμιση: Προγραμματίστε συνάντηση με τον Τζον Ουίλιαμς, Ημερομηνία: YYYY-MM-DD, Ώρα: HH:MM. Σχετικό για: Σχολικές δραστηριότητες του Τσάρλι.
-
-Metadata:
-{
-  "type": "ToDo",
-  "description": "Προγραμματίστε συνάντηση με τον Τζον Ουίλιαμς.",
-  "date": "YYYY-MM-DD",
-  "time": "HH:MM",
-  "relevantFor": "Σχολικές δραστηριότητες του Τσάρλι"
-}
-"""
-            }
-        }
-    }
+    //MARK: DEPRICATED
+//    private func getGptPrompt(userIsAsking: Bool) -> String {
+//        
+//        let now = Date()
+//        let formatter = ISO8601DateFormatter()
+//        formatter.timeZone = TimeZone.current
+//        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+//        let dateString = formatter.string(from: now)
+//        //        print("gpt prompted with \(dateString)")
+//        
+//        if userIsAsking {
+//            switch selectedLanguage {
+//            case .english:
+//                return """
+//                        Please analyze the following transcript of a user's question, recorded in a possibly noisy environment. The transcript generated by the Whisper model may include hesitations like 'ahhm', background noises, and uncertain transcriptions (e.g., '[inaudible]'). Your tasks are to:
+//                        1. Identify and correct any grammatical errors, ensuring the language is clear and professional.
+//                        2. Completely remove non-verbal cues (e.g., 'ahhm') and background noise indications, as these do not contribute to the database query. Do not annotate; simply omit these elements for clarity.
+//                        3. Clarify unclear sentences, possibly by rephrasing, while maintaining the original intent. Focus on preserving the essence of the question asked. Make educated guesses to fill in or omit uncertain transcriptions based on context, prioritizing the overall coherence and relevance of the question.
+//                        4. Extract and succinctly restate the question or inquiry posed by the user. This will be used to query a vector database and should be precise and to the point. Emphasize any actionable items or key terms that are critical for retrieving the most relevant information from the database. Assign this to the "description" key of the Metadata.
+//                        5. Include any relevant contextual information that could consistently apply to the queries being processed, enhancing the precision of the database search.
+//                        
+//                        Please format your response to include both the refined question as asked by the user and the corresponding metadata, as shown in the following example. 'type' should be 'Question'!
+//                        
+//                        Metadata:
+//                        {
+//                          "type": "Question",
+//                          "description": "What are the opening hours of the local library?",
+//                          "keywords": ["opening hours", "local library"],
+//                          "relevantFor": "local library information search"
+//                        }
+//                        """
+//            case .spanish:
+//                return """
+//                        Por favor, analiza el siguiente transcripto de una pregunta de un usuario, grabada en un ambiente posiblemente ruidoso. El transcripto generado por el modelo Whisper puede incluir vacilaciones como 'ahhm', ruidos de fondo e transcripciones inciertas (p.ej., '[inaudible]'). Tus tareas son:
+//                                                1. Identificar y corregir cualquier error gramatical, asegurando que el lenguaje sea claro y profesional.
+//                                                2. Eliminar completamente las señales no verbales (p.ej., 'ahhm') y las indicaciones de ruido de fondo, ya que estos no contribuyen a la consulta de la base de datos. No anotes; simplemente omite estos elementos para claridad.
+//                                                3. Aclarar oraciones poco claras, posiblemente reformulándolas, manteniendo la intención original. Concéntrate en preservar la esencia de la pregunta realizada. Haz conjeturas educadas para completar u omitir transcripciones inciertas basándote en el contexto, priorizando la coherencia general y la relevancia de la pregunta.
+//                                                4. Extraer y reiterar de manera sucinta la pregunta o consulta planteada por el usuario. Esto se utilizará para consultar una base de datos vectorial y debe ser preciso y al punto. Enfatiza cualquier ítem de acción o términos clave que sean críticos para recuperar la información más relevante de la base de datos. Asigna esto a la clave "description" de los Metadatos.
+//                                                5. Incluir cualquier información contextual relevante que podría aplicarse consistentemente a las consultas siendo procesadas, mejorando la precisión de la búsqueda en la base de datos.
+//                        
+//                                                Por favor, formatea tu respuesta para incluir tanto la pregunta refinada tal como la hizo el usuario como los metadatos correspondientes, como se muestra en el ejemplo:
+//                        
+//                                                Metadatos:
+//                                                {
+//                                                  "type": "Pregunta",
+//                                                  "description": "¿Cuáles son los horarios de apertura de la biblioteca local?",
+//                                                  "keywords": ["horarios de apertura", "biblioteca local"],
+//                                                  "relevantFor": "búsqueda de información sobre biblioteca local"
+//                                                }
+//                        
+//                        """
+//            case .french:
+//                return """
+//                        Veuillez analyser le transcript suivant d'une question d'utilisateur, enregistrée dans un environnement potentiellement bruyant. Le transcript généré par le modèle Whisper peut inclure des hésitations telles que 'ahhm', des bruits de fond et des transcriptions incertaines (par ex., '[inaudible]'). Vos tâches sont de :
+//                                                1. Identifier et corriger toute erreur grammaticale, en assurant que le langage est clair et professionnel.
+//                                                2. Supprimer complètement les indices non verbaux (par ex., 'ahhm') et les indications de bruit de fond, car ils ne contribuent pas à la requête de la base de données. Ne pas annoter ; simplement omettre ces éléments pour plus de clarté.
+//                                                3. Clarifier les phrases incertaines, éventuellement en les reformulant, tout en maintenant l'intention originale. Concentrez-vous sur la préservation de l'essence de la question posée. Faites des suppositions éclairées pour remplir ou omettre les transcriptions incertaines en fonction du contexte, en priorisant la cohérence globale et la pertinence de la question.
+//                                                4. Extraire et reformuler de manière succincte la question ou la demande posée par l'utilisateur. Cela sera utilisé pour interroger une base de données vectorielle et doit être précis et concis. Soulignez tous les éléments d'action ou termes clés qui sont critiques pour récupérer les informations les plus pertinentes de la base de données. Assignez ceci à la clé "description" des Métadonnées.
+//                                                5. Inclure toute information contextuelle pertinente qui pourrait s'appliquer de manière cohérente aux requêtes en cours de traitement, améliorant la précision de la recherche dans la base de données.
+//                        
+//                                                  Veuillez formater votre réponse pour inclure à la fois la question raffinée telle que posée par l'utilisateur et les métadonnées correspondantes, comme montré dans l'exemple :
+//                        
+//                                                Métadonnées :
+//                                                {
+//                                                  "type": "Question",
+//                                                  "description": "Quels sont les horaires d'ouverture de la bibliothèque locale ?",
+//                                                  "keywords": ["horaires d'ouverture", "bibliothèque locale"],
+//                                                  "relevantFor": "recherche d'information sur la bibliothèque locale"
+//                                                }
+//                        
+//                        """
+//            case .german:
+//                return """
+//                        Bitte analysiere das folgende Transkript einer Benutzerfrage, aufgenommen in einer möglicherweise lauten Umgebung. Das durch das Whisper-Modell generierte Transkript kann Zögern wie 'ahhm', Hintergrundgeräusche und unsichere Transkriptionen (z.B. '[unverständlich]') enthalten. Deine Aufgaben sind:
+//                                    1. Identifiziere und korrigiere jegliche grammatikalische Fehler, um sicherzustellen, dass die Sprache klar und professionell ist.
+//                                    2. Entferne vollständig nicht-verbale Hinweise (z.B. 'ahhm') und Angaben zu Hintergrundgeräuschen, da diese nicht zur Datenbankabfrage beitragen. Nicht annotieren; einfach diese Elemente zur Klarheit weglassen.
+//                                    3. Kläre unklare Sätze, möglicherweise durch Umformulierung, während du die ursprüngliche Absicht beibehältst. Konzentriere dich darauf, die Essenz der gestellten Frage zu bewahren. Mache gebildete Vermutungen, um unsichere Transkriptionen basierend auf dem Kontext zu ergänzen oder wegzulassen, wobei die Gesamtkohärenz und Relevanz der Frage Priorität haben.
+//                                    4. Extrahiere und formuliere die vom Benutzer gestellte Frage oder Anfrage prägnant neu. Dies wird verwendet, um eine Vektor-Datenbank abzufragen und sollte präzise und auf den Punkt sein. Betone alle handlungsrelevanten Punkte oder Schlüsselbegriffe, die für die Abrufung der relevantesten Informationen aus der Datenbank entscheidend sind. Weise dies dem Schlüssel "description" der Metadaten zu.
+//                                    5. Beziehe alle relevanten Kontextinformationen ein, die konsistent auf die verarbeiteten Anfragen angewendet werden könnten, um die Präzision der Datenbanksuche zu erhöhen.
+//                        
+//                                    Bitte formatiere deine Antwort so, dass sie sowohl die verfeinerte Frage, wie sie vom Benutzer gestellt wurde, als auch die entsprechenden Metadaten enthält, wie im Beispiel gezeigt:
+//                        
+//                                    Metadaten:
+//                                    {
+//                                      "type": "Frage",
+//                                      "description": "Was sind die Öffnungszeiten der örtlichen Bibliothek?",
+//                                      "keywords": ["Öffnungszeiten", "örtliche Bibliothek"],
+//                                      "relevantFor": "Suche nach Informationen zur örtlichen Bibliothek"
+//                                    }
+//                        
+//                        """
+//            case .greek:
+//                return """
+//                "Παρακαλώ αναλύστε την παρακάτω απομαγνητοφώνηση της ερώτησης του χρήστη, η οποία έγινε σε πιθανώς θορυβώδες περιβάλλον. Η απομαγνητοφώνηση που δημιουργήθηκε από το μοντέλο Whisper μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα', θορύβους φόντου και αβέβαιες μεταγραφές (π.χ., '[ακατανόητο]'). Τα καθήκοντά σας είναι να:
+//                1. Αναγνωρίστε και διορθώστε τυχόν γραμματικά λάθη, διασφαλίζοντας ότι η γλώσσα είναι καθαρή και επαγγελματική.
+//                2. Αφαιρέστε πλήρως τις μη λεκτικές ενδείξεις (π.χ., 'ααα') και τις ενδείξεις θορύβου φόντου, καθώς αυτές δεν συμβάλλουν στο ερώτημα της βάσης δεδομένων. Μην κάνετε σημειώσεις· απλώς παραλείψτε αυτά τα στοιχεία για σαφήνεια.
+//                3. Καθαρίστε ασαφείς προτάσεις, πιθανώς με αναδιατύπωση, διατηρώντας την αρχική πρόθεση. Επικεντρωθείτε στο να διατηρήσετε την ουσία της ερωτημένης ερώτησης. Κάντε εκπαιδευμένες εικασίες για το συμπλήρωμα ή την παράλειψη αβέβαιων μεταγραφών με βάση το περιεχόμενο, δίνοντας προτεραιότητα στη συνοχή και τη σχετικότητα της ερώτησης.
+//                4. Εξάγετε και διατυπώστε συνοπτικά την ερώτηση ή το αίτημα που τέθηκε από τον χρήστη. Αυτό θα χρησιμοποιηθεί για ερώτημα σε μια βάση δεδομένων διανυσμάτων και πρέπει να είναι ακριβές και στο σημείο. Τονίστε τυχόν στοιχεία δράσης ή κρίσιμους όρους που είναι ουσιαστικοί για την ανάκτηση των πλέον σχετικών πληροφοριών από τη βάση δεδομένων. Αναθέστε αυτό στο κλειδί 'description' του Metadata.
+//                5. Συμπεριλάβετε οποιαδήποτε σχετική πληροφορία πλαισίου που θα μπορούσε να ισχύει συνεπώς για τα ερωτήματα που επεξεργάζονται, ενισχύοντας την ακρίβεια της αναζήτησης στη βάση δεδομένων.
+//
+//                Παρακαλώ διαμορφώστε την απάντησή σας για να περιλαμβάνει και την διατυπωμένη ερώτηση όπως την έθεσε ο χρήστης και τα αντίστοιχα metadata, όπως φαίνεται στο παρακάτω παράδειγμα. Το 'type' πρέπει να είναι 'Question'!
+//
+//                Metadata:
+//                {
+//                  "type": "Question",
+//                  "description": "Ποιες είναι οι ώρες λειτουργίας της τοπικής βιβλιοθήκης;",
+//                  "keywords": ["ώρες λειτουργίας", "τοπική βιβλιοθήκη"],
+//                  "relevantFor": "αναζήτηση πληροφοριών τοπικής βιβλιοθήκης"
+//                }
+//                """
+//            }
+//        } else {
+//            
+//            switch selectedLanguage {
+//            case .english:
+//                return """
+//Please analyze the following transcript of a user's voice note recorded in a possibly noisy environment. The transcript generated by the whisper model may include hesitations like 'ahhm' and background noises. Your tasks are to:
+//    1. Identify and correct any grammatical errors.
+//    2. Remove or note any non-verbal cues (e.g., 'ahhm') and background noise indications.
+//    3. Clarify unclear sentences, possibly by rephrasing, while maintaining the original intent.
+//    4. Extract and highlight actionable items and general knowledge. In cases where the content applies to both categories, such as an appointment that is both a task and contains significant information, provide entries for both 'To-Do' and 'General Knowledge':
+//       a. General Knowledge: Information the user wants to remember, including the relevant person if mentioned. If relevant person is not mentioned should default to user.
+//       b. To-Do: Tasks or events the user wishes to set a notification for, including extracting the relevant date and time if mentioned, and the relevant person or context. Specifically, if the user does not specify a date and time, calculate it given that the current date and time is \(dateString) in ISO8601 format.
+//
+//    5. For each entry, provide a structured output that includes the metadata in JSON format. The metadata should include the type (GeneralKnowledge or To-Do), the description,the relevant person, and if applicable, the date, time.
+//
+//Please format your response to include both the structured description and the corresponding metadata as shown in the following examples. 'type' should be either 'ToDo' or 'GeneralKnowledge'.
+//
+//General Knowledge: The name of my son Charlie's teacher is John Williams. Relevant for: Charlie.
+//
+//Metadata:
+//{
+//  "type": "GeneralKnowledge",
+//  "description": "The name of my son Charlie's teacher is John Williams.",
+//  "relevantFor": "Charlie"
+//}
+//
+//To-Do: Schedule a meeting with John Williams, Date: YYYY-MM-DD, Time: HH:MM. Relevant for: Charlie's school activities.
+//
+//Metadata:
+//{
+//  "type": "ToDo",
+//  "description": "Schedule a meeting with John Williams.",
+//  "date": "YYYY-MM-DD",
+//  "time": "HH:MM",
+//  "relevantFor": "Charlie's school activities"
+//}
+//
+//"""
+//            case .french:
+//                return """
+//            Veuillez analyser la transcription suivante d'une note vocale d'un utilisateur enregistrée dans un environnement possiblement bruyant. La transcription générée par le modèle Whisper peut inclure des hésitations telles que 'euh' et des bruits de fond. Vos tâches sont les suivantes :
+//                1. Identifier et corriger toutes les erreurs grammaticales.
+//                2. Supprimer ou noter tous les indices non verbaux (par exemple, 'euh') et les indications de bruit de fond.
+//                3. Clarifier les phrases floues, éventuellement en les reformulant, tout en préservant l'intention originale.
+//                4. Extraire et mettre en évidence les éléments d'action et les connaissances générales. Dans les cas où le contenu s'applique à ces deux catégories, comme un rendez-vous qui est à la fois une tâche et contient des informations importantes, fournir des entrées pour 'À faire' et 'Connaissances générales' :
+//                   a. Connaissances générales : Informations que l'utilisateur souhaite se rappeler, y compris la personne concernée si elle est mentionnée. Si la personne concernée n'est pas mentionnée, elle doit par défaut être l'utilisateur.
+//                   b. À faire : Tâches ou événements pour lesquels l'utilisateur souhaite définir une notification, y compris l'extraction de la date et de l'heure pertinentes si elles sont mentionnées, et la personne ou le contexte concerné. Spécifiquement, si l'utilisateur ne spécifie pas de date et d'heure, calculez-la étant donné que la date et l'heure actuelles sont \(dateString) au format ISO8601.
+//
+//                5. Pour chaque entrée, fournissez une sortie structurée incluant les métadonnées au format JSON. Les métadonnées doivent inclure le type (ConnaissancesGénérales ou ÀFaire), la description, la personne concernée, et si applicable, la date, l'heure.
+//
+//            Veuillez formater votre réponse pour inclure à la fois la description structurée et les métadonnées correspondantes comme montré dans les exemples suivants. Le 'type' devrait être soit 'ToDo' soit 'GeneralKnowledge'.
+//
+//            Connaissances Générales : Le nom du professeur de mon fils Charlie est John Williams. Pertinent pour : Charlie.
+//
+//            Metadata :
+//            {
+//              "type": "GeneralKnowledge",
+//              "description": "Le nom du professeur de mon fils Charlie est John Williams.",
+//              "relevantFor": "Charlie"
+//            }
+//
+//            À Faire : Programmer une réunion avec John Williams, Date : YYYY-MM-DD, Heure : HH:MM. Pertinent pour : les activités scolaires de Charlie.
+//
+//            Metadata :
+//            {
+//              "type": "ToDo",
+//              "description": "Programmer une réunion avec John Williams.",
+//              "date": "YYYY-MM-DD",
+//              "time": "HH:MM",
+//              "relevantFor": "les activités scolaires de Charlie"
+//            }
+//
+//            """
+//            case .german:
+//                return """
+//Bitte analysieren Sie das folgende Transkript einer Sprachnotiz eines Benutzers, aufgenommen in einer möglicherweise lauten Umgebung. Das durch das Whisper-Modell erstellte Transkript kann Zögern wie 'ähm' und Hintergrundgeräusche enthalten. Ihre Aufgaben sind:
+//    1. Identifizieren und korrigieren Sie jegliche Grammatikfehler.
+//    2. Entfernen oder notieren Sie jegliche nonverbale Hinweise (z.B. 'ähm') und Anzeigen von Hintergrundgeräuschen.
+//    3. Klären Sie unklare Sätze, eventuell durch Umformulierung, wobei die ursprüngliche Absicht beibehalten wird.
+//    4. Extrahieren und heben Sie Handlungsanweisungen und Allgemeinwissen hervor. In Fällen, in denen der Inhalt auf beide Kategorien zutrifft, wie bei einem Termin, der sowohl eine Aufgabe ist als auch wichtige Informationen enthält, erstellen Sie Einträge für 'To-Do' und 'Allgemeinwissen':
+//       a. Allgemeinwissen: Informationen, die der Benutzer sich merken möchte, einschließlich der betreffenden Person, falls erwähnt. Wenn keine relevante Person erwähnt wird, sollte standardmäßig der Benutzer gemeint sein.
+//       b. To-Do: Aufgaben oder Ereignisse, für die der Benutzer eine Benachrichtigung einstellen möchte, einschließlich der Extraktion des relevanten Datums und der Uhrzeit, falls erwähnt, und der betreffenden Person oder des Kontexts. Speziell, wenn der Benutzer kein Datum und keine Uhrzeit angibt, berechnen Sie dies, da das aktuelle Datum und die Uhrzeit \(dateString) im ISO8601-Format sind.
+//
+//    5. Für jeden Eintrag liefern Sie eine strukturierte Ausgabe, die die Metadaten im JSON-Format enthält. Die Metadaten sollten den Typ (GeneralKnowledge oder To-Do), die Beschreibung, die relevante Person und gegebenenfalls das Datum, die Uhrzeit umfassen.
+//
+//Bitte formatieren Sie Ihre Antwort so, dass sie sowohl die strukturierte Beschreibung als auch die entsprechenden Metadaten wie in den folgenden Beispielen enthält. Der 'Type' sollte entweder 'To-Do' oder 'GeneralKnowledge' sein.
+//
+//Allgemeinwissen: Der Name des Lehrers meines Sohnes Charlie ist John Williams. Relevant für: Charlie.
+//
+//Metadata:
+//{
+//  "type": "GeneralKnowledge",
+//  "description": "Der Name des Lehrers meines Sohnes Charlie ist John Williams.",
+//  "relevantFor": "Charlie"
+//}
+//
+//To-Do: Planen Sie ein Treffen mit John Williams, Datum: YYYY-MM-DD, Uhrzeit: HH:MM. Relevant für: Charlies schulische Aktivitäten.
+//
+//Metadata:
+//{
+//  "type": "To-Do",
+//  "description": "Planen Sie ein Treffen mit John Williams.",
+//  "date": "YYYY-MM-DD",
+//  "time": "HH:MM",
+//  "relevantFor": "Charlies schulische Aktivitäten"
+//}
+//
+//"""
+//            case .spanish:
+//                return """
+//Por favor, analice la siguiente transcripción de una nota de voz de un usuario grabada en un entorno posiblemente ruidoso. La transcripción generada por el modelo Whisper puede incluir hesitaciones como 'eh' y ruidos de fondo. Sus tareas son:
+//    1. Identificar y corregir cualquier error gramatical.
+//    2. Eliminar o anotar cualquier señal no verbal (por ejemplo, 'eh') y señales de ruido de fondo.
+//    3. Aclarar oraciones poco claras, posiblemente reformulándolas, manteniendo la intención original.
+//    4. Extraer y destacar elementos accionables y conocimientos generales. En casos donde el contenido se aplica a ambas categorías, como una cita que es tanto una tarea como contiene información significativa, proporcione entradas para 'Pendientes' y 'Conocimiento General':
+//       a. Conocimiento General: Información que el usuario desea recordar, incluyendo la persona relevante si se menciona. Si no se menciona a la persona relevante, debería referirse por defecto al usuario.
+//       b. Pendientes: Tareas o eventos para los cuales el usuario desea configurar una notificación, incluyendo la extracción de la fecha y hora relevantes si se mencionan, y la persona o contexto relevante. Específicamente, si el usuario no especifica una fecha y hora, calcúlela dado que la fecha y hora actuales son \(dateString) en formato ISO8601.
+//
+//    5. Para cada entrada, proporcione una salida estructurada que incluya los metadatos en formato JSON. Los metadatos deben incluir el tipo (GeneralKnowledge o To-Do), la descripción, la persona relevante y, si aplica, la fecha, la hora.
+//
+//Por favor, formatee su respuesta para incluir tanto la descripción estructurada como los metadatos correspondientes como se muestra en los siguientes ejemplos. El 'tipo' debe ser 'To-Do' o 'GeneralKnowledge'.
+//
+//Conocimiento General: El nombre del profesor de mi hijo Charlie es John Williams. Relevante para: Charlie.
+//
+//Metadata:
+//{
+//  "type": "GeneralKnowledge",
+//  "description": "El nombre del profesor de mi hijo Charlie es John Williams.",
+//  "relevantFor": "Charlie"
+//}
+//
+//Pendientes: Programar una reunión con John Williams, Fecha: YYYY-MM-DD, Hora: HH:MM. Relevante para: actividades escolares de Charlie.
+//
+//Metadata:
+//{
+//  "type": "To-Do",
+//  "description": "Programar una reunión con John Williams.",
+//  "date": "YYYY-MM-DD",
+//  "time": "HH:MM",
+//  "relevantFor": "actividades escolares de Charlie"
+//}
+//
+//"""
+//            case .greek:
+//                return """
+//Παρακαλώ αναλύστε την παρακάτω απομαγνητοφώνηση μιας φωνητικής σημείωσης χρήστη που ηχογραφήθηκε σε πιθανώς θορυβώδες περιβάλλον. Η απομαγνητοφώνηση που δημιουργήθηκε από το μοντέλο Whisper μπορεί να περιλαμβάνει δισταγμούς όπως 'ααα' και θορύβους φόντου. Τα καθήκοντά σας είναι:
+//    1. Να αναγνωρίσετε και να διορθώσετε οποιαδήποτε γραμματικά λάθη.
+//    2. Να αφαιρέσετε ή να σημειώσετε τυχόν μη λεκτικές ενδείξεις (π.χ., 'ααα') και ενδείξεις θορύβου φόντου.
+//    3. Να διευκρινίσετε ασαφείς προτάσεις, πιθανώς με αναδιατύπωση, διατηρώντας την αρχική πρόθεση.
+//    4. Να εξάγετε και να τονίσετε πρακτικά στοιχεία και γενικές γνώσεις. Σε περιπτώσεις όπου το περιεχόμενο αφορά και τις δύο κατηγορίες, όπως ένα ραντεβού που είναι ταυτόχρονα καθήκον και περιέχει σημαντικές πληροφορίες, παρέχετε καταχωρήσεις και για τα 'Γενικές Γνώσεις' και για τα 'Υπενθύμιση':
+//       α. Γενικές Γνώσεις: Πληροφορίες που ο χρήστης θέλει να θυμάται, συμπεριλαμβάνοντας το σχετικό πρόσωπο εάν αναφέρεται. Εάν δεν αναφέρεται σχετικό πρόσωπο πρέπει να θεωρείται ως προεπιλογή ο ίδιος ο χρήστης.
+//       β. Υπενθύμιση: Καθήκοντα ή γεγονότα που ο χρήστης επιθυμεί να ορίσει υπενθύμιση, συμπεριλαμβάνοντας την εξαγωγή της σχετικής ημερομηνίας και ώρας αν αναφέρονται, και το σχετικό πρόσωπο ή πλαίσιο. Ειδικότερα, εάν ο χρήστης δεν καθορίζει ημερομηνία και ώρα, υπολογίστε ότι η τρέχουσα ημερομηνία και ώρα είναι \(dateString) σε μορφή ISO8601.
+//
+//    5. Για κάθε καταχώρηση, παρέχετε μια δομημένη απόκριση που περιλαμβάνει τα metadata σε μορφή JSON. Τα metadata πρέπει να περιλαμβάνουν τον τύπο (GeneralKnowledge ή ToDo), την περιγραφή, το σχετικό πρόσωπο, και εάν εφαρμόζεται, την ημερομηνία, την ώρα.
+//
+//Παρακαλώ διαμορφώστε την απάντησή σας για να περιλαμβάνει και τη δομημένη περιγραφή και τα αντίστοιχα metadata όπως φαίνεται στα παρακάτω παραδείγματα. Το 'type' πρέπει να είναι είτε 'ToDo' είτε 'GeneralKnowledge'.
+//
+//Γενικές Γνώσεις: Το όνομα του δασκάλου του γιου μου, του Τσάρλι, είναι Τζον Ουίλιαμς. Σχετικό για: Τσάρλι.
+//
+//Metadata:
+//{
+//  "type": "GeneralKnowledge",
+//  "description": "Το όνομα του δασκάλου του γιου μου Τσάρλι, είναι Τζον Ουίλιαμς.",
+//  "relevantFor": "Τσάρλι"
+//}
+//
+//Υπενθύμιση: Προγραμματίστε συνάντηση με τον Τζον Ουίλιαμς, Ημερομηνία: YYYY-MM-DD, Ώρα: HH:MM. Σχετικό για: Σχολικές δραστηριότητες του Τσάρλι.
+//
+//Metadata:
+//{
+//  "type": "ToDo",
+//  "description": "Προγραμματίστε συνάντηση με τον Τζον Ουίλιαμς.",
+//  "date": "YYYY-MM-DD",
+//  "time": "HH:MM",
+//  "relevantFor": "Σχολικές δραστηριότητες του Τσάρλι"
+//}
+//"""
+//            }
+//        }
+//    }
 }

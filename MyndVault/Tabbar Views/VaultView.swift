@@ -86,7 +86,7 @@ struct VaultView: View {
             }
         }
         .onReceive(pineconeManger.$pineconeFetchedVectors) { _ in
-            print("Fetched Vectors changed.")
+            print("onReceive :: Fetched Vectors changed.")
             if pineconeManger.pineconeFetchedVectors.isEmpty {
                 showUnavailable = true
             }
@@ -102,7 +102,6 @@ struct VaultView: View {
                 showAlert.toggle()
             }
             DispatchQueue.main.async {
-                
                 self.vectorsAreLoading = false
             }
         }
@@ -118,7 +117,7 @@ struct VaultView: View {
         for id in idsToDelete {
             Task {
                 do {
-                    try await pineconeManger.deleteVector(id: id)
+                    try await pineconeManger.deleteVectorFromPinecone(id: id)
                     if pineconeManger.vectorDeleted {
                         DispatchQueue.main.async {
                             pineconeManger.pineconeFetchedVectors.removeAll { $0.id == id }

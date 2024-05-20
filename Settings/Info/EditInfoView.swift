@@ -14,36 +14,20 @@ struct EditInfoView: View {
     @EnvironmentObject var openAiManager: OpenAIManager
     @State var showProgress: Bool = false
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @State var popMessage: String = ""
     @State var showPop: Bool = false
     
     var body: some View {
         
         ZStack {
             
-            InfoView(viewModel: viewModel).opacity(showProgress ? 0.5 : 1.0)
-                .popover(isPresented: $showPop, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-                    VStack {
-                        Text(popMessage)
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    .background(Color.britishRacingGreen)
-                    .ignoresSafeArea()
-                    .onAppear() {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-                            presentationMode.wrappedValue.dismiss()
-                            popMessage = ""
-                        }
-                    }
-                }
-            
+            InfoView(viewModel: viewModel, showPop: $showPop, presentationMode: presentationMode).opacity(showProgress ? 0.5 : 1.0)
+                
             
             if showProgress {
                 ProgressView()
             }
         }
+        
         .alert(item: $viewModel.activeAlert) { alertType in
             switch alertType {
             case .editConfirmation:
@@ -79,15 +63,17 @@ struct EditInfoView: View {
                             showProgress = true
                         }
                         Task {
+                            let idToDelete = viewModel.id
                             do {
-                                try await pineconeManager.deleteVector(id: viewModel.id)
+                                try await pineconeManager.deleteVectorFromPinecone(id: idToDelete)
                             } catch {
-                                popMessage = "Unable to Delete, \(error.localizedDescription)."
+                               
                                 showPop = true
                             }
                             if pineconeManager.vectorDeleted {
-                                popMessage = "Info deleted!"
+                               
                                 showPop = true
+                                pineconeManager.deleteVector(withId: idToDelete)
                                 try await pineconeManager.fetchAllNamespaceIDs()
                             }
                             DispatchQueue.main.async {
@@ -129,7 +115,7 @@ struct EditInfoView: View {
                     print("EditInfoView :: Error refreshNamespacesIDs: \(error.localizedDescription)")
                 }
                 DispatchQueue.main.async {
-                    popMessage = "Info saved successfully!"
+//                    popMessage = "Info saved successfully!"
                     showPop = true
                 }
             }

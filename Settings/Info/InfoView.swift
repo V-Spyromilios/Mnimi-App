@@ -18,6 +18,9 @@ struct InfoView: View {
     @FocusState private var focusField: Field?
     @State var thrownError: String = ""
     @State var apiCallInProgress: Bool = false
+    @State private var animateStep: Int = 0
+    @Binding var showPop: Bool
+    @Binding var presentationMode: PresentationMode
     
 
     private enum Field {
@@ -47,7 +50,7 @@ struct InfoView: View {
                             .foregroundColor(Color.gray)
                     }
                     .padding(.bottom)
-                    .onAppear { focusField = .edit }
+//                    .onAppear { focusField = .edit }
                     .focused($focusField, equals: .edit)
             }.padding(.bottom)
             .padding(.horizontal, 7)
@@ -76,6 +79,19 @@ struct InfoView: View {
             .animation(.easeInOut, value: keyboardResponder.currentHeight)
             .id("SubmitButton")
             .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
+            .popover(isPresented: $showPop, attachmentAnchor: .point(.top), arrowEdge: .top) {
+                
+                popOverView(animateStep: $animateStep, show: $showPop)
+                
+                .onDisappear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        $presentationMode.wrappedValue.dismiss()
+                        
+                    }
+                }.presentationCompactAdaptation(.popover)
+            }
+            
+            
             Spacer()
         }
         .toolbar {
@@ -110,10 +126,10 @@ struct InfoView: View {
     }
 }
 
-#Preview {
-    InfoView(viewModel: EditInfoViewModel(vector: Vector(id: "1234", metadata: ["Test":"test"])))
-        .environmentObject(OpenAIManager())
-        .environmentObject(PineconeManager())
-        .environmentObject(ProgressTracker())
-        .environmentObject(KeyboardResponder())
-}
+//#Preview {
+//    InfoView(viewModel: EditInfoViewModel(vector: Vector(id: "1234", metadata: ["Test":"test"])))
+//        .environmentObject(OpenAIManager())
+//        .environmentObject(PineconeManager())
+//        .environmentObject(ProgressTracker())
+//        .environmentObject(KeyboardResponder())
+//}

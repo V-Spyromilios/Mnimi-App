@@ -16,19 +16,19 @@ struct DeveloperView: View {
         VStack {
     
             Button(action: {
-                viewModel.listPineconeIndexes()
+//                viewModel.listPineconeIndexes()
             }, label: {
                 Text("List Pinecone Indexes").fontWeight(.semibold).fontDesign(.rounded).font(.title3).padding()
             })
             
             Button(action: {
-                viewModel.checkPineconeIndex()
+//                viewModel.checkPineconeIndex()
             }, label: {
                 Text("Check Pinecone Index").fontWeight(.semibold).fontDesign(.rounded).font(.title3).padding(.bottom)
             })
             
             Button(action: {
-                viewModel.getIndexInfo(indexName: "memoryindex")
+//                viewModel.getIndexInfo(indexName: "memoryindex")
             }, label: {
                 Text("Get Index Info").fontWeight(.semibold).fontDesign(.rounded).font(.title3).padding(.bottom)
             })

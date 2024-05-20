@@ -24,7 +24,7 @@ struct QuestionView: View {
                 
                 HStack {
                     Image(systemName: "questionmark.bubble").bold()
-                    Text("Query").bold()
+                    Text("Question").bold()
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
                     .navigationTitle("Search 🔍")
@@ -66,13 +66,19 @@ struct QuestionView: View {
                         ClearButton
                             .padding(.bottom)
                     }
-                    if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                        GoButton
-                            .padding(.bottom)
+                    VStack {
+                        if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                            GoButton
+                                .padding(.bottom)
+                        }
+                        else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                            CircularProgressView(progressTracker: progressTracker).padding()
+                        }
+                        else if !goButtonIsVisible {
+                            CircularProgressView(progressTracker: progressTracker).padding()
+                        }
                     }
-                    else if progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && (pineconeManager.receivedError == nil) {
-                        CircularProgressView(progressTracker: progressTracker).padding()
-                    }
+                    
                     if openAiManager.stringResponseOnQuestion != "" {
                         HStack {
                             Image(systemName: "quote.bubble").bold()
@@ -162,7 +168,7 @@ struct QuestionView: View {
                     .frame(height: 60)
                     .shadow(radius: 7)
                 Text("OK").font(.title2).bold().foregroundColor(.white)
-                    .accessibilityLabel("Clear")
+                    .accessibilityLabel("Clear and reset")
             }
             .contentShape(Rectangle())
         }
@@ -192,8 +198,8 @@ struct QuestionView: View {
         if question.count < 8 { return }
 
         hideKeyboard()
-        withAnimation {
-            goButtonIsVisible = false }
+        withAnimation { goButtonIsVisible = false }
+
         Task {
             await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             if openAiManager.questionEmbeddingsCompleted {
@@ -216,6 +222,7 @@ struct QuestionView: View {
                 }
             }
         }
+        ProgressTracker.shared.setProgress(to: 0.99)
         if thrownError == "" {
             withAnimation {
                 clearButtonIsVisible = true

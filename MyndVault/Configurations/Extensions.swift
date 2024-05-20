@@ -67,6 +67,84 @@ extension String {
 //    }
 //}
 
+func popOverView(animateStep: Binding<Int>, show: Binding<Bool>) -> some View {
+    
+    
+    VStack(alignment: .center) {
+               ZStack {
+                   Color.britishRacingGreen.ignoresSafeArea()
+                   
+                   if animateStep.wrappedValue == 0 || animateStep.wrappedValue == 1 {
+                       Image(systemName: "arrow.2.circlepath")
+                           .resizable().padding(5)
+                           .scaledToFit()
+                           .foregroundStyle(.white)
+                           .frame(width: 70, height: 70)
+                           .rotationEffect(Angle.degrees(animateStep.wrappedValue == 0 ? 360 : 0))
+//                           .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false))
+                           .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false), value: animateStep.wrappedValue)
+                   } else if animateStep.wrappedValue == 2 {
+                       Image(systemName: "checkmark.circle")
+                           .resizable().padding(5)
+                           .scaledToFit()
+                           .foregroundStyle(.white)
+                           .frame(width: 70, height: 70)
+                           .transition(.opacity)
+                   }
+               }
+               .onAppear{
+                   DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                  withAnimation {
+                                      animateStep.wrappedValue = 1 } }
+                   
+                   DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+                                  withAnimation {
+                                      animateStep.wrappedValue = 2 } }
+                   
+                   DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+                                  withAnimation {
+                                      show.wrappedValue = false } }
+               }
+           }
+    
+    
+
+//    VStack(alignment: .center) {
+//        Image(systemName: animate.wrappedValue ? "checkmark" : "arrow.triangle.2.circlepath")
+//            .resizable()
+//            .scaledToFit()
+//            .padding(5)
+//            .frame(width: 50, height: 50)
+//            .rotationEffect(Angle.degrees(animate.wrappedValue == true ? 360 : 0))
+//            .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false), value: animate.wrappedValue)
+//            .foregroundStyle(.white)
+//            .contentTransition(.symbolEffect(.replace))
+//            .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            .background {
+//                LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen, Color.britishRacingGreen, Color.britishRacingGreen.opacity(0.7)]), startPoint: .top, endPoint: .bottom)
+//            }
+//            .ignoresSafeArea()
+//
+//            .onAppear {
+//                
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+//                withAnimation {
+//                    animate.wrappedValue = true } }
+//            
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+//                withAnimation {
+//                    show.wrappedValue = false
+//                    animate.wrappedValue = false
+//                } }
+//            
+//        }
+//            
+////                                Text(popUpMessage)
+////                                    .foregroundColor(.white)
+////                                    .padding(5)
+//             //to cover the whole popover
+//    }
+}
 
 extension View {
     
@@ -145,12 +223,12 @@ func currentDateToISO8601() -> String {
 }
 
 func toDictionary(desc: String) -> [String: String] {
-    
     return [
         "description": desc,
         "timestamp": currentDateToISO8601()
     ]
 }
+
 
 
 struct TopNotificationBar: View {

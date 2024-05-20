@@ -22,6 +22,8 @@ struct NewAddInfoView: View {
     @State private var saveButtonIsVisible: Bool = true
     @State private var showSettings: Bool = false
     
+    @State private var animateStep: Int = 0
+    
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
@@ -83,15 +85,10 @@ struct NewAddInfoView: View {
                                     
                                 }
                         }.popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-                            VStack {
-                                Text(popUpMessage)
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            }
-                            .background(Color.britishRacingGreen)
-                            .ignoresSafeArea()
+                            
+                            popOverView(animateStep: $animateStep, show: $showPopUp)
                             .presentationCompactAdaptation(.popover)
+                           
                         }
                        
                         
@@ -229,10 +226,10 @@ struct NewAddInfoView: View {
         hideKeyboard()
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
-        Task { await performNetworkOperations() }
+        Task { await addInfoOperations() }
     }
     
-    private func performNetworkOperations() async {
+    private func addInfoOperations() async {
         
         await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
         
