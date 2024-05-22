@@ -40,6 +40,7 @@ struct SettingsView: View {
                                 Image(systemName: "xmark") }
                         
                     }.padding()
+                        .accessibilityLabel("Close Settings")
                     
                 }
                 ToolbarItemGroup(placement: .topBarLeading) {
@@ -59,6 +60,7 @@ struct SettingsView: View {
                                 .shadow(radius: toolbarButtonShadow)
                             Text("🚪")
                         }.padding()
+                            .accessibilityLabel("Log out from Mynd Vault app")
                     }
                     
                 }

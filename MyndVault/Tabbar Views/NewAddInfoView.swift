@@ -90,23 +90,6 @@ struct NewAddInfoView: View {
                             .presentationCompactAdaptation(.popover)
                            
                         }
-                       
-                        
-//                        TextEditor(text: $relevantFor)
-//                            .fontDesign(.rounded)
-//                            .font(.title2)
-//                            .frame(height: 50)
-//                            .clipShape(RoundedRectangle(cornerRadius: 10))
-//                            .shadow(radius: 5)
-//                            .overlay(
-//                                RoundedRectangle(cornerRadius: 10.0)
-//                                    .stroke(lineWidth: 1)
-//                                    .opacity(0.3)
-//                                    .foregroundColor(Color.gray)
-//                            )
-//                            .padding(.bottom, 8)
-//                            .padding(.horizontal, 7)
-                        
                         
                         //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
                         
@@ -134,16 +117,6 @@ struct NewAddInfoView: View {
                         }
                         else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             SaveButton
-//                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                                
-                            //                                    .onChange(of: keyboardResponder.currentHeight) {
-                            //
-                            //                                        withAnimation {
-                            //                                            scrollViewProxy.scrollTo("SubmitButton", anchor: .bottom)
-                            //                                        }
-                            //                                    }
-                               
-                                
                         }
                         if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
@@ -153,7 +126,6 @@ struct NewAddInfoView: View {
                             .navigationTitle("Add New 📝")
                             .navigationBarTitleDisplayMode(.inline)
                     }
-//                }
                 }.keyboardObserving()
             }
             
@@ -208,6 +180,7 @@ struct NewAddInfoView: View {
     private func performClearTask() {
         
         withAnimation {
+            progressTracker.reset()
             self.thrownError = ""
             self.clearButtonIsVisible = false
             Task {
@@ -226,6 +199,7 @@ struct NewAddInfoView: View {
         hideKeyboard()
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
+        progressTracker.reset()
         Task { await addInfoOperations() }
     }
     

@@ -115,6 +115,7 @@ struct NotificationEditView: View {
                 } .padding(.vertical, 8)
                     .contentShape(Rectangle())
                     .shadow(radius: 7)
+                    .accessibilityLabel("Save changes and reschedule")
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
@@ -133,7 +134,7 @@ struct NotificationEditView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button("Cancel") {
                         presentationMode.wrappedValue.dismiss()
-                    }
+                    }.accessibilityLabel("Cancel")
                 }
             }.navigationTitle("Edit Notification")
             Spacer()

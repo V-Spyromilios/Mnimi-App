@@ -114,6 +114,7 @@ struct NotificationDetailView: View {
                         Text(option).font(.body).foregroundStyle(Color.britishRacingGreen)
                     }
                 }).padding(.horizontal)
+                    .accessibilityLabel(option == "Delete" ? "Delete" : "Edit")
                 
                 if option != popUpOptions.last {
                     Divider()

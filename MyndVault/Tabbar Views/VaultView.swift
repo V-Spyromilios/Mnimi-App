@@ -12,7 +12,6 @@ struct VaultView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject var pineconeManger: PineconeManager
-    @EnvironmentObject var audioManager: AudioManager
     @State private var vectorsAreLoading = true
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
@@ -46,7 +45,7 @@ struct VaultView: View {
                     }, description: {
                         Text(" Saved Info will be shown here.")}
                                            
-                    ).offset(y: 50)
+                    ).offset(y: -contentUnaivalableOffset)
                     
                 }
                     if showErrorUnavailable && pineconeManger.pineconeFetchedVectors.isEmpty {
@@ -55,7 +54,7 @@ struct VaultView: View {
                         }, description: {
                             Text(" please check your connection.")}
                                                
-                        ).offset(y: 50)
+                        ).offset(y: -contentUnaivalableOffset)
                     }
             }
             }.refreshable {

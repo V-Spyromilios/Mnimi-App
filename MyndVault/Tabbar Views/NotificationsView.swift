@@ -20,20 +20,20 @@ struct NotificationsView: View {
             ScrollView {
                 LazyVStack(alignment: .leading) {
                     if !manager.scheduledNotifications.isEmpty {
-                        Text("Scheduled")
-                            .font(.headline)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .textCase(.uppercase)
-                            .padding(.bottom)
-                            .padding(.leading, 9)
+//                        Text("Scheduled")
+//                            .font(.headline)
+//                            .foregroundColor(.secondary)
+//                            .frame(maxWidth: .infinity, alignment: .leading)
+//                            .textCase(.uppercase)
+//                            .padding(.bottom)
+//                            .padding(.leading, 9)
                         ForEach(manager.scheduledNotifications) {notification in
                             
                             NotificationDetailView(notification: notification)
                                 .padding(.bottom).padding(.horizontal, 9)
                         }
                     } else {
-                        ContentUnavailableView("No Notifications yet!", systemImage: "bell.slash.fill", description: Text("Start by adding a new Notification.")).offset(y: 70)
+                        ContentUnavailableView("No Notifications yet!", systemImage: "bell.slash.fill", description: Text("Start by adding a new Notification.")).offset(y: -contentUnaivalableOffset)
                     }
                 }
             }
@@ -52,7 +52,7 @@ struct NotificationsView: View {
                             .shadow(radius: toolbarButtonShadow)
                             .overlay {
                                 Text("➕")}
-                    }.padding()
+                    }.padding().accessibilityLabel("Add new notification")
                 }
             }
         }.sheet(isPresented: $showAddNotification) {

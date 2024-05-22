@@ -8,6 +8,7 @@
 import SwiftUI
 import Foundation
 
+//MARK: DEPRICATED
 struct RecordingsSettingsView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @ObservedObject var viewModel = RecordingsViewModel()
@@ -21,7 +22,7 @@ struct RecordingsSettingsView: View {
                 }, description: {
                     Text("Recordings will appear here.")
                 })
-                .offset(y: -60)
+                .offset(y: -contentUnaivalableOffset)
             } else {
 
                 List {
@@ -43,6 +44,7 @@ struct RecordingsSettingsView: View {
                 Button(action: viewModel.deleteAllAudioFiles) {
                     Image(systemName: "trash")
                 }
+                .accessibilityLabel("Delete")
             }
             
             ToolbarItem(placement: .navigationBarLeading) {
@@ -53,6 +55,7 @@ struct RecordingsSettingsView: View {
                         Image(systemName: "chevron.left")
                         Text("Settings")
                     }
+                    .accessibilityLabel("Back")
                 }
             }
         }

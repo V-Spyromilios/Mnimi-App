@@ -8,6 +8,7 @@
 import Foundation
 import Speech
 
+//To ask permision for the keyboard mic
 final class SpeechRecognizerManager: ObservableObject {
     @Published var isAuthorized: Bool = false
     @Published var authorizationMessage: String = ""

@@ -36,6 +36,7 @@ struct PromptLanguageView: View {
                     }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .contentShape(Rectangle()) // otherwise only text listens for taps and changes language.
+                    .accessibilityLabel("selected Language: \(language.rawValue)")
             }
         }
         .buttonStyle(PlainButtonStyle())

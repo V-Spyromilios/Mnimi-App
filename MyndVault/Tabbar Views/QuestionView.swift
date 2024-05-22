@@ -58,6 +58,7 @@ struct QuestionView: View {
                             .padding(.top)
                             .padding(.horizontal)
                         ClearButton
+                            .padding(.bottom)
                     }
                     else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
                         ErrorView(thrownError:  openAiManager.thrownError)
@@ -74,9 +75,7 @@ struct QuestionView: View {
                         else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
                         }
-                        else if !goButtonIsVisible {
-                            CircularProgressView(progressTracker: progressTracker).padding()
-                        }
+//                        Text("GoButton: \(goButtonIsVisible) :: Progress: \(progressTracker.progress) \n Errors: \(thrownError), \(openAiManager.thrownError), \(String(describing: pineconeManager.receivedError?.localizedDescription))")
                     }
                     
                     if openAiManager.stringResponseOnQuestion != "" {
@@ -135,7 +134,7 @@ struct QuestionView: View {
                         }
                     }
                 }
-            }.fullScreenCover(isPresented: $showSettings){
+            }.fullScreenCover(isPresented: $showSettings) {
                 SettingsView(showSettings: $showSettings)
             }
         }
@@ -186,6 +185,7 @@ struct QuestionView: View {
             self.thrownError = ""
             self.clearButtonIsVisible = false
             self.goButtonIsVisible = true
+            progressTracker.reset()
             Task {
                 await openAiManager.clearManager()
                 pineconeManager.clearManager()
@@ -198,6 +198,7 @@ struct QuestionView: View {
         if question.count < 8 { return }
 
         hideKeyboard()
+        progressTracker.reset()
         withAnimation { goButtonIsVisible = false }
 
         Task {
@@ -205,7 +206,7 @@ struct QuestionView: View {
             if openAiManager.questionEmbeddingsCompleted {
                 
                 do {
-                    ProgressTracker.shared.setProgress(to: 0.35)
+                    progressTracker.setProgress(to: 0.35)
                     try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
                 } catch {
                     thrownError = error.localizedDescription
@@ -214,6 +215,9 @@ struct QuestionView: View {
                 if let pineconeResponse = pineconeManager.pineconeQueryResponse {
                     do {
                         try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
+//                        ProgressTracker.shared.setProgress(to: 0.97)
+//                        ProgressTracker.shared.setProgress(to: 0.99)
+                        
                     } catch {
                         thrownError = error.localizedDescription
                         withAnimation {
@@ -222,7 +226,6 @@ struct QuestionView: View {
                 }
             }
         }
-        ProgressTracker.shared.setProgress(to: 0.99)
         if thrownError == "" {
             withAnimation {
                 clearButtonIsVisible = true

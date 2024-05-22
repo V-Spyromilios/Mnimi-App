@@ -150,15 +150,16 @@ final class PineconeManager: ObservableObject {
 
                 if !self.isDataSorted || self.refreshAfterEditing {
                     do {
-                        print("Data is not sorted, isDataSorted: \(isDataSorted), refresh: \(refreshAfterEditing).")
+//                        print("Data is not sorted, isDataSorted: \(isDataSorted), refresh: \(refreshAfterEditing).")
                         try await fetchDataForIds()
                     } catch {
-                        print("Error fetchDataForIds():: \(error)")
+                        throw AppNetworkError.unknownError("Error fetching data for id")
+//                        print("Error fetchDataForIds():: \(error)")
                     }
                 }
 
                 // 1RU per call
-                updateTokenUsage(api: "Pinecone", tokensUsed: 1, read: true)
+                updateTokenUsage(api: APIs.pinecone, tokensUsed: 1, read: true)
 
                 // If successful, break the loop
                 break
@@ -166,10 +167,10 @@ final class PineconeManager: ObservableObject {
             } catch {
                 attempts += 1
                 if attempts < maxAttempts {
-                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
+//                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
                     try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
                 } else {
-                    print("All attempts failed.")
+//                    print("All attempts failed.")
                     throw error
                 }
             }
@@ -220,8 +221,8 @@ final class PineconeManager: ObservableObject {
 //            }
 //        }
 //        // 1RU per call
-//        updateTokenUsage(api: "Pinecone", tokensUsed: 1, read: true)
-//        
+//        updateTokenUsage(api: APIs.pinecone, tokensUsed: 1, read: true)
+//
 //    }
     
     
@@ -247,31 +248,49 @@ final class PineconeManager: ObservableObject {
         request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
         request.httpMethod = "GET"
 
-        let (data, _) = try await URLSession.shared.data(for: request)
-        let decodedResponse = try JSONDecoder().decode(PineconeFetchResponseFromID.self, from: data)
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let maxAttempts = 2
+        var attempts = 0
 
-        let sortedVectors = decodedResponse.vectors.values.sorted { lhs, rhs in
+        while attempts < maxAttempts {
+            do {
+                let (data, _) = try await URLSession.shared.data(for: request)
+                let decodedResponse = try JSONDecoder().decode(PineconeFetchResponseFromID.self, from: data)
+                let dateFormatter = ISO8601DateFormatter()
+                dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
-            guard let lhsTimestamp = lhs.metadata["timestamp"],
-                  let rhsTimestamp = rhs.metadata["timestamp"]
-            else { return false }
+                let sortedVectors = decodedResponse.vectors.values.sorted { lhs, rhs in
 
-            guard let lhsDate = dateFormatter.date(from: lhsTimestamp),
-                  let rhsDate = dateFormatter.date(from: rhsTimestamp)
-            else { return false }
+                    guard let lhsTimestamp = lhs.metadata["timestamp"],
+                          let rhsTimestamp = rhs.metadata["timestamp"]
+                    else { return false }
 
-            return lhsDate > rhsDate
+                    guard let lhsDate = dateFormatter.date(from: lhsTimestamp),
+                          let rhsDate = dateFormatter.date(from: rhsTimestamp)
+                    else { return false }
+
+                    return lhsDate > rhsDate
+                }
+
+                await MainActor.run {
+                    self.pineconeFetchedVectors = sortedVectors
+                    isDataSorted = true
+                }
+
+                let readUnits = self.pineconeFetchedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
+                updateTokenUsage(api: APIs.pinecone, tokensUsed: readUnits, read: true)
+
+                //if the fetch was successful
+                break
+
+            } catch {
+                attempts += 1
+                if attempts < maxAttempts {
+                    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
+                } else {
+                    throw error
+                }
+            }
         }
-
-        await MainActor.run {
-            self.pineconeFetchedVectors = sortedVectors
-            isDataSorted = true
-        }
-
-        let readUnits = self.pineconeFetchedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
-        updateTokenUsage(api: "Pinecone", tokensUsed: readUnits, read: true)
     }
 
 //MARK: deleteVector
@@ -307,27 +326,27 @@ final class PineconeManager: ObservableObject {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 
                 if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                    print("Failed to delete vectors. Status code: \(httpResponse.statusCode)")
+//                    print("Failed to delete vectors. Status code: \(httpResponse.statusCode)")
                     DispatchQueue.main.async {
                         self.vectorDeleted = false
                     }
-                    throw AppNetworkError.unknownError("Unable to Delete (bad Response).")
+                    throw AppNetworkError.unknownError("Unable to Delete Info (bad Response).")
                 }
                 
                 DispatchQueue.main.async {
                     self.vectorDeleted = true
-                    updateTokenUsage(api: "Pinecone", tokensUsed: 7, read: false)
+                    updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
                 }
-                print("Vector with id: '\(id)' successfully deleted.")
+//                print("Vector with id: '\(id)' successfully deleted.")
                 break
                 
             } catch {
                 attempts += 1
                 if attempts < maxAttempts {
-                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
+//                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
                     try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
                 } else {
-                    print("All attempts failed.")
+//                    print("All attempts failed.")
                     throw error
                 }
             }
@@ -544,9 +563,6 @@ final class PineconeManager: ObservableObject {
         ]
         ProgressTracker.shared.setProgress(to: 0.8)
         
-//        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else { throw AppCKError.UnableToGetNameSpace }
-//
-//        payload["namespace"] = namespace
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
             request.httpBody = jsonData
@@ -555,21 +571,31 @@ final class PineconeManager: ObservableObject {
             throw AppNetworkError.serializationError("Upsert :: Data")
         }
         
-        do {
-            let _ = try await performHTTPRequest(request: request)
-            await MainActor.run {
+        let maxAttempts = 2
+        var attempts = 0
 
-                self.upsertSuccesful = true
-                ProgressTracker.shared.setProgress(to: 0.98)
-               
-                ProgressTracker.shared.setProgress(to: 1.0)
-                print("Upsert successful !")
+        while attempts < maxAttempts {
+            do {
+                let _ = try await performHTTPRequest(request: request)
+                await MainActor.run {
+                    self.upsertSuccesful = true
+                    ProgressTracker.shared.setProgress(to: 0.98)
+                    ProgressTracker.shared.setProgress(to: 0.99)
+                }
+                break
+            } catch {
+                attempts += 1
+                if attempts < maxAttempts {
+                    try await Task.sleep(nanoseconds: 100_000_000)
+                } else {
+                    // maximum number of attempts
+                    throw AppNetworkError.unknownError("perform HTTP :: \(error.localizedDescription)")
+                }
             }
-        } catch {
-            throw AppNetworkError.unknownError("perform HTTP :: \(error.localizedDescription)")
         }
-        updateTokenUsage(api: "Pinecone", tokensUsed: 7, read: false)
+        updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
     }
+
 
     //MARK: USED in NewAddInfoView
     private func performHTTPRequest(request: URLRequest) async throws -> Data {
@@ -620,7 +646,7 @@ final class PineconeManager: ObservableObject {
                         await MainActor.run {
                             self.receivedError = error
                         }
-                        print("Error querying Pinecone: \(error)")
+//                        print("Error querying Pinecone: \(error)")
                         return .failure(error)
                     }
                 }
@@ -639,14 +665,14 @@ final class PineconeManager: ObservableObject {
             }).first : nil {
                 attempts += 1
                 if attempts < maxAttempts {
-                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
+//                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
                     try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
                 } else {
-                    print("All attempts failed.")
+//                    print("All attempts failed.")
                     throw firstError
                 }
             } else {
-                // Successful execution, break the loop
+                // Successful execution, break
                 break
             }
         }
@@ -689,10 +715,10 @@ final class PineconeManager: ObservableObject {
         let (data, response) = try await URLSession.shared.data(for: request)
 
         if let responseBody = String(data: data, encoding: .utf8) {
-            print("Response Body: \(responseBody)")
+//            print("Response Body: \(responseBody)")
         }
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            print("queryPinecone Response Status Code != 200")
+//            print("queryPinecone Response Status Code != 200")
             throw AppNetworkError.invalidResponse
         }
 
@@ -705,106 +731,16 @@ final class PineconeManager: ObservableObject {
         }
 
         for match in pineconeResponse.matches {
-            print("Match ID: \(match.id), Score: \(match.score)")
-            print("Query Response: \(match.metadata.debugDescription)")
+//            print("Match ID: \(match.id), Score: \(match.score)")
+//            print("Query Response: \(match.metadata.debugDescription)")
         }
         DispatchQueue.main.async {
             ProgressTracker.shared.setProgress(to: 0.62)
         }
 
         if let response = self.pineconeQueryResponse {
-            updateTokenUsage(api: "Pinecone", tokensUsed: response.usage.readUnits, read: true)
+            updateTokenUsage(api: APIs.pinecone, tokensUsed: response.usage.readUnits, read: true)
         }
     }
-
-
-
-
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-//    func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) async throws {
-//
-//        ProgressTracker.shared.setProgress(to: 0.42)
-//        await withTaskGroup(of: Void.self) { taskGroup in
-//            taskGroup.addTask(priority: .background) { [weak self] in
-//                guard let self = self else { return }
-//                do {
-//                    guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/query") else {
-//                        fatalError("Invalid Pinecone URL")
-//                    }
-//                    
-//                    guard let apiKey = ApiConfiguration.pineconeKey else {
-//                        fatalError("Pinecone API Key not found")
-//                    }
-//                    
-//                    var request = URLRequest(url: url)
-//                    request.httpMethod = "POST"
-//                    request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
-//                    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//
-//
-//                    guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else { 
-//                        throw AppCKError.UnableToGetNameSpace
-//                    }
-//
-//                    ProgressTracker.shared.setProgress(to: 0.45)
-//                    print("Namespace: \(namespace)")
-//                    let requestBody: [String: Any] = [
-//                        "vector": vector,
-//                        "topK": topK,
-//                        "includeValues": includeValues,
-//                        "includeMetadata": true, //Remove Metadata
-//                        "namespace": namespace
-//                    ]
-//                    
-//                    let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-//                    request.httpBody = jsonData
-//
-//                    let (data, response) = try await URLSession.shared.data(for: request)
-//
-//                    if let responseBody = String(data: data, encoding: .utf8) {
-//                                print("Response Body: \(responseBody)")
-//                            }
-//                    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-//                       print("queryPinecone Response Status Code != 200")
-//                        throw AppNetworkError.invalidResponse
-//                    }
-//                    
-////                    if let jsonString = String(data: data, encoding: .utf8) {
-////                        print("Raw JSON before decoding: \(jsonString)")
-////                    }
-//                    let decoder = JSONDecoder()
-//                    let pineconeResponse = try decoder.decode(PineconeQueryResponse.self, from: data)
-//
-//                    await MainActor.run {
-//                        ProgressTracker.shared.setProgress(to: 0.55)
-//                        self.pineconeQueryResponse = pineconeResponse
-//                    }
-//
-//                    for match in pineconeResponse.matches {
-//                        print("Match ID: \(match.id), Score: \(match.score)")
-//                        print("Query Response: \(match.metadata.debugDescription)")
-//                    }
-//                    ProgressTracker.shared.setProgress(to: 0.62)
-//                } catch {
-//                    await MainActor.run {
-//                        self.receivedError = error
-//                    }
-//                    print("Error querying Pinecone: \(error)")
-//                }
-//                if let response = self.pineconeQueryResponse {
-//                    updateTokenUsage(api: "Pinecone", tokensUsed: response.usage.readUnits, read: true)
-//                }
-//            }
-//        }
-//    }
 
 }

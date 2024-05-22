@@ -13,7 +13,12 @@ struct TokenUsage: Codable {
     var pineconeWriteUnits: Int
 }
 
-func updateTokenUsage(api: String, tokensUsed: Int, read:Bool) {
+enum APIs {
+    case openAI
+    case pinecone
+}
+
+func updateTokenUsage(api: APIs, tokensUsed: Int, read:Bool) {
     
     let userDefaults = UserDefaults.standard
     let decoder = PropertyListDecoder()
@@ -26,15 +31,17 @@ func updateTokenUsage(api: String, tokensUsed: Int, read:Bool) {
     } else {
         usage = TokenUsage(openAITokens: 0, pineconeReadUnits: 0, pineconeWriteUnits: 0)
     }
-    
-    if api == "OpenAI" {
-        usage.openAITokens += tokensUsed
-    } else if api == "Pinecone" && read {
-        usage.pineconeReadUnits += tokensUsed
-    }
-    else if api == "Pinecone" && !read {
-        usage.pineconeWriteUnits += tokensUsed
-    }
+
+    switch api {
+       case .openAI:
+           usage.openAITokens += tokensUsed
+       case .pinecone:
+           if read {
+               usage.pineconeReadUnits += tokensUsed
+           } else {
+               usage.pineconeWriteUnits += tokensUsed
+           }
+       }
     
     if let encodedData = try? encoder.encode(usage) {
         userDefaults.set(encodedData, forKey: "APITokenUsage")

@@ -12,10 +12,10 @@ struct MainView: View {
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
-    @EnvironmentObject var audioManager: AudioManager
+//    @EnvironmentObject var audioManager: AudioManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var notificationsManager: NotificationViewModel
-    @EnvironmentObject var speechManager: SpeechRecognizerManager
+//    @EnvironmentObject var speechManager: SpeechRecognizerManager
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     
     var body: some View {
@@ -26,11 +26,11 @@ struct MainView: View {
                     ContentView()
                         .environmentObject(openAiManager)
                         .environmentObject(pineconeManager)
-                        .environmentObject(audioManager)
+//                        .environmentObject(audioManager)
                         .environmentObject(progressTracker)
                         .environmentObject(notificationsManager)
                         .environmentObject(cloudKitViewModel)
-                        .environmentObject(speechManager)
+//                        .environmentObject(speechManager)
                         .environmentObject(keyboardResponder)
                 }
                 
@@ -43,7 +43,7 @@ struct MainView: View {
                     
                     
                     contentError(error: error.description)
-//                    ContentUnavailableView(title: "iCloud Unavailable.\n\(error.description)", systemImage: "exclamationmark.icloud.fill")
+//                    ContentUnavailableView(title: "iCloud Unavailable.)", systemImage: "exclamationmark.icloud.fill")
 
                 }
             }

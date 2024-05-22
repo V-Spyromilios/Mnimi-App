@@ -20,6 +20,8 @@ let toolbarButtonShadow: CGFloat = 6
 let textEditorHeight: CGFloat = 140
 let smallTextEditorHeight: CGFloat = 50 //
 
+let contentUnaivalableOffset: CGFloat = 40
+
 
 extension String {
     func deletingPrefix(_ prefix: String) -> String {

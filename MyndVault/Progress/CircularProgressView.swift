@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CircularProgressView: View {
+    
+    
 
     @ObservedObject var progressTracker: ProgressTracker // Expecting a value between 0 and 1
 
@@ -27,8 +29,7 @@ struct CircularProgressView: View {
                 .foregroundStyle(bluePurpleGradient)
                 .frame(height: 60)
                 .rotationEffect(Angle(degrees: -90))
-                .animation(.smooth, value: progressTracker.progress) //.linear?
-            
+                .animation(.smooth, value:progressTracker.progress) //.linear?
             Text("\(Int(progressTracker.progress * 100))%")
                 .contentTransition(.numericText(countsDown: false))
                 .fontDesign(.rounded)
@@ -37,13 +38,6 @@ struct CircularProgressView: View {
         }
     }
 
-    
-//    private func increaseProgress() {
-//        progressTracker.progress += 0.1
-//        if progressTracker.progress == 1 {
-//            progressTracker.progress = 0
-//        }
-//    }
 }
 
 #Preview {

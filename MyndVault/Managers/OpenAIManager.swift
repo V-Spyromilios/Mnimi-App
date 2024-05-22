@@ -215,104 +215,119 @@ final class OpenAIManager: ObservableObject {
 //    }
     
     //MARK: private processResponse DEPRICATED
-    private func processResponse(data: Data?, responseError: Error?, userIsAsking: Bool) async {
-        
-        print("processResponse called")
-        guard let data = data else {
-            if let error = responseError {
-                print("processResponse() :: Network request error: \(error.localizedDescription)")
-            } else {
-                print("processResponse() :: No data received and no error found.")
-            }
-            return
-        }
-        ProgressTracker.shared.setProgress(to: 0.99)
-        do {
-            let response = try JSONDecoder().decode(ChatCompletionResponse.self, from: data)
-            if let firstChoice = response.choices.first {
-                let content = firstChoice.message.content
-
-                let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                let parts = trimmedContent.components(separatedBy: CharacterSet.newlines).map { $0.trimmingCharacters(in: .whitespaces) }
-                if let metadataIndex = parts.firstIndex(where: { $0 == "Metadata:" }) {
-                    let jsonString = parts[metadataIndex...].dropFirst().joined(separator: " ")
-                    if let jsonData = jsonString.data(using: .utf8) {
-                        do {
-                            if let rawString = String(data: jsonData, encoding: .utf8) {
-                                print("processResponse() :: Received raw data before attemp to decode: \(rawString)")
-                            }
-                            let metadata = try JSONDecoder().decode(MetadataResponse.self, from: jsonData)
-                            
-                            await MainActor.run {
-                                if metadata.type.lowercased() == "question" {
-                                    ProgressTracker.shared.setProgress(to: 1.0)
-                                    self.gptMetadataResponseOnQuestion = metadata
-                                    print("gptMetadataResponseOnQuestion SET NOW")
-                                } else {
-                                    self.gptMetadataResponse = metadata
-                                }
-                            }
-
-                        } catch let DecodingError.dataCorrupted(context) {
-                            await MainActor.run {
-                                self.thrownError = "DecodingError 202.1"
-                            }
-                            print("processResponse() :: Data corrupted: \(context)")
-                        } catch let DecodingError.keyNotFound(key, context) {
-                            await MainActor.run {
-                                self.thrownError = "DecodingError 202.2"
-                            }
-                            print("processResponse() :: Key '\(key)' not found: \(context.debugDescription), codingPath: \(context.codingPath)")
-                        } catch let DecodingError.valueNotFound(value, context) {
-                            await MainActor.run {
-                                self.thrownError = "DecodingError 202.3"
-                            }
-                            print("processResponse() :: Value '\(value)' not found: \(context.debugDescription), codingPath: \(context.codingPath)")
-                        } catch let DecodingError.typeMismatch(type, context) {
-                            await MainActor.run {
-                                self.thrownError = "DecodingError 202.4"
-                            }
-                            print("processResponse() :: Type '\(type)' mismatch: \(context.debugDescription), codingPath: \(context.codingPath)")
-                        } catch {
-                            await MainActor.run {
-                                self.thrownError = "DecodingError 202.5"
-                            }
-                            print("processResponse() :: Unknown error: \(error)")
-                        }
-                    }
-                } else {
-                    print("processResponse() :: No JSON metadata found or format is unexpected.")
-                }
-            }
-        } catch let decodingError {
-            await MainActor.run {
-                self.thrownError = decodingError.localizedDescription
-            }
-            print("processResponse() :: JSON Parsing catched error: \(decodingError)")
-        }
-    }
+//    private func processResponse(data: Data?, responseError: Error?, userIsAsking: Bool) async {
+//        
+//        print("processResponse called")
+//        guard let data = data else {
+//            if let error = responseError {
+//                print("processResponse() :: Network request error: \(error.localizedDescription)")
+//            } else {
+//                print("processResponse() :: No data received and no error found.")
+//            }
+//            return
+//        }
+//        ProgressTracker.shared.setProgress(to: 0.99)
+//        do {
+//            let response = try JSONDecoder().decode(ChatCompletionResponse.self, from: data)
+//            if let firstChoice = response.choices.first {
+//                let content = firstChoice.message.content
+//
+//                let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
+//                let parts = trimmedContent.components(separatedBy: CharacterSet.newlines).map { $0.trimmingCharacters(in: .whitespaces) }
+//                if let metadataIndex = parts.firstIndex(where: { $0 == "Metadata:" }) {
+//                    let jsonString = parts[metadataIndex...].dropFirst().joined(separator: " ")
+//                    if let jsonData = jsonString.data(using: .utf8) {
+//                        do {
+//                            if let rawString = String(data: jsonData, encoding: .utf8) {
+//                                print("processResponse() :: Received raw data before attemp to decode: \(rawString)")
+//                            }
+//                            let metadata = try JSONDecoder().decode(MetadataResponse.self, from: jsonData)
+//                            
+//                            await MainActor.run {
+//                                if metadata.type.lowercased() == "question" {
+//                                    ProgressTracker.shared.setProgress(to: 1.0)
+//                                    self.gptMetadataResponseOnQuestion = metadata
+//                                    print("gptMetadataResponseOnQuestion SET NOW")
+//                                } else {
+//                                    self.gptMetadataResponse = metadata
+//                                }
+//                            }
+//
+//                        } catch let DecodingError.dataCorrupted(context) {
+//                            await MainActor.run {
+//                                self.thrownError = "DecodingError 202.1"
+//                            }
+//                            print("processResponse() :: Data corrupted: \(context)")
+//                        } catch let DecodingError.keyNotFound(key, context) {
+//                            await MainActor.run {
+//                                self.thrownError = "DecodingError 202.2"
+//                            }
+//                            print("processResponse() :: Key '\(key)' not found: \(context.debugDescription), codingPath: \(context.codingPath)")
+//                        } catch let DecodingError.valueNotFound(value, context) {
+//                            await MainActor.run {
+//                                self.thrownError = "DecodingError 202.3"
+//                            }
+//                            print("processResponse() :: Value '\(value)' not found: \(context.debugDescription), codingPath: \(context.codingPath)")
+//                        } catch let DecodingError.typeMismatch(type, context) {
+//                            await MainActor.run {
+//                                self.thrownError = "DecodingError 202.4"
+//                            }
+//                            print("processResponse() :: Type '\(type)' mismatch: \(context.debugDescription), codingPath: \(context.codingPath)")
+//                        } catch {
+//                            await MainActor.run {
+//                                self.thrownError = "DecodingError 202.5"
+//                            }
+//                            print("processResponse() :: Unknown error: \(error)")
+//                        }
+//                    }
+//                } else {
+//                    print("processResponse() :: No JSON metadata found or format is unexpected.")
+//                }
+//            }
+//        } catch let decodingError {
+//            await MainActor.run {
+//                self.thrownError = decodingError.localizedDescription
+//            }
+//            print("processResponse() :: JSON Parsing catched error: \(decodingError)")
+//        }
+//    }
     
     //MARK: DEPRICATED
-    func updateMetadataResponse(type: String, description: String, relevantFor: String) async {
-        DispatchQueue.main.async {
-            self.gptMetadataResponseOnQuestion?.type = type
-            self.gptMetadataResponseOnQuestion?.description = description
-            self.gptMetadataResponseOnQuestion?.relevantFor = relevantFor
-        }
-    }
+//    func updateMetadataResponse(type: String, description: String, relevantFor: String) async {
+//        DispatchQueue.main.async {
+//            self.gptMetadataResponseOnQuestion?.type = type
+//            self.gptMetadataResponseOnQuestion?.description = description
+//            self.gptMetadataResponseOnQuestion?.relevantFor = relevantFor
+//        }
+//    }
     
     //MARK: requestEmbeddings USED in QuestionView
     // call with MetadataResponse.description
+    
     func requestEmbeddings(for text: String, isQuestion: Bool) async {
-        print("request Embeddings called..")
         ProgressTracker.shared.setProgress(to: 0.12)
-        do {
-            let response = try await fetchEmbeddings(for: text)
-            print("Embeddings Fetch completed successfully.")
-            
-            await MainActor.run { [weak self] in
-                guard let self = self else { return }
-                
+        
+        let maxAttempts = 3
+        var attempts = 0
+        var success = false
+        var localResponse: EmbeddingsResponse?
+        var localError: Error?
+        
+        while attempts < maxAttempts && !success {
+            do {
+                localResponse = try await fetchEmbeddings(for: text)
+                success = true
+            } catch {
+                localError = error
+                attempts += 1
+                if attempts < maxAttempts {
+                    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
+                }
+            }
+        }
+        
+        if success, let response = localResponse {
+            await MainActor.run {
                 for embedding in response.data {
                     if isQuestion {
                         self.embeddingsFromQuestion.append(contentsOf: embedding.embedding)
@@ -323,25 +338,65 @@ final class OpenAIManager: ObservableObject {
                 
                 if isQuestion {
                     self.questionEmbeddingsCompleted = true
-                    print("$questionEmbeddingsCompleted = true and Embeddings: OK")
                 } else {
                     self.embeddingsCompleted = true
                 }
                 self.tokensRequired = response.usage.totalTokens
             }
-        } catch {
+        } else if localError != nil {
             await MainActor.run {
-                self.thrownError = error.localizedDescription
+                self.thrownError = AppNetworkError.unknownError("Error 2.12").errorDescription
             }
-            print("Error fetching embeddings: \(error)")
         }
+        
         if isQuestion {
             ProgressTracker.shared.setProgress(to: 0.25)
         } else {
             ProgressTracker.shared.setProgress(to: 0.6)
         }
-        updateTokenUsage(api: "OpenAI", tokensUsed: tokensRequired, read: false)
+        updateTokenUsage(api: APIs.openAI, tokensUsed: tokensRequired, read: false)
     }
+
+
+//    func requestEmbeddings(for text: String, isQuestion: Bool) async {
+////        print("request Embeddings called..")
+//        ProgressTracker.shared.setProgress(to: 0.12)
+//        do {
+//            let response = try await fetchEmbeddings(for: text)
+////            print("Embeddings Fetch completed successfully.")
+//            
+//            await MainActor.run { [weak self] in
+//                guard let self = self else { return }
+//                
+//                for embedding in response.data {
+//                    if isQuestion {
+//                        self.embeddingsFromQuestion.append(contentsOf: embedding.embedding)
+//                    } else {
+//                        self.embeddings.append(contentsOf: embedding.embedding)
+//                    }
+//                }
+//                
+//                if isQuestion {
+//                    self.questionEmbeddingsCompleted = true
+////                    print("$questionEmbeddingsCompleted = true and Embeddings: OK")
+//                } else {
+//                    self.embeddingsCompleted = true
+//                }
+//                self.tokensRequired = response.usage.totalTokens
+//            }
+//        } catch {
+//            await MainActor.run {
+//                self.thrownError = error.localizedDescription
+//            }
+////            print("Error fetching embeddings: \(error)")
+//        }
+//        if isQuestion {
+//            ProgressTracker.shared.setProgress(to: 0.25)
+//        } else {
+//            ProgressTracker.shared.setProgress(to: 0.6)
+//        }
+//        updateTokenUsage(api: APIs.openAI, tokensUsed: tokensRequired, read: false)
+//    }
 
 
     // https://api.openai.com/v1/embeddings POST
@@ -397,6 +452,7 @@ final class OpenAIManager: ObservableObject {
         let gptResponse = try await getGptResponse(apiKey: apiKey, vectorResponses: queryMatches, question: question)
         await MainActor.run {
             ProgressTracker.shared.setProgress(to: 0.88)
+            ProgressTracker.shared.setProgress(to: 0.99)
             self.stringResponseOnQuestion = gptResponse
 //            print(gptResponse)
         }
@@ -406,7 +462,6 @@ final class OpenAIManager: ObservableObject {
 
     //MARK: USED in QuestionView
     private func getGptResponse(apiKey: String, vectorResponses: [String], question: String) async throws -> String {
-
         ProgressTracker.shared.setProgress(to: 0.8)
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             throw AppNetworkError.invalidOpenAiURL
@@ -414,7 +469,8 @@ final class OpenAIManager: ObservableObject {
         let prompt = getGptPrompt(vectorResponses: vectorResponses, question: question)
         
         let requestBody: [String: Any] = [
-            "model": "gpt-4-0125-preview",  //to turbo to kalo
+            "model": "gpt-4o", //gpt-4o
+//            "model": "gpt-4-0125-preview", // gtp-4
             "temperature": 0,
             "messages": [["role": "system", "content": prompt]]
         ]
@@ -423,36 +479,86 @@ final class OpenAIManager: ObservableObject {
         request.httpMethod = "POST"
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-
-        ProgressTracker.shared.setProgress(to: 0.85)
-        let (data, response) = try await URLSession.shared.data(for: request)
         
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            print(AppNetworkError.invalidResponse)
-            throw AppNetworkError.invalidResponse
-        }
-
-        let decoder = JSONDecoder()
-        do {
-            let gptResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
-            guard let firstChoice = gptResponse.choices.first else {
-                let errorInfo = """
-            GPT response does not have choices:
-            Response: \(String(data: data, encoding: .utf8) ?? "No response data")
-            """
-//                print(errorInfo)
-                throw NSError(domain: "AppError", code: 3, userInfo: [NSLocalizedDescriptionKey: errorInfo])
+        let maxAttempts = 2
+        var attempts = 0
+        var localError: Error?
+        
+        while attempts < maxAttempts {
+            do {
+                request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+                ProgressTracker.shared.setProgress(to: 0.85)
+                let (data, response) = try await URLSession.shared.data(for: request)
+                
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    throw AppNetworkError.invalidResponse
+                }
+                
+                let decoder = JSONDecoder()
+                let gptResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
+                guard let firstChoice = gptResponse.choices.first else {
+                    throw AppNetworkError.noChoicesInResponse
+                }
+                updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
+                return firstChoice.message.content
+                
+            } catch {
+                localError = error
+                attempts += 1
+                if attempts < maxAttempts {
+                    try? await Task.sleep(nanoseconds: 100_000_000)
+                }
             }
-            updateTokenUsage(api: "OpenAI", tokensUsed: gptResponse.usage.totalTokens, read: false)
-            return firstChoice.message.content
         }
-        catch {
-            print("Error decoding GPT response: \(error)")
-//                   print("Response data: \(String(data: data, encoding: .utf8) ?? "No response data")")
-                   throw error
-        }
+        
+        throw localError ?? AppNetworkError.unknownError("An unknown error occurred during GPT response fetch.")
     }
+
+    
+    
+//    private func getGptResponse(apiKey: String, vectorResponses: [String], question: String) async throws -> String {
+//
+//        ProgressTracker.shared.setProgress(to: 0.8)
+//        guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
+//            throw AppNetworkError.invalidOpenAiURL
+//        }
+//        let prompt = getGptPrompt(vectorResponses: vectorResponses, question: question)
+//        
+//        let requestBody: [String: Any] = [
+//            "model": "gpt-4-0125-preview",  //to turbo to kalo
+//            "temperature": 0,
+//            "messages": [["role": "system", "content": prompt]]
+//        ]
+//        
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "POST"
+//        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+//
+//        ProgressTracker.shared.setProgress(to: 0.85)
+//        let (data, response) = try await URLSession.shared.data(for: request)
+//        
+//        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+//            print(AppNetworkError.invalidResponse)
+//            throw AppNetworkError.invalidResponse
+//        }
+//
+//        let decoder = JSONDecoder()
+//        do {
+//            let gptResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
+//            guard let firstChoice = gptResponse.choices.first else {
+//                throw AppNetworkError.noChoicesInResponse
+//            }
+//            updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
+//            return firstChoice.message.content
+//        }
+//        catch {
+////            print("Error decoding GPT response: \(error)")
+////                   print("Response data: \(String(data: data, encoding: .utf8) ?? "No response data")")
+//                   throw error
+//        }
+//    }
     
     //MARK: covert Text to Speech DEPRICATED
 //    private func convertTextToSpeech(text: String, apiKey: String) async throws {
@@ -538,66 +644,83 @@ final class OpenAIManager: ObservableObject {
         switch selectedLanguage {
         case .english:
             return """
-                    You are an AI assistant, and you have been asked to provide concise information on a specific topic. Below are user's question and one or two relevant information as retrieved by the vector database:
-                
-                    - User's Question: \(question)
-                    - Relevant Information 1: \(firstVector)
-                    - Relevant Information 2: \(secondVector)
-                
-                    Using the user's question and the information provided, generate a comprehensive, informative and concise reply that addresses the user's inquiry, using the relevant information. If relevant for your reply, today is \(readableDateString), and the current time in ISO8601 format is \(isoDateString). Don't return full dates and time unless necessary. If the information from the vector database does not directly relate to the user's question or seems ambiguous, use your best judgment to provide a helpful response. Highlight any uncertainties and suggest user to provide additional information to the app in order to provide more accurate answers in the future.
-                
-                    The response should be clear, engaging, concise, short and suitable for converting to audio to be read to the user.
+                   You are an AI assistant, and you have been asked to provide concise information on a specific topic. Below are the user's question and one or two pieces of information retrieved by the vector database. Note that these pieces of information may be irrelevant:
+                                   
+                       - User's Question: \(question).
+                       - Relevant Information 1: \(firstVector).
+                       - Relevant Information 2: \(secondVector).
+                                   
+                   Using the user's question and the information provided, generate a comprehensive, informative, and concise reply that addresses the user's inquiry. Evaluate the relevance of the retrieved information:
+                   - If the retrieved information is relevant, integrate it into your response.
+                   - If the retrieved information is not relevant or seems ambiguous, use your general knowledge to provide a helpful response.
+
+                   If relevant for your reply, today is \(readableDateString), and the current time in ISO8601 format is \(isoDateString). Do not return full dates and times unless necessary. Highlight any uncertainties and suggest that the user provide additional information to the app for more accurate answers in the future.
+
+                   The response should be clear, engaging, concise, and suitable for converting to audio to be read to the user.
                 """
         case .spanish:
             return """
-                Eres un asistente de IA y se te ha solicitado proporcionar información concisa sobre un tema específico. A continuación se encuentran la pregunta del usuario y una o dos informaciones relevantes según lo recuperado por la base de datos vectorial:
-                
-                               - Pregunta del Usuario: \(question)
-                               - Información Relevante 1: \(firstVector)
-                               - Información Relevante 2: \(secondVector)
-                
-                               Utilizando la pregunta del usuario y la información proporcionada, genera una respuesta comprensiva e informativa que aborde la consulta del usuario, integrando perspectivas de la información relevante encontrada. Si es relevante para tu respuesta, hoy es \(readableDateString), y la hora actual en formato ISO8601 es \(isoDateString). No devuelvas fechas y horas completas a menos que sea necesario. Si la información de la base de datos vectorial no se relaciona directamente con la pregunta del usuario o parece ambigua, usa tu mejor criterio para proporcionar una respuesta útil. Destaca cualquier incertidumbre y sugiere al usuario proporcionar información adicional que pueda ser requerida para una respuesta más precisa.
-                
-                               La respuesta debe ser clara, atractiva, concisa, corta y adecuada para convertir en audio para ser leída al usuario.
-                
-                
+                Eres un asistente de IA y se te ha solicitado que proporciones información concisa sobre un tema específico. A continuación se presentan la pregunta del usuario y una o dos piezas de información recuperadas de la base de datos vectorial. Tenga en cuenta que estas piezas de información pueden ser irrelevantes:
+                                
+                    - Pregunta del Usuario: \(question).
+                    - Información Relevante 1: \(firstVector).
+                    - Información Relevante 2: \(secondVector).
+                                
+                Usando la pregunta del usuario y la información proporcionada, genera una respuesta completa, informativa y concisa que aborde la consulta del usuario. Evalúa la relevancia de la información recuperada:
+                - Si la información recuperada es relevante, intégrala en tu respuesta.
+                - Si la información recuperada no es relevante o parece ambigua, usa tu conocimiento general para proporcionar una respuesta útil.
+
+                Si es relevante para tu respuesta, hoy es \(readableDateString) y la hora actual en formato ISO8601 es \(isoDateString). No devuelvas fechas y horas completas a menos que sea necesario. Destaca cualquier incertidumbre y sugiere al usuario que proporcione información adicional a la aplicación para obtener respuestas más precisas en el futuro.
+
+                La respuesta debe ser clara, atractiva, concisa y adecuada para convertirla en audio para ser leída al usuario.
                 """
         case .french:
             return """
-                Vous êtes un assistant IA et on vous a demandé de fournir des informations concises sur un sujet spécifique. Voici la question de l'utilisateur et une ou deux informations pertinentes extraites de la base de données vectorielle :
+                Vous êtes un assistant IA et on vous a demandé de fournir des informations concises sur un sujet spécifique. Ci-dessous se trouvent la question de l'utilisateur et une ou deux informations récupérées par la base de données vectorielle. Notez que ces informations peuvent être non pertinentes :
                                 
-                                    - Question de l'Utilisateur : \(question)
-                                    - Information Pertinente 1 : \(firstVector)
-                                    - Information Pertinente 2 : \(secondVector)
+                    - Question de l'utilisateur : \(question).
+                    - Information pertinente 1 : \(firstVector).
+                    - Information pertinente 2 : \(secondVector).
                                 
-                                    En utilisant la question de l'utilisateur et les informations fournies, générez une réponse complète et informative qui traite la demande de l'utilisateur, intégrant les perspectives des informations pertinentes trouvées. Si pertinent pour votre réponse, aujourd'hui est le \(readableDateString), et l'heure actuelle au format ISO8601 est \(isoDateString). Ne retournez pas de dates et d'heures complètes à moins que cela soit nécessaire. Si l'information de la base de données vectorielle ne se rapporte pas directement à la question de l'utilisateur ou semble ambiguë, utilisez votre meilleur jugement pour fournir une réponse utile. Soulignez toute incertitude et suggérez à l'utilisateur de fournir des informations supplémentaires qui pourraient être requises pour une réponse plus précise.
-                                
-                                    La réponse doit être claire, engageante, concise, courte et adaptée pour être convertie en audio pour être lue à l'utilisateur.
-                
+                En utilisant la question de l'utilisateur et les informations fournies, générez une réponse complète, informative et concise qui répond à la demande de l'utilisateur. Évaluez la pertinence des informations récupérées :
+                - Si les informations récupérées sont pertinentes, intégrez-les dans votre réponse.
+                - Si les informations récupérées ne sont pas pertinentes ou semblent ambiguës, utilisez vos connaissances générales pour fournir une réponse utile.
+
+                Si cela est pertinent pour votre réponse, aujourd'hui est \(readableDateString) et l'heure actuelle au format ISO8601 est \(isoDateString). Ne renvoyez des dates et des heures complètes que si nécessaire. Soulignez toutes les incertitudes et suggérez à l'utilisateur de fournir des informations supplémentaires à l'application pour obtenir des réponses plus précises à l'avenir.
+
+                La réponse doit être claire, engageante, concise et adaptée à la conversion en audio pour être lue à l'utilisateur.
                 """
         case .german:
             return """
-                    Sie sind ein KI-Assistent und wurden gebeten, präzise Informationen zu einem spezifischen Thema zu liefern. Im Folgenden finden Sie die Frage des Benutzers und ein oder zwei relevante Informationen, die durch die Vektordatenbank abgerufen wurden:
-                
-                                        - Frage des Benutzers: \(question)
-                                        - Relevante Information 1: \(firstVector)
-                                        - Relevante Information 2: \(secondVector)
-                
-                                        Unter Verwendung der Frage des Benutzers und der bereitgestellten Informationen, erstellen Sie eine umfassende und informative Antwort, die die Anfrage des Benutzers beantwortet, indem Sie Einblicke aus den gefundenen relevanten Informationen integrieren. Wenn es für Ihre Antwort relevant ist, heute ist der \(readableDateString), und die aktuelle Zeit im ISO8601-Format ist \(isoDateString). Geben Sie vollständige Daten und Zeiten nur dann zurück, wenn es notwendig ist. Wenn die Informationen aus der Vektordatenbank nicht direkt mit der Frage des Benutzers zusammenhängen oder mehrdeutig erscheinen, verwenden Sie Ihr bestes Urteilsvermögen, um eine hilfreiche Antwort zu geben. Heben Sie Unsicherheiten hervor und schlagen Sie dem Benutzer vor, zusätzliche Informationen bereitzustellen, die für eine genauere Antwort erforderlich sein könnten.
-                
-                                        Die Antwort sollte klar, ansprechend, präzise, kurz und geeignet sein, um in Audio umgewandelt und dem Benutzer vorgelesen zu werden.
+                Du bist ein KI-Assistent und wurdest gebeten, präzise Informationen zu einem bestimmten Thema bereitzustellen. Nachfolgend sind die Frage des Benutzers und ein oder zwei Informationen aufgeführt, die von der Vektordatenbank abgerufen wurden. Beachte, dass diese Informationen möglicherweise irrelevant sind:
+                                
+                    - Frage des Benutzers: \(question).
+                    - Relevante Information 1: \(firstVector).
+                    - Relevante Information 2: \(secondVector).
+                                
+                Verwende die Frage des Benutzers und die bereitgestellten Informationen, um eine umfassende, informative und präzise Antwort zu erstellen, die die Anfrage des Benutzers beantwortet. Bewerte die Relevanz der abgerufenen Informationen:
+                - Wenn die abgerufenen Informationen relevant sind, integriere sie in deine Antwort.
+                - Wenn die abgerufenen Informationen nicht relevant oder unklar erscheinen, nutze dein allgemeines Wissen, um eine hilfreiche Antwort zu geben.
+
+                Falls es für deine Antwort relevant ist, heute ist \(readableDateString), und die aktuelle Zeit im ISO8601-Format ist \(isoDateString). Gib vollständige Daten und Uhrzeiten nur dann zurück, wenn es notwendig ist. Hebe alle Unklarheiten hervor und schlage dem Benutzer vor, der App zusätzliche Informationen bereitzustellen, um in Zukunft genauere Antworten zu erhalten.
+
+                Die Antwort sollte klar, ansprechend, prägnant und geeignet sein, um in Audio umgewandelt und dem Benutzer vorgelesen zu werden.
                 """
         case .greek:
             return """
-                Είστε ένας Βοηθός Τεχνητής Νοημοσύνης και έχετε κληθεί να παρέχετε συνοπτικές πληροφορίες σχετικά με ένα συγκεκριμένο θέμα. Παρακάτω βρίσκονται η ερώτηση του χρήστη και μία ή δύο σχετικές πληροφορίες όπως ανακτήθηκαν από τη βάση δεδομένων:
-                                
-                                    - Ερώτηση Χρήστη: \(question)
-                                    - Σχετική Πληροφορία 1: \(firstVector)
-                                    - Σχετική Πληροφορία 2: \(secondVector)
-                                
-                                    Χρησιμοποιώντας την ερώτηση του χρήστη και τις πληροφορίες που παρέχονται, δημιουργήστε μια κατανοητή και ενημερωτική απάντηση που απαντά στην ερώτηση του χρήστη, ενσωματώνοντας τις απαραίτητες πληροφορίες από τις σχετικές πληροφορίες που βρέθηκαν. Εάν είναι σχετικό για την απάντησή σας, σήμερα είναι \(readableDateString), και η τρέχουσα ώρα σε μορφή ISO8601 είναι \(isoDateString). Μην επιστρέφετε πλήρεις ημερομηνίες και ώρες εκτός αν είναι απαραίτητο. Εάν οι πληροφορίες από τη βάση δεδομένων διανυσμάτων δεν σχετίζονται άμεσα με την ερώτηση του χρήστη ή φαίνονται ασαφείς, χρησιμοποιήστε την καλύτερη κρίση σας για να παράσχετε μια χρήσιμη απάντηση. Τονίστε τυχόν αβεβαιότητες και προτείνετε στον χρήστη να παρέχει επιπλέον πληροφορίες στην εφαρμογή που μπορεί να απαιτούνται για μια πιο ακριβή απάντηση.
-                                
-                                    Η απάντηση πρέπει να είναι σαφής, συνοπτική, σύντομη και κατάλληλη για μετατροπή σε ηχητικό μήνυμα για ανάγνωση στον χρήστη.
+               Είστε ένας βοηθός τεχνητής νοημοσύνης και σας ζητήθηκε να παρέχετε συνοπτικές πληροφορίες για ένα συγκεκριμένο θέμα. Παρακάτω βρίσκονται η ερώτηση του χρήστη και μία ή δύο πληροφορίες που ανακτήθηκαν από τη βάση δεδομένων διανυσμάτων. Σημειώστε ότι αυτές οι πληροφορίες μπορεί να είναι άσχετες:
+                               
+                   - Ερώτηση του χρήστη: \(question).
+                   - Σχετική Πληροφορία 1: \(firstVector).
+                   - Σχετική Πληροφορία 2: \(secondVector).
+                               
+               Χρησιμοποιώντας την ερώτηση του χρήστη και τις παρεχόμενες πληροφορίες, δημιουργήστε μια ολοκληρωμένη, ενημερωτική και συνοπτική απάντηση που να απαντά στην ερώτηση του χρήστη. Αξιολογήστε τη συνάφεια των ανακτημένων πληροφοριών:
+               - Αν οι ανακτημένες πληροφορίες είναι σχετικές, ενσωματώστε τις στην απάντησή σας.
+               - Αν οι ανακτημένες πληροφορίες δεν είναι σχετικές ή φαίνονται ασαφείς, χρησιμοποιήστε τις γενικές σας γνώσεις για να δώσετε μια χρήσιμη απάντηση.
+
+               Αν είναι σχετικό για την απάντησή σας, σήμερα είναι \(readableDateString) και η τρέχουσα ώρα σε μορφή ISO8601 είναι \(isoDateString). Μην επιστρέφετε πλήρεις ημερομηνίες και ώρες εκτός αν είναι απαραίτητο. Τονίστε τυχόν αβεβαιότητες και προτείνετε στον χρήστη να παρέχει επιπλέον πληροφορίες στην εφαρμογή για να λάβει πιο ακριβείς απαντήσεις στο μέλλον.
+
+               Η απάντηση πρέπει να είναι σαφής, ελκυστική, συνοπτική και κατάλληλη για να μετατραπεί σε ήχο για να διαβαστεί στον χρήστη.
 """
         }
     }

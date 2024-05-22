@@ -43,7 +43,7 @@ struct MyndVaultApp: App {
     @ObservedObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
     var openAiManager = OpenAIManager()
     var pineconeManager = PineconeManager()
-    var audioManager = AudioManager.shared
+//    var audioManager = AudioManager.shared
     var progressTracker = ProgressTracker.shared
     var notificationsManager = NotificationViewModel()
     var speechManager = SpeechRecognizerManager()
@@ -61,7 +61,7 @@ struct MyndVaultApp: App {
                 InitialSetupView()
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
-                    .environmentObject(audioManager)
+//                    .environmentObject(audioManager)
                     .environmentObject(progressTracker)
                     .environmentObject(notificationsManager)
                     .environmentObject(cloudKitViewModel)
@@ -77,7 +77,7 @@ struct MyndVaultApp: App {
                         FaceIDView()
                             .environmentObject(openAiManager)
                             .environmentObject(pineconeManager)
-                            .environmentObject(audioManager)
+//                            .environmentObject(audioManager)
                             .environmentObject(progressTracker)
                             .environmentObject(notificationsManager)
                             .environmentObject(cloudKitViewModel)

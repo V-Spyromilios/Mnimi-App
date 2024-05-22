@@ -93,7 +93,7 @@ struct AddNotificationView: View {
                         } .padding(.vertical, 8)
                             .contentShape(Rectangle())
                             .shadow(radius: 7)
-                    }.frame(maxWidth: .infinity)
+                    }.frame(maxWidth: .infinity).accessibilityLabel("save")
                     Spacer()
                 }
                 Spacer()
