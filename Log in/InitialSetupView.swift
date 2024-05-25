@@ -17,52 +17,58 @@ struct InitialSetupView: View {
     @State private var setupComplete = false
 
     var body: some View {
-        ZStack {
-            Color.britishRacingGreen.ignoresSafeArea()
-            Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).offset(y: -140).foregroundStyle(.white).fontDesign(.rounded).padding(.bottom)
-            Text("Initial Setup").foregroundStyle(.white)
-                .font(.title2)
-                .padding()
-
-        VStack {
-            
-            TextField("Username", text: $username)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            SecureField("Confirm Password", text: $confirmPassword)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            Button(action: completeSetup) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: rectCornerRad)
-                        .fill(Color.customDarkBlue)
-                        .shadow(color: .white, radius: 7)
-                        .frame(height: 60)
-                        
-                    Text("Save").font(.title2).bold().foregroundColor(.white)
-                        .accessibilityLabel("save")
-                }
-                .contentShape(Rectangle())
-                .shadow(radius: 7)
+        GeometryReader { geometry in
+            ZStack {
+                Color.britishRacingGreen.ignoresSafeArea()
+                
+                VStack {
+                    Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding()
+                    Text("Initial Setup").foregroundStyle(.white)
+                        .font(.title2)
+                        .padding()
+                    Spacer()
+                    TextField("Username", text: $username)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: idealWidth(for: geometry.size.width))
+                        .padding()
+                    
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: idealWidth(for: geometry.size.width))
+                        .padding()
+                    
+                    SecureField("Confirm Password", text: $confirmPassword)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: idealWidth(for: geometry.size.width))
+                        .padding()
+                    
+                    Button(action: completeSetup) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: rectCornerRad)
+                                .fill(Color.customDarkBlue)
+                                .shadow(color: .white, radius: 7)
+                                .frame(height: 60)
+                            
+                            Text("Save").font(.title2).bold().foregroundColor(.white)
+                                .accessibilityLabel("save")
+                        }
+                        .contentShape(Rectangle())
+                        .shadow(radius: 7)
+                    }
+                    .frame(maxWidth: idealWidth(for: geometry.size.width))
+                    .padding(.top, 12)
+                    .padding(.horizontal)
+                    //            .animation(.easeInOut, value: keyboardResponder.currentHeight)
+                    .padding()
+                    Spacer()
+                }.frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 12)
-            .padding(.horizontal)
-//            .animation(.easeInOut, value: keyboardResponder.currentHeight)
-            .padding()
-        }.frame(maxWidth: .infinity)
-    }
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Setup Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-        }
-        .fullScreenCover(isPresented: $setupComplete) {
-            FaceIDView()
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Setup Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
+            .fullScreenCover(isPresented: $setupComplete) {
+                FaceIDView()
+            }
         }
     }
 

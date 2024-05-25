@@ -29,7 +29,7 @@ struct NotificationsView: View {
 //                            .padding(.leading, 9)
                         ForEach(manager.scheduledNotifications) {notification in
                             
-                            NotificationDetailView(notification: notification)
+                            NotificationCellView(notification: notification)
                                 .padding(.bottom).padding(.horizontal, 9)
                         }
                     } else {

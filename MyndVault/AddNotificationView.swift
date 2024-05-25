@@ -10,6 +10,7 @@ import SwiftUI
 struct AddNotificationView: View {
     
     @EnvironmentObject var manager: NotificationViewModel
+    @EnvironmentObject var keyboardResponder: KeyboardResponder
     var dismissAction: () -> Void
     
     @State private var notificationBody: String = ""
@@ -99,16 +100,19 @@ struct AddNotificationView: View {
                 Spacer()
             }.padding()
                 .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        HStack {
-                            Spacer()
-                            Button {
-                                hideKeyboard()
-                            } label: {
-                                Image(systemName: "keyboard.chevron.compact.down")
-                            }
+                    if keyboardResponder.currentHeight > 0 {
+                        Button {
+                            hideKeyboard()
+                        } label: {
+                            Circle()
+                                .foregroundStyle(.white)
+                                .frame(height: 30)
+                                .shadow(radius: toolbarButtonShadow)
+                                .overlay {
+                                    HideKeyboardLabel()
+                                }
+                                }
                         }
-                    }
                 }
         }
         .alert(isPresented: $showAlert) {

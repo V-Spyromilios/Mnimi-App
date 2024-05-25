@@ -16,6 +16,7 @@ struct QuestionView: View {
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
+    @EnvironmentObject var keyboardResponder: KeyboardResponder
     @State private var showSettings: Bool = false
     
     var body: some View {
@@ -107,18 +108,33 @@ struct QuestionView: View {
                 }
                 
                 .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        HStack {
-                            Spacer()
+//                    ToolbarItemGroup(placement: .keyboard) {
+//                        HStack {
+//                            Spacer()
+//                            Button {
+//                                hideKeyboard()
+//                            } label: {
+//                                Image(systemName: "keyboard.chevron.compact.down")
+//                                    .accessibilityLabel("hide keyboard")
+//                            }
+//                        }
+//                    }
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        if keyboardResponder.currentHeight > 0 {
                             Button {
                                 hideKeyboard()
                             } label: {
-                                Image(systemName: "keyboard.chevron.compact.down")
-                                    .accessibilityLabel("hide keyboard")
+                                Circle()
+                                    .foregroundStyle(.white)
+                                    .frame(height: 30)
+                                    .shadow(radius: toolbarButtonShadow)
+                                    .overlay {
+                                        HideKeyboardLabel()
+                                    }
+                                    }
                             }
-                        }
-                    }
-                    ToolbarItemGroup(placement: .topBarTrailing) {
+                            
+                        
                         Button {
                             print("Before toggling settings: \(showSettings)")
                                 showSettings.toggle()

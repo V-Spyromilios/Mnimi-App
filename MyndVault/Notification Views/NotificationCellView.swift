@@ -1,5 +1,5 @@
 //
-//  NotificationDetailView.swift
+//  NotificationCellView.swift
 //  Memory
 //
 //  Created by Evangelos Spyromilios on 28.02.24.
@@ -7,9 +7,11 @@
 
 import SwiftUI
 
-struct NotificationDetailView: View {
+struct NotificationCellView: View {
     
     @EnvironmentObject var manager: NotificationViewModel
+    @Environment(\.presentationMode) var presentationMode
+
     @State private var popUpOptions: [String] = [
         "Delete",
         "Edit..."
@@ -35,6 +37,7 @@ struct NotificationDetailView: View {
     var body: some View {
        
             VStack {
+                
                 HStack {
                     Text(notification.title)
                         .font(.title)
@@ -67,6 +70,13 @@ struct NotificationDetailView: View {
                 .padding(.bottom, 18)
             
         }.frame(maxWidth: .infinity)
+//            .toolbar {
+//                ToolbarItemGroup(placement: .topBarTrailing) {
+//                    Button("CancelFromCell") {
+//                        presentationMode.wrappedValue.dismiss()
+//                    }.accessibilityLabel("Cancel")
+//                }
+//            } //THEY ARE REPEATED !
     
         
 //            .padding(.horizontal)
@@ -79,9 +89,17 @@ struct NotificationDetailView: View {
             .popover(isPresented: $showPopover, attachmentAnchor: .point(.bottom), content: {
                 popOverContent()
             })
-            .sheet(isPresented: $showNotificationEdit) {
+            .fullScreenCover(isPresented: $showNotificationEdit) {
                 NotificationEditView(notification: notification)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .topBarTrailing) {
+                            Button("Cancel") {
+                                presentationMode.wrappedValue.dismiss()
+                            }.accessibilityLabel("Cancel")
+                        }
+                    }
             }
+            
     }
 
     private func formatDate(_ date: Date?) -> String {

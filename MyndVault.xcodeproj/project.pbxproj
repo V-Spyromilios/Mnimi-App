@@ -25,7 +25,7 @@
 		E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45642BC2A77E00945312 /* LanguageCode.swift */; };
 		E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45652BC2A77E00945312 /* NamespaceItem.swift */; };
 		E82F45732BC2A77E00945312 /* ResponseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45662BC2A77E00945312 /* ResponseModel.swift */; };
-		E82F45742BC2A77E00945312 /* NotificationDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45682BC2A77E00945312 /* NotificationDetailView.swift */; };
+		E82F45742BC2A77E00945312 /* NotificationCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45682BC2A77E00945312 /* NotificationCellView.swift */; };
 		E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45692BC2A77E00945312 /* NotificationEditView.swift */; };
 		E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */; };
 		E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F456B2BC2A77E00945312 /* NotificationsView.swift */; };
@@ -36,6 +36,7 @@
 		E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */; };
 		E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */; };
 		E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */; };
+		E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
 		E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */; };
 		E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5052BF8C1FA00F2A174 /* MainView.swift */; };
@@ -85,7 +86,7 @@
 		E82F45642BC2A77E00945312 /* LanguageCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageCode.swift; sourceTree = "<group>"; };
 		E82F45652BC2A77E00945312 /* NamespaceItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NamespaceItem.swift; sourceTree = "<group>"; };
 		E82F45662BC2A77E00945312 /* ResponseModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseModel.swift; sourceTree = "<group>"; };
-		E82F45682BC2A77E00945312 /* NotificationDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationDetailView.swift; sourceTree = "<group>"; };
+		E82F45682BC2A77E00945312 /* NotificationCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationCellView.swift; sourceTree = "<group>"; };
 		E82F45692BC2A77E00945312 /* NotificationEditView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationEditView.swift; sourceTree = "<group>"; };
 		E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		E82F456B2BC2A77E00945312 /* NotificationsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
@@ -97,6 +98,7 @@
 		E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboardLabel.swift; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceIDView.swift; sourceTree = "<group>"; };
 		E8B4D5052BF8C1FA00F2A174 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -189,7 +191,7 @@
 		E82F456C2BC2A77E00945312 /* Notification Views */ = {
 			isa = PBXGroup;
 			children = (
-				E82F45682BC2A77E00945312 /* NotificationDetailView.swift */,
+				E82F45682BC2A77E00945312 /* NotificationCellView.swift */,
 				E82F45692BC2A77E00945312 /* NotificationEditView.swift */,
 				E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */,
 				E813C76C2BECF51900E3088D /* CountdownTimer.swift */,
@@ -289,6 +291,7 @@
 			children = (
 				E8A37F622BD00675004A98C9 /* Info */,
 				E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */,
+				E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */,
 				E82F45892BC2A85D00945312 /* CustomTapBarView.swift */,
 				E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */,
 				E8FA7F042BC5BC320012EBF6 /* RecordingsSettingsView.swift */,
@@ -449,8 +452,9 @@
 				E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */,
 				E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */,
 				E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */,
+				E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */,
 				E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */,
-				E82F45742BC2A77E00945312 /* NotificationDetailView.swift in Sources */,
+				E82F45742BC2A77E00945312 /* NotificationCellView.swift in Sources */,
 				E8FA7F112BC5BC320012EBF6 /* ResponseDetailView.swift in Sources */,
 				E82F45732BC2A77E00945312 /* ResponseModel.swift in Sources */,
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,

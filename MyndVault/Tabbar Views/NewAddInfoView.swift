@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import KeyboardObserving
+//import KeyboardObserving
 
 struct NewAddInfoView: View {
     @Binding var newInfo: String
@@ -47,6 +47,7 @@ struct NewAddInfoView: View {
                                 .font(.title2)
                                 .multilineTextAlignment(.leading)
                                 .frame(height: textEditorHeight)
+                                .frame(maxWidth: idealWidth(for: geometry.size.width))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .shadow(radius: 5)
                                 .overlay(
@@ -58,18 +59,15 @@ struct NewAddInfoView: View {
                                 .padding(.bottom)
                                 .padding(.horizontal, 7)
                                 .toolbar {
-                                    ToolbarItemGroup(placement: .keyboard) {
-                                        HStack {
-                                            Spacer()
+                                   
+                                    ToolbarItemGroup(placement: .topBarTrailing) {
+                                        if keyboardResponder.currentHeight > 0 {
                                             Button {
                                                 hideKeyboard()
                                             } label: {
-                                                Image(systemName: "keyboard.chevron.compact.down")
-                                                    .accessibilityLabel("hide keyboard")
+                                                HideKeyboardLabel()
                                             }
                                         }
-                                    }
-                                    ToolbarItemGroup(placement: .topBarTrailing) {
                                         Button {
                                             showSettings.toggle()
                                         } label: {
@@ -117,6 +115,7 @@ struct NewAddInfoView: View {
                         }
                         else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             SaveButton
+                               
                         }
                         if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
@@ -126,7 +125,7 @@ struct NewAddInfoView: View {
                             .navigationTitle("Add New 📝")
                             .navigationBarTitleDisplayMode(.inline)
                     }
-                }.keyboardObserving()
+                }
             }
             
         .fullScreenCover(isPresented: $showSettings) {

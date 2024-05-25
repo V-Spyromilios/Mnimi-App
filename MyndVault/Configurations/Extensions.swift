@@ -166,6 +166,44 @@ extension View {
 
 
 
+func idealWidth(for availableWidth: CGFloat) -> CGFloat {
+    // Adjust the width based on the available width
+    if availableWidth < 600 {
+        // iPhones
+        return availableWidth
+    } else {
+        // iPads
+        return availableWidth * 0.6
+    }
+}
+
+
+struct KeyboardToolbar: ViewModifier {
+    var toolbarContent: () -> AnyView
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                VStack {
+                    Spacer()
+                    toolbarContent()
+                        .frame(maxWidth: .infinity)
+                        .background(Color(UIColor.systemBackground))
+                }
+            )
+    }
+}
+
+extension View {
+    func keyboardToolbar<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
+        self.modifier(KeyboardToolbar {
+            AnyView(content())
+        })
+    }
+}
+
+
+
 final class KeyboardResponder: ObservableObject {
 
     @Published var currentHeight: CGFloat = 0

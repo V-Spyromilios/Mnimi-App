@@ -95,17 +95,26 @@ struct InfoView: View {
             Spacer()
         }
         .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                HStack {
-                    Spacer()
+            
+//            ToolbarItemGroup(placement: .keyboard) {
+//                HStack {
+//                    Spacer()
+//                    Button {
+//                        hideKeyboard()
+//                    } label: {
+//                        Image(systemName: "keyboard.chevron.compact.down")
+//                    }
+//                }
+//            }
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                
+                if keyboardResponder.currentHeight > 0 {
                     Button {
                         hideKeyboard()
                     } label: {
-                        Image(systemName: "keyboard.chevron.compact.down")
+                        HideKeyboardLabel()
+                            }
                     }
-                }
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
                 
                 Button(action: {
                     self.viewModel.activeAlert = .deleteWarning
