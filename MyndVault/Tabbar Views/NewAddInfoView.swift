@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-//import KeyboardObserving
 
 struct NewAddInfoView: View {
     @Binding var newInfo: String
