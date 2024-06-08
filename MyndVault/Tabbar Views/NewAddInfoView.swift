@@ -10,7 +10,8 @@ import SwiftUI
 struct NewAddInfoView: View {
     @Binding var newInfo: String
     @Binding var apiCallInProgress: Bool
-    @State var thrownError: String = "" 
+    
+    @State var thrownError: String = ""
     @Binding var showAlert: Bool
     
     @State private var showPopUp: Bool = false
