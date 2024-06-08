@@ -14,7 +14,7 @@ DerivedData/
 xcuserdata/
 *.xccheckout
 *.moved-aside
-*.xcworkspace
+
 !default.xcworkspace
 *.xcuserstate
 project.xcworkspace/
