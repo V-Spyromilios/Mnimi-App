@@ -18,9 +18,9 @@ let rectCornerRad: CGFloat = 50
 
 let toolbarButtonShadow: CGFloat = 6
 let textEditorHeight: CGFloat = 140
-let smallTextEditorHeight: CGFloat = 50 //
+let smallTextEditorHeight: CGFloat = 50
 
-let contentUnaivalableOffset: CGFloat = 40
+let contentUnaivalableOffset: CGFloat = 0
 
 
 extension String {

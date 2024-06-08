@@ -714,9 +714,9 @@ final class PineconeManager: ObservableObject {
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
-        if let responseBody = String(data: data, encoding: .utf8) {
+//        if let responseBody = String(data: data, encoding: .utf8) {
 //            print("Response Body: \(responseBody)")
-        }
+//        }
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
 //            print("queryPinecone Response Status Code != 200")
             throw AppNetworkError.invalidResponse
@@ -730,10 +730,10 @@ final class PineconeManager: ObservableObject {
             self.pineconeQueryResponse = pineconeResponse
         }
 
-        for match in pineconeResponse.matches {
+//        for _ in pineconeResponse.matches {
 //            print("Match ID: \(match.id), Score: \(match.score)")
 //            print("Query Response: \(match.metadata.debugDescription)")
-        }
+//        }
         DispatchQueue.main.async {
             ProgressTracker.shared.setProgress(to: 0.62)
         }

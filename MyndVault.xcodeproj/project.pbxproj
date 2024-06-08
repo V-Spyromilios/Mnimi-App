@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E813C76C2BECF51900E3088D /* CountdownTimer.swift */; };
 		E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */ = {isa = PBXBuildFile; fileRef = E82F454B2BC2A6D100945312 /* OpenAIKey.plist */; };
-		E82F454E2BC2A6D100945312 /* NextSteps in Resources */ = {isa = PBXBuildFile; fileRef = E82F454C2BC2A6D100945312 /* NextSteps */; };
 		E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */; };
 		E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45512BC2A72100945312 /* CircularProgressView.swift */; };
 		E82F455B2BC2A72100945312 /* ProgressTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45522BC2A72100945312 /* ProgressTracker.swift */; };
@@ -70,7 +69,6 @@
 /* Begin PBXFileReference section */
 		E813C76C2BECF51900E3088D /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		E82F454B2BC2A6D100945312 /* OpenAIKey.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = OpenAIKey.plist; sourceTree = "<group>"; };
-		E82F454C2BC2A6D100945312 /* NextSteps */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NextSteps; sourceTree = "<group>"; };
 		E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitViewModel.swift; sourceTree = "<group>"; };
 		E82F45512BC2A72100945312 /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		E82F45522BC2A72100945312 /* ProgressTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressTracker.swift; sourceTree = "<group>"; };
@@ -238,7 +236,6 @@
 				E82F45502BC2A72100945312 /* CloudKit */,
 				E82F45582BC2A72100945312 /* Managers */,
 				E82F45532BC2A72100945312 /* Progress */,
-				E82F454C2BC2A6D100945312 /* NextSteps */,
 				E82F454B2BC2A6D100945312 /* OpenAIKey.plist */,
 				E82F457F2BC2A80B00945312 /* Tabbar Views */,
 				E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */,
@@ -374,7 +371,6 @@
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
 				E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */,
 				E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */,
-				E82F454E2BC2A6D100945312 /* NextSteps in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -597,7 +593,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyndVault/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Mynd Vault";
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mynd Vault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
@@ -607,7 +603,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -635,7 +631,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyndVault/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Mynd Vault";
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mynd Vault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
@@ -645,7 +641,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
