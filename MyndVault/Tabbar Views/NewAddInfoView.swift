@@ -10,7 +10,6 @@ import SwiftUI
 
 struct NewAddInfoView: View {
     @Binding var newInfo: String
-//    @Binding var relevantFor: String
     @Binding var apiCallInProgress: Bool
     @State var thrownError: String = "" 
     @Binding var showAlert: Bool
@@ -171,7 +170,6 @@ struct NewAddInfoView: View {
         }
         .padding(.top, 12)
         .padding(.horizontal)
-//        .padding(.bottom, 10)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
         .frame(maxWidth: .infinity)
     }
@@ -234,8 +232,7 @@ struct NewAddInfoView: View {
         
         await MainActor.run {
             self.apiCallInProgress = false
-            self.newInfo = ""
-//            self.relevantFor = ""
+            //self.newInfo = ""
             self.saveButtonIsVisible = true
         }
     }

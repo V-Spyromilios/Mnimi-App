@@ -167,12 +167,11 @@ extension View {
 
 
 func idealWidth(for availableWidth: CGFloat) -> CGFloat {
-    // Adjust the width based on the available width
-    if availableWidth < 600 {
-        // iPhones
+
+    if availableWidth < 800 {
         return availableWidth
     } else {
-        // iPads
+
         return availableWidth * 0.6
     }
 }
