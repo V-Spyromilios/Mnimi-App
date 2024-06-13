@@ -12,25 +12,21 @@ struct MainView: View {
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
-//    @EnvironmentObject var audioManager: AudioManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var notificationsManager: NotificationViewModel
-//    @EnvironmentObject var speechManager: SpeechRecognizerManager
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     
     var body: some View {
 
             Group {
-                if cloudKitViewModel.userIsSignedIn {
+                if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
 
                     ContentView()
                         .environmentObject(openAiManager)
                         .environmentObject(pineconeManager)
-//                        .environmentObject(audioManager)
                         .environmentObject(progressTracker)
                         .environmentObject(notificationsManager)
                         .environmentObject(cloudKitViewModel)
-//                        .environmentObject(speechManager)
                         .environmentObject(keyboardResponder)
                 }
                 
@@ -40,15 +36,17 @@ struct MainView: View {
                 else if cloudKitViewModel.CKError != "" {
 
                     let error = cloudKitViewModel.CKError
-                    
-                    
-                    contentError(error: error.description)
-//                    ContentUnavailableView(title: "iCloud Unavailable.)", systemImage: "exclamationmark.icloud.fill")
+                    contentError(error: error)
+                }
+                else if cloudKitViewModel.fetchedNamespaceDict.isEmpty {
+                    Text("fetchedNamespaceDict.isEmpty").font(.headline).foregroundStyle(.red)
 
                 }
+            }.onDisappear {
+                print("fetchedNamespace isEmpty: \(cloudKitViewModel.fetchedNamespaceDict.isEmpty)")
             }
-        
     }
+
     private func contentError(error: String) -> some View {
         VStack{
             Image(systemName: "exclamationmark.icloud.fill").resizable().padding(.bottom).frame(width: 110, height: 90)

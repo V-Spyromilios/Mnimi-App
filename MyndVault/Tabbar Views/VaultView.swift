@@ -38,23 +38,23 @@ struct VaultView: View {
                     }
 //                }}
                 
-                else if !vectorsAreLoading && pineconeManger.pineconeFetchedVectors.isEmpty && showUnavailable {
+                else if showUnavailable {
                     
                     ContentUnavailableView(label: {
                         Label("No Saved Info", systemImage: "tray.2")
                     }, description: {
                         Text(" Saved Info will be shown here.")}
                                            
-                    ).offset(y: -contentUnaivalableOffset)
+                    ).offset(y: contentUnaivalableOffset)
                     
                 }
-                    if showErrorUnavailable && pineconeManger.pineconeFetchedVectors.isEmpty {
+                    else if showErrorUnavailable && pineconeManger.pineconeFetchedVectors.isEmpty {
                         ContentUnavailableView(label: {
                             Label("Unable to fetch data", systemImage: "tray.2")
                         }, description: {
                             Text(" please check your connection.")}
                                                
-                        ).offset(y: -contentUnaivalableOffset)
+                        ).offset(y: contentUnaivalableOffset)
                     }
             }
             }.refreshable {
@@ -90,6 +90,7 @@ struct VaultView: View {
                 showUnavailable = true
             }
         }
+
     }
     
     private func fetchPineconeEntries() {

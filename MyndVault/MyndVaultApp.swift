@@ -13,12 +13,12 @@ import Firebase
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-
+        
         FirebaseApp.configure()
         requestNotificationPermission()
         return true
     }
-
+    
     
     private func requestNotificationPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
@@ -29,81 +29,74 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             }
         }
     }
-
-
+    
+    
 }
 
 
 
 @main
 struct MyndVaultApp: App {
+    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
-
+    
     @ObservedObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
     var openAiManager = OpenAIManager()
     var pineconeManager = PineconeManager()
-//    var audioManager = AudioManager.shared
     var progressTracker = ProgressTracker.shared
     var notificationsManager = NotificationViewModel()
     var speechManager = SpeechRecognizerManager()
     var keyboardResponder = KeyboardResponder()
-    @StateObject var authManager = AuthenticationManager()
+    var authManager = AuthenticationManager()
     
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
+    
     
     var body: some Scene {
-
+        
         WindowGroup(content: {
             
             if isFirstLaunch {
                 InitialSetupView()
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
-//                    .environmentObject(audioManager)
                     .environmentObject(progressTracker)
                     .environmentObject(notificationsManager)
                     .environmentObject(cloudKitViewModel)
                     .environmentObject(speechManager)
                     .environmentObject(keyboardResponder)
+                    .environmentObject(authManager)
                     .statusBar(hidden: true)
-            }
-            else  {
+            } else  {
                 
-                Group {
-                    if cloudKitViewModel.userIsSignedIn {
-                        
-                        FaceIDView()
-                            .environmentObject(openAiManager)
-                            .environmentObject(pineconeManager)
-//                            .environmentObject(audioManager)
-                            .environmentObject(progressTracker)
-                            .environmentObject(notificationsManager)
-                            .environmentObject(cloudKitViewModel)
-                            .environmentObject(speechManager)
-                            .environmentObject(keyboardResponder)
-                            .environmentObject(authManager)
-                            .statusBar(hidden: true)
-                    }
+                if cloudKitViewModel.userIsSignedIn {
                     
-                    else if cloudKitViewModel.isLoading {
-                        Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
-                    }
-                    else if cloudKitViewModel.CKError != "" {
-                        
-                        let error = cloudKitViewModel.CKError
-                        
-                        
-                        contentError(error: error.description)
-                        //                    ContentUnavailableView(title: "iCloud Unavailable", systemImage: "exclamationmark.icloud.fill")
-                        
-                    }
+                    FaceIDView()
+                        .environmentObject(openAiManager)
+                        .environmentObject(pineconeManager)
+                        .environmentObject(progressTracker)
+                        .environmentObject(notificationsManager)
+                        .environmentObject(cloudKitViewModel)
+                        .environmentObject(speechManager)
+                        .environmentObject(keyboardResponder)
+                        .environmentObject(authManager)
+                        .statusBar(hidden: true)
                 }
+                
+                else if cloudKitViewModel.isLoading {
+                    Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
+                }
+                else if cloudKitViewModel.CKError != "" {
+                    
+                    let error = cloudKitViewModel.CKError
+                    contentError(error: error)
+                }
+                
             }
         })
     }
-
+    
     private func contentError(error: String) -> some View {
         VStack{
             Image(systemName: "exclamationmark.icloud.fill").resizable() .scaledToFit().padding(.bottom).frame(width: 90, height: 90)

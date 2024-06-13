@@ -402,7 +402,7 @@ final class OpenAIManager: ObservableObject {
     // https://api.openai.com/v1/embeddings POST
     //model: text-embedding-3-large
     // inputText: description of the gpt-4 response.
-    //MARK: private fetchEmbeddings USED in QuestionView
+    //MARK: private fetchEmbeddings USED in QuestionView and AddNew
     private func fetchEmbeddings(for inputText: String) async throws -> EmbeddingsResponse {
         ProgressTracker.shared.setProgress(to: 0.15)
         guard let url = URL(string: "https://api.openai.com/v1/embeddings"),

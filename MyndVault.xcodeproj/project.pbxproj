@@ -12,7 +12,6 @@
 		E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */; };
 		E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45512BC2A72100945312 /* CircularProgressView.swift */; };
 		E82F455B2BC2A72100945312 /* ProgressTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45522BC2A72100945312 /* ProgressTracker.swift */; };
-		E82F455C2BC2A72100945312 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45542BC2A72100945312 /* AudioManager.swift */; };
 		E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45552BC2A72100945312 /* OpenAIManager.swift */; };
 		E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45562BC2A72100945312 /* PineconeManager.swift */; };
 		E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */; };
@@ -36,6 +35,7 @@
 		E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */; };
 		E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
+		E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */; };
 		E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */; };
 		E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5052BF8C1FA00F2A174 /* MainView.swift */; };
 		E8B4D5082BF8CD7F00F2A174 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5072BF8CD7F00F2A174 /* KeychainManager.swift */; };
@@ -54,7 +54,6 @@
 		E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* VaultView.swift */; };
 		E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */; };
 		E8FA7F0E2BC5BC320012EBF6 /* PromptLanguageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */; };
-		E8FA7F0F2BC5BC320012EBF6 /* RecordingsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F042BC5BC320012EBF6 /* RecordingsSettingsView.swift */; };
 		E8FA7F102BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F052BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift */; };
 		E8FA7F112BC5BC320012EBF6 /* ResponseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F062BC5BC320012EBF6 /* ResponseDetailView.swift */; };
 		E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F072BC5BC320012EBF6 /* Settings View.swift */; };
@@ -72,7 +71,6 @@
 		E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitViewModel.swift; sourceTree = "<group>"; };
 		E82F45512BC2A72100945312 /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		E82F45522BC2A72100945312 /* ProgressTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressTracker.swift; sourceTree = "<group>"; };
-		E82F45542BC2A72100945312 /* AudioManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		E82F45552BC2A72100945312 /* OpenAIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenAIManager.swift; sourceTree = "<group>"; };
 		E82F45562BC2A72100945312 /* PineconeManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PineconeManager.swift; sourceTree = "<group>"; };
 		E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognizerManager.swift; sourceTree = "<group>"; };
@@ -97,6 +95,7 @@
 		E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboardLabel.swift; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
+		E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceIDView.swift; sourceTree = "<group>"; };
 		E8B4D5052BF8C1FA00F2A174 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		E8B4D5072BF8CD7F00F2A174 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
@@ -116,7 +115,6 @@
 		E8FA7F012BC5BC320012EBF6 /* VaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
 		E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptLanguageView.swift; sourceTree = "<group>"; };
-		E8FA7F042BC5BC320012EBF6 /* RecordingsSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordingsSettingsView.swift; sourceTree = "<group>"; };
 		E8FA7F052BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordingsSettingsViewModel.swift; sourceTree = "<group>"; };
 		E8FA7F062BC5BC320012EBF6 /* ResponseDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseDetailView.swift; sourceTree = "<group>"; };
 		E8FA7F072BC5BC320012EBF6 /* Settings View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Settings View.swift"; sourceTree = "<group>"; };
@@ -161,7 +159,6 @@
 			isa = PBXGroup;
 			children = (
 				E82F45802BC2A80C00945312 /* NetworkViewModel.swift */,
-				E82F45542BC2A72100945312 /* AudioManager.swift */,
 				E82F45552BC2A72100945312 /* OpenAIManager.swift */,
 				E82F45562BC2A72100945312 /* PineconeManager.swift */,
 				E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */,
@@ -277,6 +274,7 @@
 				E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */,
 				E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */,
 				E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */,
+				E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */,
 			);
 			path = "Log in";
 			sourceTree = "<group>";
@@ -289,7 +287,6 @@
 				E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */,
 				E82F45892BC2A85D00945312 /* CustomTapBarView.swift */,
 				E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */,
-				E8FA7F042BC5BC320012EBF6 /* RecordingsSettingsView.swift */,
 				E8FA7F052BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift */,
 				E8FA7F062BC5BC320012EBF6 /* ResponseDetailView.swift */,
 				E8FA7F072BC5BC320012EBF6 /* Settings View.swift */,
@@ -406,7 +403,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E82F455C2BC2A72100945312 /* AudioManager.swift in Sources */,
 				E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */,
 				E82F456E2BC2A77E00945312 /* Codables.swift in Sources */,
 				E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */,
@@ -424,6 +420,7 @@
 				E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */,
 				E82F455B2BC2A72100945312 /* ProgressTracker.swift in Sources */,
 				E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */,
+				E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */,
 				E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */,
 				E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
@@ -450,7 +447,6 @@
 				E82F45732BC2A77E00945312 /* ResponseModel.swift in Sources */,
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
-				E8FA7F0F2BC5BC320012EBF6 /* RecordingsSettingsView.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,
 				E8B4D50A2BF8CE8000F2A174 /* SignUpWithPasswordView.swift in Sources */,
@@ -609,7 +605,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -647,7 +643,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

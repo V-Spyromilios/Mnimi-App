@@ -12,15 +12,15 @@ import Combine
 
 
 let rectCornerRad: CGFloat = 50
-//var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opacity(0.3), Color.yellow.opacity(0.6), Color.yellow]), startPoint: .top, endPoint: .bottom)
-//
-//var greenGradient = LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.3), Color.green.opacity(0.6), Color.green]), startPoint: .top, endPoint: .bottom)
 
 let toolbarButtonShadow: CGFloat = 6
 let textEditorHeight: CGFloat = 140
 let smallTextEditorHeight: CGFloat = 50
 
-let contentUnaivalableOffset: CGFloat = 0
+let contentUnaivalableOffset: CGFloat = 40
+
+let greenGradient = LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen.opacity(0.7), Color.britishRacingGreen.opacity(0.8), Color.britishRacingGreen.opacity(0.9),
+    Color.britishRacingGreen]), startPoint: .top, endPoint: .bottom)
 
 
 extension String {
@@ -36,42 +36,8 @@ extension String {
 }
 
 
-//struct Formatters {
-//    
-//    static var shared = Formatters()
-//    
-//    //For the recordings with .m4a
-//    func formatfileName(_ filename: String) -> String? {
-//        
-//        let dateString = filename
-//            .deletingPrefix("recording_")
-//            .deletingSuffix(".m4a")
-//        
-//        let inputFormatter = DateFormatter()
-//        inputFormatter.dateFormat = "dd-MM-yy_HH_mm_ss"
-//        
-//        guard let date = inputFormatter.date(from: dateString) else {
-//            print("formatfileName() Error parsing date from filename: \(dateString).")
-//            return nil
-//        }
-//        
-//        let outputFormatter = DateFormatter()
-//        outputFormatter.dateStyle = .medium
-//        outputFormatter.timeStyle = .short
-//        
-//        return outputFormatter.string(from: date)
-//    }
-//}
-//
-//extension LinearGradient {
-//    static func bluePurpleGradient() -> LinearGradient {
-//        return LinearGradient(gradient: Gradient(colors: [Color.purple ,Color.blue, Color.purple]), startPoint: .topLeading, endPoint: .bottomTrailing)
-//    }
-//}
-
 func popOverView(animateStep: Binding<Int>, show: Binding<Bool>) -> some View {
-    
-    
+
     VStack(alignment: .center) {
                ZStack {
                    Color.britishRacingGreen.ignoresSafeArea()

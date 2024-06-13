@@ -9,6 +9,8 @@ import SwiftUI
 import LocalAuthentication
 
 struct InitialSetupView: View {
+    @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
+    
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
@@ -83,7 +85,6 @@ struct InitialSetupView: View {
         KeychainManager.standard.save(service: "dev.chillvibes.MyndVault", account: username, data: passwordData)
         // Save setup complete status
 
-        UserDefaults.standard.set(false, forKey: "isFirstLaunch")
         setupComplete = true
 
         // Attempt to enable Face ID

@@ -543,6 +543,7 @@ final class PineconeManager: ObservableObject {
         }
         
         guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+            print("upsertDataToPinecone:: guard let namespace: \(CKviewModel.fetchedNamespaceDict)")
             throw AppCKError.UnableToGetNameSpace
         }
 

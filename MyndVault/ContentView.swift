@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-//import SwiftData
 import Network
 
 struct ContentView: View {
@@ -59,30 +58,7 @@ struct ContentView: View {
                 )
                 .ignoresSafeArea(edges: .bottom)
                 .ignoresSafeArea(edges: .horizontal)
-                .shadow(color: .britishRacingGreen, radius: 10) 
-//            .overlay(alignment: .bottom) {
-//                if !keyboardAppeared {
-//                    CustomTabBarView(tabSelection: $tabSelection)
-//                        .transition(.move(edge: .bottom))
-//                        .ignoresSafeArea()
-//                        
-//                        .animation(.easeInOut, value: keyboardAppeared),
-//                       
-//                       
-////                        .shadow(radius: 8)
-//                        
-//                }
-//            }
-//            if showTopBar {
-//                TopNotificationBar(message: topBarMessage, show: $showTopBar)
-//                    .transition(.move(edge: .top))
-//                    .onDisappear {
-//                        presentationMode.wrappedValue.dismiss()
-//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-//                            topBarMessage = ""
-//                        }
-//                    }
-//            }
+                .shadow(color: .britishRacingGreen, radius: 10)
         }
                 .onAppear {
                     speechManager.requestSpeechAuthorization()

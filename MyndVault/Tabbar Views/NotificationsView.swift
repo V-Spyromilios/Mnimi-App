@@ -33,7 +33,7 @@ struct NotificationsView: View {
                                 .padding(.bottom).padding(.horizontal, 9)
                         }
                     } else {
-                        ContentUnavailableView("No Notifications yet!", systemImage: "bell.slash.fill", description: Text("Start by adding a new Notification.")).offset(y: -contentUnaivalableOffset)
+                        ContentUnavailableView("No Notifications yet!", systemImage: "bell.slash.fill", description: Text("Start by adding a new Notification.")).offset(y: contentUnaivalableOffset)
                     }
                 }
             }

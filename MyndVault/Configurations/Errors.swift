@@ -36,6 +36,39 @@ enum AppNetworkError: Error {
            }
        }
 }
+//
+//enum AppCKError: LocalizedError {
+//    case iCloudAccountNotFound
+//    case iCloudAccountNotDetermined
+//    case iCloudAccountRestricted
+//    case iCloudAccountUknown
+//    case iCloudTemporarilyUnavailable
+//    case unknownError
+//    case UnableToGetNameSpace
+//    case CKDatabaseNotInitialized
+//
+//    var errorDescription: String {
+//        switch self {
+//        case .iCloudAccountNotDetermined:
+//            return "iCloud Account not Determined."
+//        case .iCloudAccountNotFound:
+//            return "iCloud Account not Found."
+//        case .iCloudAccountRestricted:
+//            return "iCloud Account is Restricted."
+//        case .iCloudAccountUknown:
+//            return "Unkown iCloud Account."
+//        case .iCloudTemporarilyUnavailable:
+//            return "iCloud Account Temporarily Unavailable."
+//        case .UnableToGetNameSpace:
+//            return "Unable To retrieve namespace from 'CKviewModel.fetchedNamespaceDict.first?.value.namespace'."
+//        case .unknownError:
+//            return "Unkown Error Occured."
+//        case .CKDatabaseNotInitialized:
+//            return "CK.db"
+//        }
+//    }
+//}
+
 
 enum AppCKError: LocalizedError {
     case iCloudAccountNotFound
@@ -45,6 +78,7 @@ enum AppCKError: LocalizedError {
     case iCloudTemporarilyUnavailable
     case unknownError
     case UnableToGetNameSpace
+    case CKDatabaseNotInitialized
 
     var errorDescription: String {
         switch self {
@@ -55,13 +89,15 @@ enum AppCKError: LocalizedError {
         case .iCloudAccountRestricted:
             return "iCloud Account is Restricted."
         case .iCloudAccountUknown:
-            return "Unkown iCloud Account."
+            return "Unknown iCloud Account."
         case .iCloudTemporarilyUnavailable:
             return "iCloud Account Temporarily Unavailable."
         case .UnableToGetNameSpace:
-            return "Unable To retrieve namespace from 'CKviewModel.fetchedNamespaceDict.first?.value.namespace'."
+            return "Unable To retrieve namespace."
         case .unknownError:
-            return "Unkown Error Occured."
+            return "Unknown Error Occurred."
+        case .CKDatabaseNotInitialized:
+            return "CK Database not initialized."
         }
     }
 }
