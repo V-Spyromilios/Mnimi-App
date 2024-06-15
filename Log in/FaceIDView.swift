@@ -176,6 +176,8 @@ import LocalAuthentication
 struct FaceIDView: View {
     
     @EnvironmentObject var authManager: AuthenticationManager
+    @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
+    @State private var greenHeight: CGFloat = UIScreen.main.bounds.height + (UIScreen.main.bounds.height * 0.15)
     @State private var showError = false
     @State private var showPasswordAuth = false
     @State private var username = ""
@@ -184,14 +186,16 @@ struct FaceIDView: View {
     
     var body: some View {
         Group {
-            // CORRECTION:  if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty
-            if authManager.isAuthenticated {
+            if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
+           
                 MainView()
             } else if authManager.isLoggedOut {
                 LoggedOutView()
             } else {
                 ZStack {
-                    Color.britishRacingGreen.ignoresSafeArea()
+                    Color.britishRacingGreen
+                        .frame(height: greenHeight)
+                        .ignoresSafeArea()
                     VStack {
                         Text("Mynd Vault 🗃️")
                             .font(.largeTitle)
@@ -241,7 +245,11 @@ struct FaceIDView: View {
             context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Log in with Face ID") { success, error in
                 DispatchQueue.main.async {
                     if success {
-                        authManager.login()
+                        withAnimation(.easeInOut(duration: 1.5)) {
+                            authManager.login()
+                            greenHeight = 0
+                        }
+                        
                     } else {
                         self.showError = true
                     }

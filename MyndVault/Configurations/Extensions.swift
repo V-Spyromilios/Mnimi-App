@@ -11,6 +11,38 @@ import UIKit
 import Combine
 
 
+let assemblyCode = """
+section .data
+    message db 'LOGIN', 0
+
+section .bss
+    len resb 1
+
+section .text
+    global _start
+
+_start:
+    mov ecx, message
+    mov ebx, 0
+get_len:
+    cmp byte [ecx + ebx], 0
+    je done
+    inc ebx
+    jmp get_len
+done:
+    mov [len], ebx
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, message
+    mov edx, [len]
+    int 0x80
+
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
+"""
+
 let rectCornerRad: CGFloat = 50
 
 let toolbarButtonShadow: CGFloat = 6

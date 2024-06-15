@@ -42,7 +42,7 @@ struct MyndVaultApp: App {
 
     @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
     
-    @ObservedObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
+    var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
     var openAiManager = OpenAIManager()
     var pineconeManager = PineconeManager()
     var progressTracker = ProgressTracker.shared
@@ -50,14 +50,19 @@ struct MyndVaultApp: App {
     var speechManager = SpeechRecognizerManager()
     var keyboardResponder = KeyboardResponder()
     var authManager = AuthenticationManager()
+    @State var showSplash: Bool = true
     
     
     
     var body: some Scene {
         
         WindowGroup(content: {
+            if showSplash {
+                SplashScreen(showSplash: $showSplash)
+                    .environmentObject(cloudKitViewModel)
+            }
             
-            if isFirstLaunch {
+            else if isFirstLaunch {
                 InitialSetupView()
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)

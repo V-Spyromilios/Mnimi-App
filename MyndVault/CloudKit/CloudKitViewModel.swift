@@ -280,7 +280,7 @@ final class CloudKitViewModel: ObservableObject {
 
     static let shared = CloudKitViewModel()
 
-    init() {
+    func startCloudKit() {
         Task {
             await initializeCloudKitSetup()
         }

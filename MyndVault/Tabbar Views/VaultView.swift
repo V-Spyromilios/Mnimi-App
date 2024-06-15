@@ -26,8 +26,8 @@ struct VaultView: View {
                 if vectorsAreLoading {
                     ProgressView().font(.title).bold().padding(.top, 40)
                 }
-//                if !pineconeManger.pineconeFetchedVectors.isEmpty {
-                    if !vectorsAreLoading {
+                    
+                    else if !vectorsAreLoading && !pineconeManger.pineconeFetchedVectors.isEmpty {
                         ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
                             
                             NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
@@ -36,18 +36,27 @@ struct VaultView: View {
                             }
                         }
                     }
-//                }}
+        
+                    else if showUnavailable {
+                        
+                        ContentUnavailableView(label: {
+                            Label("No Saved Info", systemImage: "tray.2")
+                        }, description: {
+                            Text(" Saved Info will be shown here.")}
+                                               
+                        ).offset(y: contentUnaivalableOffset)
+                        
+                    }
+                    else if !vectorsAreLoading && !pineconeManger.pineconeFetchedVectors.isEmpty {
+                        ForEach(pineconeManger.pineconeFetchedVectors, id: \.self) { data in
+                            
+                            NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
+                                InfosViewListCellView(data: data).padding()
+                                
+                            }
+                        }
+                    }
                 
-                else if showUnavailable {
-                    
-                    ContentUnavailableView(label: {
-                        Label("No Saved Info", systemImage: "tray.2")
-                    }, description: {
-                        Text(" Saved Info will be shown here.")}
-                                           
-                    ).offset(y: contentUnaivalableOffset)
-                    
-                }
                     else if showErrorUnavailable && pineconeManger.pineconeFetchedVectors.isEmpty {
                         ContentUnavailableView(label: {
                             Label("Unable to fetch data", systemImage: "tray.2")
