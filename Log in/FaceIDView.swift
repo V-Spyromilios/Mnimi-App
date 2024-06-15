@@ -186,7 +186,7 @@ struct FaceIDView: View {
     
     var body: some View {
         Group {
-            if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
+            if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn {
            
                 MainView()
             } else if authManager.isLoggedOut {

@@ -10,13 +10,14 @@ struct SplashScreen: View {
     @State private var loadingComplete: Bool = false
     @State private var codeLines: [String] = []
     @State private var currentLineIndex: Int = 0
-    @State private var showCode: Bool  = false
+    @State private var showCode: Bool = false
+    @State private var logs: [String] = []
     
     let symbols: [String] = ["link.icloud", "tray", "gear", "checkmark", ""]
     
     var body: some View {
         GeometryReader { geometry in
-           
+            
             ZStack {
                 Color.white
                     .edgesIgnoringSafeArea(.all)
@@ -38,44 +39,83 @@ struct SplashScreen: View {
                             }
                         }
                 }.frame(height: greenHeight)
-//                    .frame(width: geometry.size.width)
-                if showLogo {
-                    carousel(geometry: geometry)
-                  
+                //                    .frame(width: geometry.size.width)
+                
+                
+                ScrollView {
+                    if !cloudKit.userIsSignedIn {
+                        Text("User is Not signed -in").padding()
+                    }
+                    if showLogo {
+                        carousel(geometry: geometry)
+                        
+                    }
+                    if !cloudKit.fetchedNamespaceDict.isEmpty {
+                        Text("NamespaceDictionary is not Empty")
+                    }
+                    else if cloudKit.fetchedNamespaceDict.isEmpty {
+                        Text("NamespaceDictionary is Empty !")
+                    }
+                    if cloudKit.CKError != "" {
+                        Text("Error CloudKit: \(cloudKit.CKError)")
+                    }
+                    VStack(alignment: .leading) {
+                        ForEach(cloudKit.log, id: \.self) { logEntry in
+                            Text(logEntry)
+                                .foregroundColor(.black)
+                                .font(.footnote)
+                                .padding(2)
+                        }
+                        Spacer()
+                    }
                 }
+                .frame(height: geometry.size.height * 0.4)
+                .background(Color.white)
+                .cornerRadius(8)
+                .shadow(radius: 4)
+                .padding()
+                
                 if showCode {
                     codeView(geometry: geometry)
                 }
-            }
-            .onChange(of: currentSymbolIndex) { _, newValue in
                 
-                if newValue == symbols.count - 1 { // The index of symbols[""]
-                    withAnimation {
-                        showLogo = false }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        
-                        loadingComplete = true // Just to mimic the loading ok
-                    }
-                }
-            }
-            .onChange(of: loadingComplete) {
-                if loadingComplete {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-//                        greenHeight = 0
-                        showCode = false
-                    }
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        showSplash = false
-                    }
-                }
-            }
-            .onAppear {
-                cloudKit.startCloudKit()
-                startCodeAnimation()
             }
         }
+        
+        .onChange(of: currentSymbolIndex) { _, newValue in
+            
+            if newValue == symbols.count - 1 { // The index of symbols[""]
+                withAnimation {
+                    showLogo = false }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    
+                    loadingComplete = true // Just to mimic the loading ok
+                }
+            }
+        }
+        .onChange(of: loadingComplete) {
+            if loadingComplete {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    //                        greenHeight = 0
+                    showCode = false
+                }
+                withAnimation(.easeInOut(duration: 4.6)) {
+                                            showSplash = false
+                    
+                }
+            }
+        }
+        .onAppear {
+            startCodeAnimation()
+        }
+        
+        .onAppear {
+            cloudKit.startCloudKit()
+        }
+        .onChange(of: cloudKit.log) { _, newLog in
+            self.logs = newLog
+        }
     }
-    
     @ViewBuilder
     private func carousel(geometry: GeometryProxy) -> some View {
         let symbolWidth = geometry.size.width
@@ -137,6 +177,7 @@ struct SplashScreen: View {
     }
     
 }
-#Preview {
-    SplashScreen(showSplash: .constant(true))
-}
+    #Preview {
+        SplashScreen(showSplash: .constant(true))
+    }
+

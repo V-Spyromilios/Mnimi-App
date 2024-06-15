@@ -10,6 +10,7 @@ import LocalAuthentication
 
 struct InitialSetupView: View {
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
+
     
     @State private var username: String = ""
     @State private var password: String = ""
@@ -60,7 +61,6 @@ struct InitialSetupView: View {
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
                     .padding(.top, 12)
                     .padding(.horizontal)
-                    //            .animation(.easeInOut, value: keyboardResponder.currentHeight)
                     .padding()
                     Spacer()
                 }.frame(maxWidth: .infinity)
@@ -83,31 +83,9 @@ struct InitialSetupView: View {
 
         let passwordData = Data(password.utf8)
         KeychainManager.standard.save(service: "dev.chillvibes.MyndVault", account: username, data: passwordData)
-        // Save setup complete status
-
+      
+        UserDefaults.standard.set(false, forKey: "isFirstLaunch")
         setupComplete = true
-
-        // Attempt to enable Face ID
-//        let context = LAContext()
-//        var error: NSError?
-//        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-//            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Enable Face ID for faster login") { success, evaluationError in
-//                DispatchQueue.main.async {
-//                    if success {
-//                        // Face ID setup complete, navigate to main view
-//                        setupComplete = true
-//                    } else {
-//                        // Face ID setup failed, show alert
-//                        alertMessage = "Face ID setup failed: \(evaluationError?.localizedDescription ?? "Unknown error")"
-//                        showAlert = true
-//                    }
-//                }
-//            }
-//        } else {
-//            // Device does not support Face ID
-//            alertMessage = "Face ID is not available on this device."
-//            showAlert = true
-//        }
     }
 }
 

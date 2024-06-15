@@ -9,15 +9,29 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var authManager: AuthenticationManager
+    @EnvironmentObject var cloudKit: CloudKitViewModel
     
     var viewModel = PineconeManager()
     @Binding var showSettings: Bool
+    @State private var errorString = ""
     
     var body: some View {
         
         NavigationView {
             VStack {
-                
+                Button {
+                    Task {
+                    
+                            if let recordID = cloudKit.fetchedNamespaceDict.keys.first {
+                                try await cloudKit.deleteNamespaceItem(recordID: recordID)
+                            }
+                        }} label: {
+                            Text("Delete Namespace.")
+                        }
+                    
+                if errorString != "" {
+                    Text(errorString)
+                }
                 List {
                     NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language") }
                 }

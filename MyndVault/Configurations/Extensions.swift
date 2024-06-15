@@ -43,6 +43,10 @@ done:
     int 0x80
 """
 
+func userDefaultsKeyExists(_ key: String) -> Bool {
+    return UserDefaults.standard.object(forKey: key) != nil
+}
+
 let rectCornerRad: CGFloat = 50
 
 let toolbarButtonShadow: CGFloat = 6

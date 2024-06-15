@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-//import SwiftData
 import Firebase
 
 
@@ -40,7 +39,8 @@ struct MyndVaultApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
-    @AppStorage("isFirstLaunch") var isFirstLaunch: Bool = true
+    
+  
     
     var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
     var openAiManager = OpenAIManager()
@@ -62,7 +62,7 @@ struct MyndVaultApp: App {
                     .environmentObject(cloudKitViewModel)
             }
             
-            else if isFirstLaunch {
+            else if cloudKitViewModel.isFirstLaunch {
                 InitialSetupView()
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
