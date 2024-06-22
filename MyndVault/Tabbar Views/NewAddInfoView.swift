@@ -27,123 +27,124 @@ struct NewAddInfoView: View {
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
-    @StateObject private var PhotoPicker = ImagePickerViewModel()
+    @StateObject private var photoPicker = ImagePickerViewModel()
     
     var body: some View {
-       
-            GeometryReader { geometry in
-                NavigationStack {
-//                    ScrollView {
-                    VStack {
-                        HStack {
-                            Image(systemName: "plus.bubble").bold()
-                            Text("info").bold()
-                            Spacer()
-                        }.font(.callout).padding(.top,12).padding(.bottom, 8).padding(.horizontal, 7)
-                            
-                        HStack {
-                            TextEditor(text: $newInfo)
-                                .fontDesign(.rounded)
-                                .font(.title2)
-                                .multilineTextAlignment(.leading)
-                                .frame(height: textEditorHeight)
-                                .frame(maxWidth: idealWidth(for: geometry.size.width))
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+        
+        GeometryReader { geometry in
+            NavigationStack {
+                //                    ScrollView {
+                VStack {
+                    HStack {
+                        Image(systemName: "plus.bubble").bold()
+                        Text("info").bold()
+                        Spacer()
+                    }.font(.callout).padding(.top,12).padding(.bottom, 8).padding(.horizontal, 7)
+                    
+                    HStack {
+                        TextEditor(text: $newInfo)
+                            .fontDesign(.rounded)
+                            .font(.title2)
+                            .multilineTextAlignment(.leading)
+                            .frame(height: textEditorHeight)
+                            .frame(maxWidth: idealWidth(for: geometry.size.width))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .shadow(radius: 5)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10.0)
+                                    .stroke(lineWidth: 1)
+                                    .opacity(0.3)
+                                    .foregroundColor(Color.gray)
+                            )
+                            .padding(.bottom)
+                            .padding(.horizontal, 7)
+                    }
+                    HStack {
+                        Button("Add photo") {
+                            photoPicker.presentPicker()
+                        }
+                        .padding()
+                        if let image = photoPicker.selectedImage {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 100)
                                 .shadow(radius: 5)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10.0)
-                                        .stroke(lineWidth: 1)
-                                        .opacity(0.3)
-                                        .foregroundColor(Color.gray)
-                                )
-                                .padding(.bottom)
-                                .padding(.horizontal, 7)
-                        }
-                        HStack {
-                            Button("Add Image") {
-                                
-                            }.padding()
-                            if let image = PhotoPicker.selectedImage {
-                                           Image(uiImage: image)
-                                               .resizable()
-                                               .scaledToFit()
-                                               .frame(height: 100)
-                                               .shadow(radius: 5)
-                            }
-                            Spacer()
-                        }
-                                .toolbar {
-                                   
-                                    ToolbarItemGroup(placement: .topBarTrailing) {
-                                        if keyboardResponder.currentHeight > 0 {
-                                            Button {
-                                                hideKeyboard()
-                                            } label: {
-                                                HideKeyboardLabel()
-                                            }
-                                        }
-                                        Button {
-                                            showSettings.toggle()
-                                        } label: {
-                                            Circle()
-                                                .foregroundStyle(.white)
-                                                .frame(height: 30)
-                                                .shadow(radius: toolbarButtonShadow)
-                                                .overlay {
-                                                    Text("⚙️")
-                                                    .accessibilityLabel("Settings") }
-                                        }
-                                    
-                                }
-                        }.popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-                            
-                            popOverView(animateStep: $animateStep, show: $showPopUp)
-                            .presentationCompactAdaptation(.popover)
-                           
-                        }
-                        .sheet(isPresented: $PhotoPicker.isPickerPresented) {
-                            PHPickerViewControllerRepresentable(viewModel: PhotoPicker)
-                        }
-                        
-                        //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
-                        
-                        
-                        if self.thrownError != "" {
-                            ErrorView(thrownError: thrownError)
-                                .padding(.top)
-                                .padding(.horizontal)
-                            ClearButton
-                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                        }
-                        else if pineconeManager.receivedError != nil {
-                            ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
-                                .padding(.top)
-                                .padding(.horizontal)
-                            ClearButton
-                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                        }
-                        else if openAiManager.thrownError != "" {
-                            ErrorView(thrownError: openAiManager.thrownError)
-                                .padding(.top)
-                                .padding(.horizontal)
-                            ClearButton
-                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                        }
-                        else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                            SaveButton
-                               
-                        }
-                        if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                            CircularProgressView(progressTracker: progressTracker).padding()
                         }
                         Spacer()
-                        //                                .frame(height: keyboardResponder.currentHeight)
-                            .navigationTitle("Add New 📝")
-                            .navigationBarTitleDisplayMode(.inline)
                     }
+                    .toolbar {
+                        
+                        ToolbarItemGroup(placement: .topBarTrailing) {
+                            if keyboardResponder.currentHeight > 0 {
+                                Button {
+                                    hideKeyboard()
+                                } label: {
+                                    HideKeyboardLabel()
+                                }
+                            }
+                            Button {
+                                showSettings.toggle()
+                            } label: {
+                                Circle()
+                                    .foregroundStyle(.white)
+                                    .frame(height: 30)
+                                    .shadow(radius: toolbarButtonShadow)
+                                    .overlay {
+                                        Text("⚙️")
+                                        .accessibilityLabel("Settings") }
+                            }
+                            
+                        }
+                    }.popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+                        
+                        popOverView(animateStep: $animateStep, show: $showPopUp)
+                            .presentationCompactAdaptation(.popover)
+                        
+                    }
+                    .sheet(isPresented: $photoPicker.isPickerPresented) {
+                        PHPickerViewControllerRepresentable(viewModel: photoPicker)
+                    }
+                    
+                    //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
+                    
+                    
+                    if self.thrownError != "" {
+                        ErrorView(thrownError: thrownError)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                    }
+                    else if pineconeManager.receivedError != nil {
+                        ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                    }
+                    else if openAiManager.thrownError != "" {
+                        ErrorView(thrownError: openAiManager.thrownError)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                    }
+                    else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                        SaveButton
+                        
+                    }
+                    if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                        CircularProgressView(progressTracker: progressTracker).padding()
+                    }
+                    Spacer()
+                    //                                .frame(height: keyboardResponder.currentHeight)
+                        .navigationTitle("Add New 📝")
+                        .navigationBarTitleDisplayMode(.inline)
                 }
             }
-            
+        }
+        
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
         }
@@ -156,7 +157,7 @@ struct NewAddInfoView: View {
                     .fill(Color.customDarkBlue)
                     .shadow(radius: 7)
                     .frame(height: 60)
-                    
+                
                 Text("Save").font(.title2).bold().foregroundColor(.white)
                     .accessibilityLabel("save")
             }
@@ -167,8 +168,8 @@ struct NewAddInfoView: View {
         .padding(.top, 12)
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
-//        .id("SubmitButton")
-//        .padding(.bottom, keyboardResponder.currentHeight > 0 ? 10 : 0)
+        //        .id("SubmitButton")
+        //        .padding(.bottom, keyboardResponder.currentHeight > 0 ? 10 : 0)
     }
     
     private var ClearButton: some View {
@@ -176,11 +177,11 @@ struct NewAddInfoView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.customDarkBlue)
-                    
+                
                     .frame(height: 60)
-                    
+                
                 Text("OK").font(.title2).bold().foregroundColor(.white)
-                    .accessibilityLabel("clear") 
+                    .accessibilityLabel("clear")
             }
             .contentShape(Rectangle())
             .shadow(radius: 7)
@@ -209,7 +210,7 @@ struct NewAddInfoView: View {
     private func addNewInfoAction() {
         
         if newInfo.count < 5 { return }
-
+        
         hideKeyboard()
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
@@ -225,8 +226,8 @@ struct NewAddInfoView: View {
             let metadata = toDictionary(desc: self.newInfo)
             do {
                 //MARK: TEST THROW
-//                                let miaMalakia = AppCKError.UnableToGetNameSpace
-//                                throw miaMalakia
+                //                                let miaMalakia = AppCKError.UnableToGetNameSpace
+                //                                throw miaMalakia
                 try await pineconeManager.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
                 if pineconeManager.upsertSuccesful {
                     await MainActor.run {
