@@ -29,12 +29,18 @@ struct CustomTabBarView: View {
                 .frame(height: customTabbarHeight)
 
             HStack(alignment: .top) {
+
                 Spacer()
-                tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 1)
+               
+                tabBarButton(imageName: plusIsAnimating ? "plus.bubble.fill" : "plus.bubble", tabId: 1)
+
                 Spacer()
-                tabBarButton(imageName: plusIsAnimating ? "plus.bubble.fill" : "plus.bubble", tabId: 2)
+                
+                tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 2)
+
                 Spacer()
                 tabBarButton(imageName: archiveIsAnimating ? "tray.fill" : "tray", tabId: 3) .offset(y: -1)
+
                 Spacer()
                 ZStack {
                 tabBarButton(imageName: notificationsManager.scheduledNotifications.count > 0

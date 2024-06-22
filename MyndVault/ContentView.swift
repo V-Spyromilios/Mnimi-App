@@ -39,13 +39,15 @@ struct ContentView: View {
         ZStack {
             TabView(selection: $tabSelection) {
                 
-                QuestionView(question: $question).tag(1)
                 
-                NewAddInfoView(newInfo: $newInfo, apiCallInProgress: $apiCallInProgress, showAlert: $showAlert).tag(2)
+                
+                NewAddInfoView(newInfo: $newInfo, apiCallInProgress: $apiCallInProgress, showAlert: $showAlert).tag(1)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
                     .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
+                
+                QuestionView(question: $question).tag(2)
                 
                 VaultView().tag(3)
                 NotificationsView().tag(4)

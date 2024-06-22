@@ -12,6 +12,8 @@ struct SplashScreen: View {
     @State private var currentLineIndex: Int = 0
     @State private var showCode: Bool = false
     @State private var logs: [String] = []
+    @State private var showAlert: Bool = false
+    @State private var alertMessage: String = ""
     
     let symbols: [String] = ["link.icloud", "tray", "gear", "checkmark", ""]
     
@@ -28,58 +30,66 @@ struct SplashScreen: View {
                         .ignoresSafeArea(.all)
                         .onAppear {
                             withAnimation(.easeInOut(duration: 1)) {
-                                greenHeight = geometry.size.height + (geometry.size.height * 0.15)
-                            }
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                greenHeight = geometry.size.height + 100
+                            }                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
                                 withAnimation(.easeInOut(duration: 0.1)) {
-                                    showLogo = true
-                                    startSymbolAnimation()
+                                    
+                                    startAnimations()
                                 }
                             }
                         }
-                }.frame(height: greenHeight)
-                //                    .frame(width: geometry.size.width)
+                }.frame(height: geometry.size.height)
                 
                 
-                ScrollView {
-                    if !cloudKit.userIsSignedIn {
-                        Text("User is Not signed -in").padding()
-                    }
-                    if showLogo {
-                        carousel(geometry: geometry)
-                        
-                    }
-                    if !cloudKit.fetchedNamespaceDict.isEmpty {
-                        Text("NamespaceDictionary is not Empty")
-                    }
-                    else if cloudKit.fetchedNamespaceDict.isEmpty {
-                        Text("NamespaceDictionary is Empty !")
-                    }
-                    if cloudKit.CKError != "" {
-                        Text("Error CloudKit: \(cloudKit.CKError)")
-                    }
-                    VStack(alignment: .leading) {
-                        ForEach(cloudKit.log, id: \.self) { logEntry in
-                            Text(logEntry)
-                                .foregroundColor(.black)
-                                .font(.footnote)
-                                .padding(2)
-                        }
-                        Spacer()
-                    }
+                //                ScrollView {
+                //                    if !cloudKit.userIsSignedIn {
+                //                        Text("User is Not signed -in").padding()
+                //                    }
+                if showLogo {
+                    carousel(geometry: geometry)
+                    
                 }
-                .frame(height: geometry.size.height * 0.4)
-                .background(Color.white)
-                .cornerRadius(8)
-                .shadow(radius: 4)
-                .padding()
+                //                    if !cloudKit.fetchedNamespaceDict.isEmpty {
+                //                        Text("NamespaceDictionary is not Empty")
+                //                    }
+                //                    else if cloudKit.fetchedNamespaceDict.isEmpty {
+                //                        Text("NamespaceDictionary is Empty !")
+                //                    }
+                //                    if cloudKit.CKError != "" {
+                //                        Text("Error CloudKit: \(cloudKit.CKError)")
+                //                    }
+                //                    VStack(alignment: .leading) {
+                //                        ForEach(cloudKit.log, id: \.self) { logEntry in
+                //                            Text(logEntry)
+                //                                .foregroundColor(.black)
+                //                                .font(.footnote)
+                //                                .padding(2)
+                //                        }
+                //                        Spacer()
+                //                    }
+                //                }
+                //                .frame(height: geometry.size.height * 0.4)
+                //                .background(Color.white)
+                //                .cornerRadius(8)
+                //                .shadow(radius: 4)
+                //                .padding()
                 
                 if showCode {
+                   
                     codeView(geometry: geometry)
                 }
                 
             }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Error"),
+                      message: Text(alertMessage),
+                      dismissButton: .default(Text("Retry"),
+                                              action: cloudKit.startCloudKit))
+                    } //TODO: Check this if is correct to call again. Check in this screen if namespace etc failed and make the alertMessage
+        }
+        .onAppear {
+            cloudKit.startCloudKit()
         }
         
         .onChange(of: currentSymbolIndex) { _, newValue in
@@ -87,7 +97,7 @@ struct SplashScreen: View {
             if newValue == symbols.count - 1 { // The index of symbols[""]
                 withAnimation {
                     showLogo = false }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { //around 1.3 - a.4
                     
                     loadingComplete = true // Just to mimic the loading ok
                 }
@@ -95,25 +105,18 @@ struct SplashScreen: View {
         }
         .onChange(of: loadingComplete) {
             if loadingComplete {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    //                        greenHeight = 0
-                    showCode = false
-                }
-                withAnimation(.easeInOut(duration: 4.6)) {
-                                            showSplash = false
+                //                withAnimation(.easeInOut(duration: 0.5)) {
+                //                    //                    showCode = false
+                //                    //                    greenHeight = 0
+                //                }
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    showSplash = false
                     
                 }
             }
         }
-        .onAppear {
-            startCodeAnimation()
-        }
-        
-        .onAppear {
-            cloudKit.startCloudKit()
-        }
-        .onChange(of: cloudKit.log) { _, newLog in
-            self.logs = newLog
+        .onChange(of: cloudKit.CKError) { _, error in
+            if error != "" { self.alertMessage = error }
         }
     }
     @ViewBuilder
@@ -131,16 +134,15 @@ struct SplashScreen: View {
             
         }
         .frame(width: symbolWidth, height: symbolWidth, alignment: .center)
-        
     }
     
-    func startSymbolAnimation() {
-        withAnimation { showCode = true }
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-            withAnimation(.easeInOut(duration: 0.5)) {
-                currentSymbolIndex += 1
-            }
+    private func startAnimations() {
+        withAnimation {
+            showCode = true
+            showLogo = true
         }
+        startCodeAnimation()
+        startSymbolAnimation()
     }
     
     @ViewBuilder
@@ -149,35 +151,50 @@ struct SplashScreen: View {
             Spacer()
             ForEach(Array(codeLines.enumerated()), id: \.offset) { _, line in
                 Text(line)
+          
                     .foregroundColor(.gray).opacity(0.7)
                     .font(Font.custom("SF-Compact", size: 13))
                     .transition(.move(edge: .bottom))
                     .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.trailing)// Align text to the trailing edge
+                    .padding(.trailing)
+                    .padding(.bottom, 12)
             }
         }
-        .frame(width: geometry.size.width, alignment: .trailing)  // Align the VStack to the trailing edge
-        
+        .frame(width: geometry.size.width, alignment: .trailing).padding(.bottom, 12)
     }
     
-    func startCodeAnimation() {
-        let lines = assemblyCode.split(separator: "\n").map { String($0) }
-        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { timer in
-            if currentLineIndex < lines.count {
-                withAnimation {
-                    codeLines.append(lines[currentLineIndex])
-                }
-                currentLineIndex += 1
-            } else {
-                withAnimation {
-                    codeLines = [] }
+    func startSymbolAnimation() {
+        
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                
+                currentSymbolIndex += 1
+            }
+            if currentSymbolIndex >= symbols.count - 1 {
                 timer.invalidate()
             }
         }
     }
-    
+        
+        func startCodeAnimation() {
+            let lines = assemblyCode.split(separator: "\n").map { String($0) }
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+                if currentLineIndex < lines.count {
+                    withAnimation {
+                        codeLines.append(lines[currentLineIndex])
+                    }
+                    currentLineIndex += 1
+                } else {
+                    //                withAnimation {
+                    //                    codeLines = [] }
+                    timer.invalidate()
+                }
+            }
+        }
+
 }
     #Preview {
         SplashScreen(showSplash: .constant(true))
+            .environmentObject(CloudKitViewModel())
     }
 

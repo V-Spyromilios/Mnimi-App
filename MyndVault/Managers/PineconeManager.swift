@@ -34,7 +34,7 @@ final class PineconeManager: ObservableObject {
     var pineconeIndex: String?
     var cancellables = Set<AnyCancellable>()
     @Published var refreshAfterEditing: Bool = false
-    
+
     
     init(cloudKitViewModel: CloudKitViewModel = .shared) {
             self.CKviewModel = cloudKitViewModel
@@ -49,63 +49,7 @@ final class PineconeManager: ObservableObject {
     func deleteVector(withId id: String) {
             pineconeFetchedVectors.removeAll { $0.id == id }
         }
-    
-//    private func getIDs() {
-//        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 1.3) {
-//            Task {
-//                do {
-//                    try await self.fetchAllNamespaceIDs()
-//                } catch {
-//                    print("Error fetchAllNamespaceIDs: \(error)")
-//                }
-//            }
-//        }
-//    }
-//    var pineconeIndexCreated: Bool {
-//        didSet {
-//            UserDefaults.standard.set(pineconeIndexCreated, forKey: "pineconeIndexCreated")
-//        }
-//    }
-//    
-    
-//    init() {
-//        pineconeIndexCreated = UserDefaults.standard.bool(forKey: "pineconeIndexCreated") //if not exist defaults to false
-//    }
-//    
-//    func createPineconeIndex(indexName: String, dimension: Int = 3072) {
-//        
-//        guard let url = URL(string: "https://api.pinecone.io/v1/indexes/\(indexName)") else { return }
-//        
-//        guard let apiKey = ApiConfiguration.pineconeKey else {
-//            print("checkPineconeIndex :: unable to get the api key.")
-//            return
-//        }
-//        
-//        var request = URLRequest(url: url)
-//        request.httpMethod = "POST"
-//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//        request.addValue("ApiKey \(apiKey)", forHTTPHeaderField: "Authorization")
-//        
-//        let requestBody: [String: Any] = [
-//            "dimension": dimension,
-//            "metric": "cosine"
-//        ]
-//        
-//        request.httpBody = try? JSONSerialization.data(withJSONObject: requestBody)
-//        
-//        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-//            guard let data = data, error == nil else {
-//                print("Error creating index: \(error?.localizedDescription ?? "Unknown error")")
-//                return
-//            }
-//            
-//            print("Index created successfully:", String(data: data, encoding: .utf8) ?? "")
-//            self.pineconeIndexCreated = true
-//            UserDefaults.standard.set(indexName, forKey: "pineconeIndexName")
-//        }
-//        task.resume()
-//    }
-    
+ 
     func refreshNamespacesIDs() async throws {
         do {
             try await fetchAllNamespaceIDs()
@@ -177,55 +121,6 @@ final class PineconeManager: ObservableObject {
         }
     }
 
-
-//    func fetchAllNamespaceIDs() async throws {
-//        
-//        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
-//            throw AppCKError.UnableToGetNameSpace
-//        }
-//        
-//        guard let apiKey = ApiConfiguration.pineconeKey else {
-//            throw AppNetworkError.apiKeyNotFound
-//        }
-//        
-//        guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/list?namespace=\(namespace)") else {
-//            throw AppNetworkError.unknownError("fetchAllNamespaceIDs() :: Invalid URL")
-//        }
-//        
-//        var request = URLRequest(url: url)
-//        request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
-//        request.httpMethod = "GET"
-//        
-//        let (data, _) = try await URLSession.shared.data(for: request)
-//        
-//        let decodedResponse = try JSONDecoder().decode(PineconeIDResponse.self, from: data)
-//        
-//        await MainActor.run { //TODO: too slow for main thread ??
-//            self.pineconeIDResponse = decodedResponse
-//            
-//            
-//            if let idResponse = self.pineconeIDResponse {
-//                
-//                for vector in idResponse.vectors {
-//                    self.pineconeIDs.append(vector.id)
-//                }
-//            }
-//        }
-//        if !self.isDataSorted || self.refreshAfterEditing{
-//            do {
-//                print("Data is not sorted, isDataSorted: \(isDataSorted), refresh: \(refreshAfterEditing).")
-//                try await fetchDataForIds()
-//                
-//            } catch {
-//                print("Error  fetchDataForIds():: \(error)")
-//            }
-//        }
-//        // 1RU per call
-//        updateTokenUsage(api: APIs.pinecone, tokensUsed: 1, read: true)
-//
-//    }
-    
-    
     //MARK: New for proper sorting
     private func fetchDataForIds() async throws {
         guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {

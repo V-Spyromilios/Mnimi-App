@@ -9,6 +9,7 @@
 
 import Foundation
 import CloudKit
+import SwiftUI
 
 final class CloudKitViewModel: ObservableObject {
     @Published var userIsSignedIn: Bool = false
@@ -129,7 +130,8 @@ final class CloudKitViewModel: ObservableObject {
             await MainActor.run {
                 switch accountStatus {
                 case .available:
-                    self.userIsSignedIn = true
+                    withAnimation(.easeInOut) {
+                        self.userIsSignedIn = true }
                     self.db = CKContainer.default().privateCloudDatabase
                 default:
                     self.userIsSignedIn = false
@@ -163,9 +165,11 @@ final class CloudKitViewModel: ObservableObject {
             await MainActor.run {
                 log.append("User is signed in to iCloud.") }
             
-            let userID = try await getUserID()
+          
+            let tempuserID = try await getUserID()
             await MainActor.run {
-                log.append("Fetched user ID: \(userID)") }
+                self.userID = tempuserID
+            }
             
             try await fetchNameSpace()
             await MainActor.run {

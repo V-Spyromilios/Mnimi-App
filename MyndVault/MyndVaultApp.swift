@@ -75,7 +75,7 @@ struct MyndVaultApp: App {
                     .statusBar(hidden: true)
             } else  {
                 
-                if cloudKitViewModel.userIsSignedIn {
+                if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
                     
                     FaceIDView()
                         .environmentObject(openAiManager)

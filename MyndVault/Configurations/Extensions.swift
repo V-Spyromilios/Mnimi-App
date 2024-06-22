@@ -31,17 +31,15 @@ get_len:
     jmp get_len
 done:
     mov [len], ebx
-
     mov eax, 4
     mov ebx, 1
     mov ecx, message
     mov edx, [len]
     int 0x80
-
     mov eax, 1
     xor ebx, ebx
     int 0x80
-"""
+""".trimmingCharacters(in: .whitespacesAndNewlines)
 
 func userDefaultsKeyExists(_ key: String) -> Bool {
     return UserDefaults.standard.object(forKey: key) != nil
