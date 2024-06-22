@@ -27,6 +27,7 @@ struct NewAddInfoView: View {
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @StateObject private var PhotoPicker = ImagePickerViewModel()
     
     var body: some View {
        
@@ -57,6 +58,20 @@ struct NewAddInfoView: View {
                                 )
                                 .padding(.bottom)
                                 .padding(.horizontal, 7)
+                        }
+                        HStack {
+                            Button("Add Image") {
+                                
+                            }.padding()
+                            if let image = PhotoPicker.selectedImage {
+                                           Image(uiImage: image)
+                                               .resizable()
+                                               .scaledToFit()
+                                               .frame(height: 100)
+                                               .shadow(radius: 5)
+                            }
+                            Spacer()
+                        }
                                 .toolbar {
                                    
                                     ToolbarItemGroup(placement: .topBarTrailing) {
@@ -78,7 +93,6 @@ struct NewAddInfoView: View {
                                                     Text("⚙️")
                                                     .accessibilityLabel("Settings") }
                                         }
-                                    }
                                     
                                 }
                         }.popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
@@ -86,6 +100,9 @@ struct NewAddInfoView: View {
                             popOverView(animateStep: $animateStep, show: $showPopUp)
                             .presentationCompactAdaptation(.popover)
                            
+                        }
+                        .sheet(isPresented: $PhotoPicker.isPickerPresented) {
+                            PHPickerViewControllerRepresentable(viewModel: PhotoPicker)
                         }
                         
                         //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
