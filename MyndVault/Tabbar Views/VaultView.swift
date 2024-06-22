@@ -20,7 +20,6 @@ struct VaultView: View {
 
     var body: some View {
         NavigationStack {
-            
             ScrollView {
                 LazyVStack {
                 if vectorsAreLoading {
