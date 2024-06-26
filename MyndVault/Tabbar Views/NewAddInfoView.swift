@@ -28,13 +28,17 @@ struct NewAddInfoView: View {
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @StateObject private var photoPicker = ImagePickerViewModel()
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         
         GeometryReader { geometry in
+          
             NavigationStack {
+                
                 //                    ScrollView {
                 VStack {
+                    
                     HStack {
                         Image(systemName: "plus.bubble").bold()
                         Text("info").bold()
@@ -49,30 +53,67 @@ struct NewAddInfoView: View {
                             .frame(height: textEditorHeight)
                             .frame(maxWidth: idealWidth(for: geometry.size.width))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .shadow(radius: 5)
+                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10.0)
                                     .stroke(lineWidth: 1)
-                                    .opacity(0.3)
-                                    .foregroundColor(Color.gray)
+                                    .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                    .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
                             )
                             .padding(.bottom)
                             .padding(.horizontal, 7)
                     }
                     HStack {
-                        Button("Add photo") {
+                        
+                        Button(action: {
                             photoPicker.presentPicker()
+                        }) {
+                            Text(photoPicker.selectedImage == nil ? "Add photo" : "Change photo")
                         }
-                        .padding()
-                        if let image = photoPicker.selectedImage {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 100)
-                                .shadow(radius: 5)
-                        }
+                        
+                        
+//                        .padding()
                         Spacer()
+                        if let image = photoPicker.selectedImage {
+                            ZStack(alignment: .topTrailing) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10.0)
+                                            .stroke(lineWidth: 1)
+                                            .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                            .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                    )
+                                Button(action: {
+                                    withAnimation {
+                                        photoPicker.selectedImage = nil }
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(Color.white)
+                                        .background(Color.black.opacity(0.6))
+                                        .clipShape(Circle())
+                                }
+                                .offset(x: 5, y: -5)
+                            }
+                        }
                     }
+                    .padding()
+                                      .frame(maxWidth: idealWidth(for: geometry.size.width))
+                                      .background(colorScheme == .light ? Color.cardBackground : Color.black)
+                                      .clipShape(RoundedRectangle(cornerRadius: 10))
+                                      .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                                      .overlay(
+                                          RoundedRectangle(cornerRadius: 10.0)
+                                              .stroke(lineWidth: 1)
+                                              .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                              .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                      )
+                                      .padding(.horizontal, 7)
+                                      .padding(.bottom)
+
                     .toolbar {
                         
                         ToolbarItemGroup(placement: .topBarTrailing) {
@@ -87,9 +128,9 @@ struct NewAddInfoView: View {
                                 showSettings.toggle()
                             } label: {
                                 Circle()
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color.buttonText)
                                     .frame(height: 30)
-                                    .shadow(radius: toolbarButtonShadow)
+                                    .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                                     .overlay {
                                         Text("⚙️")
                                         .accessibilityLabel("Settings") }
@@ -138,11 +179,13 @@ struct NewAddInfoView: View {
                         CircularProgressView(progressTracker: progressTracker).padding()
                     }
                     Spacer()
-                    //                                .frame(height: keyboardResponder.currentHeight)
                         .navigationTitle("Add New 📝")
-                        .navigationBarTitleDisplayMode(.inline)
+                        .navigationBarTitleDisplayMode(.large)
+                }.background {
+                    Color.primaryBackground.ignoresSafeArea()
                 }
             }
+        
         }
         
         .fullScreenCover(isPresented: $showSettings) {
@@ -154,37 +197,33 @@ struct NewAddInfoView: View {
         Button(action: addNewInfoAction) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customDarkBlue)
-                    .shadow(radius: 7)
+                    .fill(Color.primaryAccent)
                     .frame(height: 60)
                 
-                Text("Save").font(.title2).bold().foregroundColor(.white)
+                Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("save")
             }
             .contentShape(Rectangle())
-            .shadow(radius: 7)
+            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 12)
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
-        //        .id("SubmitButton")
-        //        .padding(.bottom, keyboardResponder.currentHeight > 0 ? 10 : 0)
     }
     
     private var ClearButton: some View {
         Button(action: performClearTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customDarkBlue)
-                
+                    .fill(Color.primaryAccent)
                     .frame(height: 60)
                 
-                Text("OK").font(.title2).bold().foregroundColor(.white)
+                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("clear")
             }
             .contentShape(Rectangle())
-            .shadow(radius: 7)
+            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
         }
         .padding(.top, 12)
         .padding(.horizontal)
@@ -246,7 +285,7 @@ struct NewAddInfoView: View {
                     print("Error while upserting catched by the View: \(error.localizedDescription)")
                 }
             }
-        } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ")}
+        } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ") }
         
         await MainActor.run {
             self.apiCallInProgress = false

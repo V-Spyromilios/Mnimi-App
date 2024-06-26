@@ -71,7 +71,7 @@ struct CustomTabBarView: View {
         }) {
             Image(systemName: imageName)
                 .font(.largeTitle)
-                .foregroundStyle(tabSelection == tabId ? .white : .white.opacity(0.6))
+                .foregroundStyle(tabSelection == tabId ? .white : Color.darkGray.opacity(0.3))
         }
     }
 

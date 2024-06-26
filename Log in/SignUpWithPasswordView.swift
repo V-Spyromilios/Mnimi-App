@@ -9,6 +9,7 @@ import SwiftUI
 import Security
 
 struct SignUpWithPasswordView: View {
+    @Environment(\.colorScheme) var colorScheme
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
@@ -17,48 +18,84 @@ struct SignUpWithPasswordView: View {
     @State private var hasSignedUp = false
 
     var body: some View {
-        ZStack {
-            Color.britishRacingGreen.ignoresSafeArea()
-            VStack {
-            Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded)
-
-                Spacer()
-            TextField("Username", text: $username)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            SecureField("Confirm Password", text: $confirmPassword)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            Button(action: signUp) {
-               
-                ZStack {
-                    RoundedRectangle(cornerRadius: rectCornerRad)
-                        .fill(Color.customDarkBlue)
-                        .shadow(color: .gray, radius: 7)
-                        .frame(height: 60)
+        GeometryReader { geometry in
+            ZStack {
+                Color.britishRacingGreen.ignoresSafeArea()
+                VStack {
+                    Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding()
+                    Text("Sign-up with Password")
+                        .foregroundStyle(Color.buttonText)
+                        .font(.title2)
+                        .padding()
+                    
+                    Spacer()
+                    TextField("Username", text: $username)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                        )
+                        .padding()
+                    
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                        )
+                        .padding()
+                    
+                    SecureField("Confirm Password", text: $confirmPassword)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                        )
+                        .padding()
+                    
+                    Button(action:  {
+                        signUp()
+                    }
+                    ) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: rectCornerRad)
+                                .fill(Color.primaryAccent)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                                .frame(height: 60)
+                            
+                            Text("Save").font(.title2).bold()
+                                .foregroundColor(Color.buttonText)
+                                .accessibilityLabel("save")
+                        }
+                        .contentShape(Rectangle())
                         
-                    Text("Sign Up").font(.title2).bold().foregroundColor(.white)
-                        .accessibilityLabel("save")
-                }
-                .contentShape(Rectangle())
-                .shadow(color: .gray, radius: 7)
-            }.padding(.top)
-            .padding()
-                Spacer()
-        }.frame(maxWidth: .infinity)
-    }
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Sign Up Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                    }
+                    .frame(maxWidth: idealWidth(for: geometry.size.width))
+                    .padding(.top, 12)
+                    .padding(.horizontal)
+                    .padding()
+                    Spacer()
+                }.frame(maxWidth: .infinity)
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Sign Up Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
+            .fullScreenCover(isPresented: $hasSignedUp) {
+                MainView()
+            }
         }
-        .fullScreenCover(isPresented: $hasSignedUp) {
-                    MainView()
-                }
     }
 
     private func signUp() {

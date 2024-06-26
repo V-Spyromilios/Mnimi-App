@@ -19,6 +19,7 @@ struct EditInfoView: View {
     var body: some View {
         
         ZStack {
+            Color.primaryBackground.ignoresSafeArea()
             
             InfoView(viewModel: viewModel, showPop: $showPop, presentationMode: presentationMode).opacity(showProgress ? 0.5 : 1.0)
                 

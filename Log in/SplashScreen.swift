@@ -21,7 +21,7 @@ struct SplashScreen: View {
         GeometryReader { geometry in
             
             ZStack {
-                Color.white
+                Color.primaryBackground
                     .edgesIgnoringSafeArea(.all)
                 
                 VStack {
@@ -109,7 +109,7 @@ struct SplashScreen: View {
                 //                    //                    showCode = false
                 //                    //                    greenHeight = 0
                 //                }
-                withAnimation(.easeInOut(duration: 0.1)) {
+                withAnimation(.easeInOut(duration: 0.01)) {
                     showSplash = false
                     
                 }
@@ -129,7 +129,7 @@ struct SplashScreen: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 90, height: 90)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.primaryBackground)
                 .cornerRadius(8)
             
         }
@@ -152,7 +152,7 @@ struct SplashScreen: View {
             ForEach(Array(codeLines.enumerated()), id: \.offset) { _, line in
                 Text(line)
           
-                    .foregroundColor(.gray).opacity(0.7)
+                    .foregroundColor(Color.primaryBackground).opacity(0.8)
                     .font(Font.custom("SF-Compact", size: 13))
                     .transition(.move(edge: .bottom))
                     .frame(maxWidth: .infinity, alignment: .trailing)

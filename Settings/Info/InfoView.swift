@@ -21,7 +21,7 @@ struct InfoView: View {
     @State private var animateStep: Int = 0
     @Binding var showPop: Bool
     @Binding var presentationMode: PresentationMode
-    
+    @Environment(\.colorScheme) var colorScheme
 
     private enum Field {
         case edit
@@ -42,13 +42,14 @@ struct InfoView: View {
                     .multilineTextAlignment(.leading)
                     .frame(height: textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(radius: 5)
-                    .overlay{
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .overlay(
                         RoundedRectangle(cornerRadius: 10.0)
                             .stroke(lineWidth: 1)
-                            .opacity(0.3)
-                            .foregroundColor(Color.gray)
-                    }
+                            .opacity(colorScheme == .light ? 0.3 : 0.7)
+                            .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                    )
+                    
                     .padding(.bottom)
 //                    .onAppear { focusField = .edit }
                     .focused($focusField, equals: .edit)
@@ -63,15 +64,16 @@ struct InfoView: View {
 ) {
                 ZStack {
                     RoundedRectangle(cornerRadius: rectCornerRad)
-                        .fill(Color.customDarkBlue)
-                        .shadow(radius: 7)
+                        .fill(Color.primaryAccent)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                         .frame(height: 60)
                         
-                    Text("Save").font(.title2).bold().foregroundColor(.white)
+                    Text("Save").font(.title2).bold()
+                        .foregroundColor(Color.buttonText)
                         .accessibilityLabel("save")
                 }
                 .contentShape(Rectangle())
-                .shadow(radius: 7)
+               
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 12)
@@ -93,19 +95,9 @@ struct InfoView: View {
             
             
             Spacer()
-        }
+        }.background { Color.primaryBackground.ignoresSafeArea() }
         .toolbar {
-            
-//            ToolbarItemGroup(placement: .keyboard) {
-//                HStack {
-//                    Spacer()
-//                    Button {
-//                        hideKeyboard()
-//                    } label: {
-//                        Image(systemName: "keyboard.chevron.compact.down")
-//                    }
-//                }
-//            }
+
             ToolbarItemGroup(placement: .topBarTrailing) {
                 
                 if keyboardResponder.currentHeight > 0 {
@@ -121,9 +113,9 @@ struct InfoView: View {
                    
                 }, label: {
                     Circle()
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.buttonText)
                         .frame(height: 30)
-                        .shadow(radius: toolbarButtonShadow)
+                        .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                         .overlay {
                             Text("🗑️")
                                 .accessibilityLabel("Delete info")
@@ -134,11 +126,3 @@ struct InfoView: View {
         
     }
 }
-
-//#Preview {
-//    InfoView(viewModel: EditInfoViewModel(vector: Vector(id: "1234", metadata: ["Test":"test"])))
-//        .environmentObject(OpenAIManager())
-//        .environmentObject(PineconeManager())
-//        .environmentObject(ProgressTracker())
-//        .environmentObject(KeyboardResponder())
-//}

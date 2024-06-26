@@ -57,8 +57,6 @@
 		E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* VaultView.swift */; };
 		E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */; };
 		E8FA7F0E2BC5BC320012EBF6 /* PromptLanguageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */; };
-		E8FA7F102BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F052BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift */; };
-		E8FA7F112BC5BC320012EBF6 /* ResponseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F062BC5BC320012EBF6 /* ResponseDetailView.swift */; };
 		E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F072BC5BC320012EBF6 /* Settings View.swift */; };
 		E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */; };
 		E8FD6B722BEA422F00A0BC15 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E8FD6B712BEA422F00A0BC15 /* FirebaseAnalytics */; };
@@ -121,8 +119,6 @@
 		E8FA7F012BC5BC320012EBF6 /* VaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
 		E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptLanguageView.swift; sourceTree = "<group>"; };
-		E8FA7F052BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordingsSettingsViewModel.swift; sourceTree = "<group>"; };
-		E8FA7F062BC5BC320012EBF6 /* ResponseDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseDetailView.swift; sourceTree = "<group>"; };
 		E8FA7F072BC5BC320012EBF6 /* Settings View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Settings View.swift"; sourceTree = "<group>"; };
 		E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfosViewListCellView.swift; sourceTree = "<group>"; };
 		E8FA7F182BC5D3C60012EBF6 /* MyndVault.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyndVault.entitlements; sourceTree = "<group>"; };
@@ -296,8 +292,6 @@
 				E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */,
 				E82F45892BC2A85D00945312 /* CustomTapBarView.swift */,
 				E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */,
-				E8FA7F052BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift */,
-				E8FA7F062BC5BC320012EBF6 /* ResponseDetailView.swift */,
 				E8FA7F072BC5BC320012EBF6 /* Settings View.swift */,
 			);
 			path = Settings;
@@ -445,7 +439,6 @@
 				E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */,
 				E8FA7F0E2BC5BC320012EBF6 /* PromptLanguageView.swift in Sources */,
 				E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */,
-				E8FA7F102BC5BC320012EBF6 /* RecordingsSettingsViewModel.swift in Sources */,
 				E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */,
 				E8B4D5082BF8CD7F00F2A174 /* KeychainManager.swift in Sources */,
 				E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */,
@@ -455,7 +448,6 @@
 				E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */,
 				E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */,
 				E82F45742BC2A77E00945312 /* NotificationCellView.swift in Sources */,
-				E8FA7F112BC5BC320012EBF6 /* ResponseDetailView.swift in Sources */,
 				E82F45732BC2A77E00945312 /* ResponseModel.swift in Sources */,
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,

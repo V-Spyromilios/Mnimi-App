@@ -103,7 +103,7 @@ struct NotificationEditView: View {
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
-                                .fill(Color.customDarkBlue)
+                                .fill(Color.primaryAccent)
                                 .frame(height: 60)
                                 .shadow(radius: 7)
                             Text("Reschedule").font(.title2).bold().foregroundColor(.white)
@@ -127,7 +127,7 @@ struct NotificationEditView: View {
                 }
             }
             .navigationTitle("Edit Notification")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     

@@ -89,35 +89,44 @@ final class CloudKitViewModel: ObservableObject {
                 case .networkUnavailable, .networkFailure:
                     await MainActor.run {
                         log.append("Network error occurred: \(ckError.localizedDescription)")
+                        self.CKError = "Network Failure. Network is available, but CloudKit is inaccessible."
                     }
                 case .serviceUnavailable:
                     await MainActor.run {
                         log.append("Service unavailable: \(ckError.localizedDescription)")
+                        self.CKError = "iCloud Unavailable."
                     }
                 case .requestRateLimited:
                     await MainActor.run {
                         log.append("Request rate limited: \(ckError.localizedDescription)")
+                        self.CKError = "CloudKit rate-limits requests"
                     }
                 case .quotaExceeded:
                     await MainActor.run {
                         log.append("Quota exceeded: \(ckError.localizedDescription)")
+                        self.CKError = "Not enough iCloud storage. Check iCloud settings to manage your storage."
                     }
                 case .notAuthenticated:
                     await MainActor.run {
                         log.append("User not authenticated: \(ckError.localizedDescription)")
+                        self.CKError = "User not authenticated"
                     }
                 case .permissionFailure:
                     await MainActor.run {
                         log.append("Permission failure: \(ckError.localizedDescription)")
+                        self.CKError = "User doesn’t have permission to save or fetch data."
                     }
                 default:
                     await MainActor.run {
                         log.append("CloudKit error: \(ckError.localizedDescription)")
+                        self.CKError = "CloudKit Error. Please try again."
                     }
                 }
             } else {
                 await MainActor.run {
                     log.append("Failed to save namespace item: \(error.localizedDescription)")
+                    self.CKError = "CloudKit Error E.2. Please try again."
+                    
                 }
             }
             throw error

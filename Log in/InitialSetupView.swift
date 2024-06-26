@@ -11,7 +11,7 @@ import LocalAuthentication
 struct InitialSetupView: View {
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
 
-    
+    @Environment(\.colorScheme) var colorScheme
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
@@ -26,37 +26,66 @@ struct InitialSetupView: View {
                 
                 VStack {
                     Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding()
-                    Text("Initial Setup").foregroundStyle(.white)
+                    Text("Initial Setup")
+                        .foregroundStyle(Color.buttonText)
                         .font(.title2)
                         .padding()
                     Spacer()
                     TextField("Username", text: $username)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: idealWidth(for: geometry.size.width))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                        )
                         .padding()
                     
                     SecureField("Password", text: $password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: idealWidth(for: geometry.size.width))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                        )
                         .padding()
                     
                     SecureField("Confirm Password", text: $confirmPassword)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: idealWidth(for: geometry.size.width))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                        )
                         .padding()
                     
-                    Button(action: completeSetup) {
+                    Button(action:  {
+                       completeSetup()
+                    }
+        ) {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
-                                .fill(Color.customDarkBlue)
-                                .shadow(color: .white, radius: 7)
+                                .fill(Color.primaryAccent)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                                 .frame(height: 60)
-                            
-                            Text("Save").font(.title2).bold().foregroundColor(.white)
+                                
+                            Text("Save").font(.title2).bold()
+                                .foregroundColor(Color.buttonText)
                                 .accessibilityLabel("save")
                         }
                         .contentShape(Rectangle())
-                        .shadow(radius: 7)
+                       
                     }
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
                     .padding(.top, 12)

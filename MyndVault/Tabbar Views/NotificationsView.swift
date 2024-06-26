@@ -20,13 +20,7 @@ struct NotificationsView: View {
             ScrollView {
                 LazyVStack(alignment: .leading) {
                     if !manager.scheduledNotifications.isEmpty {
-//                        Text("Scheduled")
-//                            .font(.headline)
-//                            .foregroundColor(.secondary)
-//                            .frame(maxWidth: .infinity, alignment: .leading)
-//                            .textCase(.uppercase)
-//                            .padding(.bottom)
-//                            .padding(.leading, 9)
+
                         ForEach(manager.scheduledNotifications) {notification in
                             
                             NotificationCellView(notification: notification)
@@ -35,10 +29,10 @@ struct NotificationsView: View {
                     } else {
                         ContentUnavailableView("No Notifications yet!", systemImage: "bell.slash.fill", description: Text("Start by adding a new Notification.")).offset(y: contentUnaivalableOffset)
                     }
-                }
+                }.padding(.top, 14)
             }
             .navigationTitle("Notifications 🔔")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
@@ -47,15 +41,18 @@ struct NotificationsView: View {
                     } label: {
                         Circle()
                         
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.buttonText)
                             .frame(height: 30)
-                            .shadow(radius: toolbarButtonShadow)
+                            .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                             .overlay {
                                 Text("➕")}
                     }.padding().accessibilityLabel("Add new notification")
                 }
             }
-        }.sheet(isPresented: $showAddNotification) {
+            .background { Color.primaryBackground.ignoresSafeArea() }
+        }
+       
+        .sheet(isPresented: $showAddNotification) {
             AddNotificationView(dismissAction: {
                 showAddNotification = false
             })
@@ -65,9 +62,8 @@ struct NotificationsView: View {
 
 struct NotificationsView_Previews: PreviewProvider {
     static var previews: some View {
+
         let manager = NotificationViewModel()
-       
-        
         return NotificationsView()
             .environmentObject(manager)
     }

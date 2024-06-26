@@ -16,28 +16,20 @@ struct SettingsView: View {
     @State private var errorString = ""
     
     var body: some View {
-        
+
         NavigationView {
-            VStack {
-                Button {
-                    Task {
+            
+            
+            List {
+                NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language")
                     
-                            if let recordID = cloudKit.fetchedNamespaceDict.keys.first {
-                                try await cloudKit.deleteNamespaceItem(recordID: recordID)
-                            }
-                        }} label: {
-                            Text("Delete Namespace.")
-                        }
-                    
-                if errorString != "" {
-                    Text(errorString)
-                }
-                List {
-                    NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language") }
                 }
             }
+            
+            .padding(.top, 12)
             .navigationTitle("Settings ⚙️")
-            .navigationBarTitleDisplayMode(.inline)
+            
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
@@ -46,9 +38,9 @@ struct SettingsView: View {
                     } label: {
                         Circle()
                         
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.buttonText)
                             .frame(height: 30)
-                            .shadow(radius: toolbarButtonShadow)
+                            .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                             .accessibilityLabel("Close Settings")
                             .overlay {
                                 Image(systemName: "xmark") }
@@ -69,18 +61,20 @@ struct SettingsView: View {
                                 .frame(width: 30, height: 30)
                             
                             Circle()
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.buttonText)
                                 .frame(width: 30, height: 30)
-                                .shadow(radius: toolbarButtonShadow)
+                                .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                             Text("🚪")
                         }.padding()
-                            .accessibilityLabel("Log out from Mynd Vault app")
+                            .accessibilityLabel("Log out.")
                     }
                     
                 }
                 
             }
+            
         }.statusBar(hidden: true)
+        
         
     }
 }

@@ -18,6 +18,7 @@ struct QuestionView: View {
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @State private var showSettings: Bool = false
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         NavigationStack {
@@ -28,8 +29,8 @@ struct QuestionView: View {
                     Text("Question").bold()
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
-                    .navigationTitle("Search 🔍")
-                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle("Ask me")
+                    .navigationBarTitleDisplayMode(.large)
                 
                 TextEditor(text: $question)
                     .fontDesign(.rounded)
@@ -37,13 +38,13 @@ struct QuestionView: View {
                     .multilineTextAlignment(.leading)
                     .frame(height: textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(radius: 5)
-                    .overlay {
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .overlay(
                         RoundedRectangle(cornerRadius: 10.0)
                             .stroke(lineWidth: 1)
-                            .opacity(0.3)
-                            .foregroundColor(Color.gray)
-                    }
+                            .opacity(colorScheme == .light ? 0.3 : 0.7)
+                            .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                    )
                     .padding(.bottom)
                     .padding(.horizontal, 7)
                 VStack {
@@ -76,7 +77,6 @@ struct QuestionView: View {
                         else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
                         }
-//                        Text("GoButton: \(goButtonIsVisible) :: Progress: \(progressTracker.progress) \n Errors: \(thrownError), \(openAiManager.thrownError), \(String(describing: pineconeManager.receivedError?.localizedDescription))")
                     }
                     
                     if openAiManager.stringResponseOnQuestion != "" {
@@ -86,10 +86,11 @@ struct QuestionView: View {
                             Spacer()
                         }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
                         ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white)) // Assuming a white background
-                                .shadow(radius: 5)
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
 
                             Text(openAiManager.stringResponseOnQuestion)
                                 .padding(5)
@@ -125,9 +126,9 @@ struct QuestionView: View {
                                 hideKeyboard()
                             } label: {
                                 Circle()
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color.buttonText)
                                     .frame(height: 30)
-                                    .shadow(radius: toolbarButtonShadow)
+                                    .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                                     .overlay {
                                         HideKeyboardLabel()
                                     }
@@ -136,21 +137,25 @@ struct QuestionView: View {
                             
                         
                         Button {
-                            print("Before toggling settings: \(showSettings)")
+//                            print("Before toggling settings: \(showSettings)")
                                 showSettings.toggle()
-                                print("After toggling settings: \(showSettings)")
+//                                print("After toggling settings: \(showSettings)")
                         } label: {
                             Circle()
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.buttonText)
                                 .frame(height: 30)
-                                .shadow(radius: toolbarButtonShadow)
+                                .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                                 .overlay {
                                     Text("⚙️")
                                     .accessibilityLabel("settings") }
                         }
                     }
                 }
-            }.fullScreenCover(isPresented: $showSettings) {
+            }
+            .background {
+                Color.primaryBackground.ignoresSafeArea()
+            }
+            .fullScreenCover(isPresented: $showSettings) {
                 SettingsView(showSettings: $showSettings)
             }
         }
@@ -159,15 +164,13 @@ struct QuestionView: View {
         Button(action: performTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color("customDarkBlue"))
-                    .shadow(radius: 7)
-//
+                    .fill(Color("primaryAccent"))
                     .frame(height: 60)
                 Text("Go").font(.title2).bold().foregroundColor(.white)
                     .accessibilityLabel("Go")
             }
-            .shadow(radius: 7)
             .contentShape(Rectangle())
+            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
         }
         .padding(.top, 12)
         .padding(.horizontal)
@@ -178,10 +181,10 @@ struct QuestionView: View {
         Button(action: performClearTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customDarkBlue)
-                    .shadow(radius: 7)
+                    .fill(Color.primaryAccent)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                     .frame(height: 60)
-                    .shadow(radius: 7)
+
                 Text("OK").font(.title2).bold().foregroundColor(.white)
                     .accessibilityLabel("Clear and reset")
             }

@@ -64,7 +64,7 @@ struct VaultView: View {
                                                
                         ).offset(y: contentUnaivalableOffset)
                     }
-            }
+                }.padding(.top, 14)
             }.refreshable {
                 Task {
                     do {
@@ -76,7 +76,8 @@ struct VaultView: View {
                 }
             }
             .navigationTitle("Vault 🗃️")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
+            .background { Color.primaryBackground.ignoresSafeArea() }
         }
 //        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .alert(isPresented: $showAlert) {

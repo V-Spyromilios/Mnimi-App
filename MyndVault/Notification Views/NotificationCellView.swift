@@ -41,6 +41,7 @@ struct NotificationCellView: View {
                 HStack {
                     Text(notification.title)
                         .font(.title)
+                        .foregroundStyle(.buttonText)
                         .fontWeight(.bold)
                         .fontDesign(.rounded)
                         .padding(.bottom, 2)
@@ -50,6 +51,7 @@ struct NotificationCellView: View {
                 }
                 HStack {
                     Text(notification.notificationBody)
+                        .foregroundStyle(.buttonText)
                         .italic()
                         .padding(.bottom, 20)
                         .padding(.leading)
@@ -65,11 +67,13 @@ struct NotificationCellView: View {
             
             
             Text(viewModel.timeRemaining)
+                    .foregroundStyle(.buttonText).opacity(0.9)
                 .font(.caption)
                 .contentTransition(.numericText())
                 .padding(.bottom, 18)
             
         }.frame(maxWidth: .infinity)
+            .padding(.top)
 //            .toolbar {
 //                ToolbarItemGroup(placement: .topBarTrailing) {
 //                    Button("CancelFromCell") {
@@ -80,7 +84,7 @@ struct NotificationCellView: View {
     
         
 //            .padding(.horizontal)
-            .background(Color.white)
+            .background(Color.cardBackground)
             .cornerRadius(10)
             .shadow(radius: shadowRadius)
             .onTapGesture {
