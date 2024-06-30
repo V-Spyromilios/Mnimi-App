@@ -17,7 +17,9 @@ struct QuestionView: View {
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @EnvironmentObject var cloudKitManager: CloudKitViewModel
     @State private var showSettings: Bool = false
+    @State private var fetchedImages: [UIImage] = []
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -102,6 +104,25 @@ struct QuestionView: View {
                         }
                         .padding(.bottom)
                         .padding(.horizontal, 7)
+                        VStack {
+                                // Display each image
+                                ForEach(0..<fetchedImages.count, id: \.self) { index in
+                                    withAnimation {
+                                        Image(uiImage: fetchedImages[index])
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 160)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 10.0)
+                                                    .stroke(lineWidth: 1)
+                                                    .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                                    .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                            )
+                                    }
+                                }
+                            
+                        }
                         ClearButton
                             .padding(.bottom)
                     }
@@ -166,11 +187,12 @@ struct QuestionView: View {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color("primaryAccent"))
                     .frame(height: 60)
-                Text("Go").font(.title2).bold().foregroundColor(.white)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                Text("Go").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Go")
             }
             .contentShape(Rectangle())
-            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+           
         }
         .padding(.top, 12)
         .padding(.horizontal)
@@ -185,7 +207,7 @@ struct QuestionView: View {
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                     .frame(height: 60)
 
-                Text("OK").font(.title2).bold().foregroundColor(.white)
+                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Clear and reset")
             }
             .contentShape(Rectangle())
@@ -194,7 +216,7 @@ struct QuestionView: View {
         .padding(.bottom, 12)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
-        .shadow(radius: 7)
+
     }
     
     private func performClearTask() {
@@ -202,6 +224,7 @@ struct QuestionView: View {
         withAnimation {
             self.question = ""
             self.thrownError = ""
+            fetchedImages = []
             self.clearButtonIsVisible = false
             self.goButtonIsVisible = true
             progressTracker.reset()
@@ -221,6 +244,7 @@ struct QuestionView: View {
         withAnimation { goButtonIsVisible = false }
 
         Task {
+
             await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             if openAiManager.questionEmbeddingsCompleted {
                 
@@ -233,9 +257,27 @@ struct QuestionView: View {
                 }
                 if let pineconeResponse = pineconeManager.pineconeQueryResponse {
                     do {
+                        for match in pineconeResponse.matches {
+                            let id = match.id
+                            Task {
+                                do {
+                                    //TODO: fetc works ok, save does not work.
+                                    if  let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
+                                        print("Succesfully fetched image from icloud with id : \(id)")
+                                        DispatchQueue.main.async {
+                                            fetchedImages.append(image)
+                                        }
+                                        
+                                    } else {
+                                        print("Malakia, unable to fetch image from id: \(id)")
+                                    }
+                                }
+                                catch {
+                                    print("Failed to fetch image item: \(error.localizedDescription)")
+                                }
+                            }
+                        }
                         try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
-//                        ProgressTracker.shared.setProgress(to: 0.97)
-//                        ProgressTracker.shared.setProgress(to: 0.99)
                         
                     } catch {
                         thrownError = error.localizedDescription
@@ -247,6 +289,7 @@ struct QuestionView: View {
         }
         if thrownError == "" {
             withAnimation {
+               
                 clearButtonIsVisible = true
             }
         }

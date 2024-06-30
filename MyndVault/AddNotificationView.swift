@@ -90,12 +90,13 @@ struct AddNotificationView: View {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.primaryAccent)
                                 .frame(height: 60)
-                               
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+
                             Text("Save").font(.title2).bold()
                                 .foregroundColor(Color.buttonText)
                         } .padding(.vertical, 8)
                             .contentShape(Rectangle())
-                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                           
                     }.frame(maxWidth: .infinity).accessibilityLabel("save")
                     Spacer()
                 }

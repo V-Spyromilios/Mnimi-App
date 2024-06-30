@@ -27,14 +27,15 @@ struct NewAddInfoView: View {
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @EnvironmentObject var cloudKit: CloudKitViewModel
     @StateObject private var photoPicker = ImagePickerViewModel()
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         
         GeometryReader { geometry in
-          
             NavigationStack {
+                ScrollView {
                 
                 //                    ScrollView {
                 VStack {
@@ -72,7 +73,7 @@ struct NewAddInfoView: View {
                         }
                         
                         
-//                        .padding()
+                        //                        .padding()
                         Spacer()
                         if let image = photoPicker.selectedImage {
                             ZStack(alignment: .topTrailing) {
@@ -101,19 +102,19 @@ struct NewAddInfoView: View {
                         }
                     }
                     .padding()
-                                      .frame(maxWidth: idealWidth(for: geometry.size.width))
-                                      .background(colorScheme == .light ? Color.cardBackground : Color.black)
-                                      .clipShape(RoundedRectangle(cornerRadius: 10))
-                                      .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
-                                      .overlay(
-                                          RoundedRectangle(cornerRadius: 10.0)
-                                              .stroke(lineWidth: 1)
-                                              .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                              .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
-                                      )
-                                      .padding(.horizontal, 7)
-                                      .padding(.bottom)
-
+                    .frame(maxWidth: idealWidth(for: geometry.size.width))
+                    .background(colorScheme == .light ? Color.cardBackground : Color.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10.0)
+                            .stroke(lineWidth: 1)
+                            .opacity(colorScheme == .light ? 0.3 : 0.7)
+                            .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                    )
+                    .padding(.horizontal, 7)
+                    .padding(.bottom)
+                    
                     .toolbar {
                         
                         ToolbarItemGroup(placement: .topBarTrailing) {
@@ -181,13 +182,13 @@ struct NewAddInfoView: View {
                     Spacer()
                         .navigationTitle("Add New 📝")
                         .navigationBarTitleDisplayMode(.large)
-                }.background {
-                    Color.primaryBackground.ignoresSafeArea()
                 }
+            }.background {
+                Color.primaryBackground.ignoresSafeArea()
+            }
             }
         
         }
-        
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
         }
@@ -199,12 +200,12 @@ struct NewAddInfoView: View {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.primaryAccent)
                     .frame(height: 60)
-                
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                 Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("save")
             }
             .contentShape(Rectangle())
-            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+           
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 12)
@@ -218,12 +219,12 @@ struct NewAddInfoView: View {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.primaryAccent)
                     .frame(height: 60)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                 
                 Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("clear")
             }
             .contentShape(Rectangle())
-            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
         }
         .padding(.top, 12)
         .padding(.horizontal)
@@ -267,8 +268,13 @@ struct NewAddInfoView: View {
                 //MARK: TEST THROW
                 //                                let miaMalakia = AppCKError.UnableToGetNameSpace
                 //                                throw miaMalakia
-                try await pineconeManager.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
+                let uniqueID = UUID().uuidString
+                
+                try await pineconeManager.upsertDataToPinecone(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
                 if pineconeManager.upsertSuccesful {
+                    if let image = photoPicker.selectedImage {
+                        try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
+                    }
                     await MainActor.run {
                         self.popUpMessage = "Info saved."
                         self.showPopUp = true

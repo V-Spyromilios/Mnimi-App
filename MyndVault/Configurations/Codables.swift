@@ -211,6 +211,7 @@ struct PineconeQueryResponse: Codable {
 
             for match in matches {
                 print("Matches : \(String(describing: match.metadata))")
+                print("Match id : \(match.id)")
                 if let description = match.metadata?["description"] { // Extract the "description" value from each match's metadata
                     descriptions.append(description)
                 }

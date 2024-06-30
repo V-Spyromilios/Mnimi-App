@@ -133,7 +133,7 @@ struct NotificationCellView: View {
                         Text(option).font(.body).foregroundStyle(.red)
                     }
                     else {
-                        Text(option).font(.body).foregroundStyle(Color.britishRacingGreen)
+                        Text(option).font(.body).foregroundStyle(Color.secondary)
                     }
                 }).padding(.horizontal)
                     .accessibilityLabel(option == "Delete" ? "Delete" : "Edit")

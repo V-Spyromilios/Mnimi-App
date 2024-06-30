@@ -9,6 +9,7 @@ struct NotificationEditView: View {
     @State private var title: String = ""
     @State private var notificationBody: String = ""
     @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @Environment(\.colorScheme) var colorScheme
     var notification: CustomNotification
     
     var body: some View {
@@ -31,12 +32,12 @@ struct NotificationEditView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: 150) // Adjust height as needed
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(radius: 5)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
-                                .opacity(0.3)
-                                .foregroundColor(Color.gray)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
                         )
                        
                 }
@@ -59,12 +60,12 @@ struct NotificationEditView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: 150) // Adjust height as needed
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(radius: 5)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
-                                .opacity(0.3)
-                                .foregroundColor(Color.gray)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
                         )
                         .padding(.bottom)
                     
@@ -105,12 +106,12 @@ struct NotificationEditView: View {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.primaryAccent)
                                 .frame(height: 60)
-                                .shadow(radius: 7)
-                            Text("Reschedule").font(.title2).bold().foregroundColor(.white)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                            Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
                         }
                         .padding(.vertical, 8)
                         .contentShape(Rectangle())
-                        .shadow(radius: 7)
+                        
                         .accessibilityLabel("Save changes and reschedule")
                     }
                     .padding(.top, 12)
@@ -153,7 +154,7 @@ struct NotificationEditView: View {
                     }
                     }
              
-            }
+            }.background { Color.primaryBackground.ignoresSafeArea() }
         }
         .statusBar(hidden: true)
     }

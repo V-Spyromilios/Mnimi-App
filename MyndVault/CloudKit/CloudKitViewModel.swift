@@ -17,6 +17,7 @@ final class CloudKitViewModel: ObservableObject {
     @Published var CKError: String = ""
     @Published var userID: CKRecord.ID?
     @Published var fetchedNamespaceDict: [CKRecord.ID: NamespaceItem] = [:]
+//    @Published var fetchedImagesDict: [CKRecord.ID: ImageItem] = [:]
     @Published var log: [String] = []
     @Published var isFirstLaunch: Bool
     
@@ -35,7 +36,7 @@ final class CloudKitViewModel: ObservableObject {
     }
     
     func startCloudKit() {
-
+        
         Task {
             let key = fetchedNamespaceDict.keys.first
             if key == nil {
@@ -53,7 +54,7 @@ final class CloudKitViewModel: ObservableObject {
         await MainActor.run {
             log.append("query: \(query)") }
         let rs = try await db.records(matching: query)
-       
+        
         await MainActor.run {
             log.append("rs: \(rs)") }
         let returnedRecords = rs.matchResults.compactMap { try? $0.1.get() }
@@ -174,7 +175,7 @@ final class CloudKitViewModel: ObservableObject {
             await MainActor.run {
                 log.append("User is signed in to iCloud.") }
             
-          
+            
             let tempuserID = try await getUserID()
             await MainActor.run {
                 self.userID = tempuserID
@@ -263,6 +264,168 @@ final class CloudKitViewModel: ObservableObject {
         } catch {
             log.append("Failed to fetch namespace item: \(error.localizedDescription)")
             throw error
+        }
+    }
+    
+    
+    
+        func saveImageItem(image: UIImage, uniqueID: String) async throws {
+            guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
+    
+            // Create CKAsset from UIImage
+            guard let data = image.jpegData(compressionQuality: 1.0) else { throw AppCKError.imageConversionFailed }
+    
+            // Create a unique temporary file URL for each asset
+            let temporaryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
+            try data.write(to: temporaryURL)
+    
+            let imageAsset = CKAsset(fileURL: temporaryURL)
+            let imageItem = ImageItem(imageAsset: imageAsset, uniqueID: uniqueID)
+    
+            do {
+                try await db.save(imageItem.record)
+                await MainActor.run {
+//                    fetchedImagesDict[imageItem.record.recordID] = imageItem
+                   print("Successfully saved image item: \(imageItem)")
+                }
+            } catch {
+                await MainActor.run {
+                   print("Failed to save image item: \(error.localizedDescription)")
+                    self.CKError = "CloudKit Error. Please try again."
+                }
+                throw error
+            }
+    
+            // Clean up temporary file
+            try? FileManager.default.removeItem(at: temporaryURL)
+        }
+    
+//    func saveImageItem(image: UIImage, uniqueID: String) async throws {
+//        guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
+//        
+//        // Convert UIImage to data
+//        guard let data = image.jpegData(compressionQuality: 1.0) else { throw AppCKError.imageConversionFailed }
+//        
+//        // Create a temporary file URL for CKAsset
+//        let temporaryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
+//        try data.write(to: temporaryURL)
+//        
+//        // Create CKAsset
+//        let imageAsset = CKAsset(fileURL: temporaryURL)
+//        
+//        // Create ImageItem
+//        let imageItem = ImageItem(imageAsset: imageAsset, uniqueID: uniqueID)
+//        
+//        // Create CKRecord
+//        let record = imageItem.record
+//        print("Saving record with uniqueID: \(uniqueID), recordID: \(record.recordID)")
+//        
+//        let saveOperation = CKModifyRecordsOperation(recordsToSave: [record], recordIDsToDelete: nil)
+//        saveOperation.savePolicy = .ifServerRecordUnchanged
+//        
+//        var retryAttempt = 0
+//        let maxRetries = 3
+//        
+//        saveOperation.modifyRecordsResultBlock = { result in
+//            switch result {
+//            case .success:
+//                DispatchQueue.main.async {
+//                    print("Successfully saved image item with id: \(uniqueID), recordID: \(record.recordID)")
+//                }
+//            case .failure(let error):
+//                DispatchQueue.main.async {
+//                    print("Failed to save image item: \(error.localizedDescription)")
+//                }
+//                if let ckError = error as? CKError {
+//                    switch ckError.code {
+//                    case .networkUnavailable, .networkFailure:
+//                        // Retry logic
+//                        if retryAttempt < maxRetries {
+//                            retryAttempt += 1
+//                            print("Retry attempt \(retryAttempt) for network error: \(ckError.localizedDescription)")
+//                            DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(2)) {
+//                                db.add(saveOperation)
+//                            }
+//                        } else {
+//                            DispatchQueue.main.async {
+//                                print("Max retries reached. Network error: \(ckError.localizedDescription)")
+//                            }
+//                        }
+//                    default:
+//                        DispatchQueue.main.async {
+//                            print("CKError: \(ckError.localizedDescription)")
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        
+//        db.add(saveOperation)
+//
+//        // Clean up temporary file
+//        try? FileManager.default.removeItem(at: temporaryURL)
+//    }
+
+    
+    func fetchImageItem(uniqueID: String) async throws -> UIImage? {
+
+        guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
+        
+        let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
+        let query = CKQuery(recordType: "ImageItem", predicate: predicate)
+        
+        var attempt = 0
+        let maxRetries = 3
+        
+        while attempt < maxRetries {
+            do {
+                let records = try await performQuery(query, in: db)
+                guard let record = records.first,
+                      let asset = record["imageAsset"] as? CKAsset,
+                      let fileURL = asset.fileURL else {
+                    return nil
+                }
+                
+                let data = try Data(contentsOf: fileURL)
+                return UIImage(data: data)
+            } catch {
+                attempt += 1
+                if attempt == maxRetries {
+                    print("Error about to be thrown: \(error.localizedDescription)")
+                    throw error
+                }
+                // Optional: Add a delay before retrying
+                try await Task.sleep(nanoseconds: 100_000) //0.1sec
+            }
+        }
+        
+        return nil
+    }
+
+    private func performQuery(_ query: CKQuery, in db: CKDatabase) async throws -> [CKRecord] {
+        print("performQuery() called with query: \(query)")
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            db.fetch(withQuery: query, inZoneWith: nil, desiredKeys: nil, resultsLimit: 1) { result in
+                switch result {
+                case .success(let (matchedResults, _)):
+                    let records = matchedResults.compactMap { _, result in
+                        switch result {
+                        case .success(let record):
+                            print("Perform Query - received record: \(record)")
+                            return record
+                        case .failure(let error):
+                            print("Perform Query - record error: \(error.localizedDescription)")
+                            return nil
+                        }
+                    }
+                    print("Perform Query - returning records: \(records)")
+                    continuation.resume(returning: records)
+                case .failure(let error):
+                    print("Perform Query - query error: \(error.localizedDescription)")
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
 }

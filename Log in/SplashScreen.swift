@@ -105,10 +105,7 @@ struct SplashScreen: View {
         }
         .onChange(of: loadingComplete) {
             if loadingComplete {
-                //                withAnimation(.easeInOut(duration: 0.5)) {
-                //                    //                    showCode = false
-                //                    //                    greenHeight = 0
-                //                }
+               
                 withAnimation(.easeInOut(duration: 0.01)) {
                     showSplash = false
                     
@@ -152,7 +149,7 @@ struct SplashScreen: View {
             ForEach(Array(codeLines.enumerated()), id: \.offset) { _, line in
                 Text(line)
           
-                    .foregroundColor(Color.primaryBackground).opacity(0.8)
+                    .foregroundColor(Color.primaryBackground)
                     .font(Font.custom("SF-Compact", size: 13))
                     .transition(.move(edge: .bottom))
                     .frame(maxWidth: .infinity, alignment: .trailing)
