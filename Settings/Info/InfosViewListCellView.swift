@@ -18,31 +18,26 @@ struct InfosViewListCellView: View {
             Text("\(data.metadata["description"] ?? "Empty note.")").lineLimit(2).truncationMode(.tail).font(.subheadline)
                 .fontDesign(.rounded)
                 .fontWeight(.semibold).padding(.horizontal).padding(.top, 4).padding(.bottom)
-                .foregroundStyle(.buttonText)
+                .foregroundStyle(colorScheme == .light ? Color.black : Color.white)
             HStack {
                 
                 if let date = dateFromISO8601(isoDate: data.metadata["timestamp"] ?? "") {
                     let displayDate = formatDateForDisplay(date: date)
-                    Text(displayDate).italic().font(.footnote).fontWeight(.thin).padding(.horizontal).foregroundStyle(colorScheme == .light ? .secondary : Color.gray.opacity(0.9))
+                    Text(displayDate).italic().font(.footnote).fontWeight(.thin).padding(.horizontal).foregroundStyle(colorScheme == .light ? Color.gray : Color.gray.opacity(0.9))
                 } else { Text("") }
                 Spacer()
                 
             }.padding(.bottom, 4)
             
-        }.background { Color.black }
+        }.background { colorScheme == .light ? Color.white : Color.black }
             VStack {
                 Image(systemName: "chevron.right").padding(.trailing)
             }.foregroundStyle(.blue)
                 
-        }.background { Color.black }
+        }.background { colorScheme == .light ? Color.white : Color.black }
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        
-        .overlay {
-        RoundedRectangle(cornerRadius: 10)
-                .stroke(lineWidth: 1)
-                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
-        }
+        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 3 : 1, x: 0, y: colorScheme == .light ? 2: 1)
+
     }
 }
 

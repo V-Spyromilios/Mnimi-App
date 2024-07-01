@@ -54,12 +54,12 @@ struct NewAddInfoView: View {
                             .frame(height: textEditorHeight)
                             .frame(maxWidth: idealWidth(for: geometry.size.width))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: colorScheme == .light ? 2: 1)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10.0)
                                     .stroke(lineWidth: 1)
                                     .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                    .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                    .foregroundColor(Color.gray)
                             )
                             .padding(.bottom)
                             .padding(.horizontal, 7)
@@ -86,7 +86,7 @@ struct NewAddInfoView: View {
                                         RoundedRectangle(cornerRadius: 10.0)
                                             .stroke(lineWidth: 1)
                                             .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                            .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                            .foregroundColor(Color.gray)
                                     )
                                 Button(action: {
                                     withAnimation {
@@ -105,12 +105,12 @@ struct NewAddInfoView: View {
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
                     .background(colorScheme == .light ? Color.cardBackground : Color.black)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: colorScheme == .light ? 2: 1)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10.0)
                             .stroke(lineWidth: 1)
                             .opacity(colorScheme == .light ? 0.3 : 0.7)
-                            .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                            .foregroundColor(Color.gray)
                     )
                     .padding(.horizontal, 7)
                     .padding(.bottom)

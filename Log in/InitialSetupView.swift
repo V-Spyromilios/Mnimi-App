@@ -40,7 +40,7 @@ struct InitialSetupView: View {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                .foregroundColor(Color.gray)
                         )
                         .padding()
                     
@@ -53,7 +53,7 @@ struct InitialSetupView: View {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                .foregroundColor(Color.gray)
                         )
                         .padding()
                     
@@ -66,7 +66,7 @@ struct InitialSetupView: View {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                .foregroundColor(Color.gray)
                         )
                         .padding()
                     

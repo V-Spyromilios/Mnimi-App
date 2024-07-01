@@ -42,7 +42,7 @@ struct AddNotificationView: View {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                .foregroundColor(Color.gray)
                         }
                         .padding(.bottom)
                 }
@@ -58,6 +58,7 @@ struct AddNotificationView: View {
                         .fontDesign(.rounded)
                         .font(.title2)
                         .multilineTextAlignment(.leading)
+                        .foregroundStyle(colorScheme == .light ? .white : .black) //TODO: all view is gray !?!
                         .frame(height: textEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
@@ -65,7 +66,7 @@ struct AddNotificationView: View {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(colorScheme == .light ? Color.gray : Color.blue)
+                                .foregroundColor(Color.gray)
                         }
                         .padding(.bottom)
                 }
@@ -117,7 +118,7 @@ struct AddNotificationView: View {
                                 }
                         }
                 }
-        }
+        }.background { Color.primaryBackground}
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("\(alertTitle)"),

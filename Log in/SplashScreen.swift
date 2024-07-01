@@ -14,6 +14,7 @@ struct SplashScreen: View {
     @State private var logs: [String] = []
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
+    @Environment(\.colorScheme) var colorScheme
     
     let symbols: [String] = ["link.icloud", "tray", "gear", "checkmark", ""]
     
@@ -81,6 +82,7 @@ struct SplashScreen: View {
                 }
                 
             }
+            .statusBar(hidden: true)
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Error"),
                       message: Text(alertMessage),
@@ -149,7 +151,7 @@ struct SplashScreen: View {
             ForEach(Array(codeLines.enumerated()), id: \.offset) { _, line in
                 Text(line)
           
-                    .foregroundColor(Color.primaryBackground)
+                    .foregroundColor(colorScheme == .light ? Color.primaryBackground : Color.black)
                     .font(Font.custom("SF-Compact", size: 13))
                     .transition(.move(edge: .bottom))
                     .frame(maxWidth: .infinity, alignment: .trailing)
