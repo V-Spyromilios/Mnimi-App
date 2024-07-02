@@ -32,7 +32,7 @@ struct NotificationEditView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: 150) // Adjust height as needed
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -60,7 +60,7 @@ struct NotificationEditView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: 150) // Adjust height as needed
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -106,7 +106,7 @@ struct NotificationEditView: View {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.primaryAccent)
                                 .frame(height: 60)
-                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
                         }
                         .padding(.vertical, 8)
@@ -143,7 +143,7 @@ struct NotificationEditView: View {
                             hideKeyboard()
                         } label: {
                             Circle()
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.gray.opacity(0.6))
                                 .frame(height: 30)
                                 .shadow(radius: toolbarButtonShadow)
                                 .overlay {

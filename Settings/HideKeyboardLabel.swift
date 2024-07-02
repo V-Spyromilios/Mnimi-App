@@ -10,11 +10,12 @@ import SwiftUI
 struct HideKeyboardLabel: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 8)
-            .foregroundStyle(.buttonText)
+            .foregroundStyle(.gray.opacity(0.6))
             .frame(width: 35, height: 32)
             .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
             .overlay {
                 Image(systemName: "keyboard.chevron.compact.down")
+                    .foregroundStyle(.yellow)
                     .padding()
                 .accessibilityLabel("Hide Keyboard") }
             }

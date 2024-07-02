@@ -42,7 +42,7 @@ struct InfoView: View {
                     .multilineTextAlignment(.leading)
                     .frame(height: textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10.0)
                             .stroke(lineWidth: 1)
@@ -65,7 +65,7 @@ struct InfoView: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: rectCornerRad)
                         .fill(Color.primaryAccent)
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .frame(height: 60)
                         
                     Text("Save").font(.title2).bold()
@@ -113,7 +113,7 @@ struct InfoView: View {
                    
                 }, label: {
                     Circle()
-                        .foregroundStyle(.buttonText)
+                        .foregroundStyle(Color.gray.opacity(0.6))
                         .frame(height: 30)
                         .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                         .overlay {

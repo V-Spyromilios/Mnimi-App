@@ -40,8 +40,7 @@ struct NotificationsView: View {
                             showAddNotification.toggle() }
                     } label: {
                         Circle()
-                        
-                            .foregroundStyle(.buttonText)
+                            .foregroundStyle(Color.gray.opacity(0.6))
                             .frame(height: 30)
                             .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                             .overlay {

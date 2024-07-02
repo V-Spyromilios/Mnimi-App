@@ -21,12 +21,14 @@ struct SettingsView: View {
             
             
             List {
+                
                 NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language")
+                    
                     
                 }
             }
             
-            .padding(.top, 12)
+          
             .navigationTitle("Settings ⚙️")
             
             .navigationBarTitleDisplayMode(.large)
@@ -38,7 +40,7 @@ struct SettingsView: View {
                     } label: {
                         Circle()
                         
-                            .foregroundStyle(Color.buttonText)
+                            .foregroundStyle(Color.gray.opacity(0.6))
                             .frame(height: 30)
                             .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                             .accessibilityLabel("Close Settings")
@@ -61,7 +63,7 @@ struct SettingsView: View {
                                 .frame(width: 30, height: 30)
                             
                             Circle()
-                                .foregroundStyle(Color.buttonText)
+                                .foregroundStyle(Color.gray.opacity(0.6))
                                 .frame(width: 30, height: 30)
                                 .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                             Text("🚪")
@@ -74,6 +76,7 @@ struct SettingsView: View {
             }
             
         }.statusBar(hidden: true)
+        
         
         
     }

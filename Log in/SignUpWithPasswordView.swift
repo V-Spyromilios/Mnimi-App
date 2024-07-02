@@ -24,7 +24,7 @@ struct SignUpWithPasswordView: View {
                 VStack {
                     Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding()
                     Text("Sign-up with Password")
-                        .foregroundStyle(Color.buttonText)
+                        .foregroundStyle(colorScheme == .light ? .black : .gray)
                         .font(.title2)
                         .padding()
                     
@@ -32,11 +32,11 @@ struct SignUpWithPasswordView: View {
                     TextField("Username", text: $username)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: 5)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .opacity(0.7)
                                 .foregroundColor(Color.gray)
                         )
                         .padding()
@@ -44,7 +44,7 @@ struct SignUpWithPasswordView: View {
                     SecureField("Password", text: $password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -56,7 +56,7 @@ struct SignUpWithPasswordView: View {
                     SecureField("Confirm Password", text: $confirmPassword)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -72,7 +72,7 @@ struct SignUpWithPasswordView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.primaryAccent)
-                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                 .frame(height: 60)
                             
                             Text("Save").font(.title2).bold()

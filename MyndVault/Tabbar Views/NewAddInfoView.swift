@@ -54,7 +54,7 @@ struct NewAddInfoView: View {
                             .frame(height: textEditorHeight)
                             .frame(maxWidth: idealWidth(for: geometry.size.width))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: colorScheme == .light ? 2: 1)
+                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10.0)
                                     .stroke(lineWidth: 1)
@@ -105,7 +105,7 @@ struct NewAddInfoView: View {
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
                     .background(colorScheme == .light ? Color.cardBackground : Color.black)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: colorScheme == .light ? 2: 1)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10.0)
                             .stroke(lineWidth: 1)
@@ -129,7 +129,7 @@ struct NewAddInfoView: View {
                                 showSettings.toggle()
                             } label: {
                                 Circle()
-                                    .foregroundStyle(Color.buttonText)
+                                    .foregroundStyle(Color.gray.opacity(0.6))
                                     .frame(height: 30)
                                     .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                                     .overlay {
@@ -200,7 +200,7 @@ struct NewAddInfoView: View {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.primaryAccent)
                     .frame(height: 60)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("save")
             }
@@ -219,7 +219,7 @@ struct NewAddInfoView: View {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.primaryAccent)
                     .frame(height: 60)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 
                 Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("clear")

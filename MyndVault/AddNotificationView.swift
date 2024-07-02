@@ -37,7 +37,7 @@ struct AddNotificationView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: smallTextEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay{
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -58,10 +58,9 @@ struct AddNotificationView: View {
                         .fontDesign(.rounded)
                         .font(.title2)
                         .multilineTextAlignment(.leading)
-                        .foregroundStyle(colorScheme == .light ? .white : .black) //TODO: all view is gray !?!
                         .frame(height: textEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay{
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -91,7 +90,7 @@ struct AddNotificationView: View {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.primaryAccent)
                                 .frame(height: 60)
-                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
 
                             Text("Save").font(.title2).bold()
                                 .foregroundColor(Color.buttonText)
@@ -109,7 +108,7 @@ struct AddNotificationView: View {
                             hideKeyboard()
                         } label: {
                             Circle()
-                                .foregroundStyle(.buttonText)
+                                .foregroundStyle(Color.gray.opacity(0.6))
                                 .frame(height: 30)
                                 .shadow(radius: toolbarButtonShadow)
                                 .overlay {

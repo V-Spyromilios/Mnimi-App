@@ -13,6 +13,7 @@ struct QuestionView: View {
     @State var thrownError: String = ""
     @State var goButtonIsVisible: Bool = true
     @State private var clearButtonIsVisible: Bool = false
+    @State private var showFullImage: Bool = false
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
@@ -20,9 +21,11 @@ struct QuestionView: View {
     @EnvironmentObject var cloudKitManager: CloudKitViewModel
     @State private var showSettings: Bool = false
     @State private var fetchedImages: [UIImage] = []
+    @State var selectedImageIndex: Int? = nil
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
+        
         NavigationStack {
             ScrollView {
                 
@@ -40,7 +43,7 @@ struct QuestionView: View {
                     .multilineTextAlignment(.leading)
                     .frame(height: textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10.0)
                             .stroke(lineWidth: 1)
@@ -91,79 +94,91 @@ struct QuestionView: View {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(Color.gray)
-                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
-
+                                //.foregroundColor(Color.gray)
+                            
                             Text(openAiManager.stringResponseOnQuestion)
-                                .padding(5)
-                                .font(.title2)
                                 .fontDesign(.rounded)
+                                .font(.title2)
                                 .multilineTextAlignment(.leading)
-                                .frame(minHeight: textEditorHeight)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .frame(maxWidth: .infinity,minHeight: 100, alignment: .leading)
+                                .padding(7)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(lineWidth: 1)
+                                        .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                        .foregroundColor(Color.gray)
+                                )
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(colorScheme == .light ? Color.white:  Color.black)
+                                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                )
                         }
                         .padding(.bottom)
                         .padding(.horizontal, 7)
-                        VStack {
-                                // Display each image
-                                ForEach(0..<fetchedImages.count, id: \.self) { index in
-                                    withAnimation {
+                        LazyHGrid(rows: [GridItem(.flexible())], spacing: 20) {
+                            
+                            ForEach(0..<fetchedImages.count, id: \.self) { index in
+                                withAnimation {
+                                    ZStack(alignment: .topTrailing) {
                                         Image(uiImage: fetchedImages[index])
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 160)
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 10.0)
                                                     .stroke(lineWidth: 1)
                                                     .opacity(colorScheme == .light ? 0.3 : 0.7)
                                                     .foregroundColor(Color.gray)
                                             )
+                                        Button(action: {
+                                            
+                                            self.selectedImageIndex = index
+                                            withAnimation { showFullImage = true }
+                                        }) {
+                                            Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                                .foregroundColor(Color.white)
+                                                .background(Color.black.opacity(0.6))
+                                                .padding()
+                                                .clipShape(Circle())
+                                        }
+                                        .offset(x: 5, y: -5)
                                     }
                                 }
+                            }
                             
                         }
                         ClearButton
                             .padding(.bottom)
                     }
-
                 }
                 
                 .toolbar {
-//                    ToolbarItemGroup(placement: .keyboard) {
-//                        HStack {
-//                            Spacer()
-//                            Button {
-//                                hideKeyboard()
-//                            } label: {
-//                                Image(systemName: "keyboard.chevron.compact.down")
-//                                    .accessibilityLabel("hide keyboard")
-//                            }
-//                        }
-//                    }
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         if keyboardResponder.currentHeight > 0 {
                             Button {
                                 hideKeyboard()
                             } label: {
                                 Circle()
-                                    .foregroundStyle(Color.buttonText)
+                                    .foregroundStyle(Color.gray.opacity(0.6))
                                     .frame(height: 30)
                                     .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                                     .overlay {
                                         HideKeyboardLabel()
                                     }
-                                    }
                             }
-                            
+                        }
+                        
                         
                         Button {
-//                            print("Before toggling settings: \(showSettings)")
-                                showSettings.toggle()
-//                                print("After toggling settings: \(showSettings)")
+                            //                            print("Before toggling settings: \(showSettings)")
+                            showSettings.toggle()
+                            //                                print("After toggling settings: \(showSettings)")
                         } label: {
                             Circle()
-                                .foregroundStyle(Color.buttonText)
+                                .foregroundStyle(Color.gray.opacity(0.6))
                                 .frame(height: 30)
                                 .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                                 .overlay {
@@ -173,26 +188,42 @@ struct QuestionView: View {
                     }
                 }
             }
+            .fullScreenCover(isPresented: $showFullImage) {
+                if let selectedImageIndex = self.selectedImageIndex {
+                               FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
+                           } else {
+                               Text("No Image Selected").bold()
+                           }
+            }
+            .onChange(of: selectedImageIndex) { oldValue, newValue in //to observe selectedIndex as remains null for the fullscreen cover.
+                        if newValue == nil {
+                            showFullImage = false
+                        }
+                    }
             .background {
                 Color.primaryBackground.ignoresSafeArea()
             }
-            .fullScreenCover(isPresented: $showSettings) {
-                SettingsView(showSettings: $showSettings)
-            }
         }
+        .fullScreenCover(isPresented: $showSettings) {
+            SettingsView(showSettings: $showSettings)
+        }
+        
+        
+        
     }
+
     private var GoButton: some View {
         Button(action: performTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color("primaryAccent"))
                     .frame(height: 60)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 Text("Go").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Go")
             }
             .contentShape(Rectangle())
-           
+            
         }
         .padding(.top, 12)
         .padding(.horizontal)
@@ -204,9 +235,9 @@ struct QuestionView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.primaryAccent)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     .frame(height: 60)
-
+                
                 Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Clear and reset")
             }
@@ -216,7 +247,7 @@ struct QuestionView: View {
         .padding(.bottom, 12)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
-
+        
     }
     
     private func performClearTask() {
@@ -236,15 +267,15 @@ struct QuestionView: View {
     }
     
     private func performTask() {
-
+        
         if question.count < 8 { return }
-
+        
         hideKeyboard()
         progressTracker.reset()
         withAnimation { goButtonIsVisible = false }
-
+        
         Task {
-
+            
             await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             if openAiManager.questionEmbeddingsCompleted {
                 
@@ -261,7 +292,6 @@ struct QuestionView: View {
                             let id = match.id
                             Task {
                                 do {
-                                    //TODO: fetc works ok, save does not work.
                                     if  let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
                                         print("Succesfully fetched image from icloud with id : \(id)")
                                         DispatchQueue.main.async {
@@ -289,7 +319,7 @@ struct QuestionView: View {
         }
         if thrownError == "" {
             withAnimation {
-               
+                
                 clearButtonIsVisible = true
             }
         }
@@ -305,8 +335,8 @@ struct QuestionView_Previews: PreviewProvider {
         let progressTracker = ProgressTracker()
         
         QuestionView(question: .constant("What is the name of my manager ?"))
-        .environmentObject(openAiManager)
-        .environmentObject(pineconeManager)
-        .environmentObject(progressTracker)
+            .environmentObject(openAiManager)
+            .environmentObject(pineconeManager)
+            .environmentObject(progressTracker)
     }
 }

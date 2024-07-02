@@ -35,6 +35,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: startCloudKit
     func startCloudKit() {
         
         Task {
@@ -47,6 +48,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: fetchNameSpace
     func fetchNameSpace() async throws {
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
         
@@ -75,7 +77,7 @@ final class CloudKitViewModel: ObservableObject {
                 log.append("Namespaces found: \(fetchedNamespaceDict)") }
         }
     }
-    
+    //MARK: saveNamespaceItem
     func saveNamespaceItem(ns: NamespaceItem) async throws {
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
         
@@ -134,6 +136,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: getiCloudStatus
     func getiCloudStatus() async {
         do {
             let accountStatus = try await CKContainer.default().accountStatus()
@@ -153,6 +156,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: getUserID
     private func getUserID() async throws -> CKRecord.ID {
         let container = CKContainer(identifier: "iCloud.dev.chillvibes.MyndVault")
         let id = try await container.userRecordID()
@@ -162,6 +166,7 @@ final class CloudKitViewModel: ObservableObject {
         return id
     }
     
+    //MARK: initializeCloudKitSetup
     private func initializeCloudKitSetup() async {
         await MainActor.run { isLoading = true }
         defer {
@@ -203,6 +208,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: makeNewNamespace
     private func makeNewNamespace() async throws {
         print("makeNewNamespace")
         await MainActor.run {
@@ -231,7 +237,8 @@ final class CloudKitViewModel: ObservableObject {
             throw error
         }
     }
-    
+
+    //MARK: deleteNamespaceItem
     func deleteNamespaceItem(recordID: CKRecord.ID) async throws {
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
         do {
@@ -246,7 +253,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
-    
+    //MARK: fetchNamespaceItem
     func fetchNamespaceItem(recordID: CKRecord.ID) async throws -> NamespaceItem? {
         log.append("fetcNamespaceItem called")
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
@@ -268,7 +275,7 @@ final class CloudKitViewModel: ObservableObject {
     }
     
     
-    
+    //MARK: saveImageItem
         func saveImageItem(image: UIImage, uniqueID: String) async throws {
             guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
     
@@ -299,74 +306,52 @@ final class CloudKitViewModel: ObservableObject {
             // Clean up temporary file
             try? FileManager.default.removeItem(at: temporaryURL)
         }
-    
-//    func saveImageItem(image: UIImage, uniqueID: String) async throws {
-//        guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
-//        
-//        // Convert UIImage to data
-//        guard let data = image.jpegData(compressionQuality: 1.0) else { throw AppCKError.imageConversionFailed }
-//        
-//        // Create a temporary file URL for CKAsset
-//        let temporaryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
-//        try data.write(to: temporaryURL)
-//        
-//        // Create CKAsset
-//        let imageAsset = CKAsset(fileURL: temporaryURL)
-//        
-//        // Create ImageItem
-//        let imageItem = ImageItem(imageAsset: imageAsset, uniqueID: uniqueID)
-//        
-//        // Create CKRecord
-//        let record = imageItem.record
-//        print("Saving record with uniqueID: \(uniqueID), recordID: \(record.recordID)")
-//        
-//        let saveOperation = CKModifyRecordsOperation(recordsToSave: [record], recordIDsToDelete: nil)
-//        saveOperation.savePolicy = .ifServerRecordUnchanged
-//        
-//        var retryAttempt = 0
-//        let maxRetries = 3
-//        
-//        saveOperation.modifyRecordsResultBlock = { result in
-//            switch result {
-//            case .success:
-//                DispatchQueue.main.async {
-//                    print("Successfully saved image item with id: \(uniqueID), recordID: \(record.recordID)")
-//                }
-//            case .failure(let error):
-//                DispatchQueue.main.async {
-//                    print("Failed to save image item: \(error.localizedDescription)")
-//                }
-//                if let ckError = error as? CKError {
-//                    switch ckError.code {
-//                    case .networkUnavailable, .networkFailure:
-//                        // Retry logic
-//                        if retryAttempt < maxRetries {
-//                            retryAttempt += 1
-//                            print("Retry attempt \(retryAttempt) for network error: \(ckError.localizedDescription)")
-//                            DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(2)) {
-//                                db.add(saveOperation)
-//                            }
-//                        } else {
-//                            DispatchQueue.main.async {
-//                                print("Max retries reached. Network error: \(ckError.localizedDescription)")
-//                            }
-//                        }
-//                    default:
-//                        DispatchQueue.main.async {
-//                            print("CKError: \(ckError.localizedDescription)")
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        
-//        db.add(saveOperation)
-//
-//        // Clean up temporary file
-//        try? FileManager.default.removeItem(at: temporaryURL)
-//    }
+    //MARK: deleteImageItem
+    func deleteImageItem(uniqueID: String) async throws {
+            guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
 
+            let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
+            let query = CKQuery(recordType: "ImageItem", predicate: predicate)
+
+            var attempt = 0
+            let maxRetries = 3
+
+            while attempt < maxRetries {
+                do {
+                    let records = try await performQuery(query, in: db)
+                    guard let record = records.first else {
+                        throw AppCKError.recordNotFound
+                    }
+
+                    try await deleteRecord(withRecordID: record.recordID, in: db)
+                    await MainActor.run {
+                        print("Successfully deleted image item with uniqueID: \(uniqueID)")
+                    }
+                    return
+                } catch {
+                    attempt += 1
+                    if attempt == maxRetries {
+                        print("Error about to be thrown: \(error.localizedDescription)")
+                        throw error
+                    }
+                    try await Task.sleep(nanoseconds: 100_000)
+                }
+            }
+        }
     
+    private func deleteRecord(withRecordID recordID: CKRecord.ID, in db: CKDatabase) async throws {
+            return try await withCheckedThrowingContinuation { continuation in
+                db.delete(withRecordID: recordID) { recordID, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: ())
+                    }
+                }
+            }
+        }
+  
+    //MARK: fetchImageItem
     func fetchImageItem(uniqueID: String) async throws -> UIImage? {
 
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
@@ -402,6 +387,7 @@ final class CloudKitViewModel: ObservableObject {
         return nil
     }
 
+    //MARK: performQuery
     private func performQuery(_ query: CKQuery, in db: CKDatabase) async throws -> [CKRecord] {
         print("performQuery() called with query: \(query)")
         

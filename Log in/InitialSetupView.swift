@@ -35,7 +35,7 @@ struct InitialSetupView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: idealWidth(for: geometry.size.width))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -48,7 +48,7 @@ struct InitialSetupView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: idealWidth(for: geometry.size.width))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -61,7 +61,7 @@ struct InitialSetupView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(maxWidth: idealWidth(for: geometry.size.width))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -77,7 +77,7 @@ struct InitialSetupView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.primaryAccent)
-                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 2)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                 .frame(height: 60)
                                 
                             Text("Save").font(.title2).bold()

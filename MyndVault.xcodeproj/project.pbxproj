@@ -29,6 +29,7 @@
 		E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */; };
 		E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45802BC2A80C00945312 /* NetworkViewModel.swift */; };
 		E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45892BC2A85D00945312 /* CustomTapBarView.swift */; };
+		E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E838498F2C3471B200C7E390 /* FullScreenImage.swift */; };
 		E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */; };
 		E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */; };
 		E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */; };
@@ -90,6 +91,7 @@
 		E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewModel.swift; sourceTree = "<group>"; };
 		E82F45802BC2A80C00945312 /* NetworkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkViewModel.swift; sourceTree = "<group>"; };
 		E82F45892BC2A85D00945312 /* CustomTapBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTapBarView.swift; sourceTree = "<group>"; };
+		E838498F2C3471B200C7E390 /* FullScreenImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImage.swift; sourceTree = "<group>"; };
 		E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyndVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyndVaultApp.swift; sourceTree = "<group>"; };
 		E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 				E8FA7F012BC5BC320012EBF6 /* VaultView.swift */,
 				E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */,
 				E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */,
+				E838498F2C3471B200C7E390 /* FullScreenImage.swift */,
 				E82F456B2BC2A77E00945312 /* NotificationsView.swift */,
 				E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */,
 			);
@@ -433,6 +436,7 @@
 				E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */,
 				E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */,
 				E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */,
+				E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
 				E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */,
 				E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */,
