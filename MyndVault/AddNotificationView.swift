@@ -18,6 +18,7 @@ struct AddNotificationView: View {
     @State private var date: Date = Date()
     @State private var showAlert: Bool = false
     @State private var alertTitle: String = ""
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         NavigationStack {
@@ -36,11 +37,11 @@ struct AddNotificationView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: smallTextEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(radius: 5)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay{
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
-                                .opacity(0.3)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
                                 .foregroundColor(Color.gray)
                         }
                         .padding(.bottom)
@@ -59,11 +60,11 @@ struct AddNotificationView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: textEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(radius: 5)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay{
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
-                                .opacity(0.3)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
                                 .foregroundColor(Color.gray)
                         }
                         .padding(.bottom)
@@ -87,13 +88,15 @@ struct AddNotificationView: View {
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
-                                .fill(Color.customDarkBlue)
+                                .fill(Color.primaryAccent)
                                 .frame(height: 60)
-                                .shadow(radius: 7)
-                            Text("Save").font(.title2).bold().foregroundColor(.white)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+
+                            Text("Save").font(.title2).bold()
+                                .foregroundColor(Color.buttonText)
                         } .padding(.vertical, 8)
                             .contentShape(Rectangle())
-                            .shadow(radius: 7)
+                           
                     }.frame(maxWidth: .infinity).accessibilityLabel("save")
                     Spacer()
                 }
@@ -105,7 +108,7 @@ struct AddNotificationView: View {
                             hideKeyboard()
                         } label: {
                             Circle()
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.gray.opacity(0.6))
                                 .frame(height: 30)
                                 .shadow(radius: toolbarButtonShadow)
                                 .overlay {
@@ -114,7 +117,7 @@ struct AddNotificationView: View {
                                 }
                         }
                 }
-        }
+        }.background { Color.primaryBackground}
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("\(alertTitle)"),

@@ -38,9 +38,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MyndVaultApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
-    
-  
     
     var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
     var openAiManager = OpenAIManager()

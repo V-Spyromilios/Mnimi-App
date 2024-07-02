@@ -46,6 +46,8 @@ enum AppCKError: LocalizedError {
     case unknownError(message: String)
     case UnableToGetNameSpace
     case CKDatabaseNotInitialized
+    case imageConversionFailed
+    case recordNotFound
 
     var errorDescription: String {
         switch self {
@@ -65,6 +67,10 @@ enum AppCKError: LocalizedError {
             return "Unknown Error Occurred : \(message)"
         case .CKDatabaseNotInitialized:
             return "CK Database not initialized."
+        case .imageConversionFailed:
+            return "Image Convertion failed"
+        case .recordNotFound:
+            return "CK Record not found."
         }
     }
 }

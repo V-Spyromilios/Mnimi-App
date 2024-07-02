@@ -9,6 +9,7 @@ struct NotificationEditView: View {
     @State private var title: String = ""
     @State private var notificationBody: String = ""
     @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @Environment(\.colorScheme) var colorScheme
     var notification: CustomNotification
     
     var body: some View {
@@ -31,11 +32,11 @@ struct NotificationEditView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: 150) // Adjust height as needed
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(radius: 5)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
-                                .opacity(0.3)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
                                 .foregroundColor(Color.gray)
                         )
                        
@@ -59,11 +60,11 @@ struct NotificationEditView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: 150) // Adjust height as needed
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(radius: 5)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
-                                .opacity(0.3)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
                                 .foregroundColor(Color.gray)
                         )
                         .padding(.bottom)
@@ -103,14 +104,14 @@ struct NotificationEditView: View {
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
-                                .fill(Color.customDarkBlue)
+                                .fill(Color.primaryAccent)
                                 .frame(height: 60)
-                                .shadow(radius: 7)
-                            Text("Reschedule").font(.title2).bold().foregroundColor(.white)
+                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                            Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
                         }
                         .padding(.vertical, 8)
                         .contentShape(Rectangle())
-                        .shadow(radius: 7)
+                        
                         .accessibilityLabel("Save changes and reschedule")
                     }
                     .padding(.top, 12)
@@ -127,7 +128,7 @@ struct NotificationEditView: View {
                 }
             }
             .navigationTitle("Edit Notification")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     
@@ -142,7 +143,7 @@ struct NotificationEditView: View {
                             hideKeyboard()
                         } label: {
                             Circle()
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.gray.opacity(0.6))
                                 .frame(height: 30)
                                 .shadow(radius: toolbarButtonShadow)
                                 .overlay {
@@ -153,7 +154,7 @@ struct NotificationEditView: View {
                     }
                     }
              
-            }
+            }.background { Color.primaryBackground.ignoresSafeArea() }
         }
         .statusBar(hidden: true)
     }

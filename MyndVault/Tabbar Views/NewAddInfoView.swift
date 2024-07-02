@@ -27,106 +27,168 @@ struct NewAddInfoView: View {
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @EnvironmentObject var cloudKit: CloudKitViewModel
+    @StateObject private var photoPicker = ImagePickerViewModel()
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-       
-            GeometryReader { geometry in
-                NavigationStack {
-//                    ScrollView {
-                    VStack {
-                        HStack {
-                            Image(systemName: "plus.bubble").bold()
-                            Text("info").bold()
-                            Spacer()
-                        }.font(.callout).padding(.top,12).padding(.bottom, 8).padding(.horizontal, 7)
-                            
-                        HStack {
-                            TextEditor(text: $newInfo)
-                                .fontDesign(.rounded)
-                                .font(.title2)
-                                .multilineTextAlignment(.leading)
-                                .frame(height: textEditorHeight)
-                                .frame(maxWidth: idealWidth(for: geometry.size.width))
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .shadow(radius: 5)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10.0)
-                                        .stroke(lineWidth: 1)
-                                        .opacity(0.3)
-                                        .foregroundColor(Color.gray)
-                                )
-                                .padding(.bottom)
-                                .padding(.horizontal, 7)
-                                .toolbar {
-                                   
-                                    ToolbarItemGroup(placement: .topBarTrailing) {
-                                        if keyboardResponder.currentHeight > 0 {
-                                            Button {
-                                                hideKeyboard()
-                                            } label: {
-                                                HideKeyboardLabel()
-                                            }
-                                        }
-                                        Button {
-                                            showSettings.toggle()
-                                        } label: {
-                                            Circle()
-                                                .foregroundStyle(.white)
-                                                .frame(height: 30)
-                                                .shadow(radius: toolbarButtonShadow)
-                                                .overlay {
-                                                    Text("⚙️")
-                                                    .accessibilityLabel("Settings") }
-                                        }
-                                    }
-                                    
-                                }
-                        }.popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-                            
-                            popOverView(animateStep: $animateStep, show: $showPopUp)
-                            .presentationCompactAdaptation(.popover)
-                           
-                        }
-                        
-                        //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
-                        
-                        
-                        if self.thrownError != "" {
-                            ErrorView(thrownError: thrownError)
-                                .padding(.top)
-                                .padding(.horizontal)
-                            ClearButton
-                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                        }
-                        else if pineconeManager.receivedError != nil {
-                            ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
-                                .padding(.top)
-                                .padding(.horizontal)
-                            ClearButton
-                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                        }
-                        else if openAiManager.thrownError != "" {
-                            ErrorView(thrownError: openAiManager.thrownError)
-                                .padding(.top)
-                                .padding(.horizontal)
-                            ClearButton
-                                .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                        }
-                        else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                            SaveButton
-                               
-                        }
-                        if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
-                            CircularProgressView(progressTracker: progressTracker).padding()
-                        }
+        
+        GeometryReader { geometry in
+            NavigationStack {
+                ScrollView {
+                
+                //                    ScrollView {
+                VStack {
+                    
+                    HStack {
+                        Image(systemName: "plus.bubble").bold()
+                        Text("info").bold()
                         Spacer()
-                        //                                .frame(height: keyboardResponder.currentHeight)
-                            .navigationTitle("Add New 📝")
-                            .navigationBarTitleDisplayMode(.inline)
+                    }.font(.callout).padding(.top,12).padding(.bottom, 8).padding(.horizontal, 7)
+                    
+                    HStack {
+                        TextEditor(text: $newInfo)
+                            .fontDesign(.rounded)
+                            .font(.title2)
+                            .multilineTextAlignment(.leading)
+                            .frame(height: textEditorHeight)
+                            .frame(maxWidth: idealWidth(for: geometry.size.width))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10.0)
+                                    .stroke(lineWidth: 1)
+                                    .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                    .foregroundColor(Color.gray)
+                            )
+                            .padding(.bottom)
+                            .padding(.horizontal, 7)
                     }
+                    HStack {
+                        
+                        Button(action: {
+                            photoPicker.presentPicker()
+                        }) {
+                            Text(photoPicker.selectedImage == nil ? "Add photo" : "Change photo")
+                        }
+                        
+                        
+                        //                        .padding()
+                        Spacer()
+                        if let image = photoPicker.selectedImage {
+                            ZStack(alignment: .topTrailing) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10.0)
+                                            .stroke(lineWidth: 1)
+                                            .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                            .foregroundColor(Color.gray)
+                                    )
+                                Button(action: {
+                                    withAnimation {
+                                        photoPicker.selectedImage = nil }
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(Color.white)
+                                        .background(Color.black.opacity(0.6))
+                                        .clipShape(Circle())
+                                }
+                                .offset(x: 5, y: -5)
+                            }
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: idealWidth(for: geometry.size.width))
+                    .background(colorScheme == .light ? Color.cardBackground : Color.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10.0)
+                            .stroke(lineWidth: 1)
+                            .opacity(colorScheme == .light ? 0.3 : 0.7)
+                            .foregroundColor(Color.gray)
+                    )
+                    .padding(.horizontal, 7)
+                    .padding(.bottom)
+                    
+                    .toolbar {
+                        
+                        ToolbarItemGroup(placement: .topBarTrailing) {
+                            if keyboardResponder.currentHeight > 0 {
+                                Button {
+                                    hideKeyboard()
+                                } label: {
+                                    HideKeyboardLabel()
+                                }
+                            }
+                            Button {
+                                showSettings.toggle()
+                            } label: {
+                                Circle()
+                                    .foregroundStyle(Color.gray.opacity(0.6))
+                                    .frame(height: 30)
+                                    .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
+                                    .overlay {
+                                        Text("⚙️")
+                                        .accessibilityLabel("Settings") }
+                            }
+                            
+                        }
+                    }.popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+                        
+                        popOverView(animateStep: $animateStep, show: $showPopUp)
+                            .presentationCompactAdaptation(.popover)
+                        
+                    }
+                    .sheet(isPresented: $photoPicker.isPickerPresented) {
+                        PHPickerViewControllerRepresentable(viewModel: photoPicker)
+                    }
+                    
+                    //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
+                    
+                    
+                    if self.thrownError != "" {
+                        ErrorView(thrownError: thrownError)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                    }
+                    else if pineconeManager.receivedError != nil {
+                        ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                    }
+                    else if openAiManager.thrownError != "" {
+                        ErrorView(thrownError: openAiManager.thrownError)
+                            .padding(.top)
+                            .padding(.horizontal)
+                        ClearButton
+                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                    }
+                    else if saveButtonIsVisible && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                        SaveButton
+                        
+                    }
+                    if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                        CircularProgressView(progressTracker: progressTracker).padding()
+                    }
+                    Spacer()
+                        .navigationTitle("Add New 📝")
+                        .navigationBarTitleDisplayMode(.large)
                 }
+            }.background {
+                Color.primaryBackground.ignoresSafeArea()
             }
-            
+            }
+        
+        }
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
         }
@@ -136,37 +198,33 @@ struct NewAddInfoView: View {
         Button(action: addNewInfoAction) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customDarkBlue)
-                    .shadow(radius: 7)
+                    .fill(Color.primaryAccent)
                     .frame(height: 60)
-                    
-                Text("Save").font(.title2).bold().foregroundColor(.white)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("save")
             }
             .contentShape(Rectangle())
-            .shadow(radius: 7)
+           
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 12)
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
-//        .id("SubmitButton")
-//        .padding(.bottom, keyboardResponder.currentHeight > 0 ? 10 : 0)
     }
     
     private var ClearButton: some View {
         Button(action: performClearTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customDarkBlue)
-                    
+                    .fill(Color.primaryAccent)
                     .frame(height: 60)
-                    
-                Text("OK").font(.title2).bold().foregroundColor(.white)
-                    .accessibilityLabel("clear") 
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                
+                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
+                    .accessibilityLabel("clear")
             }
             .contentShape(Rectangle())
-            .shadow(radius: 7)
         }
         .padding(.top, 12)
         .padding(.horizontal)
@@ -192,7 +250,7 @@ struct NewAddInfoView: View {
     private func addNewInfoAction() {
         
         if newInfo.count < 5 { return }
-
+        
         hideKeyboard()
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
@@ -208,10 +266,15 @@ struct NewAddInfoView: View {
             let metadata = toDictionary(desc: self.newInfo)
             do {
                 //MARK: TEST THROW
-//                                let miaMalakia = AppCKError.UnableToGetNameSpace
-//                                throw miaMalakia
-                try await pineconeManager.upsertDataToPinecone(id: UUID().uuidString, vector: openAiManager.embeddings, metadata: metadata)
+                //                                let miaMalakia = AppCKError.UnableToGetNameSpace
+                //                                throw miaMalakia
+                let uniqueID = UUID().uuidString
+                
+                try await pineconeManager.upsertDataToPinecone(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
                 if pineconeManager.upsertSuccesful {
+                    if let image = photoPicker.selectedImage {
+                        try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
+                    }
                     await MainActor.run {
                         self.popUpMessage = "Info saved."
                         self.showPopUp = true
@@ -228,7 +291,7 @@ struct NewAddInfoView: View {
                     print("Error while upserting catched by the View: \(error.localizedDescription)")
                 }
             }
-        } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ")}
+        } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ") }
         
         await MainActor.run {
             self.apiCallInProgress = false

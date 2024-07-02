@@ -17,6 +17,7 @@ final class CloudKitViewModel: ObservableObject {
     @Published var CKError: String = ""
     @Published var userID: CKRecord.ID?
     @Published var fetchedNamespaceDict: [CKRecord.ID: NamespaceItem] = [:]
+//    @Published var fetchedImagesDict: [CKRecord.ID: ImageItem] = [:]
     @Published var log: [String] = []
     @Published var isFirstLaunch: Bool
     
@@ -34,8 +35,9 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: startCloudKit
     func startCloudKit() {
-
+        
         Task {
             let key = fetchedNamespaceDict.keys.first
             if key == nil {
@@ -46,6 +48,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: fetchNameSpace
     func fetchNameSpace() async throws {
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
         
@@ -53,7 +56,7 @@ final class CloudKitViewModel: ObservableObject {
         await MainActor.run {
             log.append("query: \(query)") }
         let rs = try await db.records(matching: query)
-       
+        
         await MainActor.run {
             log.append("rs: \(rs)") }
         let returnedRecords = rs.matchResults.compactMap { try? $0.1.get() }
@@ -74,7 +77,7 @@ final class CloudKitViewModel: ObservableObject {
                 log.append("Namespaces found: \(fetchedNamespaceDict)") }
         }
     }
-    
+    //MARK: saveNamespaceItem
     func saveNamespaceItem(ns: NamespaceItem) async throws {
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
         
@@ -89,41 +92,51 @@ final class CloudKitViewModel: ObservableObject {
                 case .networkUnavailable, .networkFailure:
                     await MainActor.run {
                         log.append("Network error occurred: \(ckError.localizedDescription)")
+                        self.CKError = "Network Failure. Network is available, but CloudKit is inaccessible."
                     }
                 case .serviceUnavailable:
                     await MainActor.run {
                         log.append("Service unavailable: \(ckError.localizedDescription)")
+                        self.CKError = "iCloud Unavailable."
                     }
                 case .requestRateLimited:
                     await MainActor.run {
                         log.append("Request rate limited: \(ckError.localizedDescription)")
+                        self.CKError = "CloudKit rate-limits requests"
                     }
                 case .quotaExceeded:
                     await MainActor.run {
                         log.append("Quota exceeded: \(ckError.localizedDescription)")
+                        self.CKError = "Not enough iCloud storage. Check iCloud settings to manage your storage."
                     }
                 case .notAuthenticated:
                     await MainActor.run {
                         log.append("User not authenticated: \(ckError.localizedDescription)")
+                        self.CKError = "User not authenticated"
                     }
                 case .permissionFailure:
                     await MainActor.run {
                         log.append("Permission failure: \(ckError.localizedDescription)")
+                        self.CKError = "User doesn’t have permission to save or fetch data."
                     }
                 default:
                     await MainActor.run {
                         log.append("CloudKit error: \(ckError.localizedDescription)")
+                        self.CKError = "CloudKit Error. Please try again."
                     }
                 }
             } else {
                 await MainActor.run {
                     log.append("Failed to save namespace item: \(error.localizedDescription)")
+                    self.CKError = "CloudKit Error E.2. Please try again."
+                    
                 }
             }
             throw error
         }
     }
     
+    //MARK: getiCloudStatus
     func getiCloudStatus() async {
         do {
             let accountStatus = try await CKContainer.default().accountStatus()
@@ -143,6 +156,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: getUserID
     private func getUserID() async throws -> CKRecord.ID {
         let container = CKContainer(identifier: "iCloud.dev.chillvibes.MyndVault")
         let id = try await container.userRecordID()
@@ -152,6 +166,7 @@ final class CloudKitViewModel: ObservableObject {
         return id
     }
     
+    //MARK: initializeCloudKitSetup
     private func initializeCloudKitSetup() async {
         await MainActor.run { isLoading = true }
         defer {
@@ -165,7 +180,7 @@ final class CloudKitViewModel: ObservableObject {
             await MainActor.run {
                 log.append("User is signed in to iCloud.") }
             
-          
+            
             let tempuserID = try await getUserID()
             await MainActor.run {
                 self.userID = tempuserID
@@ -193,6 +208,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
+    //MARK: makeNewNamespace
     private func makeNewNamespace() async throws {
         print("makeNewNamespace")
         await MainActor.run {
@@ -221,7 +237,8 @@ final class CloudKitViewModel: ObservableObject {
             throw error
         }
     }
-    
+
+    //MARK: deleteNamespaceItem
     func deleteNamespaceItem(recordID: CKRecord.ID) async throws {
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
         do {
@@ -236,7 +253,7 @@ final class CloudKitViewModel: ObservableObject {
         }
     }
     
-    
+    //MARK: fetchNamespaceItem
     func fetchNamespaceItem(recordID: CKRecord.ID) async throws -> NamespaceItem? {
         log.append("fetcNamespaceItem called")
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
@@ -254,6 +271,147 @@ final class CloudKitViewModel: ObservableObject {
         } catch {
             log.append("Failed to fetch namespace item: \(error.localizedDescription)")
             throw error
+        }
+    }
+    
+    
+    //MARK: saveImageItem
+        func saveImageItem(image: UIImage, uniqueID: String) async throws {
+            guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
+    
+            // Create CKAsset from UIImage
+            guard let data = image.jpegData(compressionQuality: 1.0) else { throw AppCKError.imageConversionFailed }
+    
+            // Create a unique temporary file URL for each asset
+            let temporaryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
+            try data.write(to: temporaryURL)
+    
+            let imageAsset = CKAsset(fileURL: temporaryURL)
+            let imageItem = ImageItem(imageAsset: imageAsset, uniqueID: uniqueID)
+    
+            do {
+                try await db.save(imageItem.record)
+                await MainActor.run {
+//                    fetchedImagesDict[imageItem.record.recordID] = imageItem
+                   print("Successfully saved image item: \(imageItem)")
+                }
+            } catch {
+                await MainActor.run {
+                   print("Failed to save image item: \(error.localizedDescription)")
+                    self.CKError = "CloudKit Error. Please try again."
+                }
+                throw error
+            }
+    
+            // Clean up temporary file
+            try? FileManager.default.removeItem(at: temporaryURL)
+        }
+    //MARK: deleteImageItem
+    func deleteImageItem(uniqueID: String) async throws {
+            guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
+
+            let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
+            let query = CKQuery(recordType: "ImageItem", predicate: predicate)
+
+            var attempt = 0
+            let maxRetries = 3
+
+            while attempt < maxRetries {
+                do {
+                    let records = try await performQuery(query, in: db)
+                    guard let record = records.first else {
+                        throw AppCKError.recordNotFound
+                    }
+
+                    try await deleteRecord(withRecordID: record.recordID, in: db)
+                    await MainActor.run {
+                        print("Successfully deleted image item with uniqueID: \(uniqueID)")
+                    }
+                    return
+                } catch {
+                    attempt += 1
+                    if attempt == maxRetries {
+                        print("Error about to be thrown: \(error.localizedDescription)")
+                        throw error
+                    }
+                    try await Task.sleep(nanoseconds: 100_000)
+                }
+            }
+        }
+    
+    private func deleteRecord(withRecordID recordID: CKRecord.ID, in db: CKDatabase) async throws {
+            return try await withCheckedThrowingContinuation { continuation in
+                db.delete(withRecordID: recordID) { recordID, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: ())
+                    }
+                }
+            }
+        }
+  
+    //MARK: fetchImageItem
+    func fetchImageItem(uniqueID: String) async throws -> UIImage? {
+
+        guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
+        
+        let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
+        let query = CKQuery(recordType: "ImageItem", predicate: predicate)
+        
+        var attempt = 0
+        let maxRetries = 3
+        
+        while attempt < maxRetries {
+            do {
+                let records = try await performQuery(query, in: db)
+                guard let record = records.first,
+                      let asset = record["imageAsset"] as? CKAsset,
+                      let fileURL = asset.fileURL else {
+                    return nil
+                }
+                
+                let data = try Data(contentsOf: fileURL)
+                return UIImage(data: data)
+            } catch {
+                attempt += 1
+                if attempt == maxRetries {
+                    print("Error about to be thrown: \(error.localizedDescription)")
+                    throw error
+                }
+                // Optional: Add a delay before retrying
+                try await Task.sleep(nanoseconds: 100_000) //0.1sec
+            }
+        }
+        
+        return nil
+    }
+
+    //MARK: performQuery
+    private func performQuery(_ query: CKQuery, in db: CKDatabase) async throws -> [CKRecord] {
+        print("performQuery() called with query: \(query)")
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            db.fetch(withQuery: query, inZoneWith: nil, desiredKeys: nil, resultsLimit: 1) { result in
+                switch result {
+                case .success(let (matchedResults, _)):
+                    let records = matchedResults.compactMap { _, result in
+                        switch result {
+                        case .success(let record):
+                            print("Perform Query - received record: \(record)")
+                            return record
+                        case .failure(let error):
+                            print("Perform Query - record error: \(error.localizedDescription)")
+                            return nil
+                        }
+                    }
+                    print("Perform Query - returning records: \(records)")
+                    continuation.resume(returning: records)
+                case .failure(let error):
+                    print("Perform Query - query error: \(error.localizedDescription)")
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
 }

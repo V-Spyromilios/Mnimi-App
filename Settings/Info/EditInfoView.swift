@@ -12,6 +12,7 @@ struct EditInfoView: View {
     @StateObject var viewModel: EditInfoViewModel
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var openAiManager: OpenAIManager
+    @EnvironmentObject var cloudKit: CloudKitViewModel
     @State var showProgress: Bool = false
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State var showPop: Bool = false
@@ -19,6 +20,7 @@ struct EditInfoView: View {
     var body: some View {
         
         ZStack {
+            Color.primaryBackground.ignoresSafeArea()
             
             InfoView(viewModel: viewModel, showPop: $showPop, presentationMode: presentationMode).opacity(showProgress ? 0.5 : 1.0)
                 
@@ -66,6 +68,7 @@ struct EditInfoView: View {
                             let idToDelete = viewModel.id
                             do {
                                 try await pineconeManager.deleteVectorFromPinecone(id: idToDelete)
+                                try await cloudKit.deleteImageItem(uniqueID: idToDelete)
                             } catch {
                                
                                 showPop = true
