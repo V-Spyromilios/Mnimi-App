@@ -9,6 +9,7 @@ import SwiftUI
 
 struct NotificationCellView: View {
     
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var manager: NotificationViewModel
     @Environment(\.presentationMode) var presentationMode
 
@@ -41,6 +42,7 @@ struct NotificationCellView: View {
                 HStack {
                     Text(notification.title)
                         .font(.title)
+                        .foregroundStyle(.primaryAccent)
                         .fontWeight(.bold)
                         .fontDesign(.rounded)
                         .padding(.bottom, 2)
@@ -50,6 +52,7 @@ struct NotificationCellView: View {
                 }
                 HStack {
                     Text(notification.notificationBody)
+                        .foregroundStyle(colorScheme == .light ? .black : .white.opacity(0.6))
                         .italic()
                         .padding(.bottom, 20)
                         .padding(.leading)
@@ -60,16 +63,18 @@ struct NotificationCellView: View {
                 .font(.title2)
                 .fontDesign(.rounded)
                 .fontWeight(.medium)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
                 .padding(.bottom)
             
             
             Text(viewModel.timeRemaining)
                 .font(.caption)
+                .foregroundStyle(.secondary)
                 .contentTransition(.numericText())
                 .padding(.bottom, 18)
             
         }.frame(maxWidth: .infinity)
+            .padding(.top)
 //            .toolbar {
 //                ToolbarItemGroup(placement: .topBarTrailing) {
 //                    Button("CancelFromCell") {
@@ -80,7 +85,7 @@ struct NotificationCellView: View {
     
         
 //            .padding(.horizontal)
-            .background(Color.white)
+            .background(Color.cardBackground)
             .cornerRadius(10)
             .shadow(radius: shadowRadius)
             .onTapGesture {
@@ -129,7 +134,7 @@ struct NotificationCellView: View {
                         Text(option).font(.body).foregroundStyle(.red)
                     }
                     else {
-                        Text(option).font(.body).foregroundStyle(Color.britishRacingGreen)
+                        Text(option).font(.body).foregroundStyle(Color.secondary)
                     }
                 }).padding(.horizontal)
                     .accessibilityLabel(option == "Delete" ? "Delete" : "Edit")

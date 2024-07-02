@@ -22,6 +22,7 @@ struct PromptLanguageView: View {
         }
     }
     var body: some View {
+        
         List(LanguageCode.allCases, id: \.self) { language in
             Button(action: {
                 self.selectedLanguage = language
@@ -29,6 +30,7 @@ struct PromptLanguageView: View {
             }) {
                 HStack() {
                     Text(language.displayName)
+                        .foregroundStyle(Color.buttonText)
                     Spacer()
                     if language == selectedLanguage {
                         
@@ -38,12 +40,12 @@ struct PromptLanguageView: View {
                     .contentShape(Rectangle()) // otherwise only text listens for taps and changes language.
                     .accessibilityLabel("selected Language: \(language.rawValue)")
             }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .foregroundStyle(.black)
-        .navigationTitle("Prompt Language")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
+        }.padding(.top, 12)
+            .buttonStyle(PlainButtonStyle())
+            .foregroundStyle(.black)
+            .navigationTitle("Prompt Language")
+            .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {

@@ -19,14 +19,14 @@ struct LoggedOutView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 100, height: 100)
-                    .foregroundColor(.black)
+                    .foregroundStyle(Color.primaryBackground)
                 Text("You are logged out")
                     .font(.title)
-                    .foregroundColor(.gray)
+                    .foregroundStyle(Color.darkGray)
                     .padding()
             Spacer()
             }
-           }
+           }.statusBar(hidden: true)
     }
 }
 

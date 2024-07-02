@@ -13,13 +13,19 @@ struct QuestionView: View {
     @State var thrownError: String = ""
     @State var goButtonIsVisible: Bool = true
     @State private var clearButtonIsVisible: Bool = false
+    @State private var showFullImage: Bool = false
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @EnvironmentObject var cloudKitManager: CloudKitViewModel
     @State private var showSettings: Bool = false
+    @State private var fetchedImages: [UIImage] = []
+    @State var selectedImageIndex: Int? = nil
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
+        
         NavigationStack {
             ScrollView {
                 
@@ -28,8 +34,8 @@ struct QuestionView: View {
                     Text("Question").bold()
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
-                    .navigationTitle("Search 🔍")
-                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle("Ask me")
+                    .navigationBarTitleDisplayMode(.large)
                 
                 TextEditor(text: $question)
                     .fontDesign(.rounded)
@@ -37,13 +43,13 @@ struct QuestionView: View {
                     .multilineTextAlignment(.leading)
                     .frame(height: textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(radius: 5)
-                    .overlay {
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                    .overlay(
                         RoundedRectangle(cornerRadius: 10.0)
                             .stroke(lineWidth: 1)
-                            .opacity(0.3)
+                            .opacity(colorScheme == .light ? 0.3 : 0.7)
                             .foregroundColor(Color.gray)
-                    }
+                    )
                     .padding(.bottom)
                     .padding(.horizontal, 7)
                 VStack {
@@ -76,7 +82,6 @@ struct QuestionView: View {
                         else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
                         }
-//                        Text("GoButton: \(goButtonIsVisible) :: Progress: \(progressTracker.progress) \n Errors: \(thrownError), \(openAiManager.thrownError), \(String(describing: pineconeManager.receivedError?.localizedDescription))")
                     }
                     
                     if openAiManager.stringResponseOnQuestion != "" {
@@ -86,88 +91,139 @@ struct QuestionView: View {
                             Spacer()
                         }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
                         ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white)) // Assuming a white background
-                                .shadow(radius: 5)
-
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                //.foregroundColor(Color.gray)
+                            
                             Text(openAiManager.stringResponseOnQuestion)
-                                .padding(5)
-                                .font(.title2)
                                 .fontDesign(.rounded)
+                                .font(.title2)
                                 .multilineTextAlignment(.leading)
-                                .frame(minHeight: textEditorHeight)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .frame(maxWidth: .infinity,minHeight: 100, alignment: .leading)
+                                .padding(7)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(lineWidth: 1)
+                                        .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                        .foregroundColor(Color.gray)
+                                )
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(colorScheme == .light ? Color.white:  Color.black)
+                                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                )
                         }
                         .padding(.bottom)
                         .padding(.horizontal, 7)
+                        LazyHGrid(rows: [GridItem(.flexible())], spacing: 20) {
+                            
+                            ForEach(0..<fetchedImages.count, id: \.self) { index in
+                                withAnimation {
+                                    ZStack(alignment: .topTrailing) {
+                                        Image(uiImage: fetchedImages[index])
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(height: 160)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 10.0)
+                                                    .stroke(lineWidth: 1)
+                                                    .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                                    .foregroundColor(Color.gray)
+                                            )
+                                        Button(action: {
+                                            
+                                            self.selectedImageIndex = index
+                                            withAnimation { showFullImage = true }
+                                        }) {
+                                            Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                                .foregroundColor(Color.white)
+                                                .background(Color.black.opacity(0.6))
+                                                .padding()
+                                                .clipShape(Circle())
+                                        }
+                                        .offset(x: 5, y: -5)
+                                    }
+                                }
+                            }
+                            
+                        }
                         ClearButton
                             .padding(.bottom)
                     }
-
                 }
                 
                 .toolbar {
-//                    ToolbarItemGroup(placement: .keyboard) {
-//                        HStack {
-//                            Spacer()
-//                            Button {
-//                                hideKeyboard()
-//                            } label: {
-//                                Image(systemName: "keyboard.chevron.compact.down")
-//                                    .accessibilityLabel("hide keyboard")
-//                            }
-//                        }
-//                    }
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         if keyboardResponder.currentHeight > 0 {
                             Button {
                                 hideKeyboard()
                             } label: {
                                 Circle()
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Color.gray.opacity(0.6))
                                     .frame(height: 30)
-                                    .shadow(radius: toolbarButtonShadow)
+                                    .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                                     .overlay {
                                         HideKeyboardLabel()
                                     }
-                                    }
                             }
-                            
+                        }
+                        
                         
                         Button {
-                            print("Before toggling settings: \(showSettings)")
-                                showSettings.toggle()
-                                print("After toggling settings: \(showSettings)")
+                            //                            print("Before toggling settings: \(showSettings)")
+                            showSettings.toggle()
+                            //                                print("After toggling settings: \(showSettings)")
                         } label: {
                             Circle()
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Color.gray.opacity(0.6))
                                 .frame(height: 30)
-                                .shadow(radius: toolbarButtonShadow)
+                                .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
                                 .overlay {
                                     Text("⚙️")
                                     .accessibilityLabel("settings") }
                         }
                     }
                 }
-            }.fullScreenCover(isPresented: $showSettings) {
-                SettingsView(showSettings: $showSettings)
+            }
+            .fullScreenCover(isPresented: $showFullImage) {
+                if let selectedImageIndex = self.selectedImageIndex {
+                               FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
+                           } else {
+                               Text("No Image Selected").bold()
+                           }
+            }
+            .onChange(of: selectedImageIndex) { oldValue, newValue in //to observe selectedIndex as remains null for the fullscreen cover.
+                        if newValue == nil {
+                            showFullImage = false
+                        }
+                    }
+            .background {
+                Color.primaryBackground.ignoresSafeArea()
             }
         }
+        .fullScreenCover(isPresented: $showSettings) {
+            SettingsView(showSettings: $showSettings)
+        }
+        
+        
+        
     }
+
     private var GoButton: some View {
         Button(action: performTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color("customDarkBlue"))
-                    .shadow(radius: 7)
-//
+                    .fill(Color("primaryAccent"))
                     .frame(height: 60)
-                Text("Go").font(.title2).bold().foregroundColor(.white)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                Text("Go").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Go")
             }
-            .shadow(radius: 7)
             .contentShape(Rectangle())
+            
         }
         .padding(.top, 12)
         .padding(.horizontal)
@@ -178,11 +234,11 @@ struct QuestionView: View {
         Button(action: performClearTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customDarkBlue)
-                    .shadow(radius: 7)
+                    .fill(Color.primaryAccent)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     .frame(height: 60)
-                    .shadow(radius: 7)
-                Text("OK").font(.title2).bold().foregroundColor(.white)
+                
+                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Clear and reset")
             }
             .contentShape(Rectangle())
@@ -191,7 +247,7 @@ struct QuestionView: View {
         .padding(.bottom, 12)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
-        .shadow(radius: 7)
+        
     }
     
     private func performClearTask() {
@@ -199,6 +255,7 @@ struct QuestionView: View {
         withAnimation {
             self.question = ""
             self.thrownError = ""
+            fetchedImages = []
             self.clearButtonIsVisible = false
             self.goButtonIsVisible = true
             progressTracker.reset()
@@ -210,14 +267,15 @@ struct QuestionView: View {
     }
     
     private func performTask() {
-
+        
         if question.count < 8 { return }
-
+        
         hideKeyboard()
         progressTracker.reset()
         withAnimation { goButtonIsVisible = false }
-
+        
         Task {
+            
             await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             if openAiManager.questionEmbeddingsCompleted {
                 
@@ -230,9 +288,26 @@ struct QuestionView: View {
                 }
                 if let pineconeResponse = pineconeManager.pineconeQueryResponse {
                     do {
+                        for match in pineconeResponse.matches {
+                            let id = match.id
+                            Task {
+                                do {
+                                    if  let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
+                                        print("Succesfully fetched image from icloud with id : \(id)")
+                                        DispatchQueue.main.async {
+                                            fetchedImages.append(image)
+                                        }
+                                        
+                                    } else {
+                                        print("Malakia, unable to fetch image from id: \(id)")
+                                    }
+                                }
+                                catch {
+                                    print("Failed to fetch image item: \(error.localizedDescription)")
+                                }
+                            }
+                        }
                         try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
-//                        ProgressTracker.shared.setProgress(to: 0.97)
-//                        ProgressTracker.shared.setProgress(to: 0.99)
                         
                     } catch {
                         thrownError = error.localizedDescription
@@ -244,6 +319,7 @@ struct QuestionView: View {
         }
         if thrownError == "" {
             withAnimation {
+                
                 clearButtonIsVisible = true
             }
         }
@@ -259,8 +335,8 @@ struct QuestionView_Previews: PreviewProvider {
         let progressTracker = ProgressTracker()
         
         QuestionView(question: .constant("What is the name of my manager ?"))
-        .environmentObject(openAiManager)
-        .environmentObject(pineconeManager)
-        .environmentObject(progressTracker)
+            .environmentObject(openAiManager)
+            .environmentObject(pineconeManager)
+            .environmentObject(progressTracker)
     }
 }
