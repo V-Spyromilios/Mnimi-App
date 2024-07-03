@@ -22,6 +22,7 @@ struct NewAddInfoView: View {
     @State private var showSettings: Bool = false
     
     @State private var animateStep: Int = 0
+    @State private var isLoading: Bool = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -36,8 +37,7 @@ struct NewAddInfoView: View {
         GeometryReader { geometry in
             NavigationStack {
                 ScrollView {
-                
-                //                    ScrollView {
+
                 VStack {
                     
                     HStack {
@@ -80,14 +80,15 @@ struct NewAddInfoView: View {
                                 Image(uiImage: image)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 100)
+                                    .frame(height: 160)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    .overlay(
+                                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                    .overlay(alignment: .center) {
                                         RoundedRectangle(cornerRadius: 10.0)
                                             .stroke(lineWidth: 1)
                                             .opacity(colorScheme == .light ? 0.3 : 0.7)
                                             .foregroundColor(Color.gray)
-                                    )
+                                    }
                                 Button(action: {
                                     withAnimation {
                                         photoPicker.selectedImage = nil }
@@ -249,8 +250,9 @@ struct NewAddInfoView: View {
     
     private func addNewInfoAction() {
         
-        if newInfo.count < 5 { return }
-        
+        if newInfo.count < 5 || isLoading { return }
+        isLoading = true
+
         hideKeyboard()
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
@@ -295,8 +297,8 @@ struct NewAddInfoView: View {
         
         await MainActor.run {
             self.apiCallInProgress = false
-            //self.newInfo = ""
             self.saveButtonIsVisible = true
+            self.isLoading = false
         }
     }
 }

@@ -20,9 +20,9 @@ struct LoggedOutView: View {
                     .scaledToFit()
                     .frame(width: 100, height: 100)
                     .foregroundStyle(Color.primaryBackground)
-                Text("You are logged out")
+                Text("You are logged out\nYou can close the app")
                     .font(.title)
-                    .foregroundStyle(Color.darkGray)
+                    .foregroundStyle(Color.darkGray2)
                     .padding()
             Spacer()
             }

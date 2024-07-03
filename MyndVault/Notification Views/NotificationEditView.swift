@@ -120,9 +120,7 @@ struct NotificationEditView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
                 .onAppear {
-                    if let date = notification.date {
-                        selectedDate = date
-                    }
+                    selectedDate = notification.date
                     self.title = notification.title
                     self.notificationBody = notification.notificationBody
                 }

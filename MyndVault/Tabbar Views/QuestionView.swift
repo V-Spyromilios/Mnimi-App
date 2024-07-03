@@ -9,20 +9,22 @@ import SwiftUI
 
 struct QuestionView: View {
     
-    @Binding var question: String
-    @State var thrownError: String = ""
-    @State var goButtonIsVisible: Bool = true
-    @State private var clearButtonIsVisible: Bool = false
-    @State private var showFullImage: Bool = false
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var cloudKitManager: CloudKitViewModel
+    @Environment(\.colorScheme) var colorScheme
+
+    @Binding var question: String
+    @State var thrownError: String = ""
+    @State var goButtonIsVisible: Bool = true
+    @State var selectedImageIndex: Int? = nil
+    @State private var clearButtonIsVisible: Bool = false
+    @State private var showFullImage: Bool = false
     @State private var showSettings: Bool = false
     @State private var fetchedImages: [UIImage] = []
-    @State var selectedImageIndex: Int? = nil
-    @Environment(\.colorScheme) var colorScheme
+    @State private var isLoading: Bool = false
     
     var body: some View {
         
@@ -268,7 +270,8 @@ struct QuestionView: View {
     
     private func performTask() {
         
-        if question.count < 8 { return }
+        if question.count < 8 || isLoading { return }
+        isLoading = true
         
         hideKeyboard()
         progressTracker.reset()
@@ -316,13 +319,12 @@ struct QuestionView: View {
                     }
                 }
             }
+            await MainActor.run { isLoading = false } //TODO: Check if works ok protecting the Button during api call
         }
         if thrownError == "" {
-            withAnimation {
-                
-                clearButtonIsVisible = true
-            }
+            withAnimation { clearButtonIsVisible = true }
         }
+        
     }
     
 }

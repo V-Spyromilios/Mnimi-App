@@ -8,29 +8,26 @@
 import SwiftUI
 
 struct SettingsView: View {
+
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKit: CloudKitViewModel
-    
-    var viewModel = PineconeManager()
+
     @Binding var showSettings: Bool
     @State private var errorString = ""
     
     var body: some View {
-
+        
         NavigationView {
-            
-            
             List {
                 
                 NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language")
-                    
-                    
                 }
+                NavigationLink(destination: EmptyView()) {
+                    Text("About")
+                }
+                
             }
-            
-          
             .navigationTitle("Settings ⚙️")
-            
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
@@ -75,10 +72,9 @@ struct SettingsView: View {
                 
             }
             
-        }.statusBar(hidden: true)
-        
-        
-        
+        }
+        .statusBar(hidden: true)
+        .background(Color.primaryBackground.ignoresSafeArea())
     }
 }
 

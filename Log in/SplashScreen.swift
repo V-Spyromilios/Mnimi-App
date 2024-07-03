@@ -151,8 +151,9 @@ struct SplashScreen: View {
             ForEach(Array(codeLines.enumerated()), id: \.offset) { _, line in
                 Text(line)
           
-                    .foregroundColor(colorScheme == .light ? Color.primaryBackground : Color.black)
+                    .foregroundColor(colorScheme == .light ? Color.primaryBackground : Color.gray)
                     .font(Font.custom("SF-Compact", size: 13))
+                    .bold()
                     .transition(.move(edge: .bottom))
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(.trailing)
