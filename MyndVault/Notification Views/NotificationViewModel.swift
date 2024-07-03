@@ -8,54 +8,53 @@
 import Foundation
 import UserNotifications
 
-struct CustomNotification: Identifiable {
+struct CustomNotification: Identifiable, Equatable {
     let id: String
     var title: String
     var notificationBody: String
-    var date: Date?
-
+    var date: Date
 }
 
 final class NotificationViewModel: ObservableObject {
+    
     @Published var scheduledNotifications: [CustomNotification] = []
-
-    init() {
-        fetchScheduledNotifications()
-    }
+    
+    init() { fetchScheduledNotifications() }
     
     func fetchScheduledNotifications() {
-
+        
         UNUserNotificationCenter.current().getPendingNotificationRequests { scheduledNotifications in
             DispatchQueue.main.async {
                 self.scheduledNotifications = scheduledNotifications.map { notification in
-
-                                    let trigger = notification.trigger
-                                    var date: Date?
-                                    if let calendarTrigger = trigger as? UNCalendarNotificationTrigger {
-                                        date = calendarTrigger.nextTriggerDate()
-                                        
-                                    } else if let timeIntervalTrigger = trigger as? UNTimeIntervalNotificationTrigger {
-                                        date = timeIntervalTrigger.nextTriggerDate()
-                                    }
-                   return CustomNotification(
+                    
+                    let trigger = notification.trigger
+                    var date1: Date
+                    if let calendarTrigger = trigger as? UNCalendarNotificationTrigger {
+                        date1 = calendarTrigger.nextTriggerDate() ?? Date()
+                        
+                    } else if let timeIntervalTrigger = trigger as? UNTimeIntervalNotificationTrigger {
+                        date1 = timeIntervalTrigger.nextTriggerDate() ?? Date()
+                    }
+                    else { date1 = Date() }
+                    return CustomNotification(
                         id: notification.identifier,
                         title: notification.content.title,
                         notificationBody: notification.content.body,
-                        date: date
+                        date: date1
                     )
                 }
             }
         }
         print("Fetched \(scheduledNotifications.count) scheduled notifications")
     }
-
+    
     
     func deleteNotification(with id: String) {
-     
+        
         scheduledNotifications.removeAll { $0.id == id }
-
+        
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
     }
-
+    
 }
 

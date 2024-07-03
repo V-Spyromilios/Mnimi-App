@@ -191,6 +191,8 @@
 		E82F456C2BC2A77E00945312 /* Notification Views */ = {
 			isa = PBXGroup;
 			children = (
+				E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */,
+				E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */,
 				E82F45682BC2A77E00945312 /* NotificationCellView.swift */,
 				E82F45692BC2A77E00945312 /* NotificationEditView.swift */,
 				E82F456A2BC2A77E00945312 /* NotificationViewModel.swift */,
@@ -217,7 +219,6 @@
 			children = (
 				E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */,
 				E8B4D5022BF8C07400F2A174 /* Log in */,
-				E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */,
 				E8FA7F082BC5BC320012EBF6 /* Settings */,
 				E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */,
 				E8459EC62BC1E3BE00CE34A7 /* MyndVault */,
@@ -246,7 +247,6 @@
 				E82F454B2BC2A6D100945312 /* OpenAIKey.plist */,
 				E82F457F2BC2A80B00945312 /* Tabbar Views */,
 				E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */,
-				E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */,
 				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
@@ -528,6 +528,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -583,6 +584,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -594,7 +596,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = MyndVault/MyndVault.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"MyndVault/Preview Content\"";
 				DEVELOPMENT_TEAM = H4TST29A3U;
@@ -634,7 +636,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = MyndVault/MyndVault.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"MyndVault/Preview Content\"";
 				DEVELOPMENT_TEAM = H4TST29A3U;
 				ENABLE_PREVIEWS = YES;

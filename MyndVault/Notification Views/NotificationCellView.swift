@@ -32,7 +32,7 @@ struct NotificationCellView: View {
     init(notification: CustomNotification) {
 
         self.notification = notification
-        _viewModel = StateObject(wrappedValue: CountdownTimer(targetDate: notification.date ?? .now + 2))
+        _viewModel = StateObject(wrappedValue: CountdownTimer(targetDate: notification.date))
     }
     
     var body: some View {
@@ -42,7 +42,7 @@ struct NotificationCellView: View {
                 HStack {
                     Text(notification.title)
                         .font(.title)
-                        .foregroundStyle(.primaryAccent)
+                        .foregroundStyle(.notificationsTitle)
                         .fontWeight(.bold)
                         .fontDesign(.rounded)
                         .padding(.bottom, 2)

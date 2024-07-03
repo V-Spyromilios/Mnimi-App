@@ -10,6 +10,7 @@ import SwiftUI
 struct PromptLanguageView: View {
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.colorScheme) var colorScheme
     
     @State private var selectedLanguage: LanguageCode
     
@@ -30,7 +31,7 @@ struct PromptLanguageView: View {
             }) {
                 HStack() {
                     Text(language.displayName)
-                        .foregroundStyle(Color.buttonText)
+                        .foregroundStyle(colorScheme == .light ? .black : Color.smoothWhite)
                     Spacer()
                     if language == selectedLanguage {
                         
@@ -42,7 +43,7 @@ struct PromptLanguageView: View {
             }
         }.padding(.top, 12)
             .buttonStyle(PlainButtonStyle())
-            .foregroundStyle(.black)
+            .background(Color.primaryBackground.ignoresSafeArea())
             .navigationTitle("Prompt Language")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(true)
