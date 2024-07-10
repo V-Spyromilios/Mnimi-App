@@ -22,31 +22,30 @@ final class NotificationViewModel: ObservableObject {
     init() { fetchScheduledNotifications() }
     
     func fetchScheduledNotifications() {
-        
-        UNUserNotificationCenter.current().getPendingNotificationRequests { scheduledNotifications in
-            DispatchQueue.main.async {
-                self.scheduledNotifications = scheduledNotifications.map { notification in
-                    
-                    let trigger = notification.trigger
-                    var date1: Date
-                    if let calendarTrigger = trigger as? UNCalendarNotificationTrigger {
-                        date1 = calendarTrigger.nextTriggerDate() ?? Date()
-                        
-                    } else if let timeIntervalTrigger = trigger as? UNTimeIntervalNotificationTrigger {
-                        date1 = timeIntervalTrigger.nextTriggerDate() ?? Date()
-                    }
-                    else { date1 = Date() }
-                    return CustomNotification(
-                        id: notification.identifier,
-                        title: notification.content.title,
-                        notificationBody: notification.content.body,
-                        date: date1
-                    )
-                }
-            }
-        }
-        print("Fetched \(scheduledNotifications.count) scheduled notifications")
-    }
+          UNUserNotificationCenter.current().getPendingNotificationRequests { scheduledNotifications in
+              DispatchQueue.main.async {
+                  self.scheduledNotifications = scheduledNotifications.compactMap { notification in
+                      let trigger = notification.trigger
+                      var date: Date?
+                      
+                      if let calendarTrigger = trigger as? UNCalendarNotificationTrigger {
+                          date = calendarTrigger.nextTriggerDate()
+                      } else if let timeIntervalTrigger = trigger as? UNTimeIntervalNotificationTrigger {
+                          date = timeIntervalTrigger.nextTriggerDate()
+                      }
+                      
+                      guard let notificationDate = date else { return nil }
+                      
+                      return CustomNotification(
+                          id: notification.identifier,
+                          title: notification.content.title,
+                          notificationBody: notification.content.body,
+                          date: notificationDate
+                      )
+                  }.sorted(by: { $0.date < $1.date }) //most recent first
+              }
+          }
+      }
     
     
     func deleteNotification(with id: String) {
