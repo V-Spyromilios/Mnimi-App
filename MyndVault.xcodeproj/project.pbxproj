@@ -49,6 +49,11 @@
 		E8B4D5102BF8F17400F2A174 /* LoggedOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */; };
 		E8B50D8A2C24AD9900AC15DF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */; };
 		E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */; };
+		E8CFEAF82C395876005A2630 /* VisualEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8CFEAF72C395876005A2630 /* VisualEffect.swift */; };
+		E8CFEAFA2C3D5064005A2630 /*  openSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */; };
+		E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8CFEAFB2C3D5CF1005A2630 /* SF-Mono-Semibold.otf */; };
+		E8CFEAFE2C3D5D52005A2630 /* NewYork.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E8CFEAFD2C3D5D52005A2630 /* NewYork.ttf */; };
+		E8CFEB002C3DD035005A2630 /* testScroll.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8CFEAFF2C3DD035005A2630 /* testScroll.swift */; };
 		E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */; };
 		E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */; };
 		E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */; };
@@ -113,6 +118,11 @@
 		E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E8CFEAF72C395876005A2630 /* VisualEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffect.swift; sourceTree = "<group>"; };
+		E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " openSettingsView.swift"; sourceTree = "<group>"; };
+		E8CFEAFB2C3D5CF1005A2630 /* SF-Mono-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Mono-Semibold.otf"; sourceTree = "<group>"; };
+		E8CFEAFD2C3D5D52005A2630 /* NewYork.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NewYork.ttf; sourceTree = "<group>"; };
+		E8CFEAFF2C3DD035005A2630 /* testScroll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testScroll.swift; sourceTree = "<group>"; };
 		E8DA57AC2BE25BC200EB2013 /* NotificationsListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsListCell.swift; sourceTree = "<group>"; };
 		E8DA57AE2BE265F000EB2013 /* AddNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNotificationView.swift; sourceTree = "<group>"; };
 		E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionView.swift; sourceTree = "<group>"; };
@@ -217,6 +227,9 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8CFEAFF2C3DD035005A2630 /* testScroll.swift */,
+				E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */,
+				E8CFEAF72C395876005A2630 /* VisualEffect.swift */,
 				E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */,
 				E8B4D5022BF8C07400F2A174 /* Log in */,
 				E8FA7F082BC5BC320012EBF6 /* Settings */,
@@ -286,6 +299,8 @@
 				E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */,
 				E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */,
 				E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */,
+				E8CFEAFB2C3D5CF1005A2630 /* SF-Mono-Semibold.otf */,
+				E8CFEAFD2C3D5D52005A2630 /* NewYork.ttf */,
 			);
 			path = "Log in";
 			sourceTree = "<group>";
@@ -378,6 +393,8 @@
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
 				E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */,
 				E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */,
+				E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */,
+				E8CFEAFE2C3D5D52005A2630 /* NewYork.ttf in Resources */,
 				E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -421,6 +438,7 @@
 				E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */,
 				E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */,
 				E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */,
+				E8CFEAF82C395876005A2630 /* VisualEffect.swift in Sources */,
 				E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */,
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,
@@ -443,6 +461,7 @@
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,
 				E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */,
 				E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */,
+				E8CFEB002C3DD035005A2630 /* testScroll.swift in Sources */,
 				E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */,
 				E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */,
 				E8FA7F0E2BC5BC320012EBF6 /* PromptLanguageView.swift in Sources */,
@@ -457,6 +476,7 @@
 				E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */,
 				E82F45742BC2A77E00945312 /* NotificationCellView.swift in Sources */,
 				E82F45732BC2A77E00945312 /* ResponseModel.swift in Sources */,
+				E8CFEAFA2C3D5064005A2630 /*  openSettingsView.swift in Sources */,
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,

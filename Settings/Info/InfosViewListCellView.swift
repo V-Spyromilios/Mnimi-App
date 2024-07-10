@@ -38,6 +38,7 @@ struct InfosViewListCellView: View {
                 
             }.background { colorScheme == .light ? Color.white : Color.black }
                 .clipShape(RoundedRectangle(cornerRadius: 10))
+                .frame(height: 80)
                 .shadow(color: Color.customShadow, radius: 3)
         }
 }

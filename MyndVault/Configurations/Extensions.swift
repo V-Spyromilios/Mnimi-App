@@ -108,44 +108,6 @@ func popOverView(animateStep: Binding<Int>, show: Binding<Bool>) -> some View {
                                       show.wrappedValue = false } }
                }
            }
-    
-    
-
-//    VStack(alignment: .center) {
-//        Image(systemName: animate.wrappedValue ? "checkmark" : "arrow.triangle.2.circlepath")
-//            .resizable()
-//            .scaledToFit()
-//            .padding(5)
-//            .frame(width: 50, height: 50)
-//            .rotationEffect(Angle.degrees(animate.wrappedValue == true ? 360 : 0))
-//            .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false), value: animate.wrappedValue)
-//            .foregroundStyle(.white)
-//            .contentTransition(.symbolEffect(.replace))
-//            .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            .background {
-//                LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen, Color.britishRacingGreen, Color.britishRacingGreen.opacity(0.7)]), startPoint: .top, endPoint: .bottom)
-//            }
-//            .ignoresSafeArea()
-//
-//            .onAppear {
-//                
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-//                withAnimation {
-//                    animate.wrappedValue = true } }
-//            
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
-//                withAnimation {
-//                    show.wrappedValue = false
-//                    animate.wrappedValue = false
-//                } }
-//            
-//        }
-//            
-////                                Text(popUpMessage)
-////                                    .foregroundColor(.white)
-////                                    .padding(5)
-//             //to cover the whole popover
-//    }
 }
 
 extension View {
@@ -303,5 +265,17 @@ struct TopNotificationBar: View {
                 }
             }
         }
+    }
+}
+
+struct BlurView: UIViewRepresentable {
+    var style: UIBlurEffect.Style
+
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        return UIVisualEffectView(effect: UIBlurEffect(style: style))
+    }
+
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+        uiView.effect = UIBlurEffect(style: style)
     }
 }

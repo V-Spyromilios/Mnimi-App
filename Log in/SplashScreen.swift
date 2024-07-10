@@ -41,46 +41,17 @@ struct SplashScreen: View {
                             }
                         }
                 }.frame(height: geometry.size.height)
-                
-                
-                //                ScrollView {
-                //                    if !cloudKit.userIsSignedIn {
-                //                        Text("User is Not signed -in").padding()
-                //                    }
-                if showLogo {
-                    carousel(geometry: geometry)
-                    
-                }
-                //                    if !cloudKit.fetchedNamespaceDict.isEmpty {
-                //                        Text("NamespaceDictionary is not Empty")
-                //                    }
-                //                    else if cloudKit.fetchedNamespaceDict.isEmpty {
-                //                        Text("NamespaceDictionary is Empty !")
-                //                    }
-                //                    if cloudKit.CKError != "" {
-                //                        Text("Error CloudKit: \(cloudKit.CKError)")
-                //                    }
-                //                    VStack(alignment: .leading) {
-                //                        ForEach(cloudKit.log, id: \.self) { logEntry in
-                //                            Text(logEntry)
-                //                                .foregroundColor(.black)
-                //                                .font(.footnote)
-                //                                .padding(2)
-                //                        }
-                //                        Spacer()
-                //                    }
-                //                }
-                //                .frame(height: geometry.size.height * 0.4)
-                //                .background(Color.white)
-                //                .cornerRadius(8)
-                //                .shadow(radius: 4)
-                //                .padding()
-                
+
                 if showCode {
                    
                     codeView(geometry: geometry)
                 }
-                
+    
+                if showLogo {
+                    carousel(geometry: geometry) .frame(width: geometry.size.width, height: geometry.size.width, alignment: .center)
+                        
+                    
+                }
             }
             .statusBar(hidden: true)
             .alert(isPresented: $showAlert) {
@@ -99,9 +70,8 @@ struct SplashScreen: View {
             if newValue == symbols.count - 1 { // The index of symbols[""]
                 withAnimation {
                     showLogo = false }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { //around 1.3 - a.4
-                    
-                    loadingComplete = true // Just to mimic the loading ok
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { //around 1.3 - a.4
+                    loadingComplete = true
                 }
             }
         }
@@ -115,24 +85,35 @@ struct SplashScreen: View {
             }
         }
         .onChange(of: cloudKit.CKError) { _, error in
-            if error != "" { self.alertMessage = error }
+            if error != "" { 
+                self.alertMessage = error
+                self.showAlert = true }
         }
     }
     @ViewBuilder
     private func carousel(geometry: GeometryProxy) -> some View {
         let symbolWidth = geometry.size.width
         
-        HStack(spacing: 0) {
-            
-            Image(systemName: symbols[currentSymbolIndex])
-                .resizable()
-                .scaledToFit()
-                .frame(width: 90, height: 90)
-                .foregroundStyle(Color.primaryBackground)
-                .cornerRadius(8)
-            
-        }
-        .frame(width: symbolWidth, height: symbolWidth, alignment: .center)
+        VStack(spacing: 12) {
+                    Image(systemName: symbols[currentSymbolIndex])
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 90, height: 90)
+                        .foregroundStyle(Color.primaryBackground)
+                        .cornerRadius(8)
+                    Text("\(currentSymbolIndex + 1) / 4")
+                        .font(.largeTitle)
+                        .bold()
+                        .fontDesign(.rounded)
+                        .foregroundStyle(Color.primaryBackground)
+                        .contentTransition(.numericText())
+                }
+               
+        //.background(BlurView(style: .systemChromeMaterial).opacity(0.7))
+        .background(Color.britishRacingGreen.opacity(0.7))
+        .cornerRadius(20)
+                
+        
     }
     
     private func startAnimations() {
@@ -150,9 +131,8 @@ struct SplashScreen: View {
             Spacer()
             ForEach(Array(codeLines.enumerated()), id: \.offset) { _, line in
                 Text(line)
-          
-                    .foregroundColor(colorScheme == .light ? Color.primaryBackground : Color.gray)
-                    .font(Font.custom("SF-Compact", size: 13))
+                    .foregroundColor(Color.white.opacity(0.8))
+                    .font(Font.custom("SF Mono Semibold", size: 14)) //as per Font Book, not fileName
                     .bold()
                     .transition(.move(edge: .bottom))
                     .frame(maxWidth: .infinity, alignment: .trailing)

@@ -22,6 +22,8 @@ struct AddNotificationView: View {
     
     var body: some View {
         NavigationStack {
+            ZStack {
+                Color.primaryBackground.ignoresSafeArea()
             VStack {
                 HStack {
                     Image(systemName: "pencil").bold()
@@ -34,16 +36,18 @@ struct AddNotificationView: View {
                     TextEditor(text: $notificationTitle)
                         .fontDesign(.rounded)
                         .font(.title2)
+                    //                        .foregroundColor(.white) // Set text color to white
+                    //                        .background(Color.black) // Set background color to black
                         .multilineTextAlignment(.leading)
                         .frame(height: smallTextEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .overlay{
+                        .overlay(
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
                                 .foregroundColor(Color.gray)
-                        }
+                        )
                         .padding(.bottom)
                 }
                 HStack {
@@ -57,6 +61,8 @@ struct AddNotificationView: View {
                     TextEditor(text: $notificationBody)
                         .fontDesign(.rounded)
                         .font(.title2)
+                    //                        .foregroundColor(.white)
+                    //                        .background(Color.black)
                         .multilineTextAlignment(.leading)
                         .frame(height: textEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -69,13 +75,13 @@ struct AddNotificationView: View {
                         }
                         .padding(.bottom)
                 }
-
+                
                 HStack {
                     Image(systemName: "clock").bold()
                         .font(.callout)
                     Text("When?").bold()
                         .font(.callout)
-
+                    
                     DatePicker(
                         "",
                         selection: $date,
@@ -91,17 +97,18 @@ struct AddNotificationView: View {
                                 .fill(Color.primaryAccent)
                                 .frame(height: 60)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-
+                            
                             Text("Save").font(.title2).bold()
                                 .foregroundColor(Color.buttonText)
                         } .padding(.vertical, 8)
                             .contentShape(Rectangle())
-                           
+                        
                     }.frame(maxWidth: .infinity).accessibilityLabel("save")
                     Spacer()
                 }
                 Spacer()
             }.padding()
+        }
                 .toolbar {
                     if keyboardResponder.currentHeight > 0 {
                         Button {
@@ -114,10 +121,11 @@ struct AddNotificationView: View {
                                 .overlay {
                                     HideKeyboardLabel()
                                 }
-                                }
                         }
+                    }
                 }
-        }.background { Color.primaryBackground}
+        }
+//        .background(Color.primaryBackground)
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("\(alertTitle)"),
@@ -159,7 +167,7 @@ struct AddNotificationView: View {
                 DispatchQueue.main.async {
                     //TODO: Show Confirmation pop-up
                     alertTitle = "Notification Saved!"
-                   showAlert = true
+                    showAlert = true
                     manager.fetchScheduledNotifications()
                    
                 }

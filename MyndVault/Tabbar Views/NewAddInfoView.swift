@@ -64,44 +64,42 @@ struct NewAddInfoView: View {
                             .padding(.bottom)
                             .padding(.horizontal, 7)
                     }
-                    HStack {
-                        
-                        Button(action: {
-                            photoPicker.presentPicker()
-                        }) {
-                            Text(photoPicker.selectedImage == nil ? "Add photo" : "Change photo")
-                        }
-                        
-                        
-                        //                        .padding()
-                        Spacer()
-                        if let image = photoPicker.selectedImage {
-                            ZStack(alignment: .topTrailing) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 160)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                    .overlay(alignment: .center) {
-                                        RoundedRectangle(cornerRadius: 10.0)
-                                            .stroke(lineWidth: 1)
-                                            .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                            .foregroundColor(Color.gray)
+                    Button(action: {
+                                photoPicker.presentPicker()
+                            }) {
+                                HStack {
+                                    Text(photoPicker.selectedImage == nil ? "Add photo" : "Change photo").frame(width: geometry.size.width)
+                                    Spacer()
+                                    if let image = photoPicker.selectedImage {
+                                        ZStack(alignment: .topTrailing) {
+                                            Image(uiImage: image)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(height: 160)
+                                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                                .overlay(alignment: .center) {
+                                                    RoundedRectangle(cornerRadius: 10.0)
+                                                        .stroke(lineWidth: 1)
+                                                        .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                                        .foregroundColor(Color.gray)
+                                                }
+                                            Button(action: {
+                                                withAnimation {
+                                                    photoPicker.selectedImage = nil
+                                                }
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(Color.white)
+                                                    .background(Color.black.opacity(0.6))
+                                                    .clipShape(Circle())
+                                            }
+                                            .offset(x: 5, y: -5)
+                                        }
                                     }
-                                Button(action: {
-                                    withAnimation {
-                                        photoPicker.selectedImage = nil }
-                                }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(Color.white)
-                                        .background(Color.black.opacity(0.6))
-                                        .clipShape(Circle())
                                 }
-                                .offset(x: 5, y: -5)
                             }
-                        }
-                    }
+                            .buttonStyle(PlainButtonStyle())
                     .padding()
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
                     .background(colorScheme == .light ? Color.cardBackground : Color.black)

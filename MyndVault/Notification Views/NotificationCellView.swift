@@ -54,7 +54,9 @@ struct NotificationCellView: View {
                     Text(notification.notificationBody)
                         .foregroundStyle(colorScheme == .light ? .black : .white.opacity(0.6))
                         .italic()
-                        .padding(.bottom, 20)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(nil)
+                        .padding(.bottom, 10)
                         .padding(.leading)
                     Spacer()
                 }
@@ -74,17 +76,8 @@ struct NotificationCellView: View {
                 .padding(.bottom, 18)
             
         }.frame(maxWidth: .infinity)
+           
             .padding(.top)
-//            .toolbar {
-//                ToolbarItemGroup(placement: .topBarTrailing) {
-//                    Button("CancelFromCell") {
-//                        presentationMode.wrappedValue.dismiss()
-//                    }.accessibilityLabel("Cancel")
-//                }
-//            } //THEY ARE REPEATED !
-    
-        
-//            .padding(.horizontal)
             .background(Color.cardBackground)
             .cornerRadius(10)
             .shadow(radius: shadowRadius)
