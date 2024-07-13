@@ -30,10 +30,17 @@
 		E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45802BC2A80C00945312 /* NetworkViewModel.swift */; };
 		E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45892BC2A85D00945312 /* CustomTapBarView.swift */; };
 		E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E838498F2C3471B200C7E390 /* FullScreenImage.swift */; };
+		E840D1AE2C427BA8000DB7AD /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = E840D1AD2C427BA8000DB7AD /* Lottie */; };
+		E840D1B02C427C9E000DB7AD /* LottieRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E840D1AF2C427C9E000DB7AD /* LottieRepresentable.swift */; };
 		E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */; };
 		E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */; };
 		E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */; };
 		E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */; };
+		E85055032C428B7C00FBACC4 /* Swift.json in Resources */ = {isa = PBXBuildFile; fileRef = E85055022C428B7C00FBACC4 /* Swift.json */; };
+		E85055052C428BB900FBACC4 /* SwiftLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85055042C428BB900FBACC4 /* SwiftLogoView.swift */; };
+		E85055072C42C6A000FBACC4 /* Brain Configurations.json in Resources */ = {isa = PBXBuildFile; fileRef = E85055062C42C6A000FBACC4 /* Brain Configurations.json */; };
+		E85055092C42CF2A00FBACC4 /* Image Recognition.json in Resources */ = {isa = PBXBuildFile; fileRef = E85055082C42CF2A00FBACC4 /* Image Recognition.json */; };
+		E850550B2C42D42300FBACC4 /* Ai Cloud.json in Resources */ = {isa = PBXBuildFile; fileRef = E850550A2C42D42300FBACC4 /* Ai Cloud.json */; };
 		E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */; };
 		E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
@@ -97,11 +104,17 @@
 		E82F45802BC2A80C00945312 /* NetworkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkViewModel.swift; sourceTree = "<group>"; };
 		E82F45892BC2A85D00945312 /* CustomTapBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTapBarView.swift; sourceTree = "<group>"; };
 		E838498F2C3471B200C7E390 /* FullScreenImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImage.swift; sourceTree = "<group>"; };
+		E840D1AF2C427C9E000DB7AD /* LottieRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieRepresentable.swift; sourceTree = "<group>"; };
 		E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyndVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyndVaultApp.swift; sourceTree = "<group>"; };
 		E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		E85055022C428B7C00FBACC4 /* Swift.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Swift.json; sourceTree = "<group>"; };
+		E85055042C428BB900FBACC4 /* SwiftLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftLogoView.swift; sourceTree = "<group>"; };
+		E85055062C42C6A000FBACC4 /* Brain Configurations.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Brain Configurations.json"; sourceTree = "<group>"; };
+		E85055082C42CF2A00FBACC4 /* Image Recognition.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Image Recognition.json"; sourceTree = "<group>"; };
+		E850550A2C42D42300FBACC4 /* Ai Cloud.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Ai Cloud.json"; sourceTree = "<group>"; };
 		E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboardLabel.swift; sourceTree = "<group>"; };
 		E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewModel.swift; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
@@ -148,6 +161,7 @@
 				E8FD6B742BEA422F00A0BC15 /* FirebaseCrashlytics in Frameworks */,
 				E8FD6B7A2BEA426A00A0BC15 /* RevenueCatUI in Frameworks */,
 				E8FD6B762BEA422F00A0BC15 /* FirebasePerformance in Frameworks */,
+				E840D1AE2C427BA8000DB7AD /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -230,6 +244,8 @@
 				E8CFEAFF2C3DD035005A2630 /* testScroll.swift */,
 				E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */,
 				E8CFEAF72C395876005A2630 /* VisualEffect.swift */,
+				E840D1AF2C427C9E000DB7AD /* LottieRepresentable.swift */,
+				E85055042C428BB900FBACC4 /* SwiftLogoView.swift */,
 				E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */,
 				E8B4D5022BF8C07400F2A174 /* Log in */,
 				E8FA7F082BC5BC320012EBF6 /* Settings */,
@@ -264,6 +280,7 @@
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
 				E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */,
+				E85055012C428B6800FBACC4 /* Lotties */,
 				E8459ECF2BC1E3BE00CE34A7 /* Preview Content */,
 			);
 			path = MyndVault;
@@ -275,6 +292,17 @@
 				E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		E85055012C428B6800FBACC4 /* Lotties */ = {
+			isa = PBXGroup;
+			children = (
+				E850550A2C42D42300FBACC4 /* Ai Cloud.json */,
+				E85055082C42CF2A00FBACC4 /* Image Recognition.json */,
+				E85055062C42C6A000FBACC4 /* Brain Configurations.json */,
+				E85055022C428B7C00FBACC4 /* Swift.json */,
+			);
+			path = Lotties;
 			sourceTree = "<group>";
 		};
 		E8A37F622BD00675004A98C9 /* Info */ = {
@@ -341,6 +369,7 @@
 				E8FD6B752BEA422F00A0BC15 /* FirebasePerformance */,
 				E8FD6B772BEA426A00A0BC15 /* RevenueCat */,
 				E8FD6B792BEA426A00A0BC15 /* RevenueCatUI */,
+				E840D1AD2C427BA8000DB7AD /* Lottie */,
 			);
 			productName = MyndVault;
 			productReference = E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */;
@@ -373,6 +402,7 @@
 			packageReferences = (
 				E8459ED72BC1EC2900CE34A7 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				E8BFD34F2BC58BC300355B44 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				E840D1AC2C427BA8000DB7AD /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = E8459EC52BC1E3BE00CE34A7 /* Products */;
 			projectDirPath = "";
@@ -389,12 +419,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				E8B50D8A2C24AD9900AC15DF /* PrivacyInfo.xcprivacy in Resources */,
+				E85055092C42CF2A00FBACC4 /* Image Recognition.json in Resources */,
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
+				E85055072C42C6A000FBACC4 /* Brain Configurations.json in Resources */,
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
 				E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */,
 				E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */,
 				E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */,
+				E85055032C428B7C00FBACC4 /* Swift.json in Resources */,
 				E8CFEAFE2C3D5D52005A2630 /* NewYork.ttf in Resources */,
+				E850550B2C42D42300FBACC4 /* Ai Cloud.json in Resources */,
 				E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -468,6 +502,7 @@
 				E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */,
 				E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */,
 				E8B4D5082BF8CD7F00F2A174 /* KeychainManager.swift in Sources */,
+				E85055052C428BB900FBACC4 /* SwiftLogoView.swift in Sources */,
 				E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */,
 				E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */,
 				E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */,
@@ -478,6 +513,7 @@
 				E82F45732BC2A77E00945312 /* ResponseModel.swift in Sources */,
 				E8CFEAFA2C3D5064005A2630 /*  openSettingsView.swift in Sources */,
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
+				E840D1B02C427C9E000DB7AD /* LottieRepresentable.swift in Sources */,
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,
@@ -712,6 +748,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		E840D1AC2C427BA8000DB7AD /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.0;
+			};
+		};
 		E8459ED72BC1EC2900CE34A7 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
@@ -731,6 +775,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E840D1AD2C427BA8000DB7AD /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E840D1AC2C427BA8000DB7AD /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
 		E8FD6B712BEA422F00A0BC15 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAnalytics;

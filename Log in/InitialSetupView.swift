@@ -18,6 +18,7 @@ struct InitialSetupView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var setupComplete = false
+    @State private var shake = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -88,6 +89,7 @@ struct InitialSetupView: View {
                        
                     }
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
+                    .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                     .padding(.top, 12)
                     .padding(.horizontal)
                     .padding()
@@ -97,6 +99,13 @@ struct InitialSetupView: View {
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Setup Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
+            .onChange(of: shake) { _, newValue in
+                if newValue {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        shake = false
+                    }
+                }
+            }
             .fullScreenCover(isPresented: $setupComplete) {
                 FaceIDView()
             }
@@ -104,7 +113,11 @@ struct InitialSetupView: View {
     }
 
     private func completeSetup() {
+
+        if shake { return }
+
         guard !username.isEmpty && !password.isEmpty && password == confirmPassword else {
+            withAnimation { shake = true }
             alertMessage = "Please make sure all fields are filled and passwords match."
             showAlert = true
             return

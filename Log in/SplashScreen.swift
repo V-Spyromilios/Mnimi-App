@@ -49,8 +49,6 @@ struct SplashScreen: View {
     
                 if showLogo {
                     carousel(geometry: geometry) .frame(width: geometry.size.width, height: geometry.size.width, alignment: .center)
-                        
-                    
                 }
             }
             .statusBar(hidden: true)
@@ -70,17 +68,17 @@ struct SplashScreen: View {
             if newValue == symbols.count - 1 { // The index of symbols[""]
                 withAnimation {
                     showLogo = false }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { //around 1.3 - a.4
-                    loadingComplete = true
-                }
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { //around 1.3 - a.4
+//                    if cloudKit.isLoading == false {
+//                        loadingComplete = true
+//                    }
+//                }
             }
         }
         .onChange(of: loadingComplete) {
             if loadingComplete {
-               
                 withAnimation(.easeInOut(duration: 0.01)) {
                     showSplash = false
-                    
                 }
             }
         }
@@ -89,11 +87,15 @@ struct SplashScreen: View {
                 self.alertMessage = error
                 self.showAlert = true }
         }
+        .onChange(of: cloudKit.isLoading) { _, isLoading in
+            if !isLoading && cloudKit.CKError == "" {
+                loadingComplete = true
+            } //TODO: Check if starts the main screen only if the cloudKit is OK
+        }
     }
     @ViewBuilder
     private func carousel(geometry: GeometryProxy) -> some View {
-        let symbolWidth = geometry.size.width
-        
+
         VStack(spacing: 12) {
                     Image(systemName: symbols[currentSymbolIndex])
                         .resizable()

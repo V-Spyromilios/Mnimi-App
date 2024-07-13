@@ -23,6 +23,7 @@ struct NewAddInfoView: View {
     
     @State private var animateStep: Int = 0
     @State private var isLoading: Bool = false
+    @State private var shake: Bool = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -62,13 +63,13 @@ struct NewAddInfoView: View {
                                     .foregroundColor(Color.gray)
                             )
                             .padding(.bottom)
-                            .padding(.horizontal, 7)
+                            
                     }
                     Button(action: {
                                 photoPicker.presentPicker()
                             }) {
                                 HStack {
-                                    Text(photoPicker.selectedImage == nil ? "Add photo" : "Change photo").frame(width: geometry.size.width)
+                                    Text(photoPicker.selectedImage == nil ? "Add photo" : "Change photo")
                                     Spacer()
                                     if let image = photoPicker.selectedImage {
                                         ZStack(alignment: .topTrailing) {
@@ -111,7 +112,6 @@ struct NewAddInfoView: View {
                             .opacity(colorScheme == .light ? 0.3 : 0.7)
                             .foregroundColor(Color.gray)
                     )
-                    .padding(.horizontal, 7)
                     .padding(.bottom)
                     
                     .toolbar {
@@ -137,12 +137,13 @@ struct NewAddInfoView: View {
                             }
                             
                         }
-                    }.popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-                        
-                        popOverView(animateStep: $animateStep, show: $showPopUp)
-                            .presentationCompactAdaptation(.popover)
-                        
                     }
+//                    .popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+//                        
+//                        popOverView(animateStep: $animateStep, show: $showPopUp)
+//                            .presentationCompactAdaptation(.popover)
+//                        
+//                    } //TODO: Not really needed after Lottie
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                     }
@@ -177,13 +178,21 @@ struct NewAddInfoView: View {
                     }
                     if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                         CircularProgressView(progressTracker: progressTracker).padding()
+                        LottieRepresentable(filename: "Brain Configurations", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).id(UUID())
                     }
                     Spacer()
                         .navigationTitle("Add New 📝")
                         .navigationBarTitleDisplayMode(.large)
-                }
+                }.padding(.horizontal, 7) //TODO: No padding !?!
             }.background {
                 Color.primaryBackground.ignoresSafeArea()
+            }
+            .onChange(of: shake) { _, newValue in
+                if newValue {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        shake = false
+                    }
+                }
             }
             }
         
@@ -207,6 +216,7 @@ struct NewAddInfoView: View {
            
         }
         .frame(maxWidth: .infinity)
+        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
         .padding(.top, 12)
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
@@ -248,9 +258,13 @@ struct NewAddInfoView: View {
     
     private func addNewInfoAction() {
         
-        if newInfo.count < 5 || isLoading { return }
+        if shake || isLoading { return }
+        if newInfo.count < 5 {
+            withAnimation { shake = true }
+            return
+        }
+        
         isLoading = true
-
         hideKeyboard()
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
@@ -275,11 +289,11 @@ struct NewAddInfoView: View {
                     if let image = photoPicker.selectedImage {
                         try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
                     }
-                    await MainActor.run {
-                        self.popUpMessage = "Info saved."
-                        self.showPopUp = true
-                        self.newInfo = ""
-                    }
+//                    await MainActor.run {
+//                        self.popUpMessage = "Info saved."
+//                        self.showPopUp = true
+//                        self.newInfo = ""
+//                    }
                 }
             } catch(let error) {
                 await MainActor.run {

@@ -279,3 +279,20 @@ struct BlurView: UIViewRepresentable {
         uiView.effect = UIBlurEffect(style: style)
     }
 }
+
+final class ShakeEffect: GeometryEffect {
+    private let amount: CGFloat //max movement(displacement)
+    private let shakesPerUnit: CGFloat // complete back and forth per animation
+    var animatableData: CGFloat
+
+    init(amount: CGFloat = 5, shakesPerUnit: CGFloat = 2, animatableData: CGFloat) {
+        self.amount = amount
+        self.shakesPerUnit = shakesPerUnit
+        self.animatableData = animatableData
+    }
+
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        let translation = amount * sin(animatableData * .pi * shakesPerUnit)
+        return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
+    }
+}

@@ -16,6 +16,7 @@ struct SignUpWithPasswordView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var hasSignedUp = false
+    @State private var shake: Bool = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -83,6 +84,7 @@ struct SignUpWithPasswordView: View {
                         
                     }
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
+                    .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                     .padding(.top, 12)
                     .padding(.horizontal)
                     .padding()
@@ -92,6 +94,13 @@ struct SignUpWithPasswordView: View {
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Sign Up Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
+            .onChange(of: shake) { _, newValue in
+                if newValue {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        shake = false
+                    }
+                }
+            }
             .fullScreenCover(isPresented: $hasSignedUp) {
                 MainView()
             }
@@ -99,7 +108,12 @@ struct SignUpWithPasswordView: View {
     }
 
     private func signUp() {
+        
+        if shake { return }
+
         guard !username.isEmpty && !password.isEmpty && password == confirmPassword else {
+            
+            withAnimation { shake = true }
             alertMessage = "Please make sure all fields are filled and passwords match."
             showAlert = true
             return

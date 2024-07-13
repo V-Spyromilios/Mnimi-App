@@ -24,6 +24,8 @@ struct PromptLanguageView: View {
     }
     var body: some View {
         
+        SwiftLogoView().padding()
+        
         List(LanguageCode.allCases, id: \.self) { language in
             Button(action: {
                 self.selectedLanguage = language
