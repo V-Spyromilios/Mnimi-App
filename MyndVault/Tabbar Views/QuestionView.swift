@@ -25,6 +25,7 @@ struct QuestionView: View {
     @State private var showSettings: Bool = false
     @State private var fetchedImages: [UIImage] = []
     @State private var isLoading: Bool = false
+    @State private var shake: Bool = false
     
     var body: some View {
         
@@ -83,6 +84,9 @@ struct QuestionView: View {
                         }
                         else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
+
+                            LottieRepresentable(filename: "Ai Cloud",loopMode: .loop, speed: 0.8)
+                                .frame(height: 300)
                         }
                     }
                     
@@ -175,9 +179,7 @@ struct QuestionView: View {
                         
                         
                         Button {
-                            //                            print("Before toggling settings: \(showSettings)")
                             showSettings.toggle()
-                            //                                print("After toggling settings: \(showSettings)")
                         } label: {
                             Circle()
                                 .foregroundStyle(Color.gray.opacity(0.6))
@@ -202,6 +204,13 @@ struct QuestionView: View {
                             showFullImage = false
                         }
                     }
+            .onChange(of: shake) { _, newValue in
+                if newValue {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        shake = false
+                    }
+                }
+            }
             .background {
                 Color.primaryBackground.ignoresSafeArea()
             }
@@ -230,6 +239,7 @@ struct QuestionView: View {
         .padding(.top, 12)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
+        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
     }
     
     private var ClearButton: some View {
@@ -269,10 +279,14 @@ struct QuestionView: View {
     }
     
     private func performTask() {
-        
-        if question.count < 8 || isLoading { return }
+
+        if shake || isLoading { return }
+        if question.count < 8 {
+            withAnimation { shake = true }
+            return
+        }
+
         isLoading = true
-        
         hideKeyboard()
         progressTracker.reset()
         withAnimation { goButtonIsVisible = false }

@@ -6,8 +6,9 @@ struct NotificationEditView: View {
     @Environment(\.presentationMode) var presentationMode
     
     @State private var selectedDate = Date()
-    @State private var title: String = ""
+    @State private var notificationTitle: String = ""
     @State private var notificationBody: String = ""
+    @State private var shake: Bool = false
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @Environment(\.colorScheme) var colorScheme
     var notification: CustomNotification
@@ -26,7 +27,7 @@ struct NotificationEditView: View {
                     .padding(.top, 12)
                     .padding(.bottom, 8)
                     VStack {
-                    TextEditor(text: $title)
+                    TextEditor(text: $notificationTitle)
                         .fontDesign(.rounded)
                         .font(.title2)
                         .multilineTextAlignment(.leading)
@@ -87,10 +88,17 @@ struct NotificationEditView: View {
                     .padding(.top, 12)
                     
                     Button(action: {
+                        if shake { return }
+                        
+                        if notificationBody.isEmpty || notificationTitle.isEmpty {
+                            withAnimation { shake = true }
+                            return
+                        }
+                        
                         Task {
                             let id = notification.id
                             let newDate = selectedDate
-                            let newTitle = title
+                            let newTitle = notificationTitle
                             let notificationBody = notification.notificationBody
                             Task {
                                 UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
@@ -104,7 +112,7 @@ struct NotificationEditView: View {
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
-                                .fill(Color.primaryAccent)
+                                .fill(shake ? Color.gray : Color.primaryAccent)
                                 .frame(height: 60)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
@@ -114,6 +122,7 @@ struct NotificationEditView: View {
                         
                         .accessibilityLabel("Save changes and reschedule")
                     }
+                    .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                     .padding(.top, 12)
                     .padding(.horizontal, 7)
                 }
@@ -121,8 +130,15 @@ struct NotificationEditView: View {
                 .padding(.bottom, 16)
                 .onAppear {
                     selectedDate = notification.date
-                    self.title = notification.title
+                    self.notificationTitle = notification.title
                     self.notificationBody = notification.notificationBody
+                }
+                .onChange(of: shake) { _, newValue in
+                    if newValue {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            shake = false
+                        }
+                    }
                 }
             }
             .navigationTitle("Edit Notification")

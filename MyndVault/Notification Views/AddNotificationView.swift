@@ -18,6 +18,7 @@ struct AddNotificationView: View {
     @State private var date: Date = Date()
     @State private var showAlert: Bool = false
     @State private var alertTitle: String = ""
+    @State private var shake: Bool = false
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -90,6 +91,13 @@ struct AddNotificationView: View {
                 }
                 HStack {
                     Button(action: {
+                        
+                        if shake { return }
+                        if notificationBody.isEmpty || notificationTitle.isEmpty {
+                            withAnimation { shake = true }
+                            return
+                        }
+
                         Task { scheduleNotification() }
                     }) {
                         ZStack {
@@ -103,7 +111,10 @@ struct AddNotificationView: View {
                         } .padding(.vertical, 8)
                             .contentShape(Rectangle())
                         
-                    }.frame(maxWidth: .infinity).accessibilityLabel("save")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel("save")
+                    .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                     Spacer()
                 }
                 Spacer()
@@ -134,6 +145,13 @@ struct AddNotificationView: View {
                     dismissAction()
                 }
             )
+        }
+        .onChange(of: shake) { _, newValue in
+            if newValue {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    shake = false
+                }
+            }
         }
     }
 

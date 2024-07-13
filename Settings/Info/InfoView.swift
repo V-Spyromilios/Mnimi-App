@@ -22,6 +22,7 @@ struct InfoView: View {
     @Binding var showPop: Bool
     @Binding var presentationMode: PresentationMode
     @Environment(\.colorScheme) var colorScheme
+    @State private var shake: Bool = false
 
     private enum Field {
         case edit
@@ -57,6 +58,13 @@ struct InfoView: View {
             .padding(.horizontal, 7)
            
             Button(action:  {
+
+                if shake { return }
+                
+                if viewModel.description.isEmpty {
+                    withAnimation { shake = true }
+                    return
+                }
                 DispatchQueue.main.async {
                     self.viewModel.activeAlert = .editConfirmation
                 }
@@ -76,6 +84,7 @@ struct InfoView: View {
                
             }
             .frame(maxWidth: .infinity)
+            .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
             .padding(.top, 12)
             .padding(.horizontal)
             .animation(.easeInOut, value: keyboardResponder.currentHeight)
@@ -121,6 +130,13 @@ struct InfoView: View {
                                 .accessibilityLabel("Delete info")
                         }
                 })
+            }
+        }
+        .onChange(of: shake) { _, newValue in
+            if newValue {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    shake = false
+                }
             }
         }
         

@@ -33,14 +33,9 @@ struct FaceIDView: View {
                         .frame(height: greenHeight)
                         .ignoresSafeArea()
                     VStack {
-                        
-                        Text("")
-                            .font(.largeTitle)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(Color.buttonText)
-                            .fontDesign(.rounded)
-                            .padding(.top, 14)
-                        
+                        Spacer().frame(height: 80)
+                        LottieRepresentable(filename: "Image Recognition", loopMode: .loop)
+                            .frame(width: 400, height: 400).padding()
                         Spacer()
                     }.padding(.top)
                         .onAppear(perform: authenticate)
@@ -101,6 +96,7 @@ struct UsernamePasswordLoginView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var alertPasswordMessage = ""
     @State private var showPasswordError = false
+    @State private var shake: Bool = false
     
     var body: some View {
         ZStack {
@@ -136,9 +132,16 @@ struct UsernamePasswordLoginView: View {
                     )
                     .padding()
                 Button(action:  {
-                        authenticateWithPassword()
+                    
+                    if shake { return }
+                    
+                    if password.isEmpty {
+                        withAnimation { shake = true }
+                        return
+                    }
+                    authenticateWithPassword()
                 }
-    ) {
+                ) {
                     ZStack {
                         RoundedRectangle(cornerRadius: rectCornerRad)
                             .fill(Color.primaryAccent)
@@ -158,6 +161,7 @@ struct UsernamePasswordLoginView: View {
                 .animation(.easeInOut, value: keyboardResponder.currentHeight)
                 .id("SubmitButton")
                 .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
+                .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                 Spacer()
             }
         }
@@ -167,6 +171,13 @@ struct UsernamePasswordLoginView: View {
                 message: Text(""),
                 dismissButton: .cancel(Text("OK"), action: { showPasswordAuth = true })
             )
+        }
+        .onChange(of: shake) { _, newValue in
+            if newValue {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    shake = false
+                }
+            }
         }
     }
     
@@ -202,7 +213,7 @@ struct UsernamePasswordLoginView: View {
 //}
 
 struct UsernamePasswordLoginView_Previews: PreviewProvider {
-    @State static var showPasswordAuth = true
+    @State static var showPasswordAuth = false
     @State static var username = ""
     @State static var password = ""
     
