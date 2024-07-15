@@ -116,17 +116,9 @@ extension View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
-    func ErrorView(thrownError: String) -> some View {
-        VStack {
-            Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.yellow).font(.largeTitle)
-            Text(thrownError).font(.caption2).bold()
-        }
-        .animation(.easeOut, value: thrownError)
-    }
-
+  
+    
 }
-
-
 
 func idealWidth(for availableWidth: CGFloat) -> CGFloat {
 
@@ -161,7 +153,16 @@ extension View {
             AnyView(content())
         })
     }
+   
 }
+
+//func ErrorView(thrownError: String) -> some View {
+//      VStack {
+//          Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.yellow).font(.largeTitle)
+//          Text(thrownError).font(.caption2).bold()
+//      }
+//      .animation(.easeOut, value: thrownError)
+//  }
 
 
 

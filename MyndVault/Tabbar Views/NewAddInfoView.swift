@@ -139,10 +139,10 @@ struct NewAddInfoView: View {
                         }
                     }
 //                    .popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-//                        
+//
 //                        popOverView(animateStep: $animateStep, show: $showPopUp)
 //                            .presentationCompactAdaptation(.popover)
-//                        
+//
 //                    } //TODO: Not really needed after Lottie
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
@@ -152,21 +152,21 @@ struct NewAddInfoView: View {
                     
                     
                     if self.thrownError != "" {
-                        ErrorView(thrownError: thrownError)
+                        ErrorView2(thrownError: thrownError)
                             .padding(.top)
                             .padding(.horizontal)
                         ClearButton
                             .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
                     }
                     else if pineconeManager.receivedError != nil {
-                        ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
+                        ErrorView2(thrownError: thrownError)
                             .padding(.top)
                             .padding(.horizontal)
                         ClearButton
                             .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
                     }
                     else if openAiManager.thrownError != "" {
-                        ErrorView(thrownError: openAiManager.thrownError)
+                        ErrorView2(thrownError: thrownError)
                             .padding(.top)
                             .padding(.horizontal)
                         ClearButton
@@ -190,9 +190,16 @@ struct NewAddInfoView: View {
             .onChange(of: shake) { _, newValue in
                 if newValue {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        shake = false
+                        withAnimation {
+                            shake = false }
                     }
                 }
+            }
+            .onChange(of: openAiManager.thrownError) { _, errorMessage in
+//                if errorMessage != "" {
+                withAnimation {
+                    self.thrownError = errorMessage }
+//                }
             }
             }
         

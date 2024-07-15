@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E813C76C2BECF51900E3088D /* CountdownTimer.swift */; };
+		E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */ = {isa = PBXBuildFile; fileRef = E814B82A2C433CA6004BC4F4 /* Approved.json */; };
+		E814B82D2C4340D9004BC4F4 /* alertWarning.json in Resources */ = {isa = PBXBuildFile; fileRef = E814B82C2C4340D9004BC4F4 /* alertWarning.json */; };
 		E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */ = {isa = PBXBuildFile; fileRef = E82F454B2BC2A6D100945312 /* OpenAIKey.plist */; };
 		E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */; };
 		E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45512BC2A72100945312 /* CircularProgressView.swift */; };
@@ -32,6 +34,7 @@
 		E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E838498F2C3471B200C7E390 /* FullScreenImage.swift */; };
 		E840D1AE2C427BA8000DB7AD /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = E840D1AD2C427BA8000DB7AD /* Lottie */; };
 		E840D1B02C427C9E000DB7AD /* LottieRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E840D1AF2C427C9E000DB7AD /* LottieRepresentable.swift */; };
+		E8459B2B2C45AC020039BFA7 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459B2A2C45AC020039BFA7 /* ErrorView.swift */; };
 		E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */; };
 		E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */; };
 		E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */; };
@@ -82,6 +85,8 @@
 
 /* Begin PBXFileReference section */
 		E813C76C2BECF51900E3088D /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
+		E814B82A2C433CA6004BC4F4 /* Approved.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Approved.json; sourceTree = "<group>"; };
+		E814B82C2C4340D9004BC4F4 /* alertWarning.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = alertWarning.json; sourceTree = "<group>"; };
 		E82F454B2BC2A6D100945312 /* OpenAIKey.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = OpenAIKey.plist; sourceTree = "<group>"; };
 		E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitViewModel.swift; sourceTree = "<group>"; };
 		E82F45512BC2A72100945312 /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
@@ -105,6 +110,7 @@
 		E82F45892BC2A85D00945312 /* CustomTapBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTapBarView.swift; sourceTree = "<group>"; };
 		E838498F2C3471B200C7E390 /* FullScreenImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImage.swift; sourceTree = "<group>"; };
 		E840D1AF2C427C9E000DB7AD /* LottieRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieRepresentable.swift; sourceTree = "<group>"; };
+		E8459B2A2C45AC020039BFA7 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyndVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyndVaultApp.swift; sourceTree = "<group>"; };
 		E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -241,6 +247,7 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8459B2A2C45AC020039BFA7 /* ErrorView.swift */,
 				E8CFEAFF2C3DD035005A2630 /* testScroll.swift */,
 				E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */,
 				E8CFEAF72C395876005A2630 /* VisualEffect.swift */,
@@ -297,6 +304,8 @@
 		E85055012C428B6800FBACC4 /* Lotties */ = {
 			isa = PBXGroup;
 			children = (
+				E814B82C2C4340D9004BC4F4 /* alertWarning.json */,
+				E814B82A2C433CA6004BC4F4 /* Approved.json */,
 				E850550A2C42D42300FBACC4 /* Ai Cloud.json */,
 				E85055082C42CF2A00FBACC4 /* Image Recognition.json */,
 				E85055062C42C6A000FBACC4 /* Brain Configurations.json */,
@@ -424,10 +433,12 @@
 				E85055072C42C6A000FBACC4 /* Brain Configurations.json in Resources */,
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
 				E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */,
+				E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */,
 				E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */,
 				E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */,
 				E85055032C428B7C00FBACC4 /* Swift.json in Resources */,
 				E8CFEAFE2C3D5D52005A2630 /* NewYork.ttf in Resources */,
+				E814B82D2C4340D9004BC4F4 /* alertWarning.json in Resources */,
 				E850550B2C42D42300FBACC4 /* Ai Cloud.json in Resources */,
 				E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */,
 			);
@@ -472,6 +483,7 @@
 				E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */,
 				E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */,
 				E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */,
+				E8459B2B2C45AC020039BFA7 /* ErrorView.swift in Sources */,
 				E8CFEAF82C395876005A2630 /* VisualEffect.swift in Sources */,
 				E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */,
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
