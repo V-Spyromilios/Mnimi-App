@@ -19,18 +19,18 @@ struct CircularProgressView: View {
         
         ZStack {
             
-            Circle()
-                .stroke(lineWidth: 5)
-                .opacity(0.3)
-                .foregroundColor(Color.gray)
-                .frame(height: 60)
-            Circle()
-                .trim(from: 0, to: progressTracker.progress)
-                .stroke(style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
-                .foregroundStyle(greenGradient)
-                .frame(height: 60)
-                .rotationEffect(Angle(degrees: -90))
-                .animation(.smooth, value:progressTracker.progress) //.linear?
+//            Circle()
+//                .stroke(lineWidth: 5)
+//                .opacity(0.3)
+//                .foregroundColor(Color.gray)
+//                .frame(height: 60)
+//            Circle()
+//                .trim(from: 0, to: progressTracker.progress)
+//                .stroke(style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
+//                .foregroundStyle(greenGradient)
+//                .frame(height: 60)
+//                .rotationEffect(Angle(degrees: -90))
+//                .animation(.smooth, value:progressTracker.progress) //.linear?
             Text("\(Int(progressTracker.progress * 100))%")
                 .contentTransition(.numericText(countsDown: false))
                 .fontDesign(.rounded)

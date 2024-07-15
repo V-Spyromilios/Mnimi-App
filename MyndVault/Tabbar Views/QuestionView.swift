@@ -28,7 +28,7 @@ struct QuestionView: View {
     @State private var shake: Bool = false
     
     var body: some View {
-        
+        GeometryReader { geometry in
         NavigationStack {
             ScrollView {
                 
@@ -56,27 +56,35 @@ struct QuestionView: View {
                     .padding(.bottom)
                     .padding(.horizontal, 7)
                 VStack {
+                    VStack {
                     if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-                        ErrorView(thrownError: thrownError)
-                            .padding(.top)
-                            .padding(.horizontal)
-                        ClearButton
-                            .padding(.bottom)
+                        
+                        ErrorView2(thrownError: thrownError)
+                            .padding(.horizontal, 7)
+                                .padding(.vertical)
+                            ClearButton
+                                .padding(.bottom)
+                        
                     }
                     else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
-                        ErrorView(thrownError: pineconeManager.receivedError.debugDescription.description)
-                            .padding(.top)
-                            .padding(.horizontal)
+                       
+                        ErrorView2(thrownError: thrownError)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical)
                         ClearButton
                             .padding(.bottom)
+                        
                     }
                     else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-                        ErrorView(thrownError:  openAiManager.thrownError)
-                            .padding(.top)
-                            .padding(.horizontal)
+                        
+                        ErrorView2(thrownError: thrownError)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical)
                         ClearButton
                             .padding(.bottom)
+                        
                     }
+                }
                     VStack {
                         if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             GoButton
@@ -84,7 +92,7 @@ struct QuestionView: View {
                         }
                         else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
-
+                            
                             LottieRepresentable(filename: "Ai Cloud",loopMode: .loop, speed: 0.8)
                                 .frame(height: 300)
                         }
@@ -100,7 +108,7 @@ struct QuestionView: View {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                //.foregroundColor(Color.gray)
+                            //.foregroundColor(Color.gray)
                             
                             Text(openAiManager.stringResponseOnQuestion)
                                 .fontDesign(.rounded)
@@ -194,20 +202,33 @@ struct QuestionView: View {
             }
             .fullScreenCover(isPresented: $showFullImage) {
                 if let selectedImageIndex = self.selectedImageIndex {
-                               FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
-                           } else {
-                               Text("No Image Selected").bold()
-                           }
+                    FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
+                } else {
+                    Text("No Image Selected").bold()
+                }
             }
             .onChange(of: selectedImageIndex) { oldValue, newValue in //to observe selectedIndex as remains null for the fullscreen cover.
-                        if newValue == nil {
-                            showFullImage = false
-                        }
-                    }
+                if newValue == nil {
+                    withAnimation {
+                        showFullImage = false }
+                }
+            }
+//            .onChange(of: pineconeManager.receivedError) { _, receivedError in
+//                if let unwrappedError = receivedError {
+//                    self.thrownError = unwrappedError.localizedDescription
+//                }
+//            }
+            .onChange(of: openAiManager.thrownError) { _, errorMessage in
+//                if errorMessage != "" {
+                withAnimation {
+                    self.thrownError = errorMessage }
+//                }
+            }
             .onChange(of: shake) { _, newValue in
                 if newValue {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        shake = false
+                        withAnimation {
+                            shake = false }
                     }
                 }
             }
@@ -218,6 +239,7 @@ struct QuestionView: View {
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
         }
+    }
         
         
         
@@ -298,10 +320,13 @@ struct QuestionView: View {
                 
                 do {
                     progressTracker.setProgress(to: 0.35)
+//                    throw AppNetworkError.invalidResponse
                     try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
-                } catch {
-                    thrownError = error.localizedDescription
-                    clearButtonIsVisible = true
+                } catch(let error) {
+                    if let unwrappedError = error as? AppNetworkError {
+                        thrownError = unwrappedError.errorDescription
+                        clearButtonIsVisible = true
+                    }
                 }
                 if let pineconeResponse = pineconeManager.pineconeQueryResponse {
                     do {
