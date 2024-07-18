@@ -46,6 +46,7 @@ final class PineconeManager: ObservableObject {
         upsertSuccesful = false
     }
     
+    //this deletes localy
     func deleteVector(withId id: String) {
             pineconeFetchedVectors.removeAll { $0.id == id }
         }
@@ -190,6 +191,7 @@ final class PineconeManager: ObservableObject {
 
 //MARK: deleteVector
     func deleteVectorFromPinecone(id: String) async throws {
+        
         struct DeleteVectorsRequest: Codable {
             let ids: [String]
             let namespace: String
@@ -430,7 +432,7 @@ final class PineconeManager: ObservableObject {
         ProgressTracker.shared.setProgress(to: 0.7)
         guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/upsert") else {
             print("upsertDataToPinecone :: Invalid URL")
-            throw AppNetworkError.unknownError("ERROR upsertDataToPinecone() :: Invalid URL")
+            throw AppNetworkError.invalidDBURL
         }
         
         guard let apiKey = ApiConfiguration.pineconeKey else {
@@ -484,7 +486,7 @@ final class PineconeManager: ObservableObject {
                 if attempts < maxAttempts {
                     try await Task.sleep(nanoseconds: 100_000_000)
                 } else {
-                    // maximum number of attempts
+                    
                     throw AppNetworkError.unknownError("perform HTTP :: \(error.localizedDescription)")
                 }
             }

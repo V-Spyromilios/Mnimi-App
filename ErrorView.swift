@@ -7,16 +7,19 @@
 
 import SwiftUI
 
-struct ErrorView2: View {
+struct ErrorView: View {
     
     var thrownError: String
+    var extraMessage: String?
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         
         VStack {
             LottieRepresentable(filename: "alertWarning", loopMode: .loop).frame(height: 80)
-            Text(thrownError).font(.caption).bold().multilineTextAlignment(.leading).padding(.bottom)
+            Text(thrownError).font(.title2).bold().multilineTextAlignment(.leading).padding(.bottom)
+            if extraMessage != nil {
+                Text(extraMessage ?? "").font(.title3).bold().multilineTextAlignment(.leading).padding(.bottom) }
         }
 
         .background(colorScheme == .light ? Color.white : Color.gray)
@@ -33,5 +36,5 @@ struct ErrorView2: View {
 }
 
 #Preview {
-    ErrorView2(thrownError: "Something is wrong here.")
+    ErrorView(thrownError: "Something is wrong here.")
 }

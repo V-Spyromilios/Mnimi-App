@@ -17,42 +17,29 @@ struct MainView: View {
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     
     var body: some View {
-
-            Group {
-                if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
-
-                    ContentView()
-                        .environmentObject(openAiManager)
-                        .environmentObject(pineconeManager)
-                        .environmentObject(progressTracker)
-                        .environmentObject(notificationsManager)
-                        .environmentObject(cloudKitViewModel)
-                        .environmentObject(keyboardResponder)
-                }
+        
+        Group {
+            if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
                 
-                else if cloudKitViewModel.isLoading {
-                    Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
-                }
-                else if cloudKitViewModel.CKError != "" {
-
-                    let error = cloudKitViewModel.CKError
-                    contentError(error: error)
-                }
-                else if cloudKitViewModel.fetchedNamespaceDict.isEmpty {
-                    Text("fetchedNamespaceDict.isEmpty").font(.headline).foregroundStyle(.red)
-
-                }
-            }.onDisappear {
-                print("fetchedNamespace isEmpty: \(cloudKitViewModel.fetchedNamespaceDict.isEmpty)")
+                ContentView()
+                    .environmentObject(openAiManager)
+                    .environmentObject(pineconeManager)
+                    .environmentObject(progressTracker)
+                    .environmentObject(notificationsManager)
+                    .environmentObject(cloudKitViewModel)
+                    .environmentObject(keyboardResponder)
             }
-    }
-
-    private func contentError(error: String) -> some View {
-        VStack{
-            Image(systemName: "exclamationmark.icloud.fill").resizable().padding(.bottom).frame(width: 110, height: 90)
-            Text("iCloud Error").font(.title).padding(.vertical)
-            Text(error).font(.title3).italic()
-        }.foregroundStyle(.gray)
+            
+            else if cloudKitViewModel.isLoading {
+                Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
+            }
+            else if cloudKitViewModel.CKErrorDesc != "" {
+                
+                let error = cloudKitViewModel.CKErrorDesc
+                ErrorView(thrownError: "CloudKit Error", extraMessage: error)
+                
+            }
+        }
     }
 
 }

@@ -17,6 +17,7 @@ struct NotificationsView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var showAddNotification: Bool = false
     @State var isLoadingSummary: Bool = false
+    @State private var errorMessage: String = ""
     @State var selectedNotification: CustomNotification?
     @State private var selectedOption: viewOptions = .Notifications
     
@@ -42,7 +43,7 @@ struct NotificationsView: View {
                 }.shadow(radius: 8)
                 
                 if selectedOption == .Summary {
-                    if isLoadingSummary {
+                    if isLoadingSummary && errorMessage == "" {
                         VStack {
                             Spacer()
                             
@@ -52,6 +53,7 @@ struct NotificationsView: View {
                                     .scaleEffect(1.5)
                                     .bold()
                                     .background(Color.clear.ignoresSafeArea())
+                                    .foregroundStyle(Color.britishRacingGreen)
                             }
                             Spacer()
                         }
@@ -78,7 +80,18 @@ struct NotificationsView: View {
                                 .padding(.vertical, 9)
                         } .background(Color.primaryBackground.ignoresSafeArea())
                     }
-                } else if selectedOption == .Notifications {
+                    else if errorMessage != "" {
+                        ScrollView {
+                            VStack {
+                                ErrorView(thrownError: errorMessage, extraMessage: "Scroll down to try again!").padding(.horizontal, 7).padding(.top, 9)
+                                Spacer()
+                            }
+                        }.refreshable {
+                            await getSummary()
+                        }
+                    }
+                }
+                else if selectedOption == .Notifications {
                     ScrollView {
                         ForEach(manager.scheduledNotifications.indices, id: \.self) { index in
                             let notification = manager.scheduledNotifications[index]
@@ -118,35 +131,36 @@ struct NotificationsView: View {
                     })
                 }
                 .onChange(of: manager.scheduledNotifications) {
-                    isLoadingSummary = true
-                    Task {
-                        do {
-                            try await openAi.getMonthlySummary(notifications: manager.scheduledNotifications)
-                            await MainActor.run {
-                                isLoadingSummary = false
-                            }
-                        } catch(let error) {
-                            print("Error getMonthlySummary caught from the View: \(error.localizedDescription)")
-                        }
-                    }
+                    Task { await getSummary() }
                 }
                 .onAppear {
                     if openAi.notificationsSummary == "" {
-                        isLoadingSummary = true
-                        Task {
-                            do {
-                                try await openAi.getMonthlySummary(notifications: manager.scheduledNotifications)
-                                await MainActor.run {
-                                    isLoadingSummary = false
-                                }
-                            } catch(let error) {
-                                print("Error getMonthlySummary caught from the View: \(error.localizedDescription)")
-                            }
-                        }
+                        Task { await getSummary() }
                     }
                 }
         }
     }
+    private func getSummary() async {
+            await MainActor.run { isLoadingSummary = true }
+            do {
+                try await openAi.getMonthlySummary(notifications: manager.scheduledNotifications)
+            } catch let error as AppNetworkError {
+                await MainActor.run {
+                    self.errorMessage = error.errorDescription
+                }
+            } catch let error as AppCKError {
+                await MainActor.run {
+                    self.errorMessage = error.errorDescription
+                }
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+            await MainActor.run {
+                isLoadingSummary = false
+            }
+        }
 }
 
 struct NotificationsView_Previews: PreviewProvider {

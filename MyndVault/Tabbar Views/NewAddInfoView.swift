@@ -14,9 +14,6 @@ struct NewAddInfoView: View {
     @State var thrownError: String = ""
     @Binding var showAlert: Bool
     
-    @State private var showPopUp: Bool = false
-    @State private var popUpMessage: String = ""
-    
     @State private var clearButtonIsVisible: Bool = false
     @State private var saveButtonIsVisible: Bool = true
     @State private var showSettings: Bool = false
@@ -138,35 +135,26 @@ struct NewAddInfoView: View {
                             
                         }
                     }
-//                    .popover(isPresented: $showPopUp, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-//
-//                        popOverView(animateStep: $animateStep, show: $showPopUp)
-//                            .presentationCompactAdaptation(.popover)
-//
-//                    } //TODO: Not really needed after Lottie
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                     }
-                    
-                    //MARK: Calls the addNewInfoAction. keeps track of apiCallInProgress
-                    
-                    
+
                     if self.thrownError != "" {
-                        ErrorView2(thrownError: thrownError)
+                        ErrorView(thrownError: thrownError)
                             .padding(.top)
                             .padding(.horizontal)
                         ClearButton
                             .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
                     }
                     else if pineconeManager.receivedError != nil {
-                        ErrorView2(thrownError: thrownError)
+                        ErrorView(thrownError: thrownError)
                             .padding(.top)
                             .padding(.horizontal)
                         ClearButton
                             .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
                     }
                     else if openAiManager.thrownError != "" {
-                        ErrorView2(thrownError: thrownError)
+                        ErrorView(thrownError: thrownError)
                             .padding(.top)
                             .padding(.horizontal)
                         ClearButton
@@ -202,7 +190,6 @@ struct NewAddInfoView: View {
 //                }
             }
             }
-        
         }
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
@@ -287,8 +274,9 @@ struct NewAddInfoView: View {
             let metadata = toDictionary(desc: self.newInfo)
             do {
                 //MARK: TEST THROW
-                //                                let miaMalakia = AppCKError.UnableToGetNameSpace
-                //                                throw miaMalakia
+//                let miaMalakia = AppCKError.UnableToGetNameSpace
+//                throw miaMalakia
+
                 let uniqueID = UUID().uuidString
                 
                 try await pineconeManager.upsertDataToPinecone(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
@@ -296,22 +284,26 @@ struct NewAddInfoView: View {
                     if let image = photoPicker.selectedImage {
                         try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
                     }
-//                    await MainActor.run {
-//                        self.popUpMessage = "Info saved."
-//                        self.showPopUp = true
-//                        self.newInfo = ""
-//                    }
-                }
-            } catch(let error) {
-                await MainActor.run {
-                    //TODO: test if only one button appears after Error:
-                    self.apiCallInProgress = false
-                    self.thrownError = error.localizedDescription
-                    self.showAlert = true
-                    
-                    print("Error while upserting catched by the View: \(error.localizedDescription)")
                 }
             }
+            catch let error as AppNetworkError {
+                await MainActor.run {
+                    self.thrownError = error.errorDescription }
+            }
+            catch let error as AppCKError {
+                await MainActor.run {
+                    self.thrownError = error.errorDescription }
+            }
+            catch {
+                await MainActor.run {
+                    self.thrownError = error.localizedDescription }
+            }
+            
+            await MainActor.run {
+                self.apiCallInProgress = false
+                self.showAlert = true
+            }
+            
         } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ") }
         
         await MainActor.run {

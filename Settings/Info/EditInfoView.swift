@@ -23,10 +23,14 @@ struct EditInfoView: View {
             Color.primaryBackground.ignoresSafeArea()
             
             InfoView(viewModel: viewModel, showPop: $showPop, presentationMode: presentationMode).opacity(showProgress ? 0.5 : 1.0)
-                
-            
+
             if showProgress {
                 ProgressView()
+                    .font(.title)
+                    .scaleEffect(1.5)
+                    .bold()
+                    .background(Color.clear.ignoresSafeArea())
+                    .foregroundStyle(Color.britishRacingGreen)
             }
         }
         
@@ -48,6 +52,7 @@ struct EditInfoView: View {
                             DispatchQueue.main.async {
                                 showProgress = false
                                 viewModel.activeAlert = nil // resetting the activeAlert
+                                showPop = false
                             }
                         }
                     },
@@ -69,24 +74,49 @@ struct EditInfoView: View {
                             do {
                                 try await pineconeManager.deleteVectorFromPinecone(id: idToDelete)
                                 try await cloudKit.deleteImageItem(uniqueID: idToDelete)
-                            } catch {
-                               
-                                showPop = true
+                                if pineconeManager.vectorDeleted {
+                                    pineconeManager.deleteVector(withId: idToDelete)
+                                    try await pineconeManager.fetchAllNamespaceIDs()
+                                }
                             }
-                            if pineconeManager.vectorDeleted {
+                            catch let error as AppNetworkError {
+                                await MainActor.run {
+                                    viewModel.occuredErrorDesc = error.errorDescription
+                                    viewModel.activeAlert = .error
+                                }
                                
-                                showPop = true
-                                pineconeManager.deleteVector(withId: idToDelete)
-                                try await pineconeManager.fetchAllNamespaceIDs()
+                            } catch let error as AppCKError {
+                                await MainActor.run {
+                                    viewModel.occuredErrorDesc = error.errorDescription
+                                    viewModel.activeAlert = .error
+                                }
+                               
+                            } catch {
+                                await MainActor.run {
+                                    viewModel.occuredErrorDesc = error.localizedDescription
+                                    viewModel.activeAlert = .error
+                                }
                             }
                             DispatchQueue.main.async {
                                 showProgress = false
-                                self.viewModel.activeAlert = nil
+
                             }
                         }
                     },
                     secondaryButton: .cancel {
                         self.viewModel.activeAlert = nil
+                    }
+                )
+            case .error:
+                return Alert(
+                    title: Text("Oops"),
+                    message: Text("\(viewModel.occuredErrorDesc)\nPlease try again later"),
+                    dismissButton: .destructive(Text("OK")) {
+                        withAnimation {
+                            viewModel.occuredErrorDesc = ""
+                            showPop = false
+                            self.viewModel.activeAlert = nil
+                        }
                     }
                 )
             }

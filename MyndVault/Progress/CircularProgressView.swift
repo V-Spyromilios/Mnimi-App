@@ -33,7 +33,10 @@ struct CircularProgressView: View {
 //                .animation(.smooth, value:progressTracker.progress) //.linear?
             Text("\(Int(progressTracker.progress * 100))%")
                 .contentTransition(.numericText(countsDown: false))
+                .font(.title3)
                 .fontDesign(.rounded)
+                .bold()
+                .foregroundStyle(bluePurpleGradient)
             
             
         }

@@ -59,7 +59,7 @@ struct QuestionView: View {
                     VStack {
                     if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
                         
-                        ErrorView2(thrownError: thrownError)
+                        ErrorView(thrownError: thrownError)
                             .padding(.horizontal, 7)
                                 .padding(.vertical)
                             ClearButton
@@ -68,7 +68,7 @@ struct QuestionView: View {
                     }
                     else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
                        
-                        ErrorView2(thrownError: thrownError)
+                        ErrorView(thrownError: thrownError)
                             .padding(.horizontal, 7)
                             .padding(.vertical)
                         ClearButton
@@ -77,7 +77,7 @@ struct QuestionView: View {
                     }
                     else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
                         
-                        ErrorView2(thrownError: thrownError)
+                        ErrorView(thrownError: thrownError)
                             .padding(.horizontal, 7)
                             .padding(.vertical)
                         ClearButton
@@ -214,16 +214,14 @@ struct QuestionView: View {
                 }
             }
 //            .onChange(of: pineconeManager.receivedError) { _, receivedError in
-//                if let unwrappedError = receivedError {
-//                    self.thrownError = unwrappedError.localizedDescription
-//                }
+//                if let unwrappedError = receivedError { withAnimation { self.thrownError = unwrappedError.localizedDescription } }
 //            }
-            .onChange(of: openAiManager.thrownError) { _, errorMessage in
-//                if errorMessage != "" {
-                withAnimation {
-                    self.thrownError = errorMessage }
-//                }
-            }
+//            .onChange(of: openAiManager.thrownError) { _, errorMessage in
+////                if errorMessage != "" {
+//                withAnimation {
+//                    self.thrownError = errorMessage }
+////                }
+//            }
             .onChange(of: shake) { _, newValue in
                 if newValue {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -320,7 +318,7 @@ struct QuestionView: View {
                 
                 do {
                     progressTracker.setProgress(to: 0.35)
-//                    throw AppNetworkError.invalidResponse
+                    //throw AppNetworkError.invalidResponse
                     try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
                 } catch(let error) {
                     if let unwrappedError = error as? AppNetworkError {
@@ -339,22 +337,36 @@ struct QuestionView: View {
                                         DispatchQueue.main.async {
                                             fetchedImages.append(image)
                                         }
-                                        
-                                    } else {
-                                        print("Malakia, unable to fetch image from id: \(id)")
                                     }
                                 }
+                                catch let error as AppNetworkError {
+                                    await MainActor.run {
+                                        self.thrownError = error.errorDescription }
+                                }
+                                catch let error as AppCKError {
+                                    await MainActor.run {
+                                        self.thrownError = error.errorDescription }
+                                }
                                 catch {
-                                    print("Failed to fetch image item: \(error.localizedDescription)")
+                                    await MainActor.run {
+                                        self.thrownError = error.localizedDescription }
                                 }
                             }
                         }
                         try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
                         
-                    } catch {
-                        thrownError = error.localizedDescription
-                        withAnimation {
-                            clearButtonIsVisible = true }
+                    }
+                    catch let error as AppNetworkError {
+                        await MainActor.run {
+                            self.thrownError = error.errorDescription }
+                    }
+                    catch let error as AppCKError {
+                        await MainActor.run {
+                            self.thrownError = error.errorDescription }
+                    }
+                    catch {
+                        await MainActor.run {
+                            self.thrownError = error.localizedDescription }
                     }
                 }
             }
