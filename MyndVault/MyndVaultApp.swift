@@ -89,9 +89,9 @@ struct MyndVaultApp: App {
                 else if cloudKitViewModel.isLoading {
                     Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
                 }
-                else if cloudKitViewModel.CKError != "" {
+                else if cloudKitViewModel.CKErrorDesc != "" {
                     
-                    let error = cloudKitViewModel.CKError
+                    let error = cloudKitViewModel.CKErrorDesc
                     contentError(error: error)
                 }
                 

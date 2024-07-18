@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+//MARK: DEPRICATED
+
 struct VisualEffectModifier: ViewModifier {
     let geometryProxy: GeometryProxy
     let height: CGFloat

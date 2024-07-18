@@ -12,7 +12,7 @@ final class EditInfoViewModel: ObservableObject {
 
     enum ActiveAlert: Identifiable {
 
-        case editConfirmation, deleteWarning
+        case editConfirmation, deleteWarning, error
         var id: Self { self }
     }
 
@@ -20,6 +20,7 @@ final class EditInfoViewModel: ObservableObject {
     @Published var id: String
     @Published var timestamp: String
     @Published var description: String
+    @Published var occuredErrorDesc: String = ""
 
     init(vector: Vector) {
         self.timestamp = vector.metadata["timestamp"]!

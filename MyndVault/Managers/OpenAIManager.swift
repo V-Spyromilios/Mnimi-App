@@ -397,7 +397,6 @@ final class OpenAIManager: ObservableObject {
 
     func getMonthlySummary(notifications: [CustomNotification]) async throws {
 
-        print("getMonthlySummary() called.")
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             throw AppNetworkError.invalidOpenAiURL
         }
@@ -431,11 +430,16 @@ final class OpenAIManager: ObservableObject {
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let summary = try await fetchSummaryResponse(request: request, requestBody: requestBody)
-
-        await MainActor.run {
-            notificationsSummary = summary
+        do {
+            let summary = try await fetchSummaryResponse(request: request, requestBody: requestBody)
+            await MainActor.run {
+                notificationsSummary = summary
+            }
         }
+        catch(let error) {
+            throw error
+        }
+        
     }
     
     

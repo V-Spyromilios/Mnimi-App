@@ -13,36 +13,43 @@ struct InfosViewListCellView: View {
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-       
-            HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("\(data.metadata["description"] ?? "Empty note.")").lineLimit(2).truncationMode(.tail).font(.subheadline)
-                       
-                        .fontDesign(.rounded)
-                        .fontWeight(.semibold).padding(.horizontal).padding(.top, 4).padding(.bottom)
-                        .foregroundStyle(colorScheme == .light ? Color.black : Color.white)
-                    HStack {
-                        
-                        if let date = dateFromISO8601(isoDate: data.metadata["timestamp"] ?? "") {
-                            let displayDate = formatDateForDisplay(date: date)
-                            Text(displayDate).italic().font(.footnote).fontWeight(.medium).padding(.horizontal).foregroundStyle(colorScheme == .light ? Color.gray : Color.gray.opacity(0.9))
-                        } else { Text("") }
-                        Spacer()
-                        
-                    }.padding(.bottom, 4)
-                    
-                }.background { colorScheme == .light ? Color.white : Color.black }
-                VStack {
-                    Image(systemName: "chevron.right").padding(.trailing)
-                }.foregroundStyle(.blue)
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(data.metadata["description"] ?? "Empty note.")
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .font(.subheadline)
+                    .fontDesign(.rounded)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(colorScheme == .light ? Color.black : Color.white)
                 
-            }.background { colorScheme == .light ? Color.white : Color.black }
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .frame(height: 80)
-                .shadow(color: Color.customShadow, radius: 3)
+                HStack {
+                    if let date = dateFromISO8601(isoDate: data.metadata["timestamp"] ?? "") {
+                        let displayDate = formatDateForDisplay(date: date)
+                        Text(displayDate)
+                            .italic()
+                            .font(.footnote)
+                            .fontWeight(.medium)
+                            .foregroundStyle(colorScheme == .light ? Color.gray : Color.gray.opacity(0.9))
+                    } else {
+                        Text("")
+                    }
+                    Spacer()
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 4)
+            VStack {
+                Image(systemName: "chevron.right")
+                    .padding(.trailing)
+            }
+            .foregroundStyle(.blue)
         }
+        .background(colorScheme == .light ? Color.white : Color.black)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .shadow(color: Color.customShadow, radius: 3)
+    }
 }
-
 
 #Preview {
     InfosViewListCellView(data: Vector(id: "2034-1", metadata: ["description": "Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon,", "timestamp": "2024-04-28T14:28:00Z"]))

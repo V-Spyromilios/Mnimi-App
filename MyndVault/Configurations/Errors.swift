@@ -10,12 +10,13 @@ import Foundation
 
 enum AppNetworkError: Error {
     case apiKeyNotFound
-       case invalidOpenAiURL
-       case invalidResponse
-       case noChoicesInResponse
-       case invalidTTSURL
-       case serializationError(String)
-       case unknownError(String)
+    case invalidOpenAiURL
+    case invalidDBURL
+    case invalidResponse
+    case noChoicesInResponse
+    case invalidTTSURL
+    case serializationError(String)
+    case unknownError(String)
 
        var errorDescription: String {
            switch self {
@@ -33,6 +34,8 @@ enum AppNetworkError: Error {
                return "Serialization error: \(message)"
            case .unknownError(let message):
                return "Unknown error: \(message)"
+           case .invalidDBURL:
+               return "Invalid DB-P URL."
            }
        }
 }
@@ -53,22 +56,31 @@ enum AppCKError: LocalizedError {
         switch self {
         case .iCloudAccountNotDetermined:
             return "iCloud Account not Determined."
+
         case .iCloudAccountNotFound:
             return "iCloud Account not Found."
+
         case .iCloudAccountRestricted:
             return "iCloud Account is Restricted."
+
         case .iCloudAccountUknown:
             return "Unknown iCloud Account."
+
         case .iCloudTemporarilyUnavailable:
             return "iCloud Account Temporarily Unavailable."
+
         case .UnableToGetNameSpace:
             return "Unable To retrieve namespace."
+
         case .unknownError(let message):
             return "Unknown Error Occurred : \(message)"
+
         case .CKDatabaseNotInitialized:
             return "CK Database not initialized."
+
         case .imageConversionFailed:
             return "Image Convertion failed"
+
         case .recordNotFound:
             return "CK Record not found."
         }

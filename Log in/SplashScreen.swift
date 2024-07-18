@@ -53,11 +53,15 @@ struct SplashScreen: View {
             }
             .statusBar(hidden: true)
             .alert(isPresented: $showAlert) {
-                Alert(title: Text("Error"),
-                      message: Text(alertMessage),
-                      dismissButton: .default(Text("Retry"),
-                                              action: cloudKit.startCloudKit))
-                    } //TODO: Check this if is correct to call again. Check in this screen if namespace etc failed and make the alertMessage
+                Alert(
+                    title: Text("iCloud Error"),
+                    message: Text(alertMessage),
+                    dismissButton: .default(Text("Retry")) {
+                        cloudKit.clearCloudKit()
+                        cloudKit.startCloudKit()
+                    }
+                )
+            } //TODO: Check this if is correct to call again. Check in this screen if namespace etc failed and make the alertMessage
         }
         .onAppear {
             cloudKit.startCloudKit()
@@ -82,13 +86,13 @@ struct SplashScreen: View {
                 }
             }
         }
-        .onChange(of: cloudKit.CKError) { _, error in
+        .onChange(of: cloudKit.CKErrorDesc) { _, error in
             if error != "" { 
                 self.alertMessage = error
                 self.showAlert = true }
         }
         .onChange(of: cloudKit.isLoading) { _, isLoading in
-            if !isLoading && cloudKit.CKError == "" {
+            if !isLoading {
                 loadingComplete = true
             } //TODO: Check if starts the main screen only if the cloudKit is OK
         }
