@@ -46,6 +46,15 @@
 		E850550B2C42D42300FBACC4 /* Ai Cloud.json in Resources */ = {isa = PBXBuildFile; fileRef = E850550A2C42D42300FBACC4 /* Ai Cloud.json */; };
 		E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */; };
 		E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */; };
+		E877FA272C4A92D4002FBFFC /* Woman_vault.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA262C4A92D4002FBFFC /* Woman_vault.json */; };
+		E877FA292C4A953D002FBFFC /* smallVault.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA282C4A953D002FBFFC /* smallVault.json */; };
+		E877FA2B2C4A98A6002FBFFC /* noNotifications.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA2A2C4A98A6002FBFFC /* noNotifications.json */; };
+		E877FA2D2C4A9FB6002FBFFC /* TypingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */; };
+		E877FA312C4AB75E002FBFFC /* cloudDownloading.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA2E2C4AB75E002FBFFC /* cloudDownloading.json */; };
+		E877FA322C4AB75E002FBFFC /* notificationBellTapBar.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA2F2C4AB75E002FBFFC /* notificationBellTapBar.json */; };
+		E877FA332C4AB75E002FBFFC /* cloudUploading.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA302C4AB75E002FBFFC /* cloudUploading.json */; };
+		E877FA362C4ABB17002FBFFC /* Cloud Upload.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA342C4ABB17002FBFFC /* Cloud Upload.json */; };
+		E877FA372C4ABB17002FBFFC /* CloudDownload.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA352C4ABB17002FBFFC /* CloudDownload.json */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
 		E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */; };
 		E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */; };
@@ -122,6 +131,15 @@
 		E850550A2C42D42300FBACC4 /* Ai Cloud.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Ai Cloud.json"; sourceTree = "<group>"; };
 		E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboardLabel.swift; sourceTree = "<group>"; };
 		E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewModel.swift; sourceTree = "<group>"; };
+		E877FA262C4A92D4002FBFFC /* Woman_vault.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Woman_vault.json; sourceTree = "<group>"; };
+		E877FA282C4A953D002FBFFC /* smallVault.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = smallVault.json; sourceTree = "<group>"; };
+		E877FA2A2C4A98A6002FBFFC /* noNotifications.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = noNotifications.json; sourceTree = "<group>"; };
+		E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingTextView.swift; sourceTree = "<group>"; };
+		E877FA2E2C4AB75E002FBFFC /* cloudDownloading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cloudDownloading.json; sourceTree = "<group>"; };
+		E877FA2F2C4AB75E002FBFFC /* notificationBellTapBar.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = notificationBellTapBar.json; sourceTree = "<group>"; };
+		E877FA302C4AB75E002FBFFC /* cloudUploading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cloudUploading.json; sourceTree = "<group>"; };
+		E877FA342C4ABB17002FBFFC /* Cloud Upload.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Cloud Upload.json"; sourceTree = "<group>"; };
+		E877FA352C4ABB17002FBFFC /* CloudDownload.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CloudDownload.json; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact.otf"; sourceTree = "<group>"; };
@@ -300,6 +318,14 @@
 		E85055012C428B6800FBACC4 /* Lotties */ = {
 			isa = PBXGroup;
 			children = (
+				E877FA342C4ABB17002FBFFC /* Cloud Upload.json */,
+				E877FA352C4ABB17002FBFFC /* CloudDownload.json */,
+				E877FA2E2C4AB75E002FBFFC /* cloudDownloading.json */,
+				E877FA302C4AB75E002FBFFC /* cloudUploading.json */,
+				E877FA2F2C4AB75E002FBFFC /* notificationBellTapBar.json */,
+				E877FA2A2C4A98A6002FBFFC /* noNotifications.json */,
+				E877FA282C4A953D002FBFFC /* smallVault.json */,
+				E877FA262C4A92D4002FBFFC /* Woman_vault.json */,
 				E840D1AF2C427C9E000DB7AD /* LottieRepresentable.swift */,
 				E814B82C2C4340D9004BC4F4 /* alertWarning.json */,
 				E814B82A2C433CA6004BC4F4 /* Approved.json */,
@@ -307,6 +333,7 @@
 				E85055082C42CF2A00FBACC4 /* Image Recognition.json */,
 				E85055062C42C6A000FBACC4 /* Brain Configurations.json */,
 				E85055022C428B7C00FBACC4 /* Swift.json */,
+				E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */,
 			);
 			path = Lotties;
 			sourceTree = "<group>";
@@ -424,6 +451,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E877FA272C4A92D4002FBFFC /* Woman_vault.json in Resources */,
 				E8B50D8A2C24AD9900AC15DF /* PrivacyInfo.xcprivacy in Resources */,
 				E85055092C42CF2A00FBACC4 /* Image Recognition.json in Resources */,
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
@@ -432,12 +460,19 @@
 				E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */,
 				E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */,
 				E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */,
+				E877FA362C4ABB17002FBFFC /* Cloud Upload.json in Resources */,
+				E877FA2B2C4A98A6002FBFFC /* noNotifications.json in Resources */,
+				E877FA322C4AB75E002FBFFC /* notificationBellTapBar.json in Resources */,
 				E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */,
 				E85055032C428B7C00FBACC4 /* Swift.json in Resources */,
+				E877FA332C4AB75E002FBFFC /* cloudUploading.json in Resources */,
 				E8CFEAFE2C3D5D52005A2630 /* NewYork.ttf in Resources */,
+				E877FA292C4A953D002FBFFC /* smallVault.json in Resources */,
 				E814B82D2C4340D9004BC4F4 /* alertWarning.json in Resources */,
 				E850550B2C42D42300FBACC4 /* Ai Cloud.json in Resources */,
+				E877FA312C4AB75E002FBFFC /* cloudDownloading.json in Resources */,
 				E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */,
+				E877FA372C4ABB17002FBFFC /* CloudDownload.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -489,6 +524,7 @@
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
 				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
+				E877FA2D2C4A9FB6002FBFFC /* TypingTextView.swift in Sources */,
 				E82F456D2BC2A77E00945312 /* ApiConfiguration.swift in Sources */,
 				E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */,
 				E82F455B2BC2A72100945312 /* ProgressTracker.swift in Sources */,

@@ -16,52 +16,79 @@ struct CustomTabBarView: View {
     @State private var archiveIsAnimating: Bool = false
     @State private var todoIsAnimating: Bool = false
 
-    let customTabbarHeight: CGFloat = 70
+    let customTabbarHeight: CGFloat = 80
 
-    var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opacity(0.3),Color.orange.opacity(0.3), Color.orange.opacity(0.6), Color.orange.opacity(0.8),Color.orange, Color.yellow.opacity(0.4)]), startPoint: .top, endPoint: .bottom)
-    
-    var brGreenGradient = LinearGradient(gradient: Gradient(colors: [Color.britishRacingGreen.opacity(0.5),Color.britishRacingGreen.opacity(0.8), Color.britishRacingGreen]), startPoint: .top, endPoint: .bottom)
+
     
     var body: some View {
         ZStack {
-            Rectangle()
-                .foregroundStyle(Color.britishRacingGreen)
-                .frame(height: customTabbarHeight)
+//            Rectangle()
+            VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
+                           .background(Color.clear) // Adjust opacity to your liking
+                           .frame(height: customTabbarHeight)
 
             HStack(alignment: .top) {
 
                 Spacer()
                
-                tabBarButton(imageName: plusIsAnimating ? "plus.bubble.fill" : "plus.bubble", tabId: 1)
+                lottieTabBarButton(name: "Cloud Upload", tabId: 1)
+                    .frame(width: 45, height: 45)
 
                 Spacer()
                 
-                tabBarButton(imageName: questionIsAnimating ? "questionmark.bubble.fill" : "questionmark.bubble", tabId: 2)
+                lottieTabBarButton(name: "CloudDownload", tabId: 2)
+                    .frame(width: 45, height: 45)
 
                 Spacer()
-                tabBarButton(imageName: archiveIsAnimating ? "tray.fill" : "tray", tabId: 3) .offset(y: -1)
+                lottieTabBarButton(name: "smallVault", tabId: 3)
+                    .frame(width: 45, height: 45)
+//                tabBarButton(imageName: archiveIsAnimating ? "tray.fill" : "tray", tabId: 3) .offset(y: -1)
 
                 Spacer()
-                ZStack {
-                tabBarButton(imageName: notificationsManager.scheduledNotifications.count > 0
-                             ? (todoIsAnimating ? "bell.and.waves.left.and.right.fill" : "bell.and.waves.left.and.right")
-                             : (todoIsAnimating ? "bell.fill" : "bell"), tabId: 4)
-                    if notificationsManager.scheduledNotifications.count > 0 {
-                        
-                        // custom badge
-                        Text("\(notificationsManager.scheduledNotifications.count)")
-                            .font(.caption2)
-                            .bold()
-                            .foregroundColor(.white)
-                            .frame(width: 18, height: 18)
-                            .background(Color.red)
-                            .clipShape(Circle())
-                            .offset(x: 10, y: -10)
-                    }
-                }
+                
+                lottieTabBarButton(name: "notificationBellTapBar", tabId: 4)
+                    .frame(width: 45, height: 45)
+//                ZStack {
+//                tabBarButton(imageName: notificationsManager.scheduledNotifications.count > 0
+//                             ? (todoIsAnimating ? "bell.and.waves.left.and.right.fill" : "bell.and.waves.left.and.right")
+//                             : (todoIsAnimating ? "bell.fill" : "bell"), tabId: 4)
+//                    if notificationsManager.scheduledNotifications.count > 0 {
+//                        
+//                        // custom badge
+//                        Text("\(notificationsManager.scheduledNotifications.count)")
+//                            .font(.caption2)
+//                            .bold()
+//                            .foregroundColor(.white)
+//                            .frame(width: 18, height: 18)
+//                            .background(Color.red)
+//                            .clipShape(Circle())
+//                            .offset(x: 10, y: -10)
+//                    }
+//                }
                 Spacer()
             }
             .frame(height: customTabbarHeight) // ! Same as capsule height !
+        }
+    }
+    
+    struct VisualEffectBlur: UIViewRepresentable {
+        var blurStyle: UIBlurEffect.Style
+        var vibrancyStyle: UIVibrancyEffectStyle? = nil
+
+        func makeUIView(context: Context) -> UIVisualEffectView {
+            let blurView = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+            if let vibrancyStyle = vibrancyStyle {
+                let vibrancyEffect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: blurStyle), style: vibrancyStyle)
+                let vibrancyView = UIVisualEffectView(effect: vibrancyEffect)
+                vibrancyView.frame = blurView.contentView.bounds
+                vibrancyView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                blurView.contentView.addSubview(vibrancyView)
+            }
+            return blurView
+        }
+
+        func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
+            uiView.effect = UIBlurEffect(style: blurStyle)
         }
     }
     
@@ -71,7 +98,14 @@ struct CustomTabBarView: View {
         }) {
             Image(systemName: imageName)
                 .font(.largeTitle)
-                .foregroundStyle(tabSelection == tabId ? .white : Color.darkGray2.opacity(0.3))
+                .foregroundStyle(tabSelection == tabId ? .white : Color.darkGray2)
+        }
+    }
+    private func lottieTabBarButton(name: String, tabId: Int) -> some View {
+        Button(action: {
+                tabSelection = tabId
+        }) {
+            LottieRepresentable(filename: name, loopMode: .repeat(0.0))
         }
     }
 

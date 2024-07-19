@@ -118,7 +118,10 @@ extension View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
-  
+    func navigationBarTitleView<Content: View>(_ content: @escaping () -> Content) -> some View {
+        self.navigationBarItems(leading: content())
+    }
+    
     
 }
 
