@@ -41,7 +41,9 @@ struct ContentView: View {
                 
                 VaultView().tag(3)
                 NotificationsView().tag(4)
-            } .ignoresSafeArea(edges: .bottom)
+            }
+            
+            .ignoresSafeArea(edges: .bottom)
                 .overlay(
                     CustomTabBarView(tabSelection: $tabSelection)
                         .ignoresSafeArea()
@@ -50,7 +52,7 @@ struct ContentView: View {
                 )
                 .ignoresSafeArea(edges: .bottom)
                 .ignoresSafeArea(edges: .horizontal)
-                .shadow(color: .britishRacingGreen, radius: 10)
+//                .shadow(color: .primaryAccent, radius: 3)
         }
                 .onAppear {
                     speechManager.requestSpeechAuthorization()

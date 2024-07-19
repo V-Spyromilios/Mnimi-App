@@ -170,8 +170,9 @@ struct NewAddInfoView: View {
                         LottieRepresentable(filename: "Brain Configurations", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).id(UUID())
                     }
                     Spacer()
-                        .navigationTitle("Add New 📝")
-                        .navigationBarTitleDisplayMode(.large)
+//                        .navigationTitle("Add New 📝")
+//                        .navigationBarTitleDisplayMode(.large)
+                        .navigationBarTitleView { LottieRepresentable(filename: "Cloud Upload").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
                 }.padding(.horizontal, 7) //TODO: No padding !?!
             }.background {
                 Color.primaryBackground.ignoresSafeArea()

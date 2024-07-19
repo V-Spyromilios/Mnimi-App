@@ -40,8 +40,7 @@ struct QuestionView: View {
                     Text("Question").bold()
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
-                    .navigationTitle("Ask me")
-                    .navigationBarTitleDisplayMode(.large)
+                    .navigationBarTitleView { LottieRepresentable(filename: "CloudDownload").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
                 
                 TextEditor(text: $question)
                     .fontDesign(.rounded)

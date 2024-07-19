@@ -43,16 +43,14 @@ struct VaultView: View {
                             }
                         }
                     }
-                    
+                    //TODO: Empty the Vault to check:
                     else if showEmpty && !vectorsAreLoading  && errorMessage == "" {
-                        
-                        ContentUnavailableView(label: {
-                            Label("No Saved Info", systemImage: "tray.2")
-                        }, description: {
-                            Text(" Saved Info will be shown here.")}
-                                               
-                        ).offset(y: contentUnaivalableOffset)
-                        
+                        VStack {
+                            LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
+                            TypingTextView(fullText: "No Info has been saved yet. Add whatever you want to remember!")
+                                .padding(.horizontal)
+                            
+                        }
                     }
                     
                     else if errorMessage != "" {
@@ -85,8 +83,9 @@ struct VaultView: View {
                     }
                 }
             }
-            .navigationTitle("Vault 🗃️")
-            .navigationBarTitleDisplayMode(.large)
+            //.navigationTitle("Vault 🗃️")
+            .navigationBarTitleView { LottieRepresentable(filename: "smallVault").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
+            //.navigationBarTitleDisplayMode(.large)
             .background { Color.primaryBackground.ignoresSafeArea() }
         }
         //        .frame(maxWidth: .infinity, maxHeight: .infinity)
