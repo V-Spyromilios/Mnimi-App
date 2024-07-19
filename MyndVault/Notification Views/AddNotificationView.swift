@@ -103,7 +103,7 @@ struct AddNotificationView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.primaryAccent)
-                                .frame(height: 60)
+                                .frame(height: buttonHeight)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             
                             Text("Save").font(.title2).bold()

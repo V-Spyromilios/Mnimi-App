@@ -72,11 +72,6 @@ struct SplashScreen: View {
             if newValue == symbols.count - 1 { // The index of symbols[""]
                 withAnimation {
                     showLogo = false }
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { //around 1.3 - a.4
-//                    if cloudKit.isLoading == false {
-//                        loadingComplete = true
-//                    }
-//                }
             }
         }
         .onChange(of: loadingComplete) {
@@ -92,9 +87,12 @@ struct SplashScreen: View {
                 self.showAlert = true }
         }
         .onChange(of: cloudKit.isLoading) { _, isLoading in
-            if !isLoading {
+            if !isLoading && cloudKit.CKErrorDesc == "" {
                 loadingComplete = true
             } //TODO: Check if starts the main screen only if the cloudKit is OK
+            else if cloudKit.CKErrorDesc != "" {
+                
+            }
         }
     }
     @ViewBuilder

@@ -39,14 +39,15 @@ struct MyndVaultApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-    var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
-    var openAiManager = OpenAIManager()
-    var pineconeManager = PineconeManager()
-    var progressTracker = ProgressTracker.shared
-    var notificationsManager = NotificationViewModel()
-    var speechManager = SpeechRecognizerManager()
-    var keyboardResponder = KeyboardResponder()
-    var authManager = AuthenticationManager()
+    @StateObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
+    @StateObject var openAiManager = OpenAIManager()
+    @StateObject var pineconeManager = PineconeManager()
+    @StateObject var progressTracker = ProgressTracker.shared
+    @StateObject var notificationsManager = NotificationViewModel()
+    @StateObject var speechManager = SpeechRecognizerManager()
+    @StateObject var keyboardResponder = KeyboardResponder()
+    @StateObject var authManager = AuthenticationManager()
+    @StateObject private var networkManager = NetworkManager()
     @State var showSplash: Bool = true
     
     
@@ -57,6 +58,7 @@ struct MyndVaultApp: App {
             if showSplash {
                 SplashScreen(showSplash: $showSplash)
                     .environmentObject(cloudKitViewModel)
+                    .environmentObject(networkManager)
             }
             
             else if cloudKitViewModel.isFirstLaunch {
@@ -69,6 +71,7 @@ struct MyndVaultApp: App {
                     .environmentObject(speechManager)
                     .environmentObject(keyboardResponder)
                     .environmentObject(authManager)
+                    .environmentObject(networkManager)
                     .statusBar(hidden: true)
             } else  {
                 
@@ -83,6 +86,7 @@ struct MyndVaultApp: App {
                         .environmentObject(speechManager)
                         .environmentObject(keyboardResponder)
                         .environmentObject(authManager)
+                        .environmentObject(networkManager)
                         .statusBar(hidden: true)
                 }
                 
@@ -92,9 +96,8 @@ struct MyndVaultApp: App {
                 else if cloudKitViewModel.CKErrorDesc != "" {
                     
                     let error = cloudKitViewModel.CKErrorDesc
-                    contentError(error: error)
+                    contentError(error: error).padding(.horizontal)
                 }
-                
             }
         })
     }
@@ -102,9 +105,10 @@ struct MyndVaultApp: App {
     private func contentError(error: String) -> some View {
         VStack{
             Image(systemName: "exclamationmark.icloud.fill").resizable() .scaledToFit().padding(.bottom).frame(width: 90, height: 90)
-            Text("iCloud Error").font(.title).padding(.vertical)
-            Text(error).font(.title3).italic()
+            Text("iCloud Error").font(.title).bold().padding(.vertical)
+            Text("\(error).\nPlease check your iCloud status and restart the Mynd Vault app").font(.title3).italic()
         }.foregroundStyle(.gray)
+            .statusBarHidden()
     }
 }
 

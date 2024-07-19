@@ -19,22 +19,24 @@ struct ErrorView: View {
             LottieRepresentable(filename: "alertWarning", loopMode: .loop).frame(height: 80)
             Text(thrownError).font(.title2).bold().multilineTextAlignment(.leading).padding(.bottom)
             if extraMessage != nil {
-                Text(extraMessage ?? "").font(.title3).bold().multilineTextAlignment(.leading).padding(.bottom) }
+                Text(extraMessage ?? "").font(.title3)
+                    //.bold()
+                    .multilineTextAlignment(.leading).padding(.bottom)
+            }
         }
 
-        .background(colorScheme == .light ? Color.white : Color.gray)
+        .background(colorScheme == .light ? Color.white : Color.darkGray2)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+        .shadow(color: colorScheme == .light ? Color.customShadow : Color.yellow, radius: colorScheme == .light ? 5 : 5, x: 0, y: 0)
         .overlay(
             RoundedRectangle(cornerRadius: 10.0)
                 .stroke(lineWidth: 1)
                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                .foregroundColor(Color.gray)
+                .foregroundColor(colorScheme == .light ? Color.gray: Color.yellow)
         )
-        .animation(.easeOut, value: thrownError)
     }
 }
 
 #Preview {
-    ErrorView(thrownError: "Something is wrong here.")
+    ErrorView(thrownError: "Ω να σου γα....", extraMessage: "Please try again.")
 }

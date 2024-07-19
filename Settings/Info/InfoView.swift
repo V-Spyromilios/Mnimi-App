@@ -16,13 +16,14 @@ struct InfoView: View {
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @FocusState private var focusField: Field?
+    @Environment(\.colorScheme) var colorScheme
     @State var thrownError: String = ""
     @State var apiCallInProgress: Bool = false
     @State private var animateStep: Int = 0
-    @Binding var showPop: Bool
-    @Binding var presentationMode: PresentationMode
-    @Environment(\.colorScheme) var colorScheme
     @State private var shake: Bool = false
+    @State private var oldText: String = ""
+    @Binding var showSuccess: Bool
+    @Binding var inProgress: Bool
 
     private enum Field {
         case edit
@@ -54,19 +55,23 @@ struct InfoView: View {
                     .padding(.bottom)
 //                    .onAppear { focusField = .edit }
                     .focused($focusField, equals: .edit)
-            }.padding(.bottom)
+            }
+            .padding(.bottom)
             .padding(.horizontal, 7)
            
             Button(action:  {
 
                 if shake { return }
                 
-                if viewModel.description.isEmpty {
+                //TODO: if no change to the text -> Shake
+                if viewModel.description.isEmpty || (oldText == viewModel.description) {
                     withAnimation { shake = true }
                     return
                 }
                 DispatchQueue.main.async {
-                    self.viewModel.activeAlert = .editConfirmation
+                    withAnimation {
+                        hideKeyboard()
+                        self.viewModel.activeAlert = .editConfirmation }
                 }
             }
 ) {
@@ -74,7 +79,7 @@ struct InfoView: View {
                     RoundedRectangle(cornerRadius: rectCornerRad)
                         .fill(Color.primaryAccent)
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .frame(height: 60)
+                        .frame(height: buttonHeight)
                         
                     Text("Save").font(.title2).bold()
                         .foregroundColor(Color.buttonText)
@@ -90,19 +95,14 @@ struct InfoView: View {
             .animation(.easeInOut, value: keyboardResponder.currentHeight)
             .id("SubmitButton")
             .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
-            .popover(isPresented: $showPop, attachmentAnchor: .point(.top), arrowEdge: .top) {
-                
-                popOverView(animateStep: $animateStep, show: $showPop)
-                
-                .onDisappear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        $presentationMode.wrappedValue.dismiss()
-                        
-                    }
-                }.presentationCompactAdaptation(.popover)
+
+            if inProgress {
+                LottieRepresentable(filename: "Brain Configurations", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).id(UUID()).animation(.easeInOut, value: inProgress)
             }
             
-            
+            else if showSuccess {
+                LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
+            }
             Spacer()
         }.background { Color.primaryBackground.ignoresSafeArea() }
         .toolbar {
@@ -138,6 +138,9 @@ struct InfoView: View {
                     shake = false
                 }
             }
+        }
+        .onAppear {
+            oldText = viewModel.description
         }
         
     }

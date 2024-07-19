@@ -16,7 +16,7 @@ struct CustomTabBarView: View {
     @State private var archiveIsAnimating: Bool = false
     @State private var todoIsAnimating: Bool = false
 
-    let customTabbarHeight: CGFloat = 83
+    let customTabbarHeight: CGFloat = 70
 
     var yellowGradient = LinearGradient(gradient: Gradient(colors: [Color.yellow.opacity(0.3),Color.orange.opacity(0.3), Color.orange.opacity(0.6), Color.orange.opacity(0.8),Color.orange, Color.yellow.opacity(0.4)]), startPoint: .top, endPoint: .bottom)
     

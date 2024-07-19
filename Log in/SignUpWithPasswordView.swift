@@ -74,7 +74,7 @@ struct SignUpWithPasswordView: View {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.primaryAccent)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                .frame(height: 60)
+                                .frame(height: buttonHeight)
                             
                             Text("Save").font(.title2).bold()
                                 .foregroundColor(Color.buttonText)

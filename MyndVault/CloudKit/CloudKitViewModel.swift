@@ -42,7 +42,6 @@ final class CloudKitViewModel: ObservableObject {
     
     //MARK: startCloudKit
     func startCloudKit() {
-print("CloudKit started")
         isLoading = true
         Task {
             do {
@@ -52,12 +51,12 @@ print("CloudKit started")
                 else {
                     _ = try? await fetchNamespaceItem(recordID: key!)
                 }
+                await MainActor.run { isLoading = false }
             }
             catch {
                 await handleCKError(error)
                 await MainActor.run { isLoading = false }
             }
-            await MainActor.run { isLoading = false }
         }
     }
     
@@ -338,8 +337,6 @@ print("CloudKit started")
                 attempts += 1
                 if attempts >= maxRetryAttempts {
                     await MainActor.run {
-                        print("Failed to save image item: \(error.localizedDescription)")
-                        self.CKErrorDesc = "CloudKit Error. Please try again."
                     }
                     throw error
                 } else {
@@ -351,46 +348,45 @@ print("CloudKit started")
         // Clean up temporary file if the operation ultimately fails
         try? FileManager.default.removeItem(at: temporaryURL)
         // is required to satisfy the compiler
-        throw AppCKError.unknownError(message: "Failed to save image item after \(maxRetryAttempts) attempts")
+        throw AppCKError.unknownError(message: "Failed to save image item")
     }
 
 
     //MARK: deleteImageItem
     func deleteImageItem(uniqueID: String) async throws {
-            guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
 
-            let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
-            let query = CKQuery(recordType: "ImageItem", predicate: predicate)
+        guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
 
-            var attempt = 0
-            let maxRetries = 3
+        let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
+        let query = CKQuery(recordType: "ImageItem", predicate: predicate)
 
-            while attempt < maxRetries {
-                do {
-                    let records = try await performQuery(query, in: db)
-                    guard let record = records.first else {
-                        throw AppCKError.recordNotFound
-                    }
+        var attempt = 0
+        let maxRetries = 3
 
-                    try await deleteRecord(withRecordID: record.recordID, in: db)
-                    await MainActor.run {
-                        print("Successfully deleted image item with uniqueID: \(uniqueID)")
-                    }
+        while attempt < maxRetries {
+            do {
+                let records = try await performQuery(query, in: db)
+                guard let record = records.first else {
+                    // If no record found return
                     return
-                } catch {
-                    attempt += 1
-                    if attempt == maxRetries {
-                        print("Error about to be thrown: \(error.localizedDescription)")
-                        throw error
-                    }
-                    try await Task.sleep(nanoseconds: 100_000)
                 }
+
+                //if record found proceed to delete attempt
+                try await deleteRecord(withRecordID: record.recordID, in: db)
+                return
+            } catch {
+                attempt += 1
+                if attempt == maxRetries {
+                    throw error
+                }
+                try await Task.sleep(nanoseconds: 100_000_000)
             }
         }
+    }
     
     private func deleteRecord(withRecordID recordID: CKRecord.ID, in db: CKDatabase) async throws {
 
-        let maxRetryAttempts = 3
+        let maxRetryAttempts = 2
         let delayBetweenRetries: UInt64 = 200_000_000
         var attempts = 0
 
@@ -415,7 +411,7 @@ print("CloudKit started")
             }
         }
 
-        throw AppCKError.unknownError(message: "Failed to delete record after \(maxRetryAttempts) attempts")
+        throw AppCKError.unableToDeleteRecord
     }
   
     //MARK: fetchImageItem
@@ -510,22 +506,78 @@ print("CloudKit started")
 extension CKError {
     var customErrorDescription: String {
         switch self.code {
-        case .networkUnavailable:
-            return "No internet connection. Please check your network settings."
-        case .networkFailure:
-            return "Network error. Please try again later."
-        case .serviceUnavailable:
-            return "Service is currently unavailable. Please try again later."
-        case .requestRateLimited:
-            return "You're making too many requests. Please slow down and try again later."
-        case .quotaExceeded:
-            return "You've exceeded your iCloud storage quota. Please free up some space."
-        case .notAuthenticated:
-            return "You're not logged into iCloud. Please log in to your iCloud account."
-        case .permissionFailure:
-            return "You don't have permission to perform this action."
-        default:
-            return "An unexpected error occurred. Please try again."
+               case .accountTemporarilyUnavailable:
+                   return "Your iCloud account is temporarily unavailable. Please try again later."
+               case .alreadyShared:
+                   return "This item is already shared."
+               case .assetFileModified:
+                   return "The asset was modified while saving. Please try again."
+               case .assetFileNotFound:
+                   return "The specified asset could not be found."
+               case .assetNotAvailable:
+                   return "The asset is not available."
+               case .badContainer:
+                   return "There is an issue with the iCloud container. Please contact support."
+               case .badDatabase:
+                   return "There is an issue with the database. Please try again later."
+               case .batchRequestFailed:
+                   return "The request batch failed. Please try again."
+               case .changeTokenExpired:
+                   return "The change token has expired. Please refresh and try again."
+               case .constraintViolation:
+                   return "A constraint violation occurred. Please ensure all data is correct."
+               case .incompatibleVersion:
+                   return "Your app version is incompatible. Please update to the latest version."
+               case .internalError:
+                   return "An internal error occurred in CloudKit. Please try again later."
+               case .invalidArguments:
+                   return "Invalid information was provided. Please check and try again."
+               case .limitExceeded:
+                   return "The request exceeds the size limit. Please reduce the size and try again."
+               case .managedAccountRestricted:
+                   return "Your account has restrictions. Please check your Settings."
+               case .missingEntitlement:
+                   return "The app is missing a required entitlement. Please contact support."
+               case .networkFailure:
+                   return "A network error occurred. Please check your connection and try again."
+               case .networkUnavailable:
+                   return "The network is unavailable. Please check your connection and try again."
+               case .notAuthenticated:
+                   return "You are not authenticated. Please log in to iCloud and try again."
+               case .operationCancelled:
+                   return "The operation was cancelled."
+               case .partialFailure:
+                   return "The operation completed with partial failures. Please try again."
+               case .participantMayNeedVerification:
+                   return "You need to verify your participation in the share."
+               case .permissionFailure:
+                   return "You do not have permission to perform this action."
+               case .quotaExceeded:
+                   return "Your iCloud storage quota has been exceeded. Please free up some space."
+               case .referenceViolation:
+                   return "A reference violation occurred. Please ensure all data is correct."
+               case .requestRateLimited:
+                   return "You are making requests too frequently. Please slow down and try again later."
+               case .serverRecordChanged:
+                   return "The record has been changed on the server. Please refresh and try again."
+               case .serverRejectedRequest:
+                   return "The server rejected the request. Please try again."
+               case .serverResponseLost:
+                   return "The network connection was lost. Please try again."
+               case .serviceUnavailable:
+                   return "CloudKit service is currently unavailable. Please try again later."
+               case .tooManyParticipants:
+                   return "There are too many participants in the share."
+               case .unknownItem:
+                   return "The specified record does not exist."
+               case .userDeletedZone:
+                   return "The record zone was deleted by the user."
+               case .zoneBusy:
+                   return "The server is too busy to handle the request. Please try again later."
+               case .zoneNotFound:
+                   return "The specified record zone does not exist."
+               default:
+                   return "An unknown error occurred. Please try again."
+               }
         }
     }
-}

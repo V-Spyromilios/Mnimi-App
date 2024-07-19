@@ -13,8 +13,10 @@ struct FaceIDView: View {
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
+    @EnvironmentObject var networkManager: NetworkManager
     @State private var greenHeight: CGFloat = UIScreen.main.bounds.height + (UIScreen.main.bounds.height * 0.15)
     @State private var showError = false
+    @State private var showNoInternet = false
     @State private var showPasswordAuth = false
     @State private var username = ""
     @State private var password = ""
@@ -54,9 +56,21 @@ struct FaceIDView: View {
                 })
             )
         }
+        .alert(isPresented: $showNoInternet) {
+            Alert(
+                title: Text("You are not connected to the Internet"),
+                message: Text("Please check your connection"),
+                dismissButton: .cancel(Text("OK"))
+            )
+        }
         .sheet(isPresented: $showPasswordAuth) {
             UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
                 .environmentObject(keyboardResponder)
+        }
+        .onChange(of: networkManager.hasInternet) { _, hasInternet in
+            if !hasInternet {
+                showNoInternet = true
+            }
         }
     }
     
@@ -146,7 +160,7 @@ struct UsernamePasswordLoginView: View {
                         RoundedRectangle(cornerRadius: rectCornerRad)
                             .fill(Color.primaryAccent)
                             .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                            .frame(height: 60)
+                            .frame(height: buttonHeight)
                             
                         Text("Save").font(.title2).bold()
                             .foregroundColor(Color.buttonText)
