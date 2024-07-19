@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CloudKit
 
 struct EditInfoView: View {
     
@@ -13,24 +14,41 @@ struct EditInfoView: View {
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var cloudKit: CloudKitViewModel
-    @State var showProgress: Bool = false
+    @EnvironmentObject var networkManager: NetworkManager
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @State var showPop: Bool = false
+    
+    @State private var showNoInternet = false
+    @State var showSuccess: Bool = false
+    @State var inProgress: Bool = false
     
     var body: some View {
         
         ZStack {
             Color.primaryBackground.ignoresSafeArea()
             
-            InfoView(viewModel: viewModel, showPop: $showPop, presentationMode: presentationMode).opacity(showProgress ? 0.5 : 1.0)
-
-            if showProgress {
-                ProgressView()
-                    .font(.title)
-                    .scaleEffect(1.5)
-                    .bold()
-                    .background(Color.clear.ignoresSafeArea())
-                    .foregroundStyle(Color.britishRacingGreen)
+            InfoView(viewModel: viewModel, showSuccess: $showSuccess, inProgress: $inProgress)
+        }
+        .alert(isPresented: $showNoInternet) {
+            Alert(
+                title: Text("You are not connected to the Internet"),
+                message: Text("Please check your connection"),
+                dismissButton: .cancel(Text("OK"))
+            )
+        }
+        .onChange(of: networkManager.hasInternet) { _, hasInternet in
+            if !hasInternet {
+                showNoInternet = true
+                if inProgress {
+                    inProgress = false
+                }
+            }
+        }
+        .onChange(of: showSuccess) { _, show in
+            if show {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+                    showSuccess = false
+                    presentationMode.wrappedValue.dismiss()
+                }
             }
         }
         
@@ -41,23 +59,16 @@ struct EditInfoView: View {
                     title: Text("Save Info?"),
                     message: Text("Are you sure you want to save these changes?"),
                     primaryButton: .destructive(Text("OK")) {
-                        withAnimation {
-                            hideKeyboard()
-                            showProgress = true
-                        }
+                        
                         Task {
                             await upsertEditedInfo()
-                            pineconeManager.clearManager()
                             await openAiManager.clearManager()
-                            DispatchQueue.main.async {
-                                showProgress = false
-                                viewModel.activeAlert = nil // resetting the activeAlert
-                                showPop = false
-                            }
+                            await pineconeManager.clearManager()
+                            
                         }
                     },
                     secondaryButton: .cancel {
-                        viewModel.activeAlert = nil // Resetting the activeAlert.
+                        viewModel.activeAlert = nil
                     }
                 )
             case .deleteWarning:
@@ -65,10 +76,8 @@ struct EditInfoView: View {
                     title: Text("Delete Info?"),
                     message: Text("Are you sure you want to delete this info?"),
                     primaryButton: .destructive(Text("OK")) {
-                        withAnimation {
-                            hideKeyboard()
-                            showProgress = true
-                        }
+                        
+                        inProgress = true
                         Task {
                             let idToDelete = viewModel.id
                             do {
@@ -78,28 +87,39 @@ struct EditInfoView: View {
                                     pineconeManager.deleteVector(withId: idToDelete)
                                     try await pineconeManager.fetchAllNamespaceIDs()
                                 }
+                                DispatchQueue.main.async {
+                                    inProgress = false
+                                    showSuccess = true
+                                }
                             }
                             catch let error as AppNetworkError {
                                 await MainActor.run {
                                     viewModel.occuredErrorDesc = error.errorDescription
+                                    inProgress = false
                                     viewModel.activeAlert = .error
                                 }
-                               
+                                
                             } catch let error as AppCKError {
                                 await MainActor.run {
                                     viewModel.occuredErrorDesc = error.errorDescription
+                                    inProgress = false
                                     viewModel.activeAlert = .error
                                 }
-                               
-                            } catch {
+                                
+                            } 
+                            catch let error as CKError {
                                 await MainActor.run {
-                                    viewModel.occuredErrorDesc = error.localizedDescription
+                                    viewModel.occuredErrorDesc = error.customErrorDescription
+                                    inProgress = false
                                     viewModel.activeAlert = .error
                                 }
                             }
-                            DispatchQueue.main.async {
-                                showProgress = false
-
+                            catch {
+                                await MainActor.run {
+                                    viewModel.occuredErrorDesc = error.localizedDescription
+                                    inProgress = false
+                                    viewModel.activeAlert = .error
+                                }
                             }
                         }
                     },
@@ -111,10 +131,9 @@ struct EditInfoView: View {
                 return Alert(
                     title: Text("Oops"),
                     message: Text("\(viewModel.occuredErrorDesc)\nPlease try again later"),
-                    dismissButton: .destructive(Text("OK")) {
+                    dismissButton: .default(Text("OK")) {
                         withAnimation {
                             viewModel.occuredErrorDesc = ""
-                            showPop = false
                             self.viewModel.activeAlert = nil
                         }
                     }
@@ -122,38 +141,55 @@ struct EditInfoView: View {
             }
         }
     }
-
+    
     private func upsertEditedInfo() async {
+
+        await MainActor.run {
+            inProgress = true
+        }
         
         let metadata = toDictionary(desc: self.viewModel.description)
-        
-        await openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
-        if !openAiManager.embeddings.isEmpty {
-            do {
+        do {
+            await openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
+            
+            if !openAiManager.embeddings.isEmpty {
                 try await pineconeManager.upsertDataToPinecone(id: self.viewModel.id, vector: openAiManager.embeddings, metadata: metadata)
             }
-            catch {
-                print("EditInfoView :: Error while upserting: \(error.localizedDescription)")
-            }
+            
             if pineconeManager.upsertSuccesful {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     pineconeManager.isDataSorted = false
                     pineconeManager.refreshAfterEditing = true
                 }
-                do {
-                    try await pineconeManager.refreshNamespacesIDs()
-                    
-                } catch {
-                    //show Error Alert
-                    print("EditInfoView :: Error refreshNamespacesIDs: \(error.localizedDescription)")
-                }
-                DispatchQueue.main.async {
-//                    popMessage = "Info saved successfully!"
-                    showPop = true
-                }
+            }
+            
+            try await pineconeManager.refreshNamespacesIDs()
+            
+            await MainActor.run {
+                inProgress = false
+                showSuccess = true
+            }
+        } catch let error as AppNetworkError {
+            await MainActor.run {
+                viewModel.occuredErrorDesc = error.errorDescription
+                inProgress = false
+                viewModel.activeAlert = .error
+            }
+        } catch let error as AppCKError {
+            await MainActor.run {
+                viewModel.occuredErrorDesc = error.errorDescription
+                inProgress = false
+                viewModel.activeAlert = .error
+            }
+        } catch {
+            await MainActor.run {
+                viewModel.occuredErrorDesc = error.localizedDescription
+                inProgress = false
+                viewModel.activeAlert = .error
             }
         }
     }
+
 }
 
 

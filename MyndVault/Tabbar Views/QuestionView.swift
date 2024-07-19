@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CloudKit
 
 struct QuestionView: View {
     
@@ -15,11 +16,13 @@ struct QuestionView: View {
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var cloudKitManager: CloudKitViewModel
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var networkManager: NetworkManager
 
-    @Binding var question: String
-    @State var thrownError: String = ""
-    @State var goButtonIsVisible: Bool = true
-    @State var selectedImageIndex: Int? = nil
+    @State private var question: String = ""
+    @State private var thrownError: String = ""
+    @State private var goButtonIsVisible: Bool = true
+    @State private var selectedImageIndex: Int? = nil
+    @State private var showNoInternet = false
     @State private var clearButtonIsVisible: Bool = false
     @State private var showFullImage: Bool = false
     @State private var showSettings: Bool = false
@@ -237,10 +240,28 @@ struct QuestionView: View {
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
         }
+        .alert(isPresented: $showNoInternet) {
+            Alert(
+                title: Text("You are not connected to the Internet"),
+                message: Text("Please check your connection"),
+                dismissButton: .cancel(Text("OK"))
+            )
+        }
+        .onChange(of: networkManager.hasInternet) { _, hasInternet in
+            if !hasInternet {
+               showNoInternet = true
+                if isLoading {
+                    performClearTask()
+                }
+            }
+        }
+        .onDisappear {
+            if thrownError != "" || openAiManager.thrownError != "" || pineconeManager.receivedError != nil {
+                performClearTask()
+            }
+        }
     }
-        
-        
-        
+
     }
 
     private var GoButton: some View {
@@ -248,7 +269,7 @@ struct QuestionView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color("primaryAccent"))
-                    .frame(height: 60)
+                    .frame(height: buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 Text("Go").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Go")
@@ -268,7 +289,7 @@ struct QuestionView: View {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.primaryAccent)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                    .frame(height: 60)
+                    .frame(height: buttonHeight)
                 
                 Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Clear and reset")
@@ -291,91 +312,102 @@ struct QuestionView: View {
             self.clearButtonIsVisible = false
             self.goButtonIsVisible = true
             progressTracker.reset()
+            if isLoading { isLoading = false }
+        }
             Task {
                 await openAiManager.clearManager()
-                pineconeManager.clearManager()
+                await pineconeManager.clearManager()
             }
-        }
     }
     
     private func performTask() {
 
-        if shake || isLoading { return }
+        guard !shake && !isLoading else { return }
+        
         if question.count < 8 {
             withAnimation { shake = true }
             return
         }
 
-        isLoading = true
-        hideKeyboard()
-        progressTracker.reset()
-        withAnimation { goButtonIsVisible = false }
-        
+        withAnimation {
+            goButtonIsVisible = false
+            hideKeyboard()
+            isLoading = true
+            progressTracker.reset()
+        }
+
         Task {
-            
             await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
-            if openAiManager.questionEmbeddingsCompleted {
+            
+            guard openAiManager.questionEmbeddingsCompleted else {
+                isLoading = false
+                return
+            }
+
+            do {
+                progressTracker.setProgress(to: 0.35)
+                try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
                 
-                do {
-                    progressTracker.setProgress(to: 0.35)
-                    //throw AppNetworkError.invalidResponse
-                    try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
-                } catch(let error) {
-                    if let unwrappedError = error as? AppNetworkError {
-                        thrownError = unwrappedError.errorDescription
-                        clearButtonIsVisible = true
-                    }
-                }
                 if let pineconeResponse = pineconeManager.pineconeQueryResponse {
-                    do {
-                        for match in pineconeResponse.matches {
-                            let id = match.id
-                            Task {
-                                do {
-                                    if  let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
-                                        print("Succesfully fetched image from icloud with id : \(id)")
-                                        DispatchQueue.main.async {
-                                            fetchedImages.append(image)
-                                        }
+                    for match in pineconeResponse.matches {
+                        let id = match.id
+                        Task {
+                            do {
+                                if let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
+                                    print("Successfully fetched image from iCloud with id: \(id)")
+                                    await MainActor.run {
+                                        fetchedImages.append(image)
                                     }
                                 }
-                                catch let error as AppNetworkError {
-                                    await MainActor.run {
-                                        self.thrownError = error.errorDescription }
+                            } catch let error as AppNetworkError {
+                                await MainActor.run {
+                                    self.thrownError = error.errorDescription
                                 }
-                                catch let error as AppCKError {
-                                    await MainActor.run {
-                                        self.thrownError = error.errorDescription }
+                            } catch let error as AppCKError {
+                                await MainActor.run {
+                                    self.thrownError = error.errorDescription
                                 }
-                                catch {
-                                    await MainActor.run {
-                                        self.thrownError = error.localizedDescription }
+                            }
+                            catch let error as CKError {
+                                await MainActor.run {
+                                    self.thrownError = error.customErrorDescription }
+                            }
+                            catch {
+                                await MainActor.run {
+                                    self.thrownError = error.localizedDescription
                                 }
                             }
                         }
-                        try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
-                        
                     }
-                    catch let error as AppNetworkError {
-                        await MainActor.run {
-                            self.thrownError = error.errorDescription }
-                    }
-                    catch let error as AppCKError {
-                        await MainActor.run {
-                            self.thrownError = error.errorDescription }
-                    }
-                    catch {
-                        await MainActor.run {
-                            self.thrownError = error.localizedDescription }
+                    try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
+                }
+                
+                await MainActor.run {
+                    withAnimation {
+                        isLoading = false
+                        clearButtonIsVisible = true
                     }
                 }
+            } catch let error as AppNetworkError {
+                await MainActor.run {
+                    self.thrownError = error.errorDescription
+                    self.isLoading = false
+                    self.clearButtonIsVisible = true
+                }
+            } catch let error as AppCKError {
+                await MainActor.run {
+                    self.thrownError = error.errorDescription
+                    self.isLoading = false
+                    self.clearButtonIsVisible = true
+                }
+            } catch {
+                await MainActor.run {
+                    self.thrownError = error.localizedDescription
+                    self.isLoading = false
+                    self.clearButtonIsVisible = true
+                }
             }
-            await MainActor.run { isLoading = false } //TODO: Check if works ok protecting the Button during api call
         }
-        if thrownError == "" {
-            withAnimation { clearButtonIsVisible = true }
-        }
-        
     }
     
 }
@@ -387,7 +419,7 @@ struct QuestionView_Previews: PreviewProvider {
         let pineconeManager = PineconeManager()
         let progressTracker = ProgressTracker()
         
-        QuestionView(question: .constant("What is the name of my manager ?"))
+        QuestionView()
             .environmentObject(openAiManager)
             .environmentObject(pineconeManager)
             .environmentObject(progressTracker)

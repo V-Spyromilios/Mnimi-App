@@ -6,21 +6,21 @@
 //
 
 import SwiftUI
+import CloudKit
 
 struct NewAddInfoView: View {
-    @Binding var newInfo: String
-    @Binding var apiCallInProgress: Bool
-    
-    @State var thrownError: String = ""
-    @Binding var showAlert: Bool
+    @State private var newInfo: String = ""
+    @State private var apiCallInProgress: Bool = false
+    @State private var thrownError: String = ""
     
     @State private var clearButtonIsVisible: Bool = false
     @State private var saveButtonIsVisible: Bool = true
     @State private var showSettings: Bool = false
     
     @State private var animateStep: Int = 0
-    @State private var isLoading: Bool = false
+    @State private var isLoading: Bool = false //used just for the button
     @State private var shake: Bool = false
+    @State private var showNoInternet: Bool = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -29,6 +29,7 @@ struct NewAddInfoView: View {
     @EnvironmentObject var cloudKit: CloudKitViewModel
     @StateObject private var photoPicker = ImagePickerViewModel()
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var networkManager: NetworkManager
     
     var body: some View {
         
@@ -189,10 +190,27 @@ struct NewAddInfoView: View {
                     self.thrownError = errorMessage }
 //                }
             }
+            .onChange(of: networkManager.hasInternet) { _, hasInternet in
+                if !hasInternet {
+                    showNoInternet = true
+                }
+            }
+            .alert(isPresented: $showNoInternet) {
+                Alert(
+                    title: Text("You are not connected to the Internet"),
+                    message: Text("Please check your connection"),
+                    dismissButton: .cancel(Text("OK"))
+                )
+            }
             }
         }
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(showSettings: $showSettings)
+        }
+        .onDisappear {
+            if thrownError != "" || openAiManager.thrownError != "" || pineconeManager.receivedError != nil {
+                performClearTask()
+            }
         }
     }
     
@@ -201,7 +219,7 @@ struct NewAddInfoView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.primaryAccent)
-                    .frame(height: 60)
+                    .frame(height: buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("save")
@@ -221,7 +239,7 @@ struct NewAddInfoView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
                     .fill(Color.primaryAccent)
-                    .frame(height: 60)
+                    .frame(height: buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 
                 Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
@@ -243,7 +261,7 @@ struct NewAddInfoView: View {
             self.clearButtonIsVisible = false
             Task {
                 await openAiManager.clearManager()
-                pineconeManager.clearManager()
+                await pineconeManager.clearManager()
             }
             self.apiCallInProgress = false
             self.saveButtonIsVisible = true
@@ -267,7 +285,7 @@ struct NewAddInfoView: View {
     }
     
     private func addInfoOperations() async {
-        
+
         await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
         
         if openAiManager.embeddingsCompleted {
@@ -285,31 +303,37 @@ struct NewAddInfoView: View {
                         try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
                     }
                 }
+                await MainActor.run {
+                    apiCallInProgress = false
+                    saveButtonIsVisible = true
+                    isLoading = false
+                }
             }
             catch let error as AppNetworkError {
                 await MainActor.run {
+                    apiCallInProgress = false
+                    isLoading = false
                     self.thrownError = error.errorDescription }
             }
             catch let error as AppCKError {
                 await MainActor.run {
+                    apiCallInProgress = false
+                    isLoading = false
                     self.thrownError = error.errorDescription }
+            }
+            catch let error as CKError {
+                await MainActor.run {
+                    apiCallInProgress = false
+                    isLoading = false
+                    self.thrownError = error.customErrorDescription }
             }
             catch {
                 await MainActor.run {
+                    apiCallInProgress = false
+                    isLoading = false
                     self.thrownError = error.localizedDescription }
             }
             
-            await MainActor.run {
-                self.apiCallInProgress = false
-                self.showAlert = true
-            }
-            
-        } else { print("AddNewView :: ELSE blocked from openAiManager.EmbeddingsCompleted ") }
-        
-        await MainActor.run {
-            self.apiCallInProgress = false
-            self.saveButtonIsVisible = true
-            self.isLoading = false
         }
     }
 }
@@ -320,9 +344,7 @@ struct NewAddInfoView_Previews: PreviewProvider {
         let progress = ProgressTracker()
         let openAI = OpenAIManager()
         let pinecone = PineconeManager()
-        NewAddInfoView(newInfo: .constant("Test string"),
-                       apiCallInProgress: .constant(false),
-                       showAlert: .constant(false))
+        NewAddInfoView()
         .environmentObject(pinecone)
         .environmentObject(openAI)
         .environmentObject(progress)

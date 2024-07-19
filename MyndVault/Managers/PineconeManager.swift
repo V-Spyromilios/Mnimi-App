@@ -40,10 +40,12 @@ final class PineconeManager: ObservableObject {
             self.CKviewModel = cloudKitViewModel
         }
     
-    func clearManager() {
-        receivedError = nil
-        pineconeQueryResponse = nil
-        upsertSuccesful = false
+    func clearManager() async {
+        await MainActor.run {
+            receivedError = nil
+            pineconeQueryResponse = nil
+            upsertSuccesful = false
+        }
     }
     
     //this deletes localy
@@ -95,11 +97,9 @@ final class PineconeManager: ObservableObject {
 
                 if !self.isDataSorted || self.refreshAfterEditing {
                     do {
-//                        print("Data is not sorted, isDataSorted: \(isDataSorted), refresh: \(refreshAfterEditing).")
                         try await fetchDataForIds()
                     } catch {
-                        throw AppNetworkError.unknownError("Error fetching data for id")
-//                        print("Error fetchDataForIds():: \(error)")
+                        throw error
                     }
                 }
 
@@ -223,7 +223,7 @@ final class PineconeManager: ObservableObject {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 
                 if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-//                    print("Failed to delete vectors. Status code: \(httpResponse.statusCode)")
+
                     DispatchQueue.main.async {
                         self.vectorDeleted = false
                     }
@@ -234,64 +234,19 @@ final class PineconeManager: ObservableObject {
                     self.vectorDeleted = true
                     updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
                 }
-//                print("Vector with id: '\(id)' successfully deleted.")
                 break
                 
             } catch {
                 attempts += 1
                 if attempts < maxAttempts {
-//                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
                     try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
                 } else {
-//                    print("All attempts failed.")
                     throw error
                 }
             }
         }
     }
 
-//    func deleteVectorFromPinecone(id: String) async throws {
-//        
-//        struct DeleteVectorsRequest: Codable {
-//            let ids: [String]
-//            let namespace: String
-//        }
-//        
-//        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
-//            throw AppCKError.UnableToGetNameSpace
-//        }
-//        
-//        guard let apiKey = ApiConfiguration.pineconeKey else {
-//            throw AppNetworkError.apiKeyNotFound
-//        }
-//        
-//        
-//        let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/delete")!
-//        var request = URLRequest(url: url)
-//        request.httpMethod = "POST"
-//        request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
-//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//        
-//        let deleteRequest = DeleteVectorsRequest(ids: [id], namespace: namespace)
-//        let requestData = try JSONEncoder().encode(deleteRequest)
-//        request.httpBody = requestData
-//        
-//        let (_, response) = try await URLSession.shared.data(for: request)
-//
-//        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-//            print("Failed to delete vectors. Status code: \(httpResponse.statusCode)")
-//            DispatchQueue.main.async {
-//                self.vectorDeleted = false
-//            }
-//            throw AppNetworkError.unknownError("Unable to Delete (bad Response).")
-//        }
-//        DispatchQueue.main.async {
-//            self.vectorDeleted = true
-//            updateTokenUsage(api: "Pinecone", tokensUsed: 7, read: false)
-//        }
-//        print("Vector with id: '\(id)' successfully deleted.")
-//        
-//    }
 
     
     //MARK: Developer View DEPRICATED
@@ -484,10 +439,10 @@ final class PineconeManager: ObservableObject {
             } catch {
                 attempts += 1
                 if attempts < maxAttempts {
-                    try await Task.sleep(nanoseconds: 100_000_000)
+                    try await Task.sleep(nanoseconds: 200_000_000)
                 } else {
                     
-                    throw AppNetworkError.unknownError("perform HTTP :: \(error.localizedDescription)")
+                    throw error
                 }
             }
         }
@@ -497,6 +452,7 @@ final class PineconeManager: ObservableObject {
 
     //MARK: USED in NewAddInfoView
     private func performHTTPRequest(request: URLRequest) async throws -> Data {
+
         try await withCheckedThrowingContinuation { continuation in
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
@@ -505,16 +461,14 @@ final class PineconeManager: ObservableObject {
                 }
                 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                    let errorDescription = "performHTTPRequest :: Invalid response: \(response.debugDescription)"
-                    continuation.resume(throwing: NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: errorDescription]))
+                    continuation.resume(throwing: AppNetworkError.invalidResponse)
                     return
                 }
                 
                 if let data = data {
                     continuation.resume(returning: data)
                 } else {
-                    let noDataError = NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "performHTTPRequest :: No data received"])
-                    continuation.resume(throwing: noDataError)
+                    continuation.resume(throwing: AppNetworkError.noDataReceived)
                 }
             }.resume()
         }
@@ -597,13 +551,12 @@ final class PineconeManager: ObservableObject {
         DispatchQueue.main.async {
             ProgressTracker.shared.setProgress(to: 0.45)
         }
-        
-        print("Namespace: \(namespace)")
+
         let requestBody: [String: Any] = [
             "vector": vector,
             "topK": topK,
             "includeValues": includeValues,
-            "includeMetadata": true, // Remove Metadata
+            "includeMetadata": true,
             "namespace": namespace
         ]
         
@@ -616,7 +569,7 @@ final class PineconeManager: ObservableObject {
 //            print("Response Body: \(responseBody)")
 //        }
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-//            print("queryPinecone Response Status Code != 200")
+
             throw AppNetworkError.invalidResponse
         }
 

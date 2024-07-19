@@ -23,7 +23,7 @@ final class NetworkManager: ObservableObject {
     }
 
     private func startMonitoring() {
-        // Ensure we don't start monitoring more than once
+
         stopMonitoring()
 
         monitor = NWPathMonitor()
@@ -41,7 +41,7 @@ final class NetworkManager: ObservableObject {
     }
 
     private func stopMonitoring() {
-        monitor?.cancel() // This stops the monitor
+        monitor?.cancel()
         monitor = nil
     }
 }

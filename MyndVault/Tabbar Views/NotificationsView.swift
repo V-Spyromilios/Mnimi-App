@@ -14,10 +14,12 @@ struct NotificationsView: View {
     
     @EnvironmentObject var manager: NotificationViewModel
     @EnvironmentObject var openAi: OpenAIManager
+    @EnvironmentObject var networkManager: NetworkManager
     @Environment(\.colorScheme) var colorScheme
     @State private var showAddNotification: Bool = false
     @State var isLoadingSummary: Bool = false
     @State private var errorMessage: String = ""
+    @State private var showNoInternet = false
     @State var selectedNotification: CustomNotification?
     @State private var selectedOption: viewOptions = .Notifications
     
@@ -87,6 +89,9 @@ struct NotificationsView: View {
                                 Spacer()
                             }
                         }.refreshable {
+                            if errorMessage != "" {
+                                errorMessage = ""
+                            }
                             await getSummary()
                         }
                     }
@@ -133,34 +138,48 @@ struct NotificationsView: View {
                 .onChange(of: manager.scheduledNotifications) {
                     Task { await getSummary() }
                 }
+                .onChange(of: networkManager.hasInternet) { _, hasInternet in
+                    if !hasInternet {
+                        showNoInternet = true
+                    }
+                }
                 .onAppear {
                     if openAi.notificationsSummary == "" {
                         Task { await getSummary() }
                     }
                 }
+                .alert(isPresented: $showNoInternet) {
+                    Alert(
+                        title: Text("You are not connected to the Internet"),
+                        message: Text("Please check your connection"),
+                        dismissButton: .cancel(Text("OK"))
+                    )
+                }
         }
     }
     private func getSummary() async {
-            await MainActor.run { isLoadingSummary = true }
-            do {
-                try await openAi.getMonthlySummary(notifications: manager.scheduledNotifications)
-            } catch let error as AppNetworkError {
-                await MainActor.run {
-                    self.errorMessage = error.errorDescription
-                }
-            } catch let error as AppCKError {
-                await MainActor.run {
-                    self.errorMessage = error.errorDescription
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                }
-            }
+
+        await MainActor.run { isLoadingSummary = true }
+        do {
+            try await openAi.getMonthlySummary(notifications: manager.scheduledNotifications)
+            await MainActor.run { isLoadingSummary = false }
+        }
+        catch let error as AppNetworkError {
             await MainActor.run {
-                isLoadingSummary = false
+                self.errorMessage = error.errorDescription
             }
         }
+        catch let error as AppCKError {
+            await MainActor.run {
+                self.errorMessage = error.errorDescription
+            }
+        }
+        catch {
+            await MainActor.run {
+                self.errorMessage = error.localizedDescription
+            }
+        }
+    }
 }
 
 struct NotificationsView_Previews: PreviewProvider {

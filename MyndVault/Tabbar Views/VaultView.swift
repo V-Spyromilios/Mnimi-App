@@ -11,10 +11,12 @@ struct VaultView: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var pineconeManger: PineconeManager
-    @State private var vectorsAreLoading = true
+    @State private var vectorsAreLoading: Bool = true
     @State private var errorMessage: String = ""
     @State private var showEmpty: Bool = false
+    @State private var showNoInternet = false
 
     var body: some View {
         NavigationStack {
@@ -27,6 +29,7 @@ struct VaultView: View {
                             .bold()
                             .background(Color.clear.ignoresSafeArea())
                             .foregroundStyle(Color.britishRacingGreen)//TODO: Replace with Lottie
+                            .padding(.top, 20)
                     }
                     
                     else if !vectorsAreLoading && !pineconeManger.pineconeFetchedVectors.isEmpty && errorMessage == "" {
@@ -58,11 +61,16 @@ struct VaultView: View {
                 }
             }
             .refreshable {
+                vectorsAreLoading = true
+                if errorMessage != "" {
+                    errorMessage = ""
+                }
                 Task {
                     do {
 //                        throw AppNetworkError.invalidOpenAiURL
                         try await pineconeManger.refreshNamespacesIDs()
-                    } 
+                        await MainActor.run { vectorsAreLoading = false }
+                    }
                     catch let error as AppNetworkError {
                         await MainActor.run {
                             self.errorMessage = error.errorDescription }
@@ -99,6 +107,18 @@ struct VaultView: View {
 
             if vectors.isEmpty {
                 showEmpty = true
+            }
+        }
+        .alert(isPresented: $showNoInternet) {
+            Alert(
+                title: Text("You are not connected to the Internet"),
+                message: Text("Please check your connection"),
+                dismissButton: .cancel(Text("OK"))
+            )
+        }
+        .onChange(of: networkManager.hasInternet) { _, hasInternet in
+            if !hasInternet {
+                showNoInternet = true
             }
         }
     }
@@ -146,21 +166,22 @@ struct VaultView: View {
         Task {
             do {
                 try await pineconeManger.fetchAllNamespaceIDs()
+                await MainActor.run {  self.vectorsAreLoading = false }
             }
             catch let error as AppNetworkError {
                 await MainActor.run {
+                    self.vectorsAreLoading = false
                     self.errorMessage = error.errorDescription }
             }
             catch let error as AppCKError {
                 await MainActor.run {
+                    self.vectorsAreLoading = false
                     self.errorMessage = error.errorDescription }
             }
             catch {
                 await MainActor.run {
+                    self.vectorsAreLoading = false
                     self.errorMessage = error.localizedDescription }
-            }
-            DispatchQueue.main.async {
-                self.vectorsAreLoading = false
             }
         }
     }

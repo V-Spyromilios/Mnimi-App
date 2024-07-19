@@ -25,29 +25,19 @@ struct ContentView: View {
     @State var showNetworkError = false
     @EnvironmentObject var speechManager: SpeechRecognizerManager
     
-    // for the Question view:
-    @State var question: String = ""
-    
-    //for the NewAddInfo
-    @State var newInfo: String = ""
-    @State var apiCallInProgress: Bool = false
-    @State var showAlert = false
-//    @State var showTopBar: Bool = false
-    @State var topBarMessage: String = ""
-    
     var body: some View {
         ZStack {
             TabView(selection: $tabSelection) {
                 
                 
                 
-                NewAddInfoView(newInfo: $newInfo, apiCallInProgress: $apiCallInProgress, showAlert: $showAlert).tag(1)
+                NewAddInfoView().tag(1)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
                     .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                 
-                QuestionView(question: $question).tag(2)
+                QuestionView().tag(2)
                 
                 VaultView().tag(3)
                 NotificationsView().tag(4)

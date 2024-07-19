@@ -113,7 +113,7 @@ struct NotificationEditView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(shake ? Color.gray : Color.primaryAccent)
-                                .frame(height: 60)
+                                .frame(height: buttonHeight)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
                         }
