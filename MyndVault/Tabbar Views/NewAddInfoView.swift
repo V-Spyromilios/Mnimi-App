@@ -43,7 +43,7 @@ struct NewAddInfoView: View {
                         Image(systemName: "plus.bubble").bold()
                         Text("info").bold()
                         Spacer()
-                    }.font(.callout).padding(.top,12).padding(.bottom, 8).padding(.horizontal, 7)
+                    }.font(.callout).padding(.top,12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
                     
                     HStack {
                         TextEditor(text: $newInfo)
@@ -141,23 +141,23 @@ struct NewAddInfoView: View {
                     }
 
                     if self.thrownError != "" {
-                        ErrorView(thrownError: thrownError)
-                            .padding(.top)
-                            .padding(.horizontal)
+//                        ErrorView(thrownError: thrownError)
+//                            .padding(.top)
+//                            .padding(.horizontal)
                         ClearButton
                             .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
                     }
                     else if pineconeManager.receivedError != nil {
-                        ErrorView(thrownError: thrownError)
-                            .padding(.top)
-                            .padding(.horizontal)
+//                        ErrorView(thrownError: thrownError)
+//                            .padding(.top)
+//                            .padding(.horizontal)
                         ClearButton
                             .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
                     }
                     else if openAiManager.thrownError != "" {
-                        ErrorView(thrownError: thrownError)
-                            .padding(.top)
-                            .padding(.horizontal)
+//                        ErrorView(thrownError: thrownError)
+//                            .padding(.top)
+//                            .padding(.horizontal)
                         ClearButton
                             .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
                     }
@@ -173,10 +173,19 @@ struct NewAddInfoView: View {
 //                        .navigationTitle("Add New 📝")
 //                        .navigationBarTitleDisplayMode(.large)
                         .navigationBarTitleView { LottieRepresentable(filename: "Cloud Upload").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
-                }.padding(.horizontal, 7) //TODO: No padding !?!
-            }.background {
-                Color.primaryBackground.ignoresSafeArea()
+                }.padding(.horizontal, standardCardPadding) //TODO: No padding !?!
             }
+                .background {
+                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                        .opacity(0.4)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
+                .navigationBarTitleView {
+                    HStack {
+                        Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                        LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 50, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
+                }
             .onChange(of: shake) { _, newValue in
                 if newValue {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

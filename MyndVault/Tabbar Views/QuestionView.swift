@@ -1,8 +1,8 @@
 //
-//  QuestionView.swift
-//  MyndVault
+// QuestionView.swift
+// MyndVault
 //
-//  Created by Evangelos Spyromilios on 25.04.24.
+// Created by Evangelos Spyromilios on 25.04.24.
 //
 
 import SwiftUI
@@ -39,7 +39,7 @@ struct QuestionView: View {
                     Image(systemName: "questionmark.bubble").bold()
                     Text("Question").bold()
                     Spacer()
-                }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
+                }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
                     .navigationBarTitleView { LottieRepresentable(filename: "CloudDownload").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
                 
                 TextEditor(text: $question)
@@ -56,32 +56,32 @@ struct QuestionView: View {
                             .foregroundColor(Color.gray)
                     )
                     .padding(.bottom)
-                    .padding(.horizontal, 7)
+                    .padding(.horizontal, standardCardPadding)
                 VStack {
                     VStack {
                     if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
                         
-                        ErrorView(thrownError: thrownError)
-                            .padding(.horizontal, 7)
-                                .padding(.vertical)
+//                        ErrorView(thrownError: thrownError)
+//                            .padding(.horizontal, 7)
+//                                .padding(.vertical)
                             ClearButton
                                 .padding(.bottom)
                         
                     }
                     else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
                        
-                        ErrorView(thrownError: thrownError)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical)
+//                        ErrorView(thrownError: thrownError)
+//                            .padding(.horizontal, 7)
+//                            .padding(.vertical)
                         ClearButton
                             .padding(.bottom)
                         
                     }
                     else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
                         
-                        ErrorView(thrownError: thrownError)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical)
+//                        ErrorView(thrownError: thrownError)
+//                            .padding(.horizontal, 7)
+//                            .padding(.vertical)
                         ClearButton
                             .padding(.bottom)
                         
@@ -105,7 +105,7 @@ struct QuestionView: View {
                             Image(systemName: "quote.bubble").bold()
                             Text("Reply").bold()
                             Spacer()
-                        }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
+                        }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
                         ZStack {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -131,7 +131,7 @@ struct QuestionView: View {
                                 )
                         }
                         .padding(.bottom)
-                        .padding(.horizontal, 7)
+                        .padding(.horizontal, standardCardPadding)
                         LazyHGrid(rows: [GridItem(.flexible())], spacing: 20) {
                             
                             ForEach(0..<fetchedImages.count, id: \.self) { index in
@@ -201,6 +201,10 @@ struct QuestionView: View {
                         }
                     }
                 }
+            }.overlay {
+                if self.thrownError != "" {
+                    ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
+                }
             }
             .fullScreenCover(isPresented: $showFullImage) {
                 if let selectedImageIndex = self.selectedImageIndex {
@@ -233,7 +237,15 @@ struct QuestionView: View {
                 }
             }
             .background {
-                Color.primaryBackground.ignoresSafeArea()
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+            }
+            .navigationBarTitleView {
+                HStack {
+                    Text("Ask me").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                    LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
             }
         }
         .fullScreenCover(isPresented: $showSettings) {

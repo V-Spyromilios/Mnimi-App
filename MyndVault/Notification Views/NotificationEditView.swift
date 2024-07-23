@@ -112,19 +112,18 @@ struct NotificationEditView: View {
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
-                                .fill(shake ? Color.gray : Color.primaryAccent)
+                                .fill(shake ? Color.gray : Color.customLightBlue)
                                 .frame(height: buttonHeight)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
                         }
                         .padding(.vertical, 8)
                         .contentShape(Rectangle())
-                        
                         .accessibilityLabel("Save changes and reschedule")
                     }
                     .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                     .padding(.top, 12)
-                    .padding(.horizontal, 7)
+                   
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
@@ -140,11 +139,15 @@ struct NotificationEditView: View {
                         }
                     }
                 }
+            }.background {
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
             }
-            .navigationTitle("Edit Notification")
-            .navigationBarTitleDisplayMode(.large)
+            
             .toolbar {
-                ToolbarItemGroup(placement: .topBarLeading) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     
                     Button("Cancel") {
                         presentationMode.wrappedValue.dismiss()
@@ -168,7 +171,13 @@ struct NotificationEditView: View {
                     }
                     }
              
-            }.background { Color.primaryBackground.ignoresSafeArea() }
+            }
+            .navigationBarTitleView {
+                HStack {
+                    Text("Edit Notification").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+//                    LottieRepresentable(filename: "").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                }
+            }
         }
         .statusBar(hidden: true)
     }

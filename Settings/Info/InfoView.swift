@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CloudKit
 
 struct InfoView: View {
     
@@ -15,7 +16,6 @@ struct InfoView: View {
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
-    @FocusState private var focusField: Field?
     @Environment(\.colorScheme) var colorScheme
     @State var thrownError: String = ""
     @State var apiCallInProgress: Bool = false
@@ -24,10 +24,7 @@ struct InfoView: View {
     @State private var oldText: String = ""
     @Binding var showSuccess: Bool
     @Binding var inProgress: Bool
-
-    private enum Field {
-        case edit
-    }
+    @State private var DeleteAnimating: Bool = false
     
     var body: some View {
         VStack {
@@ -35,7 +32,7 @@ struct InfoView: View {
                 Image(systemName: "rectangle.and.pencil.and.ellipsis").bold()
                 Text("Edit Info:").bold()
                 Spacer() //or .frame(alignment:) in the hstack
-            }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, 7)
+            }.font(.callout).padding(.top, 12).padding(.bottom, 8)
                 
             HStack {
                 TextEditor(text: $viewModel.description)
@@ -53,11 +50,9 @@ struct InfoView: View {
                     )
                     
                     .padding(.bottom)
-//                    .onAppear { focusField = .edit }
-                    .focused($focusField, equals: .edit)
             }
             .padding(.bottom)
-            .padding(.horizontal, 7)
+           
            
             Button(action:  {
 
@@ -77,7 +72,7 @@ struct InfoView: View {
 ) {
                 ZStack {
                     RoundedRectangle(cornerRadius: rectCornerRad)
-                        .fill(Color.primaryAccent)
+                        .fill(Color.customLightBlue)
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                         .frame(height: buttonHeight)
                         
@@ -104,7 +99,9 @@ struct InfoView: View {
                 LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
             }
             Spacer()
-        }.background { Color.primaryBackground.ignoresSafeArea() }
+        }
+        .padding(.horizontal, standardCardPadding)
+        .background { Color.clear.ignoresSafeArea() }
         .toolbar {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
@@ -118,18 +115,11 @@ struct InfoView: View {
                     }
                 
                 Button(action: {
+                    DeleteAnimating = true
                     self.viewModel.activeAlert = .deleteWarning
                    
                 }, label: {
-                    Circle()
-                        .foregroundStyle(Color.gray.opacity(0.6))
-                        .frame(height: 30)
-                        .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
-                        .overlay {
-                            Text("🗑️")
-                                .accessibilityLabel("Delete info")
-                        }
-                })
+                    LottieRepresentable(filename: "Delete", loopMode: .playOnce, isPlaying: $DeleteAnimating).frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) })
             }
         }
         .onChange(of: shake) { _, newValue in

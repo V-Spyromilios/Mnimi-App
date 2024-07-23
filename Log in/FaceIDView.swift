@@ -31,7 +31,7 @@ struct FaceIDView: View {
                 LoggedOutView()
             } else {
                 ZStack {
-                    Color.britishRacingGreen
+                    Color.customLightBlue
                         .frame(height: greenHeight)
                         .ignoresSafeArea()
                     VStack {
@@ -114,7 +114,12 @@ struct UsernamePasswordLoginView: View {
     
     var body: some View {
         ZStack {
-            Color.britishRacingGreen.ignoresSafeArea()
+            
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+            
             VStack {
                 Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding()
                 Text("Continue with\nUsername and Password")
@@ -158,7 +163,7 @@ struct UsernamePasswordLoginView: View {
                 ) {
                     ZStack {
                         RoundedRectangle(cornerRadius: rectCornerRad)
-                            .fill(Color.primaryAccent)
+                            .fill(Color.customLightBlue)
                             .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             .frame(height: buttonHeight)
                             

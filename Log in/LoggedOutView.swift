@@ -10,20 +10,24 @@ import SwiftUI
 struct LoggedOutView: View {
     var body: some View {
         ZStack {
-               Color.britishRacingGreen.ignoresSafeArea()
+            
+                LottieRepresentable(filename: "Background Lines", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+            
             VStack {
                 
-                Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding(.top)
+                Text("Mynd Vault").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding(.top)
                 Spacer()
                 Image(systemName: "lock.fill")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 100, height: 100)
                     .foregroundStyle(Color.primaryBackground)
-                Text("You are logged out\nYou can close the app")
-                    .font(.title)
-                    .foregroundStyle(Color.darkGray2)
-                    .padding()
+                    .padding(.bottom)
+                TypingTextView(fullText: "You are logged out\nYou can close the app")
+                
             Spacer()
             }
            }.statusBar(hidden: true)

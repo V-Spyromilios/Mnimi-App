@@ -5,8 +5,7 @@ struct SplashScreen: View {
     
     @Binding var showSplash: Bool
     @State private var greenHeight: CGFloat = 0
-    @State private var showLogo: Bool = false
-    @State private var currentSymbolIndex: Int = 0
+
     @State private var loadingComplete: Bool = false
     @State private var codeLines: [String] = []
     @State private var currentLineIndex: Int = 0
@@ -22,33 +21,15 @@ struct SplashScreen: View {
         GeometryReader { geometry in
             
             ZStack {
-                Color.primaryBackground
-                    .edgesIgnoringSafeArea(.all)
-                
-                VStack {
-                    Color.britishRacingGreen
-                        .frame(height: greenHeight)
-                        .ignoresSafeArea(.all)
-                        .onAppear {
-                            withAnimation(.easeInOut(duration: 1)) {
-                                greenHeight = geometry.size.height + 100
-                            }                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-                                withAnimation(.easeInOut(duration: 0.1)) {
-                                    
-                                    startAnimations()
-                                }
-                            }
-                        }
-                }.frame(height: geometry.size.height)
+
+                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                        .opacity(0.4)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
 
                 if showCode {
                    
                     codeView(geometry: geometry)
-                }
-    
-                if showLogo {
-                    carousel(geometry: geometry) .frame(width: geometry.size.width, height: geometry.size.width, alignment: .center)
                 }
             }
             .statusBar(hidden: true)
@@ -64,16 +45,10 @@ struct SplashScreen: View {
             } //TODO: Check this if is correct to call again. Check in this screen if namespace etc failed and make the alertMessage
         }
         .onAppear {
+            startAnimations()
             cloudKit.startCloudKit()
         }
-        
-        .onChange(of: currentSymbolIndex) { _, newValue in
-            
-            if newValue == symbols.count - 1 { // The index of symbols[""]
-                withAnimation {
-                    showLogo = false }
-            }
-        }
+
         .onChange(of: loadingComplete) {
             if loadingComplete {
                 withAnimation(.easeInOut(duration: 0.01)) {
@@ -95,38 +70,12 @@ struct SplashScreen: View {
             }
         }
     }
-    @ViewBuilder
-    private func carousel(geometry: GeometryProxy) -> some View {
-
-        VStack(spacing: 12) {
-                    Image(systemName: symbols[currentSymbolIndex])
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 90, height: 90)
-                        .foregroundStyle(Color.primaryBackground)
-                        .cornerRadius(8)
-                    Text("\(currentSymbolIndex + 1) / 4")
-                        .font(.largeTitle)
-                        .bold()
-                        .fontDesign(.rounded)
-                        .foregroundStyle(Color.primaryBackground)
-                        .contentTransition(.numericText())
-                }
-               
-        //.background(BlurView(style: .systemChromeMaterial).opacity(0.7))
-        .background(Color.britishRacingGreen.opacity(0.7))
-        .cornerRadius(20)
-                
-        
-    }
     
     private func startAnimations() {
         withAnimation {
             showCode = true
-            showLogo = true
         }
         startCodeAnimation()
-        startSymbolAnimation()
     }
     
     @ViewBuilder
@@ -146,21 +95,9 @@ struct SplashScreen: View {
         }
         .frame(width: geometry.size.width, alignment: .trailing).padding(.bottom, 12)
     }
-    
-    func startSymbolAnimation() {
-        
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-            withAnimation(.easeInOut(duration: 0.1)) {
-                
-                currentSymbolIndex += 1
-            }
-            if currentSymbolIndex >= symbols.count - 1 {
-                timer.invalidate()
-            }
-        }
-    }
-        
-        func startCodeAnimation() {
+
+
+        private func startCodeAnimation() {
             let lines = assemblyCode.split(separator: "\n").map { String($0) }
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
                 if currentLineIndex < lines.count {

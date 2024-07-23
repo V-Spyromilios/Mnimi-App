@@ -22,33 +22,47 @@ struct PromptLanguageView: View {
             _selectedLanguage = State(initialValue: .english)
         }
     }
+    
     var body: some View {
-        
-        SwiftLogoView().padding()
-        
-        List(LanguageCode.allCases, id: \.self) { language in
-            Button(action: {
-                self.selectedLanguage = language
-                saveLanguageSelection(language: language)
-            }) {
-                HStack() {
-                    Text(language.displayName)
-                        .foregroundStyle(colorScheme == .light ? .black : Color.smoothWhite)
-                    Spacer()
-                    if language == selectedLanguage {
-                        
-                        Text(language.flagEmoji).font(.title3)
+        ScrollView {
+            
+            VStack(spacing: 10) {
+                ForEach(LanguageCode.allCases, id: \.self) { language in
+                    Button(action: {
+                        self.selectedLanguage = language
+                        saveLanguageSelection(language: language)
+                    }) {
+                        HStack {
+                            Text(language.displayName)
+                                .foregroundStyle(colorScheme == .light ? .black : Color.smoothWhite)
+                            Spacer()
+                            if language == selectedLanguage {
+                                Text(language.flagEmoji).font(.title3)
+                            }
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background( Color.primaryBackground)
+                        .cornerRadius(10)
+                        .shadow(color: colorScheme == .dark ? .white : .black, radius: language == selectedLanguage ? 5 : 2)
+                        .contentShape(Rectangle())
+                        .accessibilityLabel("selected Language: \(language.rawValue)")
                     }
-                }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                    .contentShape(Rectangle()) // otherwise only text listens for taps and changes language.
-                    .accessibilityLabel("selected Language: \(language.rawValue)")
+                    .buttonStyle(PlainButtonStyle())
+                }
             }
-        }.padding(.top, 12)
-            .buttonStyle(PlainButtonStyle())
-            .background(Color.primaryBackground.ignoresSafeArea())
-            .navigationTitle("Prompt Language")
-            .navigationBarTitleDisplayMode(.large)
-            .navigationBarBackButtonHidden(true)
+            .padding(.top, 12)
+            .padding(.horizontal)
+        }
+        .background {
+            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                .opacity(0.4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+        }
+        .navigationTitle("Prompt Language")
+        .navigationBarTitleDisplayMode(.large)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
@@ -67,7 +81,6 @@ struct PromptLanguageView: View {
         UserDefaults.standard.set(language.rawValue, forKey: "selectedPromptLanguage")
     }
 }
-
 #Preview {
     PromptLanguageView()
 }

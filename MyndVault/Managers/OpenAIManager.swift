@@ -479,7 +479,7 @@ final class OpenAIManager: ObservableObject {
     
     
     func getGptPrompt(notifications: [CustomNotification], currentDate: String) -> String {
-        
+        //TODO: " avoid using time annotations like 'local time' " in other languages as well
         let notificationTexts = notifications.map { notification in
             "Title: \(notification.title), Body: \(notification.notificationBody), Date: \(notification.date)"
         }
@@ -494,7 +494,7 @@ Below is a list of scheduled notifications for the current month:
 
 Please provide a summary of these notifications, highlighting important events and any notable patterns. Ensure the summary is easy to understand, for example "Next Thursday you have to meet Jane for coffee at 6pm."
 
-Focus on creating a concise overview that can help the user quickly understand their upcoming schedule. Avoid using special characters like '*'.
+Focus on creating a concise overview that can help the user quickly understand their upcoming schedule. Avoid using special characters like '*', avoid using time annotations like 'local time'.
             
 """
         case .spanish:
