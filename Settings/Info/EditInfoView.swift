@@ -169,7 +169,7 @@ struct EditInfoView: View {
         
         let metadata = toDictionary(desc: self.viewModel.description)
         do {
-            await openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
+            try await openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
             
             if !openAiManager.embeddings.isEmpty {
                 try await pineconeManager.upsertDataToPinecone(id: self.viewModel.id, vector: openAiManager.embeddings, metadata: metadata)

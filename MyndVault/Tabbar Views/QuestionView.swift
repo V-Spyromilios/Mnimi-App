@@ -40,7 +40,6 @@ struct QuestionView: View {
                     Text("Question").bold()
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
-                    .navigationBarTitleView { LottieRepresentable(filename: "CloudDownload").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
                 
                 TextEditor(text: $question)
                     .fontDesign(.rounded)
@@ -58,41 +57,40 @@ struct QuestionView: View {
                     .padding(.bottom)
                     .padding(.horizontal, standardCardPadding)
                 VStack {
-                    VStack {
-                    if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-                        
-//                        ErrorView(thrownError: thrownError)
-//                            .padding(.horizontal, 7)
-//                                .padding(.vertical)
+                
+                        if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
+                            
+                            //                        ErrorView(thrownError: thrownError)
+                            //                            .padding(.horizontal, 7)
+                            //                                .padding(.vertical)
                             ClearButton
                                 .padding(.bottom)
-                        
                     }
-                    else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
-                       
-//                        ErrorView(thrownError: thrownError)
-//                            .padding(.horizontal, 7)
-//                            .padding(.vertical)
-                        ClearButton
-                            .padding(.bottom)
-                        
-                    }
-                    else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-                        
-//                        ErrorView(thrownError: thrownError)
-//                            .padding(.horizontal, 7)
-//                            .padding(.vertical)
-                        ClearButton
-                            .padding(.bottom)
-                        
-                    }
-                }
+//                    else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
+//                       
+////                        ErrorView(thrownError: thrownError)
+////                            .padding(.horizontal, 7)
+////                            .padding(.vertical)
+//                        ClearButton
+//                            .padding(.bottom)
+//                        
+//                    }
+//                    else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
+//                        
+////                        ErrorView(thrownError: thrownError)
+////                            .padding(.horizontal, 7)
+////                            .padding(.vertical)
+//                        ClearButton
+//                            .padding(.bottom)
+//                        
+//                    }
+                
                     VStack {
-                        if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                        if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && pineconeManager.receivedError == nil {
                             GoButton
                                 .padding(.bottom)
                         }
-                        else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && openAiManager.thrownError == "" && pineconeManager.receivedError == nil {
+                        else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
                             
                             LottieRepresentable(filename: "Ai Cloud",loopMode: .loop, speed: 0.8)
@@ -267,14 +265,15 @@ struct QuestionView: View {
             }
         }
         .onDisappear {
-            if thrownError != "" || openAiManager.thrownError != "" || pineconeManager.receivedError != nil {
+            if thrownError != "" || pineconeManager.receivedError != nil {
                 performClearTask()
             }
         }
     }
 
     }
-
+    
+     
     private var GoButton: some View {
         Button(action: performTask) {
             ZStack {
@@ -324,11 +323,12 @@ struct QuestionView: View {
             self.goButtonIsVisible = true
             progressTracker.reset()
             if isLoading { isLoading = false }
-        }
+            
             Task {
                 await openAiManager.clearManager()
                 await pineconeManager.clearManager()
             }
+        }
     }
     
     private func performTask() {
@@ -339,23 +339,21 @@ struct QuestionView: View {
             withAnimation { shake = true }
             return
         }
-
         withAnimation {
             goButtonIsVisible = false
             hideKeyboard()
             isLoading = true
             progressTracker.reset()
         }
-
         Task {
-            await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
-            
-            guard openAiManager.questionEmbeddingsCompleted else {
-                isLoading = false
-                return
-            }
-
             do {
+                try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
+                
+                guard openAiManager.questionEmbeddingsCompleted else {
+                    isLoading = false
+                    return
+                }
+
                 progressTracker.setProgress(to: 0.35)
                 try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
                 

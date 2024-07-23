@@ -54,7 +54,7 @@ let smallTextEditorHeight: CGFloat = 50
 let contentUnaivalableOffset: CGFloat = 40
 
 let buttonHeight: CGFloat = 50
-let backgroundSpeed: CGFloat = 0.8
+let backgroundSpeed: CGFloat = 0.6
 let standardCardPadding: CGFloat = 16
 //let greenGradient = LinearGradient(gradient: Gradient(colors: [Color.customLightBlue.opacity(0.7), Color.customLightBlue.opacity(0.8), Color.britishRacingGreen.opacity(0.9),
 //    Color.customLightBlue]), startPoint: .top, endPoint: .bottom)
