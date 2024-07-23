@@ -17,85 +17,142 @@ struct VaultView: View {
     @State private var errorMessage: String = ""
     @State private var showEmpty: Bool = false
     @State private var showNoInternet = false
+    @State private var searchText: String = ""
+    @State private var selectedInfo : Vector?
+    @State private var showEdit: Bool = false
+    
+    var filteredVectors: [Vector] {
+        if searchText.isEmpty {
+            return pineconeManger.pineconeFetchedVectors
+        } else {
+            return pineconeManger.pineconeFetchedVectors.filter { vector in
+                if let description = vector.metadata["description"] {
+                    return description.lowercased().contains(searchText.lowercased())
+                }
+                return false
+            }
+        }
+    }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack() {
-                    if vectorsAreLoading {
-                        ProgressView()
-                            .font(.title)
-                            .scaleEffect(1.5)
-                            .bold()
-                            .background(Color.clear.ignoresSafeArea())
-                            .foregroundStyle(Color.britishRacingGreen)//TODO: Replace with Lottie
-                            .padding(.top, 20)
-                    }
-                    
-                    else if !vectorsAreLoading && !pineconeManger.pineconeFetchedVectors.isEmpty && errorMessage == "" {
-                        ForEach(pineconeManger.pineconeFetchedVectors.indices, id: \.self) { index in
-                                                       let data = pineconeManger.pineconeFetchedVectors[index]
-                            
-                            NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
-                                InfosViewListCellView(data: data)
-                                    .padding(.horizontal, 7)
-                                    .padding(.vertical, 12)
+        GeometryReader { geometry in
+            NavigationStack {
+               
+                ScrollView {
+                    LazyVStack {
+                        if vectorsAreLoading {
+                            ProgressView()
+                                .font(.title)
+                                .scaleEffect(1.5)
+                                .bold()
+                                .background(Color.clear.ignoresSafeArea())
+                                .foregroundStyle(Color.customLightBlue)//TODO: Replace with Lottie
+                                .padding(.top, 20)
+                        }
+                        
+                        else if !vectorsAreLoading && !pineconeManger.pineconeFetchedVectors.isEmpty && errorMessage == "" {
+                            ForEach(filteredVectors.indices.indices, id: \.self) { index in
+//                                let data = pineconeManger.pineconeFetchedVectors[index]
+                                let data = filteredVectors[index]
+                                
+//                                InfosViewListCellView(data: data).id(UUID())
+//                                    .onTapGesture {
+//                                        print("Tapped: \(String(describing: data.metadata["description"]))")
+//                                        self.selectedInfo = data
+//                                        
+//                                        print("selectedInfo: \(String(describing: selectedInfo))")
+//                                        showEdit.toggle()
+//                                    }
+//                                    .padding(.horizontal, standardCardPadding)
+//                                    .padding(.vertical, 12)
+                                    
+                                
+                                NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
+                                    InfosViewListCellView(data: data)
+                                        .padding(.horizontal, standardCardPadding)
+                                        .padding(.vertical)
+                                }
                             }
                         }
-                    }
-                    //TODO: Empty the Vault to check:
-                    else if showEmpty && !vectorsAreLoading  && errorMessage == "" {
-                        VStack {
-                            LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
-                            TypingTextView(fullText: "No Info has been saved yet. Add whatever you want to remember!")
-                                .padding(.horizontal)
+                        //TODO: Empty the Vault to check:
+                        else if showEmpty && !vectorsAreLoading  && errorMessage == "" {
+                            VStack {
+                                LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
+                                TypingTextView(fullText: "No Info has been saved yet. Add whatever you want to remember!")
+                                    .padding(.horizontal)
+                                
+                            }
+                        }
+                        
+                        else if errorMessage != "" {
+                            ErrorView(thrownError: errorMessage) {
+                                self.errorMessage = ""
+                            }
+                        }
                             
+                    }
+                    .searchable(text: $searchText)
+
+                }
+               
+                .refreshable {
+                    vectorsAreLoading = true
+                    if errorMessage != "" {
+                        errorMessage = ""
+                    }
+                    Task {
+                        do {
+                            //                        throw AppNetworkError.invalidOpenAiURL
+                            try await pineconeManger.refreshNamespacesIDs()
+                            await MainActor.run { vectorsAreLoading = false }
+                        }
+                        catch let error as AppNetworkError {
+                            await MainActor.run {
+                                self.errorMessage = error.errorDescription }
+                        }
+                        catch let error as AppCKError {
+                            await MainActor.run {
+                                self.errorMessage = error.errorDescription }
+                        }
+                        catch {
+                            await MainActor.run {
+                                self.errorMessage = error.localizedDescription }
                         }
                     }
-                    
-                    else if errorMessage != "" {
-                        ErrorView(thrownError: errorMessage,extraMessage: "Scroll down to try again!").padding(.horizontal, 7)
-                    }
                 }
-            }
-            .refreshable {
-                vectorsAreLoading = true
-                if errorMessage != "" {
-                    errorMessage = ""
+                .background {
+                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                        .opacity(0.4)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
                 }
-                Task {
-                    do {
-//                        throw AppNetworkError.invalidOpenAiURL
-                        try await pineconeManger.refreshNamespacesIDs()
-                        await MainActor.run { vectorsAreLoading = false }
-                    }
-                    catch let error as AppNetworkError {
-                        await MainActor.run {
-                            self.errorMessage = error.errorDescription }
-                    }
-                    catch let error as AppCKError {
-                        await MainActor.run {
-                            self.errorMessage = error.errorDescription }
-                    }
-                    catch {
-                        await MainActor.run {
-                            self.errorMessage = error.localizedDescription }
-                    }
+                .navigationBarTitleView {
+                    HStack {
+                        Text("Vault").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                        LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
                 }
-            }
-            //.navigationTitle("Vault 🗃️")
-            .navigationBarTitleView { LottieRepresentable(filename: "smallVault").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
-            //.navigationBarTitleDisplayMode(.large)
-            .background { Color.primaryBackground.ignoresSafeArea() }
+                }
+           
         }
+//            .fullScreenCover(isPresented: $showEdit, onDismiss: clearSelectedInfo) {
+//                if selectedInfo != nil {
+//                    //                        CombinedInfoView(viewModel: EditInfoViewModel(vector: data))
+//                    EditInfoView(viewModel: EditInfoViewModel(vector: selectedInfo!))
+////                    Text(data.metadata["description"] ?? "defaulted")
+//                } else {
+//                    Text("POUTSA").bold()
+//                }
+//            }
+            
+       
         //        .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .alert(isPresented: $showAlert) {
-//            Alert(
-//                title: Text("Error fetching Info"),
-//                message: Text("\(alertMessage), Scroll down to retry!"),
-//                dismissButton: .default(Text("OK"))
-//            )
-//        }
+        //        .alert(isPresented: $showAlert) {
+        //            Alert(
+        //                title: Text("Error fetching Info"),
+        //                message: Text("\(alertMessage), Scroll down to retry!"),
+        //                dismissButton: .default(Text("OK"))
+        //            )
+        //        }
         .onAppear {
             if pineconeManger.pineconeFetchedVectors.isEmpty {
                 self.vectorsAreLoading = true
@@ -103,7 +160,7 @@ struct VaultView: View {
             }
         }
         .onReceive(pineconeManger.$pineconeFetchedVectors) { vectors in
-
+            
             if vectors.isEmpty {
                 showEmpty = true
             }
@@ -120,13 +177,16 @@ struct VaultView: View {
                 showNoInternet = true
             }
         }
+        
     }
 
         func minY(_ proxy: GeometryProxy) -> CGFloat {
             let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
             return minY < 0 ? -minY : 0
         }
-        
+    private func clearSelectedInfo() {
+        self.selectedInfo = nil
+    }
 
         func scale(_ proxy: GeometryProxy, scale: CGFloat = 0.1) -> CGFloat {
             let val = 1.0 - (progress(proxy) * scale)

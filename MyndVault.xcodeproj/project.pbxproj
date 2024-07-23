@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E8002B512C4C442400FD814D /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8002B502C4C442400FD814D /* Test.swift */; };
+		E8002B5E2C4C702700FD814D /* Gradient Background.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B5A2C4C702700FD814D /* Gradient Background.json */; };
+		E8002B602C4C702700FD814D /* Background Lines.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B5C2C4C702700FD814D /* Background Lines.json */; };
+		E8002B612C4C702700FD814D /* Waves.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B5D2C4C702700FD814D /* Waves.json */; };
+		E8002B652C4C951D00FD814D /* robotForQuestion.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B642C4C951D00FD814D /* robotForQuestion.json */; };
+		E8002B672C4CC10100FD814D /* UploadingFile.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B662C4CC10100FD814D /* UploadingFile.json */; };
+		E8002B692C4CC2AA00FD814D /* Settings.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B682C4CC2AA00FD814D /* Settings.json */; };
+		E8002B6D2C4CC60700FD814D /* CancelButton.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B6A2C4CC60700FD814D /* CancelButton.json */; };
+		E8002B6E2C4CC60700FD814D /* PowerOffButton.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B6B2C4CC60700FD814D /* PowerOffButton.json */; };
+		E8002B6F2C4CC60700FD814D /* Vertical Dot Menu.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B6C2C4CC60700FD814D /* Vertical Dot Menu.json */; };
 		E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E813C76C2BECF51900E3088D /* CountdownTimer.swift */; };
 		E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */ = {isa = PBXBuildFile; fileRef = E814B82A2C433CA6004BC4F4 /* Approved.json */; };
 		E814B82D2C4340D9004BC4F4 /* alertWarning.json in Resources */ = {isa = PBXBuildFile; fileRef = E814B82C2C4340D9004BC4F4 /* alertWarning.json */; };
@@ -50,11 +60,6 @@
 		E877FA292C4A953D002FBFFC /* smallVault.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA282C4A953D002FBFFC /* smallVault.json */; };
 		E877FA2B2C4A98A6002FBFFC /* noNotifications.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA2A2C4A98A6002FBFFC /* noNotifications.json */; };
 		E877FA2D2C4A9FB6002FBFFC /* TypingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */; };
-		E877FA312C4AB75E002FBFFC /* cloudDownloading.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA2E2C4AB75E002FBFFC /* cloudDownloading.json */; };
-		E877FA322C4AB75E002FBFFC /* notificationBellTapBar.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA2F2C4AB75E002FBFFC /* notificationBellTapBar.json */; };
-		E877FA332C4AB75E002FBFFC /* cloudUploading.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA302C4AB75E002FBFFC /* cloudUploading.json */; };
-		E877FA362C4ABB17002FBFFC /* Cloud Upload.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA342C4ABB17002FBFFC /* Cloud Upload.json */; };
-		E877FA372C4ABB17002FBFFC /* CloudDownload.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA352C4ABB17002FBFFC /* CloudDownload.json */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
 		E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */; };
 		E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */; };
@@ -68,6 +73,10 @@
 		E8B4D5102BF8F17400F2A174 /* LoggedOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */; };
 		E8B50D8A2C24AD9900AC15DF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */; };
 		E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */; };
+		E8C7E2922C4D3BB2009760F2 /* Bell ringing notification.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */; };
+		E8C7E2942C4D3E8B009760F2 /* AddNotification.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2932C4D3E8B009760F2 /* AddNotification.json */; };
+		E8C7E2962C4D4205009760F2 /* Add.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2952C4D4205009760F2 /* Add.json */; };
+		E8C7E2982C4D460C009760F2 /* Delete.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2972C4D460C009760F2 /* Delete.json */; };
 		E8CFEAF82C395876005A2630 /* VisualEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8CFEAF72C395876005A2630 /* VisualEffect.swift */; };
 		E8CFEAFA2C3D5064005A2630 /*  openSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */; };
 		E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8CFEAFB2C3D5CF1005A2630 /* SF-Mono-Semibold.otf */; };
@@ -92,6 +101,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E8002B502C4C442400FD814D /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
+		E8002B5A2C4C702700FD814D /* Gradient Background.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Gradient Background.json"; sourceTree = "<group>"; };
+		E8002B5C2C4C702700FD814D /* Background Lines.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Background Lines.json"; sourceTree = "<group>"; };
+		E8002B5D2C4C702700FD814D /* Waves.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Waves.json; sourceTree = "<group>"; };
+		E8002B642C4C951D00FD814D /* robotForQuestion.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = robotForQuestion.json; sourceTree = "<group>"; };
+		E8002B662C4CC10100FD814D /* UploadingFile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = UploadingFile.json; sourceTree = "<group>"; };
+		E8002B682C4CC2AA00FD814D /* Settings.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Settings.json; sourceTree = "<group>"; };
+		E8002B6A2C4CC60700FD814D /* CancelButton.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CancelButton.json; sourceTree = "<group>"; };
+		E8002B6B2C4CC60700FD814D /* PowerOffButton.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = PowerOffButton.json; sourceTree = "<group>"; };
+		E8002B6C2C4CC60700FD814D /* Vertical Dot Menu.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Vertical Dot Menu.json"; sourceTree = "<group>"; };
 		E813C76C2BECF51900E3088D /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		E814B82A2C433CA6004BC4F4 /* Approved.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Approved.json; sourceTree = "<group>"; };
 		E814B82C2C4340D9004BC4F4 /* alertWarning.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = alertWarning.json; sourceTree = "<group>"; };
@@ -135,11 +154,6 @@
 		E877FA282C4A953D002FBFFC /* smallVault.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = smallVault.json; sourceTree = "<group>"; };
 		E877FA2A2C4A98A6002FBFFC /* noNotifications.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = noNotifications.json; sourceTree = "<group>"; };
 		E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingTextView.swift; sourceTree = "<group>"; };
-		E877FA2E2C4AB75E002FBFFC /* cloudDownloading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cloudDownloading.json; sourceTree = "<group>"; };
-		E877FA2F2C4AB75E002FBFFC /* notificationBellTapBar.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = notificationBellTapBar.json; sourceTree = "<group>"; };
-		E877FA302C4AB75E002FBFFC /* cloudUploading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cloudUploading.json; sourceTree = "<group>"; };
-		E877FA342C4ABB17002FBFFC /* Cloud Upload.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Cloud Upload.json"; sourceTree = "<group>"; };
-		E877FA352C4ABB17002FBFFC /* CloudDownload.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CloudDownload.json; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact.otf"; sourceTree = "<group>"; };
@@ -154,6 +168,10 @@
 		E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Bell ringing notification.json"; sourceTree = "<group>"; };
+		E8C7E2932C4D3E8B009760F2 /* AddNotification.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AddNotification.json; sourceTree = "<group>"; };
+		E8C7E2952C4D4205009760F2 /* Add.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Add.json; sourceTree = "<group>"; };
+		E8C7E2972C4D460C009760F2 /* Delete.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Delete.json; sourceTree = "<group>"; };
 		E8CFEAF72C395876005A2630 /* VisualEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffect.swift; sourceTree = "<group>"; };
 		E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " openSettingsView.swift"; sourceTree = "<group>"; };
 		E8CFEAFB2C3D5CF1005A2630 /* SF-Mono-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Mono-Semibold.otf"; sourceTree = "<group>"; };
@@ -252,6 +270,7 @@
 			children = (
 				E8FA7F012BC5BC320012EBF6 /* VaultView.swift */,
 				E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */,
+				E8002B502C4C442400FD814D /* Test.swift */,
 				E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */,
 				E838498F2C3471B200C7E390 /* FullScreenImage.swift */,
 				E82F456B2BC2A77E00945312 /* NotificationsView.swift */,
@@ -318,11 +337,16 @@
 		E85055012C428B6800FBACC4 /* Lotties */ = {
 			isa = PBXGroup;
 			children = (
-				E877FA342C4ABB17002FBFFC /* Cloud Upload.json */,
-				E877FA352C4ABB17002FBFFC /* CloudDownload.json */,
-				E877FA2E2C4AB75E002FBFFC /* cloudDownloading.json */,
-				E877FA302C4AB75E002FBFFC /* cloudUploading.json */,
-				E877FA2F2C4AB75E002FBFFC /* notificationBellTapBar.json */,
+				E8C7E2952C4D4205009760F2 /* Add.json */,
+				E8002B6A2C4CC60700FD814D /* CancelButton.json */,
+				E8002B6B2C4CC60700FD814D /* PowerOffButton.json */,
+				E8002B6C2C4CC60700FD814D /* Vertical Dot Menu.json */,
+				E8002B682C4CC2AA00FD814D /* Settings.json */,
+				E8002B662C4CC10100FD814D /* UploadingFile.json */,
+				E8002B642C4C951D00FD814D /* robotForQuestion.json */,
+				E8002B5C2C4C702700FD814D /* Background Lines.json */,
+				E8002B5A2C4C702700FD814D /* Gradient Background.json */,
+				E8002B5D2C4C702700FD814D /* Waves.json */,
 				E877FA2A2C4A98A6002FBFFC /* noNotifications.json */,
 				E877FA282C4A953D002FBFFC /* smallVault.json */,
 				E877FA262C4A92D4002FBFFC /* Woman_vault.json */,
@@ -342,6 +366,7 @@
 			isa = PBXGroup;
 			children = (
 				E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */,
+				E8C7E2972C4D460C009760F2 /* Delete.json */,
 				E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */,
 				E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */,
 				E87FB25E2BC96EA000B1A16D /* InfoView.swift */,
@@ -373,6 +398,8 @@
 				E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */,
 				E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */,
 				E82F45892BC2A85D00945312 /* CustomTapBarView.swift */,
+				E8C7E2932C4D3E8B009760F2 /* AddNotification.json */,
+				E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */,
 				E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */,
 				E8FA7F072BC5BC320012EBF6 /* Settings View.swift */,
 			);
@@ -451,28 +478,36 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E8C7E2962C4D4205009760F2 /* Add.json in Resources */,
+				E8002B612C4C702700FD814D /* Waves.json in Resources */,
+				E8002B6E2C4CC60700FD814D /* PowerOffButton.json in Resources */,
+				E8002B6D2C4CC60700FD814D /* CancelButton.json in Resources */,
 				E877FA272C4A92D4002FBFFC /* Woman_vault.json in Resources */,
 				E8B50D8A2C24AD9900AC15DF /* PrivacyInfo.xcprivacy in Resources */,
 				E85055092C42CF2A00FBACC4 /* Image Recognition.json in Resources */,
+				E8002B602C4C702700FD814D /* Background Lines.json in Resources */,
+				E8002B672C4CC10100FD814D /* UploadingFile.json in Resources */,
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
 				E85055072C42C6A000FBACC4 /* Brain Configurations.json in Resources */,
+				E8C7E2922C4D3BB2009760F2 /* Bell ringing notification.json in Resources */,
+				E8002B6F2C4CC60700FD814D /* Vertical Dot Menu.json in Resources */,
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
+				E8C7E2982C4D460C009760F2 /* Delete.json in Resources */,
 				E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */,
 				E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */,
+				E8002B652C4C951D00FD814D /* robotForQuestion.json in Resources */,
 				E8BFD34E2BC58A4E00355B44 /* GoogleService-Info.plist in Resources */,
-				E877FA362C4ABB17002FBFFC /* Cloud Upload.json in Resources */,
 				E877FA2B2C4A98A6002FBFFC /* noNotifications.json in Resources */,
-				E877FA322C4AB75E002FBFFC /* notificationBellTapBar.json in Resources */,
+				E8002B692C4CC2AA00FD814D /* Settings.json in Resources */,
 				E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */,
+				E8C7E2942C4D3E8B009760F2 /* AddNotification.json in Resources */,
 				E85055032C428B7C00FBACC4 /* Swift.json in Resources */,
-				E877FA332C4AB75E002FBFFC /* cloudUploading.json in Resources */,
+				E8002B5E2C4C702700FD814D /* Gradient Background.json in Resources */,
 				E8CFEAFE2C3D5D52005A2630 /* NewYork.ttf in Resources */,
 				E877FA292C4A953D002FBFFC /* smallVault.json in Resources */,
 				E814B82D2C4340D9004BC4F4 /* alertWarning.json in Resources */,
 				E850550B2C42D42300FBACC4 /* Ai Cloud.json in Resources */,
-				E877FA312C4AB75E002FBFFC /* cloudDownloading.json in Resources */,
 				E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */,
-				E877FA372C4ABB17002FBFFC /* CloudDownload.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -535,6 +570,7 @@
 				E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */,
 				E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
+				E8002B512C4C442400FD814D /* Test.swift in Sources */,
 				E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */,
 				E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */,
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,

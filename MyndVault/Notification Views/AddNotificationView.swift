@@ -24,7 +24,10 @@ struct AddNotificationView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.primaryBackground.ignoresSafeArea()
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
             VStack {
                 HStack {
                     Image(systemName: "pencil").bold()
@@ -102,7 +105,7 @@ struct AddNotificationView: View {
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
-                                .fill(Color.primaryAccent)
+                                .fill(Color.customLightBlue)
                                 .frame(height: buttonHeight)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             
@@ -133,6 +136,12 @@ struct AddNotificationView: View {
                                     HideKeyboardLabel()
                                 }
                         }
+                    }
+                }
+                .navigationBarTitleView {
+                    HStack {
+                        Text("Add New Notification").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+    //                    LottieRepresentable(filename: "").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
                     }
                 }
         }

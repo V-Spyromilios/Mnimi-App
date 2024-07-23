@@ -23,6 +23,10 @@ struct NotificationsView: View {
     @State var selectedNotification: CustomNotification?
     @State private var selectedOption: viewOptions = .Notifications
     @State private var showEmpty: Bool = false
+    @State private var plusIsAnimating: Bool = false
+    @State private var emptyIsAnimating: Bool = false
+    @State private var showError: Bool = false
+    
     
     enum viewOptions: String, CaseIterable, Identifiable {
         case Notifications = "Notifications"
@@ -56,7 +60,7 @@ struct NotificationsView: View {
                                         .scaleEffect(1.5)
                                         .bold()
                                         .background(Color.clear.ignoresSafeArea())
-                                        .foregroundStyle(Color.britishRacingGreen)
+                                    // .foregroundStyle(Color.customLightBlue)
                                     Spacer()
                                 }
                             } else if !manager.scheduledNotifications.isEmpty && !openAi.notificationsSummary.isEmpty {
@@ -76,26 +80,28 @@ struct NotificationsView: View {
                                                 .fill(colorScheme == .light ? Color.white : Color.black)
                                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                         )
-                                        .padding(.horizontal, 7)
+                                        .padding(.horizontal, standardCardPadding)
                                         .padding(.vertical, 9)
-                                }
-                                .background(Color.primaryBackground.ignoresSafeArea())
-                            } else if !errorMessage.isEmpty {
-                                ScrollView {
-                                    VStack {
-                                        ErrorView(thrownError: errorMessage, extraMessage: "Scroll down to try again!")
-                                            .padding(.horizontal, 7)
-                                            .padding(.top, 9)
-                                        Spacer()
-                                    }
-                                }
-                                .refreshable {
+                                }.refreshable {
                                     if !errorMessage.isEmpty {
                                         errorMessage = ""
                                     }
                                     await getSummary()
                                 }
-                            }
+                                
+                            } 
+                            //TODO: Delete this we call .overlay
+//                            else if !errorMessage.isEmpty {
+//                                ScrollView {
+//                                    VStack {
+//                                        ErrorView(thrownError: errorMessage, extraMessage: "Scroll down to try again!")
+//                                            .padding(.horizontal, standardCardPadding)
+//                                            .padding(.top, 9)
+//                                        Spacer()
+//                                    }
+//                                }
+//                                
+//                            }
                         } else if selectedOption == .Notifications && !manager.scheduledNotifications.isEmpty  {
                             ScrollView {
                                 ForEach(manager.scheduledNotifications.indices, id: \.self) { index in
@@ -103,20 +109,20 @@ struct NotificationsView: View {
                                     
                                     NotificationCellView(notification: notification)
                                         .padding(.vertical)
-                                        .padding(.horizontal, 9)
+                                        .padding(.horizontal, standardCardPadding)
                                 }
                             }
                         }
                         
                         if !isLoadingSummary && manager.scheduledNotifications.isEmpty && showEmpty {
                             VStack {
-                                //Spacer()
-                                LottieRepresentable(filename: "noNotifications")
+                            //TODO: Check if this animation plays only once in view appearance first time, and when the nots become empty
+                                LottieRepresentable(filename: "noNotifications", loopMode: .playOnce, isPlaying: $emptyIsAnimating)
                                     .frame(height: 300)
-                                TypingTextView(fullText: "All quite for now!\nScheduled Notifications will appear here")
+                                TypingTextView(fullText: "All quiet for now!\nScheduled Notifications will appear here")
                                     .frame(width: screenWidth)
                                     .padding(.horizontal)
-                                    //.offset(y: -100)
+                             
                                 Spacer()
                             }
                         }
@@ -124,8 +130,27 @@ struct NotificationsView: View {
                     .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
                 }
             }
-            .background { Color.primaryBackground.ignoresSafeArea() }
-            .navigationBarTitleView { LottieRepresentable(filename: "notificationBellTapBar").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
+            .overlay {
+                if showError {
+                    ErrorView(thrownError: errorMessage) {
+                        errorMessage = ""
+                        
+                    }
+                        .transition(AnyTransition(.move(edge: .bottom)))
+//                        .transition(AnyTransition(.opacity))
+                }
+            }
+            .background {
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+            }
+            .navigationBarTitleView {
+                HStack {
+                    Text("Notifications").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                    LottieRepresentableNavigation(filename: "Bell ringing notification").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button {
@@ -133,18 +158,13 @@ struct NotificationsView: View {
                             showAddNotification.toggle()
                         }
                     } label: {
-                        Circle()
-                            .foregroundStyle(Color.gray.opacity(0.6))
-                            .frame(height: 30)
-                            .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
-                            .overlay {
-                                Text("➕")
-                            }
+                        LottieRepresentable(filename: "Add",loopMode: showEmpty == true && manager.scheduledNotifications.isEmpty  ? .loop : .playOnce).frame(width: 45, height: 45).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0).opacity(0.8)
                     }
                     .padding()
                     .accessibilityLabel("Add new notification")
                 }
             }
+            
             .sheet(isPresented: $showAddNotification) {
                 AddNotificationView(dismissAction: {
                     showAddNotification = false
@@ -153,8 +173,10 @@ struct NotificationsView: View {
             .onChange(of: manager.scheduledNotifications) {
                 if manager.scheduledNotifications.isEmpty {
                     showEmpty = true
+                    emptyIsAnimating = true
                 }
                 else {
+                    emptyIsAnimating = false
                     Task { await getSummary() }
                 }
             }
@@ -163,11 +185,19 @@ struct NotificationsView: View {
                     showNoInternet = true
                 }
             }
+            .onChange(of: errorMessage) { message in
+                if message != "" {
+                    showError = true
+                }
+                else { showError = false }
+            }
             .onAppear {
                 if manager.scheduledNotifications.isEmpty {
                     showEmpty = true
+                    emptyIsAnimating = true
                 }
                 else {
+                    emptyIsAnimating = false
                     Task { await getSummary() }
                 }
             }
@@ -184,6 +214,7 @@ struct NotificationsView: View {
     private func getSummary() async {
         await MainActor.run { isLoadingSummary = true }
         do {
+            throw AppCKError.iCloudAccountNotFound
             try await openAi.getMonthlySummary(notifications: manager.scheduledNotifications)
             await MainActor.run { isLoadingSummary = false }
         } catch let error as AppNetworkError {

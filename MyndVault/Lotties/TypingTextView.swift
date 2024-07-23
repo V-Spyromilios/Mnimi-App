@@ -15,14 +15,16 @@ struct TypingTextView: View {
     var typingSpeed: Double =  0.1
 
     var body: some View {
-        Text(displayedText)
-            .font(Font.custom("SF Mono Semibold", size: 16))
-            .multilineTextAlignment(.leading)
-            .padding(.horizontal)
-            .onAppear {
-                if !hasTyped {
-                    typeText() }
-            }
+        HStack {
+            Text(displayedText)
+                .font(Font.custom("SF Mono Semibold", size: 16))
+                .multilineTextAlignment(.leading)
+                .padding(.horizontal)
+                .onAppear {
+                    if !hasTyped {
+                        typeText() }
+                }
+        }.frame(maxWidth: .infinity)
     }
 
     private func typeText() {

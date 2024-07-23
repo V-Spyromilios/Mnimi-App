@@ -35,10 +35,19 @@ struct MainView: View {
             }
             else if cloudKitViewModel.CKErrorDesc != "" {
                 
-                let error = cloudKitViewModel.CKErrorDesc
-                ErrorView(thrownError: "CloudKit Error", extraMessage: error)
+                let errorDesc = cloudKitViewModel.CKErrorDesc
+                let errorTitle = "CloudKit Error"
+                ErrorView(thrownError: errorTitle, extraMessage: errorDesc) {
+                    self.cloudKitViewModel.CKErrorDesc = ""
+                }
                 
             }
+        }
+        .background {
+            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                .opacity(0.4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
         }
     }
 
