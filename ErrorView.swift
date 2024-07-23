@@ -11,10 +11,12 @@ struct ErrorView: View {
     
     var thrownError: String
     var extraMessage: String?
-    var dismissAction: () -> Void
     @Environment(\.colorScheme) var colorScheme
+    var dismissAction: () -> Void
     
     var body: some View {
+        ScrollView {
+            
         VStack {
             Spacer()
             VStack {
@@ -26,7 +28,8 @@ struct ErrorView: View {
                         .multilineTextAlignment(.leading).padding(.bottom)
                 }
                 Button(action: {
-                    dismissAction()
+                    withAnimation {
+                        dismissAction() }
                 }) {
                     Text("Dismiss")
                         .font(.headline)
@@ -34,22 +37,22 @@ struct ErrorView: View {
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
-                }
+                }.padding(.bottom)
             }.background(colorScheme == .light ? Color.white : Color.darkGray2)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                .shadow(color: colorScheme == .light ? Color.customShadow : Color.yellow, radius: colorScheme == .light ? 5 : 5, x: 0, y: 0)
+                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 5, x: 0, y: 0)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10.0)
                         .stroke(lineWidth: 1)
                         .opacity(colorScheme == .light ? 0.3 : 0.7)
-                        .foregroundColor(colorScheme == .light ? Color.gray: Color.yellow)
+                        .foregroundColor(Color.gray)
                 )
             Spacer()
-        }
+        }.frame(maxHeight: .infinity)
         .padding(.horizontal, standardCardPadding)
-        .background {  Color.clear.background(.ultraThinMaterial).ignoresSafeArea() }
+//        .background {  Color.clear.background(.ultraThinMaterial).ignoresSafeArea() }
         
-        
+        }.background(Color.clear.background(.ultraThinMaterial).ignoresSafeArea() )
     }
 }
 

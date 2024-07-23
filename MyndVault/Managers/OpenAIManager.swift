@@ -28,7 +28,7 @@ final class OpenAIManager: ObservableObject {
     @Published var questionEmbeddingsCompleted: Bool = false
     @Published var embeddingsCompleted: Bool = false
     @Published var gptResponseForAudioGeneration: String?
-    @Published var thrownError: String = ""
+
     @Published var notificationsSummary = ""
     private var lastGptAudioResponse: URL?
     private var tokensRequired:Int = 0
@@ -63,7 +63,6 @@ final class OpenAIManager: ObservableObject {
             embeddingsCompleted = false
             gptResponseForAudioGeneration = nil
             stringResponseOnQuestion = ""
-            thrownError = ""
         }
         //        print("clearManager() called.")
     }
@@ -72,7 +71,7 @@ final class OpenAIManager: ObservableObject {
     //MARK: requestEmbeddings USED in QuestionView
     // call with MetadataResponse.description
     
-    func requestEmbeddings(for text: String, isQuestion: Bool) async {
+    func requestEmbeddings(for text: String, isQuestion: Bool) async throws {
         ProgressTracker.shared.setProgress(to: 0.12)
         
         let maxAttempts = 3
@@ -112,9 +111,12 @@ final class OpenAIManager: ObservableObject {
                 self.tokensRequired = response.usage.totalTokens
             }
         } else if localError != nil {
-            await MainActor.run {
-                self.thrownError = AppNetworkError.unknownError("Error 2.12").errorDescription
+            if let localError = localError {
+                throw localError
             }
+//            await MainActor.run {
+//                self.thrownError = AppNetworkError.unknownError("Error 2.12").errorDescription
+//            }
         }
         
         if isQuestion {
@@ -404,7 +406,7 @@ final class OpenAIManager: ObservableObject {
         guard let apiKey = ApiConfiguration.openAIKey else {
             throw AppNetworkError.apiKeyNotFound
         }
-        
+       
         let currentDate = Date()
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.timeZone = TimeZone.current

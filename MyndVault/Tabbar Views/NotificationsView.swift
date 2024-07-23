@@ -8,6 +8,7 @@
 import SwiftUI
 import UserNotifications
 
+
 struct NotificationsView: View {
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
@@ -52,61 +53,59 @@ struct NotificationsView: View {
                 GeometryReader { geometry in
                     VStack {
                         if selectedOption == .Summary {
-                            if isLoadingSummary && errorMessage.isEmpty {
-                                VStack {
-                                    Spacer()
-                                    ProgressView()
-                                        .font(.title)
-                                        .scaleEffect(1.5)
-                                        .bold()
-                                        .background(Color.clear.ignoresSafeArea())
-                                    // .foregroundStyle(Color.customLightBlue)
-                                    Spacer()
-                                }
-                            } else if !manager.scheduledNotifications.isEmpty && !openAi.notificationsSummary.isEmpty {
-                                ScrollView {
-                                    Text(openAi.notificationsSummary)
-                                        .fontDesign(.rounded)
-                                        .padding()
-                                        .multilineTextAlignment(.leading)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .stroke(lineWidth: 1)
-                                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                                .foregroundColor(Color.gray)
-                                        )
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .fill(colorScheme == .light ? Color.white : Color.black)
-                                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                        )
-                                        .padding(.horizontal, standardCardPadding)
-                                        .padding(.vertical, 9)
-                                }.refreshable {
-                                    if !errorMessage.isEmpty {
-                                        errorMessage = ""
-                                    }
-                                    await getSummary()
-                                }
+                            VStack {
                                 
-                            } 
-                            //TODO: Delete this we call .overlay
-//                            else if !errorMessage.isEmpty {
-//                                ScrollView {
-//                                    VStack {
-//                                        ErrorView(thrownError: errorMessage, extraMessage: "Scroll down to try again!")
-//                                            .padding(.horizontal, standardCardPadding)
-//                                            .padding(.top, 9)
-//                                        Spacer()
-//                                    }
-//                                }
-//                                
-//                            }
-                        } else if selectedOption == .Notifications && !manager.scheduledNotifications.isEmpty  {
+                                if isLoadingSummary {
+                                    VStack {
+                                        Spacer()
+                                        ProgressView()
+                                            .font(.title)
+                                            .scaleEffect(1.5)
+                                            .bold()
+                                            .background(Color.clear.ignoresSafeArea())
+                                        Spacer()
+                                    }
+                                } else if !manager.scheduledNotifications.isEmpty && !openAi.notificationsSummary.isEmpty {
+                                    ScrollView {
+                                        Text(openAi.notificationsSummary)
+                                            .fontDesign(.rounded)
+                                            .padding()
+                                            .multilineTextAlignment(.leading)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .stroke(lineWidth: 1)
+                                                    .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                                    .foregroundColor(Color.gray)
+                                            )
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .fill(colorScheme == .light ? Color.white : Color.black)
+                                                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                            )
+                                            .padding(.horizontal, standardCardPadding)
+                                            .padding(.vertical, 9)
+                                    }
+                                }
+                            }.frame(maxWidth: .infinity, maxHeight: screenWidth)
+                            .overlay {
+                                if showError {
+                                    ErrorView(thrownError: errorMessage, dismissAction: clearError)
+                                        
+                                        .transition(AnyTransition.slide)
+                                        .zIndex(1)
+                                }
+                            }
+                            .refreshable {
+                                if !errorMessage.isEmpty {
+                                    errorMessage = ""
+                                }
+                                await getSummary()
+                            }
+                            
+                        } else if selectedOption == .Notifications && !manager.scheduledNotifications.isEmpty {
                             ScrollView {
                                 ForEach(manager.scheduledNotifications.indices, id: \.self) { index in
                                     let notification = manager.scheduledNotifications[index]
-                                    
                                     NotificationCellView(notification: notification)
                                         .padding(.vertical)
                                         .padding(.horizontal, standardCardPadding)
@@ -116,28 +115,17 @@ struct NotificationsView: View {
                         
                         if !isLoadingSummary && manager.scheduledNotifications.isEmpty && showEmpty {
                             VStack {
-                            //TODO: Check if this animation plays only once in view appearance first time, and when the nots become empty
                                 LottieRepresentable(filename: "noNotifications", loopMode: .playOnce, isPlaying: $emptyIsAnimating)
                                     .frame(height: 300)
                                 TypingTextView(fullText: "All quiet for now!\nScheduled Notifications will appear here")
                                     .frame(width: screenWidth)
                                     .padding(.horizontal)
-                             
                                 Spacer()
                             }
                         }
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
-                }
-            }
-            .overlay {
-                if showError {
-                    ErrorView(thrownError: errorMessage) {
-                        errorMessage = ""
-                        
-                    }
-                        .transition(AnyTransition(.move(edge: .bottom)))
-//                        .transition(AnyTransition(.opacity))
+                    
                 }
             }
             .background {
@@ -148,8 +136,17 @@ struct NotificationsView: View {
             }
             .navigationBarTitleView {
                 HStack {
-                    Text("Notifications").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                    LottieRepresentableNavigation(filename: "Bell ringing notification").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
+                    Text("Notifications")
+                        .font(.title2)
+                        .bold()
+                        .foregroundStyle(.blue.opacity(0.7))
+                        .fontDesign(.rounded)
+                        .padding(.trailing, 6)
+                    LottieRepresentableNavigation(filename: "Bell ringing notification")
+                        .frame(width: 55, height: 55)
+                        .padding(.bottom, 5)
+                        .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                }
             }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -158,13 +155,16 @@ struct NotificationsView: View {
                             showAddNotification.toggle()
                         }
                     } label: {
-                        LottieRepresentable(filename: "Add",loopMode: showEmpty == true && manager.scheduledNotifications.isEmpty  ? .loop : .playOnce).frame(width: 45, height: 45).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0).opacity(0.8)
+                        LottieRepresentable(filename: "Add", loopMode: showEmpty == true && manager.scheduledNotifications.isEmpty ? .loop : .playOnce, speed: 0.5)
+                            .frame(width: 45, height: 45)
+                            .padding(.bottom, 5)
+                            .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                            .opacity(0.8)
                     }
                     .padding()
                     .accessibilityLabel("Add new notification")
                 }
             }
-            
             .sheet(isPresented: $showAddNotification) {
                 AddNotificationView(dismissAction: {
                     showAddNotification = false
@@ -174,8 +174,7 @@ struct NotificationsView: View {
                 if manager.scheduledNotifications.isEmpty {
                     showEmpty = true
                     emptyIsAnimating = true
-                }
-                else {
+                } else {
                     emptyIsAnimating = false
                     Task { await getSummary() }
                 }
@@ -185,18 +184,11 @@ struct NotificationsView: View {
                     showNoInternet = true
                 }
             }
-            .onChange(of: errorMessage) { message in
-                if message != "" {
-                    showError = true
-                }
-                else { showError = false }
-            }
             .onAppear {
                 if manager.scheduledNotifications.isEmpty {
                     showEmpty = true
                     emptyIsAnimating = true
-                }
-                else {
+                } else {
                     emptyIsAnimating = false
                     Task { await getSummary() }
                 }
@@ -211,23 +203,39 @@ struct NotificationsView: View {
         }
     }
     
+    private func clearError() {
+        withAnimation {
+            self.errorMessage = ""
+            showError = false
+            Task {
+                await openAi.clearManager()
+            }
+        }
+    }
+    
     private func getSummary() async {
         await MainActor.run { isLoadingSummary = true }
         do {
-            throw AppCKError.iCloudAccountNotFound
             try await openAi.getMonthlySummary(notifications: manager.scheduledNotifications)
             await MainActor.run { isLoadingSummary = false }
-        } catch let error as AppNetworkError {
+        } 
+        catch let error as AppNetworkError {
             await MainActor.run {
+                isLoadingSummary = false
                 self.errorMessage = error.errorDescription
+                showError = true
             }
         } catch let error as AppCKError {
             await MainActor.run {
                 self.errorMessage = error.errorDescription
+                isLoadingSummary = false
+                showError = true
             }
-        } catch {
+        } catch(let error) {
             await MainActor.run {
                 self.errorMessage = error.localizedDescription
+                isLoadingSummary = false
+                showError = true
             }
         }
     }
