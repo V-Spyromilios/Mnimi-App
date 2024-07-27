@@ -35,19 +35,28 @@ struct SplashScreen: View {
             .statusBar(hidden: true)
             .alert(isPresented: $showAlert) {
                 Alert(
-                    title: Text("iCloud Error"),
+                    title: Text("iCloud"),
                     message: Text(alertMessage),
-                    dismissButton: .default(Text("Retry")) {
+                    primaryButton: .default(Text("Retry")) {
                         cloudKit.clearCloudKit()
                         cloudKit.startCloudKit()
+                    },
+                    secondaryButton: .default(Text("Login with iCloud")) {
+                        openICloudSettings()
                     }
                 )
-            } //TODO: Check this if is correct to call again. Check in this screen if namespace etc failed and make the alertMessage
+            }
         }
         .onAppear {
             startAnimations()
             cloudKit.startCloudKit()
         }
+        .onChange(of: cloudKit.userIsSignedIn) { _, isSignedIn in
+                    if !isSignedIn {
+                        showAlert = true
+                        alertMessage = "Please sign in to iCloud to continue using the app."
+                    }
+                }
 
         .onChange(of: loadingComplete) {
             if loadingComplete {
@@ -68,6 +77,12 @@ struct SplashScreen: View {
             else if cloudKit.CKErrorDesc != "" {
                 
             }
+        }
+    }
+    
+    private func openICloudSettings() {
+        if let url = URL(string: "App-Prefs:root=CASTLE") {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
     

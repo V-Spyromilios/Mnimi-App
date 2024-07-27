@@ -17,6 +17,8 @@ struct NotificationsView: View {
     @EnvironmentObject var openAi: OpenAIManager
     @EnvironmentObject var networkManager: NetworkManager
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var apiCalls: ApiCallViewModel
+
     @State private var showAddNotification: Bool = false
     @State var isLoadingSummary: Bool = false
     @State private var errorMessage: String = ""
@@ -27,6 +29,7 @@ struct NotificationsView: View {
     @State private var plusIsAnimating: Bool = false
     @State private var emptyIsAnimating: Bool = false
     @State private var showError: Bool = false
+    @State private var hasBeenEdited: Bool = false
     
     
     enum viewOptions: String, CaseIterable, Identifiable {
@@ -79,7 +82,7 @@ struct NotificationsView: View {
                                             )
                                             .background(
                                                 RoundedRectangle(cornerRadius: 10)
-                                                    .fill(colorScheme == .light ? Color.white : Color.black)
+                                                    .fill(Color.cardBackground)
                                                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                             )
                                             .padding(.horizontal, standardCardPadding)
@@ -106,9 +109,10 @@ struct NotificationsView: View {
                             ScrollView {
                                 ForEach(manager.scheduledNotifications.indices, id: \.self) { index in
                                     let notification = manager.scheduledNotifications[index]
-                                    NotificationCellView(notification: notification)
+                                    NotificationCellView(notification: notification, edited: $hasBeenEdited)
                                         .padding(.vertical)
                                         .padding(.horizontal, standardCardPadding)
+                                        .id(UUID())
                                 }
                             }
                         }
@@ -179,6 +183,11 @@ struct NotificationsView: View {
                     Task { await getSummary() }
                 }
             }
+            .onChange(of: hasBeenEdited){ edited in
+                if edited {
+                    manager.refreshNotifications()
+                }
+            }
             .onChange(of: networkManager.hasInternet) { _, hasInternet in
                 if !hasInternet {
                     showNoInternet = true
@@ -217,6 +226,7 @@ struct NotificationsView: View {
         await MainActor.run { isLoadingSummary = true }
         do {
             try await openAi.getMonthlySummary(notifications: manager.scheduledNotifications)
+            apiCalls.incrementApiCallCount()
             await MainActor.run { isLoadingSummary = false }
         } 
         catch let error as AppNetworkError {

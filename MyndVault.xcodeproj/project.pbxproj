@@ -20,6 +20,9 @@
 		E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E813C76C2BECF51900E3088D /* CountdownTimer.swift */; };
 		E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */ = {isa = PBXBuildFile; fileRef = E814B82A2C433CA6004BC4F4 /* Approved.json */; };
 		E814B82D2C4340D9004BC4F4 /* alertWarning.json in Resources */ = {isa = PBXBuildFile; fileRef = E814B82C2C4340D9004BC4F4 /* alertWarning.json */; };
+		E817A4272C54F7E300A0172A /* ApiCallsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E817A4262C54F7E300A0172A /* ApiCallsView.swift */; };
+		E817A4292C54F8DB00A0172A /* ApiCallViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E817A4282C54F8DB00A0172A /* ApiCallViewModel.swift */; };
+		E817A42B2C5524E700A0172A /* takingNotes.json in Resources */ = {isa = PBXBuildFile; fileRef = E817A42A2C5524E700A0172A /* takingNotes.json */; };
 		E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */ = {isa = PBXBuildFile; fileRef = E82F454B2BC2A6D100945312 /* OpenAIKey.plist */; };
 		E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */; };
 		E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45512BC2A72100945312 /* CircularProgressView.swift */; };
@@ -114,6 +117,9 @@
 		E813C76C2BECF51900E3088D /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		E814B82A2C433CA6004BC4F4 /* Approved.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Approved.json; sourceTree = "<group>"; };
 		E814B82C2C4340D9004BC4F4 /* alertWarning.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = alertWarning.json; sourceTree = "<group>"; };
+		E817A4262C54F7E300A0172A /* ApiCallsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallsView.swift; sourceTree = "<group>"; };
+		E817A4282C54F8DB00A0172A /* ApiCallViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallViewModel.swift; sourceTree = "<group>"; };
+		E817A42A2C5524E700A0172A /* takingNotes.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = takingNotes.json; sourceTree = "<group>"; };
 		E82F454B2BC2A6D100945312 /* OpenAIKey.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = OpenAIKey.plist; sourceTree = "<group>"; };
 		E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitViewModel.swift; sourceTree = "<group>"; };
 		E82F45512BC2A72100945312 /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
@@ -286,6 +292,7 @@
 				E8CFEAF72C395876005A2630 /* VisualEffect.swift */,
 				E85055042C428BB900FBACC4 /* SwiftLogoView.swift */,
 				E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */,
+				E8A37F622BD00675004A98C9 /* Info */,
 				E8B4D5022BF8C07400F2A174 /* Log in */,
 				E8FA7F082BC5BC320012EBF6 /* Settings */,
 				E8BFD34D2BC58A4E00355B44 /* GoogleService-Info.plist */,
@@ -337,6 +344,10 @@
 		E85055012C428B6800FBACC4 /* Lotties */ = {
 			isa = PBXGroup;
 			children = (
+				E817A42A2C5524E700A0172A /* takingNotes.json */,
+				E8C7E2932C4D3E8B009760F2 /* AddNotification.json */,
+				E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */,
+				E8C7E2972C4D460C009760F2 /* Delete.json */,
 				E8C7E2952C4D4205009760F2 /* Add.json */,
 				E8002B6A2C4CC60700FD814D /* CancelButton.json */,
 				E8002B6B2C4CC60700FD814D /* PowerOffButton.json */,
@@ -366,7 +377,6 @@
 			isa = PBXGroup;
 			children = (
 				E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */,
-				E8C7E2972C4D460C009760F2 /* Delete.json */,
 				E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */,
 				E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */,
 				E87FB25E2BC96EA000B1A16D /* InfoView.swift */,
@@ -394,14 +404,13 @@
 		E8FA7F082BC5BC320012EBF6 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				E8A37F622BD00675004A98C9 /* Info */,
 				E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */,
 				E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */,
 				E82F45892BC2A85D00945312 /* CustomTapBarView.swift */,
-				E8C7E2932C4D3E8B009760F2 /* AddNotification.json */,
-				E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */,
 				E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */,
 				E8FA7F072BC5BC320012EBF6 /* Settings View.swift */,
+				E817A4262C54F7E300A0172A /* ApiCallsView.swift */,
+				E817A4282C54F8DB00A0172A /* ApiCallViewModel.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -493,6 +502,7 @@
 				E8002B6F2C4CC60700FD814D /* Vertical Dot Menu.json in Resources */,
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
 				E8C7E2982C4D460C009760F2 /* Delete.json in Resources */,
+				E817A42B2C5524E700A0172A /* takingNotes.json in Resources */,
 				E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */,
 				E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */,
 				E8002B652C4C951D00FD814D /* robotForQuestion.json in Resources */,
@@ -569,6 +579,7 @@
 				E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */,
 				E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */,
 				E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */,
+				E817A4292C54F8DB00A0172A /* ApiCallViewModel.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
 				E8002B512C4C442400FD814D /* Test.swift in Sources */,
 				E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */,
@@ -576,6 +587,7 @@
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,
 				E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */,
 				E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */,
+				E817A4272C54F7E300A0172A /* ApiCallsView.swift in Sources */,
 				E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */,
 				E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */,
 				E8FA7F0E2BC5BC320012EBF6 /* PromptLanguageView.swift in Sources */,

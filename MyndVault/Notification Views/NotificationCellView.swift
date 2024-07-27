@@ -21,6 +21,7 @@ struct NotificationCellView: View {
     @State private var showPopover: Bool = false
     @GestureState private var isLongPressing = false
     
+    @Binding var edited: Bool
     var notification: CustomNotification
     var shadowRadius: CGFloat = 10
     @StateObject var viewModel: CountdownTimer
@@ -29,9 +30,10 @@ struct NotificationCellView: View {
     @State private var showNotificationEdit: Bool = false
     @State private var showDeleteAlert: Bool = false
     
-    init(notification: CustomNotification) {
+    init(notification: CustomNotification, edited: Binding<Bool>) {
 
         self.notification = notification
+        self._edited = edited
         _viewModel = StateObject(wrappedValue: CountdownTimer(targetDate: notification.date))
     }
     
@@ -76,19 +78,30 @@ struct NotificationCellView: View {
                 .padding(.bottom, 18)
             
         }.frame(maxWidth: .infinity)
+            .overlay {
+                Button(action: {
+                    showPopover.toggle()
+                }) {
+                    LottieRepresentable(filename: "Vertical Dot Menu", loopMode: .playOnce)
+                        .frame(width: 55, height: 55)
+                        .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                        .offset(x: 100, y: -100)
+                }
+                .popover(isPresented: $showPopover, attachmentAnchor: .point(.topLeading), content: {
+                    popOverContent()
+                })
+            }
            
             .padding(.top)
             .background(Color.cardBackground)
             .cornerRadius(10)
             .shadow(radius: shadowRadius)
-            .onTapGesture {
-                showPopover = true
-            }
-            .popover(isPresented: $showPopover, attachmentAnchor: .point(.bottom), content: {
-                popOverContent()
-            })
+//            .onTapGesture {
+//                showPopover = true
+//            }
+           
             .fullScreenCover(isPresented: $showNotificationEdit) {
-                NotificationEditView(notification: notification)
+                NotificationEditView(notification: notification, edited: $edited)
                     .toolbar {
                         ToolbarItemGroup(placement: .topBarTrailing) {
                             Button("Cancel") {

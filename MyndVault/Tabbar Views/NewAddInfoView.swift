@@ -29,6 +29,7 @@ struct NewAddInfoView: View {
     @StateObject private var photoPicker = ImagePickerViewModel()
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var networkManager: NetworkManager
+    @EnvironmentObject var apiCalls: ApiCallViewModel
     
     var body: some View {
         
@@ -42,10 +43,11 @@ struct NewAddInfoView: View {
                             Image(systemName: "plus.bubble").bold()
                             Text("info").bold()
                             Spacer()
-                        }.font(.callout).padding(.top,12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
+                        }.font(.callout).padding(.top,12).padding(.bottom, 8)
                         
                         HStack {
                             TextEditor(text: $newInfo)
+                                .background(Color.cardBackground)
                                 .fontDesign(.rounded)
                                 .font(.title2)
                                 .multilineTextAlignment(.leading)
@@ -133,7 +135,7 @@ struct NewAddInfoView: View {
                             }
                             
                         }
-                    }
+                    }.padding(.horizontal, standardCardPadding)
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                     }
@@ -169,7 +171,8 @@ struct NewAddInfoView: View {
                     }
                     Spacer()
                     
-                }.padding(.horizontal, standardCardPadding) //TODO: No padding !?!
+                }
+//                .padding(.horizontal, standardCardPadding) //TODO: No padding !?!
                     .background {
                         LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
                             .opacity(0.4)
@@ -223,7 +226,7 @@ struct NewAddInfoView: View {
         Button(action: addNewInfoAction) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.primaryAccent)
+                    .fill(Color.customLightBlue)
                     .frame(height: buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
@@ -243,7 +246,7 @@ struct NewAddInfoView: View {
         Button(action: performClearTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.primaryAccent)
+                    .fill(Color.customLightBlue)
                     .frame(height: buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 
@@ -299,12 +302,14 @@ struct NewAddInfoView: View {
             try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
             
             if openAiManager.embeddingsCompleted {
+                apiCalls.incrementApiCallCount()
                 let metadata = toDictionary(desc: self.newInfo)
                 
                 let uniqueID = UUID().uuidString
                 
                 try await pineconeManager.upsertDataToPinecone(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
                 if pineconeManager.upsertSuccesful {
+                    apiCalls.incrementApiCallCount()
                     if let image = photoPicker.selectedImage {
                         try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
                     }

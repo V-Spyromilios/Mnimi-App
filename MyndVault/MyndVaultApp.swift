@@ -48,6 +48,7 @@ struct MyndVaultApp: App {
     @StateObject var keyboardResponder = KeyboardResponder()
     @StateObject var authManager = AuthenticationManager()
     @StateObject private var networkManager = NetworkManager()
+    @StateObject var apiCallsViewModel = ApiCallViewModel()
     @State var showSplash: Bool = true
     
     
@@ -59,6 +60,7 @@ struct MyndVaultApp: App {
                 SplashScreen(showSplash: $showSplash)
                     .environmentObject(cloudKitViewModel)
                     .environmentObject(networkManager)
+                    .environmentObject(apiCallsViewModel)
             }
             
             else if cloudKitViewModel.isFirstLaunch {
@@ -72,6 +74,7 @@ struct MyndVaultApp: App {
                     .environmentObject(keyboardResponder)
                     .environmentObject(authManager)
                     .environmentObject(networkManager)
+                    .environmentObject(apiCallsViewModel)
                     .statusBar(hidden: true)
             } else  {
                 
@@ -87,6 +90,7 @@ struct MyndVaultApp: App {
                         .environmentObject(keyboardResponder)
                         .environmentObject(authManager)
                         .environmentObject(networkManager)
+                        .environmentObject(apiCallsViewModel)
                         .statusBar(hidden: true)
                 }
                 

@@ -45,7 +45,7 @@ struct InfosViewListCellView: View {
             }
             .foregroundStyle(.blue)
         }
-        .background(colorScheme == .light ? Color.white : Color.black)
+        .background(Color.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .shadow(color: Color.customShadow, radius: 3)
     }

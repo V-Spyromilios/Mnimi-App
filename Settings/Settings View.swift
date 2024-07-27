@@ -57,6 +57,27 @@ struct SettingsView: View {
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                         .contentShape(Rectangle())
+                    
+                    
+                    
+                    
+                    HStack {
+                        NavigationLink(destination: ApiCallsView()) {
+                            Text("Credit").foregroundStyle(colorScheme == .light ? .black : .white)
+                            Spacer()
+                            VStack {
+                                Image(systemName: "chevron.right")
+                                    .padding(.trailing)
+                                    .foregroundStyle(.blue)
+                            }
+                           
+                        }
+                    } .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background( Color.primaryBackground)
+                        .cornerRadius(10)
+                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                        .contentShape(Rectangle())
                 }
                 .padding(.top, 15)
                     .padding(.horizontal)
