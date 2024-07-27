@@ -27,7 +27,7 @@ struct InfoView: View {
     @State private var DeleteAnimating: Bool = false
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             HStack {
                 Image(systemName: "rectangle.and.pencil.and.ellipsis").bold()
                 Text("Edit Info:").bold()
@@ -40,6 +40,7 @@ struct InfoView: View {
                     .font(.title2)
                     .multilineTextAlignment(.leading)
                     .frame(height: textEditorHeight)
+//                    .frame(maxWidth: idealWidth(for: geometry.size.width))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     .overlay(
@@ -101,27 +102,27 @@ struct InfoView: View {
             Spacer()
         }
         .padding(.horizontal, standardCardPadding)
-        .background { Color.clear.ignoresSafeArea() }
+        .background { Color.red.ignoresSafeArea() }
         .toolbar {
-
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                
-                if keyboardResponder.currentHeight > 0 {
-                    Button {
-                        hideKeyboard()
-                    } label: {
-                        HideKeyboardLabel()
-                            }
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    if keyboardResponder.currentHeight > 0 {
+                        Button {
+                            hideKeyboard()
+                        } label: {
+                            HideKeyboardLabel()
+                        }
                     }
-                
-                Button(action: {
-                    DeleteAnimating = true
-                    self.viewModel.activeAlert = .deleteWarning
-                   
-                }, label: {
-                    LottieRepresentable(filename: "Delete", loopMode: .playOnce, isPlaying: $DeleteAnimating).frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) })
+                    
+                    Button(action: {
+                        DeleteAnimating = true
+                        self.viewModel.activeAlert = .deleteWarning
+                    }) {
+                        LottieRepresentable(filename: "Vertical Dot Menu", loopMode: .playOnce, isPlaying: $DeleteAnimating)
+                            .frame(width: 55, height: 55)
+                            .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                    }
+                }
             }
-        }
         .onChange(of: shake) { _, newValue in
             if newValue {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

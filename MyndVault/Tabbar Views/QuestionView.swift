@@ -17,7 +17,8 @@ struct QuestionView: View {
     @EnvironmentObject var cloudKitManager: CloudKitViewModel
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var networkManager: NetworkManager
-
+    @EnvironmentObject var apiCalls: ApiCallViewModel
+    
     @State private var question: String = ""
     @State private var thrownError: String = ""
     @State private var goButtonIsVisible: Bool = true
@@ -29,6 +30,7 @@ struct QuestionView: View {
     @State private var fetchedImages: [UIImage] = []
     @State private var isLoading: Bool = false
     @State private var shake: Bool = false
+
     
     var body: some View {
         GeometryReader { geometry in
@@ -189,13 +191,12 @@ struct QuestionView: View {
                         Button {
                             showSettings.toggle()
                         } label: {
-                            Circle()
-                                .foregroundStyle(Color.gray.opacity(0.6))
-                                .frame(height: 30)
-                                .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
-                                .overlay {
-                                    Text("⚙️")
-                                    .accessibilityLabel("settings") }
+                            LottieRepresentable(filename: "Vertical Dot Menu", loopMode: .playOnce, speed: 0.5)
+                                .frame(width: 45, height: 45)
+                                .padding(.bottom, 5)
+                                .shadow(color: colorScheme == .dark ? .gray : .clear, radius: colorScheme == .dark ? 4 : 0)
+                                .opacity(0.8)
+                                    .accessibilityLabel("settings") 
                         }
                     }
                 }
@@ -278,7 +279,7 @@ struct QuestionView: View {
         Button(action: performTask) {
             ZStack {
                 RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color("primaryAccent"))
+                    .fill(Color.customLightBlue)
                     .frame(height: buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 Text("Go").font(.title2).bold().foregroundColor(Color.buttonText)
@@ -348,15 +349,16 @@ struct QuestionView: View {
         Task {
             do {
                 try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
-                
+                apiCalls.incrementApiCallCount()
                 guard openAiManager.questionEmbeddingsCompleted else {
                     isLoading = false
                     return
                 }
 
                 progressTracker.setProgress(to: 0.35)
+               
                 try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
-                
+                apiCalls.incrementApiCallCount()
                 if let pineconeResponse = pineconeManager.pineconeQueryResponse {
                     for match in pineconeResponse.matches {
                         let id = match.id
@@ -389,6 +391,7 @@ struct QuestionView: View {
                         }
                     }
                     try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
+                    apiCalls.incrementApiCallCount()
                 }
                 
                 await MainActor.run {

@@ -13,13 +13,17 @@ class AuthenticationManager: ObservableObject {
     @Published var isAuthenticated: Bool = false
     @Published var isLoggedOut: Bool = false
     
-    func login() {
-        isAuthenticated = true
-        isLoggedOut = false
+    func login()  {
+        DispatchQueue.main.async {
+            self.isAuthenticated = true
+            self.isLoggedOut = false
+        }
     }
     
     func logout() {
-        isAuthenticated = false
-        isLoggedOut = true
+        DispatchQueue.main.async {
+            self.isAuthenticated = false
+            self.isLoggedOut = true
+        }
     }
 }

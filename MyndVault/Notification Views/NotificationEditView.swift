@@ -12,6 +12,7 @@ struct NotificationEditView: View {
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @Environment(\.colorScheme) var colorScheme
     var notification: CustomNotification
+    @Binding var edited: Bool
     
     var body: some View {
         NavigationStack {
@@ -73,19 +74,11 @@ struct NotificationEditView: View {
                     HStack {
                         Image(systemName: "clock").bold()
                             .font(.callout)
-                        Text("Select\nDate and Time").bold()
+                        Text("Select Date and Time").bold()
                             .font(.callout)
                         Spacer()
-                        
-                        DatePicker(
-                            "",
-                            selection: $selectedDate,
-                            displayedComponents: [.date, .hourAndMinute]
-                        )
                     }
-                    .font(.callout)
-                    .padding(.bottom, 10)
-                    .padding(.top, 12)
+                        CustomDatePicker(selectedDate: $selectedDate)
                     
                     Button(action: {
                         if shake { return }
@@ -105,6 +98,7 @@ struct NotificationEditView: View {
                                 await MainActor.run {
                                     rescheduleNotification(identifier: id, title: "Mynd Vault: \(newTitle)", body: notificationBody, date: newDate)
                                     print("Rescheduled for \(newDate)")
+                                    edited.toggle()
                                     presentationMode.wrappedValue.dismiss()
                                 }
                             }
@@ -205,7 +199,7 @@ struct NotificationEditView_Previews: PreviewProvider {
     static var previews: some View {
         let responder = KeyboardResponder()
         
-        NotificationEditView(notification: CustomNotification(id: "2Sf3GT", title: "Custom Notification", notificationBody: "Remind me tomorrow to watch Big Bang Theory", date: Date()))
+        NotificationEditView(notification: CustomNotification(id: "2Sf3GT", title: "Custom Notification", notificationBody: "Remind me tomorrow to watch Big Bang Theory", date: Date()), edited: .constant(false))
             .environmentObject(responder)
     }
 }

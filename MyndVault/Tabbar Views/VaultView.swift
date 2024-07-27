@@ -92,6 +92,7 @@ struct VaultView: View {
                             
                     }
                     .searchable(text: $searchText)
+                    .padding(.top, 12)
 
                 }
                

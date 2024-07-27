@@ -55,5 +55,9 @@ final class NotificationViewModel: ObservableObject {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
     }
     
+    func refreshNotifications() {
+        fetchScheduledNotifications()
+    }
+    
 }
 

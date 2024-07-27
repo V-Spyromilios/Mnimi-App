@@ -21,21 +21,24 @@ struct EditInfoView: View {
     @State private var showNoInternet = false
     @State var showSuccess: Bool = false
     @State var inProgress: Bool = false
+    @EnvironmentObject var apiCalls: ApiCallViewModel
     
     var body: some View {
         
         ZStack {
-            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
-                .opacity(0.4)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
-            VStack {
-                InfoView(viewModel: viewModel, showSuccess: $showSuccess, inProgress: $inProgress)
+      
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+            
                
-            }
+                    InfoView(viewModel: viewModel, showSuccess: $showSuccess, inProgress: $inProgress)
+                .padding(.top, 12)
+                    //                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
         }
-        .navigationBarBackButtonHidden(true) 
+        .navigationBarBackButtonHidden(true)
         .alert(isPresented: $showNoInternet) {
             Alert(
                 title: Text("You are not connected to the Internet"),
@@ -71,6 +74,7 @@ struct EditInfoView: View {
                         
                         Task {
                             await upsertEditedInfo()
+                            apiCalls.incrementApiCallCount()
                             await openAiManager.clearManager()
                             await pineconeManager.clearManager()
                             
@@ -93,8 +97,11 @@ struct EditInfoView: View {
                                 try await pineconeManager.deleteVectorFromPinecone(id: idToDelete)
                                 try await cloudKit.deleteImageItem(uniqueID: idToDelete)
                                 if pineconeManager.vectorDeleted {
+                                    apiCalls.incrementApiCallCount()
                                     pineconeManager.deleteVector(withId: idToDelete)
+                                    
                                     try await pineconeManager.fetchAllNamespaceIDs()
+                                    apiCalls.incrementApiCallCount()
                                 }
                                 DispatchQueue.main.async {
                                     inProgress = false
@@ -149,16 +156,25 @@ struct EditInfoView: View {
                 )
             }
         }
-        .navigationBarTitleView {
-
-            Button(action: {
-                presentationMode.wrappedValue.dismiss()
-            }) {
-                HStack {
-                    Text("<").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                    LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
-            }
-        }
+//        .navigationBarTitleView {
+//
+//            Button(action: {
+//                presentationMode.wrappedValue.dismiss()
+//            }) {
+//                HStack {
+//                    Text("<").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+//                    LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
+//            }
+//        }
+        .navigationBarItems(leading: Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    HStack {
+                        Text("<").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                        LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                    }
+                })
+            
     }
     
     private func upsertEditedInfo() async {

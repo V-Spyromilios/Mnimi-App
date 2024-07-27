@@ -303,3 +303,109 @@ final class ShakeEffect: GeometryEffect {
         return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
     }
 }
+
+
+struct NeumorphicStyle: ViewModifier {
+    var cornerRadius: CGFloat
+    var color: Color
+    
+    func body(content: Content) -> some View {
+        content
+            .padding(20)
+            .background(
+                color
+                    .cornerRadius(cornerRadius)
+                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 10, y: 10)
+                    .shadow(color: Color.white.opacity(0.7), radius: 10, x: -5, y: -5)
+            )
+    }
+}
+
+import SwiftUI
+
+struct FloatingLabelTextField: View {
+    @Binding var text: String
+    let title: String
+    let isSecure: Bool
+    
+    @FocusState private var isFocused: Bool
+    
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Text(title)
+                .foregroundColor(isFocused ? .gray : .secondary)
+                .background(Color.clear)
+                .offset(y: isFocused || !text.isEmpty ? -30 : 0)
+                .scaleEffect(isFocused || !text.isEmpty ? 0.8 : 1.0, anchor: .leading)
+                .animation(.easeInOut(duration: 0.2), value: isFocused || !text.isEmpty)
+            
+            if isSecure {
+                SecureField("", text: $text)
+                    .focused($isFocused)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .padding(.top, 20)
+            } else {
+                TextField("", text: $text)
+                    .focused($isFocused)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .padding(.top, 20)
+            }
+        }
+        .padding(10)
+        .background(
+            Color.clear
+                .cornerRadius(10)
+                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 10, y: 10)
+                .shadow(color: Color.white.opacity(0.7), radius: 10, x: -5, y: -5)
+        )
+        .onTapGesture {
+            self.isFocused = true
+        }
+    }
+}
+
+
+struct CustomDatePicker: View {
+    @Binding var selectedDate: Date
+    @State private var showingDatePicker = false
+    
+    var body: some View {
+        VStack {
+            Button(action: {
+                showingDatePicker.toggle()
+            }) {
+                
+                    Text("\(selectedDate, formatter: dateFormatter)")
+                    .font(.title2)
+                    .fontDesign(.rounded)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom)
+            }
+            .padding()
+            .background(RoundedRectangle(cornerRadius: 10).fill(Color.clear))
+            .shadow(radius: 4)
+            
+            if showingDatePicker {
+                DatePicker(
+                    "",
+                    selection: $selectedDate,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                .datePickerStyle(GraphicalDatePickerStyle())
+                .labelsHidden()
+                    
+//                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
+                .shadow(radius: 5)
+            }
+        }
+        .padding()
+    }
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }
+}

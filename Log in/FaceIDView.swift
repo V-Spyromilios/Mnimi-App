@@ -8,53 +8,58 @@
 import SwiftUI
 import LocalAuthentication
 
-
 struct FaceIDView: View {
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @EnvironmentObject var networkManager: NetworkManager
-    @State private var greenHeight: CGFloat = UIScreen.main.bounds.height + (UIScreen.main.bounds.height * 0.15)
+//    @State private var greenHeight: CGFloat = UIScreen.main.bounds.height + (UIScreen.main.bounds.height * 0.15)
     @State private var showError = false
     @State private var showNoInternet = false
     @State private var showPasswordAuth = false
     @State private var username = ""
     @State private var password = ""
     @State private var showMainView = false
+    @State private var authAttempts: Int = 0
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     
     var body: some View {
         Group {
             if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn  {
-           
                 MainView()
             } else if authManager.isLoggedOut {
                 LoggedOutView()
             } else {
                 ZStack {
-                    Color.customLightBlue
-                        .frame(height: greenHeight)
+                    Color.customTiel
                         .ignoresSafeArea()
                     VStack {
-                        Spacer().frame(height: 80)
-                        LottieRepresentable(filename: "Image Recognition", loopMode: .loop)
-                            .frame(width: 400, height: 400).padding()
+                        
+                        LottieRepresentable(filename: "Image Recognition", loopMode: .loop).padding()
+                            .frame(height: 400)
+                            .onTapGesture(perform: authenticate)
+                       
+                    .padding(.top)
+                    .onAppear(perform: authenticate)
+                       
+                    
+                    Button {
+                        self.authenticate()
+                    } label: {
+                        Image(systemName: "faceid").resizable().frame(width: 100, height: 100)
+                            .foregroundStyle(Color.cardBackground).shadow(radius: 4, x: -3, y: -3)
+                           
+                    }
                         Spacer()
-                    }.padding(.top)
-                        .onAppear(perform: authenticate)
-                        .onTapGesture(perform: authenticate)
+                }
                 }
                 .statusBar(hidden: true)
+                    .sheet(isPresented: $showPasswordAuth) {
+                        UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
+                            .environmentObject(keyboardResponder)
+                    }
             }
-        } // for the alert, perhaps Use VStack
-        .alert(isPresented: $showError) {
-            Alert(
-                title: Text("Face ID authentication Failed"),
-                message: Text("Please try again."),
-                primaryButton: .default(Text("Retry"), action: authenticate),
-                secondaryButton: .default(Text("Enter Username/Password"), action: {
-                    showPasswordAuth = true
-                })
-            )
         }
         .alert(isPresented: $showNoInternet) {
             Alert(
@@ -63,42 +68,131 @@ struct FaceIDView: View {
                 dismissButton: .cancel(Text("OK"))
             )
         }
-        .sheet(isPresented: $showPasswordAuth) {
-            UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
-                .environmentObject(keyboardResponder)
-        }
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
                 showNoInternet = true
             }
         }
+        .alert(isPresented: $showErrorAlert) {
+                    Alert(
+                        title: Text("Authentication Failed"),
+                        message: Text(errorMessage),
+                        primaryButton: .default(Text("Retry"), action: authenticate),
+                        secondaryButton: .default(Text("Enter Username/Password"), action: {
+                            showPasswordAuth = true
+                        })
+                    )
+                }
+//        .onChange(of: authAttempts) {
+//            if authAttempts >= 2 {
+//                showPasswordAuth = true
+//            }
+//        }
     }
     
     private func authenticate() {
         let context = LAContext()
-        context.localizedCancelTitle = "Enter Username/Password"
-        
-        var authError: NSError?
-        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
-            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Log in with Face ID") { success, error in
-                DispatchQueue.main.async {
-                    if success {
-                        withAnimation(.easeInOut(duration: 1.5)) {
-                            authManager.login()
-                            greenHeight = 0
-                        }
+        var error: NSError?
+
+        // check whether biometric authentication is possible
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            // it's possible, so go ahead and use it
+            let reason = "We need to unlock your data."
+
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+                // authentication has now completed
+                if success {
+                    // authenticated successfully
+                  
+                    withAnimation(.easeInOut) {
                         
-                    } else {
-                        self.showError = true
+                        authManager.login()
                     }
+                   //
+                } else {
+//                    authAttempts += 1
+//                    if authAttempts >= 2 {
+//                        showPasswordAuth = true
+//                    }
+                    handleAuthenticationError(error: error)
                 }
             }
         } else {
-            self.showError = true
+            authAttempts += 1
+            if authAttempts >= 2 {
+                showPasswordAuth = true
+            }
         }
     }
+    
+    
+    
+    
+    private func handleAuthenticationError(error: Error?) {
+            guard let laError = error as? LAError else {
+                errorMessage = "An unknown error occurred."
+                showErrorAlert = true
+                return
+            }
+            
+            switch laError.code {
+            case .authenticationFailed:
+                errorMessage = "There was a problem verifying your identity."
+            case .userCancel:
+                errorMessage = "You canceled the authentication."
+            case .userFallback:
+                showPasswordAuth = true
+                return
+            case .systemCancel:
+                errorMessage = "Authentication was canceled by the system."
+            case .passcodeNotSet:
+                errorMessage = "Passcode is not set on the device."
+            case .biometryNotAvailable:
+                errorMessage = "Biometric authentication is not available on this device."
+            case .biometryNotEnrolled:
+                errorMessage = "No biometric identities are enrolled."
+            case .biometryLockout:
+                errorMessage = "Biometric authentication is locked out."
+            default:
+                errorMessage = "An unknown error occurred."
+            }
+            
+            authAttempts += 1
+            if authAttempts >= 2 {
+                showPasswordAuth = true
+            } else {
+                showErrorAlert = true
+            }
+        }
+    
+//    private func authenticate() {
+//          let context = LAContext()
+//          context.localizedCancelTitle = "Enter Username/Password"
+//          
+//          var authError: NSError?
+//          if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
+//              context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Log in with Face ID") { success, error in
+//                  DispatchQueue.main.async {
+//                      if success {
+//                          withAnimation(.easeInOut) {
+//                              authManager.login()
+//                          }
+//                      } else {
+//                          authAttempts += 1
+//                          if authAttempts >= 2 {
+//                              showPasswordAuth = true
+//                          }
+//                      }
+//                  }
+//              }
+//          } else {
+//              authAttempts += 1
+//              if authAttempts >= 2 {
+//                  showPasswordAuth = true
+//              }
+//          }
+//      }
 }
-
 
 struct UsernamePasswordLoginView: View {
     @Binding var showPasswordAuth: Bool
@@ -114,44 +208,24 @@ struct UsernamePasswordLoginView: View {
     
     var body: some View {
         ZStack {
-            
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
-                    .opacity(0.4)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
+            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                .opacity(0.4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
             
             VStack {
-                Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding()
-                Text("Continue with\nUsername and Password")
-                    .foregroundStyle(Color.buttonText)
-                    .font(.title2)
-                    .padding()
-                Spacer()
-                TextField("Username", text: $username)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10.0)
-                            .stroke(lineWidth: 1)
-                            .opacity(colorScheme == .light ? 0.3 : 0.7)
-                            .foregroundColor(Color.gray)
-                    )
-                    
-                    .padding()
-                SecureField("Password", text: $password)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10.0)
-                            .stroke(lineWidth: 1)
-                            .opacity(colorScheme == .light ? 0.3 : 0.7)
-                            .foregroundColor(Color.gray)
-                    )
-                    .padding()
-                Button(action:  {
-                    
+                
+                TypingTextView(fullText: "FaceID/ TouchID failed.\nPlease provide Username and\nPassword instead")
+                    .frame(height: 100)
+                    .padding(.horizontal)
+                
+                FloatingLabelTextField(text: $username, title: "Username", isSecure: false)
+                    .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                
+                FloatingLabelTextField(text: $password, title: "Password", isSecure: true)
+                    .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                
+                Button(action: {
                     if shake { return }
                     
                     if password.isEmpty {
@@ -159,26 +233,23 @@ struct UsernamePasswordLoginView: View {
                         return
                     }
                     authenticateWithPassword()
-                }
-                ) {
+                }) {
                     ZStack {
-                        RoundedRectangle(cornerRadius: rectCornerRad)
-                            .fill(Color.customLightBlue)
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.customTiel)
                             .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             .frame(height: buttonHeight)
-                            
-                        Text("Save").font(.title2).bold()
+                        
+                        Text("Login").font(.title2).bold()
                             .foregroundColor(Color.buttonText)
-                            .accessibilityLabel("save")
+                            .accessibilityLabel("Login")
                     }
                     .contentShape(Rectangle())
-                   
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.top, 12)
                 .padding(.horizontal)
                 .animation(.easeInOut, value: keyboardResponder.currentHeight)
-                .id("SubmitButton")
                 .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
                 .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                 Spacer()
@@ -201,7 +272,6 @@ struct UsernamePasswordLoginView: View {
     }
     
     private func authenticateWithPassword() {
-        
         guard let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: username),
               let savedPassword = String(data: savedPasswordData, encoding: .utf8),
               savedPassword == password else {
@@ -219,7 +289,6 @@ struct UsernamePasswordLoginView: View {
         showPasswordAuth = false
     }
 }
-
 //struct FaceIDView_Previews: PreviewProvider {
 //    @State static var username = ""
 //    @State static var password = ""

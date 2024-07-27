@@ -15,6 +15,7 @@ struct MainView: View {
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var notificationsManager: NotificationViewModel
     @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
     
     var body: some View {
         
@@ -28,6 +29,7 @@ struct MainView: View {
                     .environmentObject(notificationsManager)
                     .environmentObject(cloudKitViewModel)
                     .environmentObject(keyboardResponder)
+                    .environmentObject(apiCallsViewModel)
             }
             
             else if cloudKitViewModel.isLoading {
