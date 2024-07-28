@@ -152,6 +152,7 @@ struct NotificationsView: View {
                         .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
                 }
             }
+            .statusBar(hidden: true)
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button {
@@ -169,10 +170,8 @@ struct NotificationsView: View {
                     .accessibilityLabel("Add new notification")
                 }
             }
-            .sheet(isPresented: $showAddNotification) {
-                AddNotificationView(dismissAction: {
-                    showAddNotification = false
-                })
+            .fullScreenCover(isPresented: $showAddNotification) {
+                AddNotificationView(show : $showAddNotification)
             }
             .onChange(of: manager.scheduledNotifications) {
                 if manager.scheduledNotifications.isEmpty {
@@ -183,9 +182,10 @@ struct NotificationsView: View {
                     Task { await getSummary() }
                 }
             }
-            .onChange(of: hasBeenEdited){ edited in
+            .onChange(of: hasBeenEdited) { _, edited in
                 if edited {
                     manager.refreshNotifications()
+                    hasBeenEdited = false
                 }
             }
             .onChange(of: networkManager.hasInternet) { _, hasInternet in

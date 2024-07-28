@@ -12,16 +12,20 @@ import SwiftUI
 final class CountdownTimer: ObservableObject {
     @Published var timeRemaining: String = ""
     private var timer: AnyCancellable?
+    private var targetDate: Date
+    private var repeatInterval: RepeatInterval
 
-    init(targetDate: Date) {
+    init(targetDate: Date, repeatInterval: RepeatInterval) {
+        self.targetDate = targetDate
+        self.repeatInterval = repeatInterval
         timer = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                self?.updateTime(to: targetDate)
+                self?.updateTime()
             }
     }
     
-    private func updateTime(to targetDate: Date) {
+    private func updateTime() {
         let now = Date()
         let remainingSeconds = Int(targetDate.timeIntervalSince(now))
         
@@ -34,19 +38,38 @@ final class CountdownTimer: ObservableObject {
                 withAnimation {
                     timeRemaining = String(format: "%02d days & %02d:%02d:%02d", days, hours, minutes, seconds)
                 }
-            }
-            else if days == 0 {
+            } else if days == 0 {
                 withAnimation {
                     timeRemaining = String(format: "%02d:%02d:%02d", hours, minutes, seconds)
                 }
             }
         } else {
-            timeRemaining = "00 days 00:00:00"
-            timer?.cancel()
+            updateNextTargetDate()
         }
     }
-
     
+    private func updateNextTargetDate() {
+        let calendar = Calendar.current
+        switch repeatInterval {
+        case .none:
+            timeRemaining = "00 days 00:00:00"
+            timer?.cancel()
+        case .daily:
+            targetDate = calendar.date(byAdding: .day, value: 1, to: targetDate) ?? targetDate
+        case .weekly:
+            targetDate = calendar.date(byAdding: .weekOfYear, value: 1, to: targetDate) ?? targetDate
+        case .weekdays:
+            repeat {
+                targetDate = calendar.date(byAdding: .day, value: 1, to: targetDate) ?? targetDate
+            } while calendar.isDateInWeekend(targetDate)
+        case .weekends:
+            repeat {
+                targetDate = calendar.date(byAdding: .day, value: 1, to: targetDate) ?? targetDate
+            } while !calendar.isDateInWeekend(targetDate)
+        }
+        updateTime()
+    }
+
     deinit {
         timer?.cancel()
     }

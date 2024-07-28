@@ -54,11 +54,8 @@ let smallTextEditorHeight: CGFloat = 50
 let contentUnaivalableOffset: CGFloat = 40
 
 let buttonHeight: CGFloat = 50
-let backgroundSpeed: CGFloat = 0.6
+let backgroundSpeed: CGFloat = 0.4
 let standardCardPadding: CGFloat = 16
-//let greenGradient = LinearGradient(gradient: Gradient(colors: [Color.customLightBlue.opacity(0.7), Color.customLightBlue.opacity(0.8), Color.britishRacingGreen.opacity(0.9),
-//    Color.customLightBlue]), startPoint: .top, endPoint: .bottom)
-
 
 extension String {
     func deletingPrefix(_ prefix: String) -> String {
@@ -161,15 +158,6 @@ extension View {
     }
    
 }
-
-//func ErrorView(thrownError: String) -> some View {
-//      VStack {
-//          Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.yellow).font(.largeTitle)
-//          Text(thrownError).font(.caption2).bold()
-//      }
-//      .animation(.easeOut, value: thrownError)
-//  }
-
 
 
 final class KeyboardResponder: ObservableObject {
@@ -394,8 +382,6 @@ struct CustomDatePicker: View {
                 )
                 .datePickerStyle(GraphicalDatePickerStyle())
                 .labelsHidden()
-                    
-//                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white))
                 .shadow(radius: 5)
             }
         }
@@ -407,5 +393,30 @@ struct CustomDatePicker: View {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter
+    }
+}
+
+enum RepeatInterval: String, CaseIterable, Identifiable {
+    case none = "None"
+    case daily = "Daily"
+    case weekly = "Weekly"
+    case weekdays = "Weekdays"
+    case weekends = "Weekends"
+    
+    var id: String { self.rawValue }
+    
+    var description: String {
+        switch self {
+        case .none:
+            return "Never"
+        case .daily:
+            return "Daily"
+        case .weekly:
+            return "Weekly"
+        case .weekdays:
+            return "Weekdays"
+        case .weekends:
+            return "Weekends"
+        }
     }
 }

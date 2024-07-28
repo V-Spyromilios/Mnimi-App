@@ -96,9 +96,9 @@ struct NotificationEditView: View {
                             Task {
                                 UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
                                 await MainActor.run {
-                                    rescheduleNotification(identifier: id, title: "Mynd Vault: \(newTitle)", body: notificationBody, date: newDate)
+                                    rescheduleNotification(identifier: id, title: "\(newTitle)", body: notificationBody, date: newDate)
                                     print("Rescheduled for \(newDate)")
-                                    edited.toggle()
+                                    edited = true
                                     presentationMode.wrappedValue.dismiss()
                                 }
                             }
@@ -177,6 +177,13 @@ struct NotificationEditView: View {
     }
 }
 
+private func removeAppNamePrefix(from title: String, appName: String = "Mynd Vault: ") -> String {
+    while title.hasPrefix(appName) {
+        return String(title.dropFirst(appName.count))
+    }
+    return title
+}
+
 private func rescheduleNotification(identifier: String, title: String, body: String, date: Date) {
     let content = UNMutableNotificationContent()
     content.title = title
@@ -193,13 +200,16 @@ private func rescheduleNotification(identifier: String, title: String, body: Str
             print("Error RESCHEDULING notification: \(error.localizedDescription)")
         }
     }
+
 }
 
-struct NotificationEditView_Previews: PreviewProvider {
-    static var previews: some View {
-        let responder = KeyboardResponder()
-        
-        NotificationEditView(notification: CustomNotification(id: "2Sf3GT", title: "Custom Notification", notificationBody: "Remind me tomorrow to watch Big Bang Theory", date: Date()), edited: .constant(false))
-            .environmentObject(responder)
-    }
-}
+//struct NotificationEditView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        let responder = KeyboardResponder()
+//        
+//        NotificationEditView(notification:
+//                                CustomNotification(id: "2Sf3GT", title: "Custom Notification", notificationBody: "Remind me tomorrow to watch Big Bang Theory", date: Date(), repeats: true, edited: .constant(false))
+//                             )
+//            .environmentObject(responder)
+//    }
+//}
