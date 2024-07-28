@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PromptLanguageView: View {
+struct LanguageView: View {
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
@@ -60,7 +60,7 @@ struct PromptLanguageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
         }
-        .navigationTitle("Prompt Language")
+        .navigationTitle("Language")
         .navigationBarTitleDisplayMode(.large)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -70,8 +70,8 @@ struct PromptLanguageView: View {
                 }) {
                     HStack {
                         Image(systemName: "chevron.left")
-                        Text("⚙️")
-                    }
+                        Text("Settings")
+                    }.font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
                 }
             }
         }
@@ -82,5 +82,5 @@ struct PromptLanguageView: View {
     }
 }
 #Preview {
-    PromptLanguageView()
+    LanguageView()
 }
