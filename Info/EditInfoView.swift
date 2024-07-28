@@ -17,26 +17,39 @@ struct EditInfoView: View {
     @EnvironmentObject var networkManager: NetworkManager
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var keyboardResponder: KeyboardResponder
     
     @State private var showNoInternet = false
     @State var showSuccess: Bool = false
     @State var inProgress: Bool = false
     @EnvironmentObject var apiCalls: ApiCallViewModel
     
+    //newInfo
+    @State private var thrownError: String = ""
+    @State private var apiCallInProgress: Bool = false
+    @State private var animateStep: Int = 0
+    @State private var shake: Bool = false
+    @State private var oldText: String = ""
+    @State private var DeleteAnimating: Bool = false
+    
     var body: some View {
         
         ZStack {
-      
+            GeometryReader { geometry in
+                
                 LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
-            
-               
-                    InfoView(viewModel: viewModel, showSuccess: $showSuccess, inProgress: $inProgress)
-                .padding(.top, 12)
-                    //                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+                
+                
+                newInfo()
+                   
+                    .frame(height: geometry.size.height)
+                
+                //                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+            }
         }
         .navigationBarBackButtonHidden(true)
         .alert(isPresented: $showNoInternet) {
@@ -46,6 +59,26 @@ struct EditInfoView: View {
                 dismissButton: .cancel(Text("OK"))
             )
         }
+        .toolbar {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    if keyboardResponder.currentHeight > 0 {
+                        Button {
+                            hideKeyboard()
+                        } label: {
+                            HideKeyboardLabel()
+                        }
+                    }
+                    
+                    Button(action: {
+                        DeleteAnimating = true
+                        self.viewModel.activeAlert = .deleteWarning
+                    }) {
+                        LottieRepresentable(filename: "deleteBin", loopMode: .playOnce, isPlaying: $DeleteAnimating).foregroundStyle(.customLightBlue)
+                            .frame(width: 40, height: 50)
+                            .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                    }
+                }
+            }
         
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
@@ -223,6 +256,84 @@ struct EditInfoView: View {
                 viewModel.activeAlert = .error
             }
         }
+    }
+    
+    private func newInfo() -> some View {
+        ScrollView {
+        VStack {
+            HStack {
+                Image(systemName: "rectangle.and.pencil.and.ellipsis").bold()
+                Text("Edit Info:").bold()
+                Spacer() //or .frame(alignment:) in the hstack
+            }.font(.callout).padding(.bottom, 8)
+            
+            
+            TextEditor(text: $viewModel.description)
+                .fontDesign(.rounded)
+                .font(.title2)
+                .multilineTextAlignment(.leading)
+                .frame(height: textEditorHeight)
+            //                    .frame(maxWidth: idealWidth(for: geometry.size.width))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10.0)
+                        .stroke(lineWidth: 1)
+                        .opacity(colorScheme == .light ? 0.3 : 0.7)
+                        .foregroundColor(Color.gray)
+                )
+            
+                .padding(.bottom)
+            
+            
+            Button(action:  {
+                
+                if shake { return }
+                
+                //TODO: if no change to the text -> Shake
+                if viewModel.description.isEmpty || (oldText == viewModel.description) {
+                    withAnimation { shake = true }
+                    return
+                }
+                DispatchQueue.main.async {
+                    withAnimation {
+                        hideKeyboard()
+                        self.viewModel.activeAlert = .editConfirmation }
+                }
+            }
+            ) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: rectCornerRad)
+                        .fill(Color.customLightBlue)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                        .frame(height: buttonHeight)
+                    
+                    Text("Save").font(.title2).bold()
+                        .foregroundColor(Color.buttonText)
+                        .accessibilityLabel("save")
+                }
+                .contentShape(Rectangle())
+                
+            }
+            .frame(maxWidth: .infinity)
+            .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+            .padding(.top, 12)
+            .padding(.horizontal)
+            .animation(.easeInOut, value: keyboardResponder.currentHeight)
+            .id("SubmitButton")
+            .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
+            
+            if inProgress {
+                LottieRepresentable(filename: "Brain Configurations", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).id(UUID()).animation(.easeInOut, value: inProgress)
+            }
+            
+            else if showSuccess {
+                LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
+            }
+            Spacer()
+        } .padding(.horizontal, standardCardPadding)
+                .padding(.top, 12)
+    }
     }
 
 }

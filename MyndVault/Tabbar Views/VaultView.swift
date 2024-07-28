@@ -52,20 +52,7 @@ struct VaultView: View {
                         
                         else if !vectorsAreLoading && !pineconeManger.pineconeFetchedVectors.isEmpty && errorMessage == "" {
                             ForEach(filteredVectors.indices.indices, id: \.self) { index in
-//                                let data = pineconeManger.pineconeFetchedVectors[index]
                                 let data = filteredVectors[index]
-                                
-//                                InfosViewListCellView(data: data).id(UUID())
-//                                    .onTapGesture {
-//                                        print("Tapped: \(String(describing: data.metadata["description"]))")
-//                                        self.selectedInfo = data
-//                                        
-//                                        print("selectedInfo: \(String(describing: selectedInfo))")
-//                                        showEdit.toggle()
-//                                    }
-//                                    .padding(.horizontal, standardCardPadding)
-//                                    .padding(.vertical, 12)
-                                    
                                 
                                 NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
                                     InfosViewListCellView(data: data)
@@ -89,13 +76,11 @@ struct VaultView: View {
                                 self.errorMessage = ""
                             }
                         }
-                            
                     }
                     .searchable(text: $searchText)
-                    .padding(.top, 12)
 
                 }
-               
+                .padding(.top, 12)
                 .refreshable {
                     vectorsAreLoading = true
                     if errorMessage != "" {
@@ -131,29 +116,12 @@ struct VaultView: View {
                     HStack {
                         Text("Vault").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
                         LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
+                    .padding(.bottom)
                 }
                 }
            
         }
-//            .fullScreenCover(isPresented: $showEdit, onDismiss: clearSelectedInfo) {
-//                if selectedInfo != nil {
-//                    //                        CombinedInfoView(viewModel: EditInfoViewModel(vector: data))
-//                    EditInfoView(viewModel: EditInfoViewModel(vector: selectedInfo!))
-////                    Text(data.metadata["description"] ?? "defaulted")
-//                } else {
-//                    Text("POUTSA").bold()
-//                }
-//            }
-            
-       
-        //        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        //        .alert(isPresented: $showAlert) {
-        //            Alert(
-        //                title: Text("Error fetching Info"),
-        //                message: Text("\(alertMessage), Scroll down to retry!"),
-        //                dismissButton: .default(Text("OK"))
-        //            )
-        //        }
+
         .onAppear {
             if pineconeManger.pineconeFetchedVectors.isEmpty {
                 self.vectorsAreLoading = true
@@ -180,47 +148,47 @@ struct VaultView: View {
         }
         
     }
-
-        func minY(_ proxy: GeometryProxy) -> CGFloat {
-            let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
-            return minY < 0 ? -minY : 0
-        }
+//
+//        func minY(_ proxy: GeometryProxy) -> CGFloat {
+//            let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
+//            return minY < 0 ? -minY : 0
+//        }
     private func clearSelectedInfo() {
         self.selectedInfo = nil
     }
-
-        func scale(_ proxy: GeometryProxy, scale: CGFloat = 0.1) -> CGFloat {
-            let val = 1.0 - (progress(proxy) * scale)
-            return val
-        }
+//
+//        func scale(_ proxy: GeometryProxy, scale: CGFloat = 0.1) -> CGFloat {
+//            let val = 1.0 - (progress(proxy) * scale)
+//            return val
+//        }
+//        
+//        
+//        func excessTop(_ proxy: GeometryProxy, offset: CGFloat = 12) -> CGFloat {
+//            let p = progress(proxy)
+//            return -p * offset
+//        }
+//        
         
-        
-        func excessTop(_ proxy: GeometryProxy, offset: CGFloat = 12) -> CGFloat {
-            let p = progress(proxy)
-            return -p * offset
-        }
-        
-        
-         func brightness(_ proxy: GeometryProxy) -> CGFloat {
-            let progress = progress(proxy)
-            let variation = 0.2
-            let threshold = -0.2
-            let value = -progress * variation
-            return value < threshold ? threshold : value
-        }
-        
-       
-         func progress(_ proxy: GeometryProxy) -> CGFloat {
-            // when a card reached its top, start to calculate its progress
-            if (minY(proxy) == 0) {
-                return 0
-            }
-            // start to calculate progress
-            let maxY = proxy.frame(in: .scrollView(axis: .vertical)).maxY
-            let height = 80.0 //card height
-            let progress = 1.0 - ((maxY / height))
-            return progress
-        }
+//         func brightness(_ proxy: GeometryProxy) -> CGFloat {
+//            let progress = progress(proxy)
+//            let variation = 0.2
+//            let threshold = -0.2
+//            let value = -progress * variation
+//            return value < threshold ? threshold : value
+//        }
+//        
+//       
+//         func progress(_ proxy: GeometryProxy) -> CGFloat {
+//            // when a card reached its top, start to calculate its progress
+//            if (minY(proxy) == 0) {
+//                return 0
+//            }
+//            // start to calculate progress
+//            let maxY = proxy.frame(in: .scrollView(axis: .vertical)).maxY
+//            let height = 80.0 //card height
+//            let progress = 1.0 - ((maxY / height))
+//            return progress
+//        }
 
     private func fetchPineconeEntries() {
         Task {

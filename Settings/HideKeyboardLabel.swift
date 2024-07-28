@@ -15,9 +15,9 @@ struct HideKeyboardLabel: View {
             .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
             .overlay {
                 Image(systemName: "keyboard.chevron.compact.down")
-                    .foregroundStyle(.yellow)
+                   
                     .padding()
-                .accessibilityLabel("Hide Keyboard") }
+                }
             }
     }
 

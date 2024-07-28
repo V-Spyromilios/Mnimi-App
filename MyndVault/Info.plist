@@ -8,6 +8,19 @@
 	<string></string>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>dev.chillvibes.myndvault</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>myndVaultScheme</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>MyndVault/SF-Compact.otf</string>
