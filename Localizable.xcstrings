@@ -1,0 +1,286 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "%@" : {
+
+    },
+    "%@\nPlease try again later" : {
+
+    },
+    "%@.\nPlease check your iCloud status and restart the Mynd Vault app" : {
+
+    },
+    "%lld API Calls" : {
+
+    },
+    "%lld%%" : {
+
+    },
+    "<" : {
+
+    },
+    "About" : {
+
+    },
+    "Add New Info" : {
+
+    },
+    "Add new notification" : {
+
+    },
+    "Add New Notification" : {
+
+    },
+    "Add photo" : {
+
+    },
+    "All indexes" : {
+
+    },
+    "Are you sure you want to delete this info?" : {
+
+    },
+    "Are you sure you want to save these changes?" : {
+
+    },
+    "Ask me" : {
+
+    },
+    "Authentication Failed" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Change photo" : {
+
+    },
+    "Check Pinecone Index" : {
+
+    },
+    "clear" : {
+
+    },
+    "Clear and reset" : {
+
+    },
+    "Close Settings" : {
+
+    },
+    "Confirm Password" : {
+
+    },
+    "Credit" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delete Info?" : {
+
+    },
+    "Dismiss" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit Info:" : {
+
+    },
+    "Edit Notification" : {
+
+    },
+    "Enter Username/Password" : {
+
+    },
+    "Get Index Info" : {
+
+    },
+    "Go" : {
+
+    },
+    "Hide Keyboard" : {
+
+    },
+    "iCloud" : {
+
+    },
+    "iCloud Error" : {
+
+    },
+    "Index Details" : {
+
+    },
+    "Index Info" : {
+
+    },
+    "info" : {
+
+    },
+    "Initial Setup" : {
+
+    },
+    "Language" : {
+
+    },
+    "List Pinecone Indexes" : {
+
+    },
+    "Log out." : {
+
+    },
+    "Login" : {
+
+    },
+    "Login with iCloud" : {
+
+    },
+    "Mynd Vault" : {
+
+    },
+    "Mynd Vault 🗃️" : {
+
+    },
+    "No Image Selected" : {
+
+    },
+    "No Internet Connection" : {
+
+    },
+    "Notification" : {
+
+    },
+    "Notifications" : {
+
+    },
+    "OH YES" : {
+
+    },
+    "OK" : {
+
+    },
+    "Oops" : {
+
+    },
+    "Password" : {
+
+    },
+    "Pinecone Developer View" : {
+
+    },
+    "Please check your connection" : {
+
+    },
+    "Please check your internet connection and try again." : {
+
+    },
+    "Prompt Language" : {
+
+    },
+    "Question" : {
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ερώτηση"
+          }
+        }
+      }
+    },
+    "Repeat" : {
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Επαναλαμβάνεται"
+          }
+        }
+      }
+    },
+    "Repeats: %@" : {
+
+    },
+    "Reply" : {
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Απάντηση"
+          }
+        }
+      }
+    },
+    "Reschedule" : {
+
+    },
+    "Retry" : {
+
+    },
+    "save" : {
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "αποθήκευση"
+          }
+        }
+      }
+    },
+    "Save" : {
+
+    },
+    "Save changes and reschedule" : {
+
+    },
+    "Save Info?" : {
+
+    },
+    "Select Date and Time" : {
+
+    },
+    "selected Language: %@" : {
+
+    },
+    "settings" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Setup Error" : {
+
+    },
+    "Sign Up Error" : {
+
+    },
+    "Sign-up with Password" : {
+
+    },
+    "Signing in with iCloud..." : {
+
+    },
+    "Stop" : {
+
+    },
+    "Title" : {
+
+    },
+    "Username" : {
+
+    },
+    "Vault" : {
+
+    },
+    "When?" : {
+
+    },
+    "You are not connected to the Internet" : {
+
+    }
+  },
+  "version" : "1.0"
+}

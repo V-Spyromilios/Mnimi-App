@@ -17,7 +17,7 @@ struct MainView: View {
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
     
-    @State private var navigateToQuestionView = false //for widget
+   /* @State private var navigateToQuestionView = false*/ //for widget
     
     var body: some View {
 
