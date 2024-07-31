@@ -7,20 +7,36 @@
 
 import SwiftUI
 
-struct LanguageView: View {
+struct PromptLanguageView: View {
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     
+    @EnvironmentObject var openAiManager: OpenAIManager
+    
     @State private var selectedLanguage: LanguageCode
     
     init() {
+//        if let savedLanguage = UserDefaults.standard.string(forKey: "selectedPromptLanguage"),
+//           let languageCode = LanguageCode(rawValue: savedLanguage) {
+//            _selectedLanguage = State(initialValue: languageCode)
+//        } else {
+//            _selectedLanguage = State(initialValue: .english)
+//        }
+
+        let systemLanguageCode = Locale.current.language.languageCode?.identifier ?? "en"
+
         if let savedLanguage = UserDefaults.standard.string(forKey: "selectedPromptLanguage"),
            let languageCode = LanguageCode(rawValue: savedLanguage) {
             _selectedLanguage = State(initialValue: languageCode)
-        } else {
+        } 
+        else if let languageCode = LanguageCode(rawValue: systemLanguageCode), LanguageCode.allCases.contains(languageCode) {
+            _selectedLanguage = State(initialValue: languageCode)
+        } 
+        else {
             _selectedLanguage = State(initialValue: .english)
         }
+        
     }
     
     var body: some View {
@@ -79,8 +95,10 @@ struct LanguageView: View {
     
     private func saveLanguageSelection(language: LanguageCode) {
         UserDefaults.standard.set(language.rawValue, forKey: "selectedPromptLanguage")
+        openAiManager.selectedLanguage = language
+        
     }
 }
 #Preview {
-    LanguageView()
+    PromptLanguageView()
 }

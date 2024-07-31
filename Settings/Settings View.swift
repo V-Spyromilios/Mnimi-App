@@ -24,7 +24,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 15) {
                     HStack {
-                        NavigationLink(destination: LanguageView()) { Text("Prompt Language").foregroundStyle(colorScheme == .light ? .black : .white)
+                        NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language").foregroundStyle(colorScheme == .light ? .black : .white)
                         }
                         Spacer()
                         VStack {

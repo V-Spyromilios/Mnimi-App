@@ -30,6 +30,7 @@ struct QuestionView: View {
     @State private var fetchedImages: [UIImage] = []
     @State private var isLoading: Bool = false
     @State private var shake: Bool = false
+    @State private var langHasShown: Bool = false
 
     
     var body: some View {
@@ -40,6 +41,7 @@ struct QuestionView: View {
                 HStack {
                     Image(systemName: "questionmark.bubble").bold()
                     Text("Question").bold()
+                    if langHasShown { Text("\(openAiManager.selectedLanguage)".capitalized).foregroundStyle(.gray) }
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
                 
@@ -58,6 +60,15 @@ struct QuestionView: View {
                     )
                     .padding(.bottom)
                     .padding(.horizontal, standardCardPadding)
+                    .onAppear {
+                        withAnimation {
+                            if !langHasShown {
+                                langHasShown.toggle()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.7) {
+                                    langHasShown.toggle()
+                                }
+                            } }
+                    }
                 VStack {
                 
                         if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
@@ -217,6 +228,10 @@ struct QuestionView: View {
                     withAnimation {
                         showFullImage = false }
                 }
+            }
+            .onChange(of: openAiManager.selectedLanguage) {
+                withAnimation {
+                    langHasShown = false }
             }
 //            .onChange(of: pineconeManager.receivedError) { _, receivedError in
 //                if let unwrappedError = receivedError { withAnimation { self.thrownError = unwrappedError.localizedDescription } }
