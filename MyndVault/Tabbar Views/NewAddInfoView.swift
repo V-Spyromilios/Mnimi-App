@@ -12,14 +12,15 @@ struct NewAddInfoView: View {
     @State private var newInfo: String = ""
     @State private var apiCallInProgress: Bool = false
     @State private var thrownError: String = ""
-    
-    @State private var clearButtonIsVisible: Bool = false
+    @State private var showError: Bool = false
+
     @State private var saveButtonIsVisible: Bool = true
     @State private var showSettings: Bool = false
     
     @State private var isLoading: Bool = false //used just for the button
     @State private var shake: Bool = false
     @State private var showNoInternet: Bool = false
+    @State private var showLang: Bool = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -30,6 +31,7 @@ struct NewAddInfoView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var apiCalls: ApiCallViewModel
+    @EnvironmentObject var languageSettings: LanguageSettings
     
     var body: some View {
         
@@ -42,6 +44,7 @@ struct NewAddInfoView: View {
                         HStack {
                             Image(systemName: "plus.bubble").bold()
                             Text("info").bold()
+                            if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8) }
                             Spacer()
                         }.font(.callout).padding(.top,12).padding(.bottom, 8)
                         
@@ -138,30 +141,21 @@ struct NewAddInfoView: View {
                     }.padding(.horizontal, standardCardPadding)
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
+
                     }
-                    
-                    if self.thrownError != "" {
-                        //                        ErrorView(thrownError: thrownError)
-                        //                            .padding(.top)
-                        //                            .padding(.horizontal)
-                        ClearButton
-                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
+                    .onAppear {
+                       
+                            if !showLang {
+                                withAnimation {
+                                    showLang.toggle() }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                                    withAnimation {
+                                        showLang.toggle() }
+                                }
+                            }
                     }
-                    //                    else if pineconeManager.receivedError != nil {
-                    ////                        ErrorView(thrownError: thrownError)
-                    ////                            .padding(.top)
-                    ////                            .padding(.horizontal)
-                    //                        ClearButton
-                    //                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                    //                    }
-                    //                    else if openAiManager.thrownError != "" {
-                    ////                        ErrorView(thrownError: thrownError)
-                    ////                            .padding(.top)
-                    ////                            .padding(.horizontal)
-                    //                        ClearButton
-                    //                            .offset(y: keyboardResponder.currentHeight > 0 ? 70: 0 )
-                    //                    }
-                    else if saveButtonIsVisible && pineconeManager.receivedError == nil {
+
+                    if saveButtonIsVisible && pineconeManager.receivedError == nil {
                         SaveButton
                         
                     }
@@ -170,6 +164,14 @@ struct NewAddInfoView: View {
                         LottieRepresentable(filename: "Brain Configurations", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).id(UUID())
                     }
                     Spacer()
+                    
+                }
+                .sheet(isPresented: $showError) {
+
+                        ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
+                        .presentationDetents([.fraction(0.4)])
+                        .presentationDragIndicator(.hidden)
+                        .presentationBackground(Color.clear)
                     
                 }
 //                .padding(.horizontal, standardCardPadding) //TODO: No padding !?!
@@ -194,16 +196,21 @@ struct NewAddInfoView: View {
                     }
                 }
             }
-            //            .onChange(of: openAiManager.thrownError) { _, errorMessage in
-            ////                if errorMessage != "" {
-            //                withAnimation {
-            //                    self.thrownError = errorMessage }
-            ////                }
-            //            }
+            .onChange(of: languageSettings.selectedLanguage) {
+                withAnimation {
+                    showLang = true }
+                DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                    withAnimation {
+                        showLang = false }
+                }
+            }
             .onChange(of: networkManager.hasInternet) { _, hasInternet in
                 if !hasInternet {
                     showNoInternet = true
                 }
+            }
+            .onChange(of: thrownError) {
+                showError.toggle()
             }
             .alert(isPresented: $showNoInternet) {
                 Alert(
@@ -239,34 +246,34 @@ struct NewAddInfoView: View {
         .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
         .padding(.top, 12)
         .padding(.horizontal)
+        .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
     }
     
-    private var ClearButton: some View {
-        Button(action: performClearTask) {
-            ZStack {
-                RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customLightBlue)
-                    .frame(height: buttonHeight)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                
-                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
-                    .accessibilityLabel("clear")
-            }
-            .contentShape(Rectangle())
-        }
-        .padding(.top, 12)
-        .padding(.horizontal)
-        .animation(.easeInOut, value: keyboardResponder.currentHeight)
-        .frame(maxWidth: .infinity)
-    }
+//    private var ClearButton: some View {
+//        Button(action: performClearTask) {
+//            ZStack {
+//                RoundedRectangle(cornerRadius: rectCornerRad)
+//                    .fill(Color.customLightBlue)
+//                    .frame(height: buttonHeight)
+//                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+//                
+//                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
+//                    .accessibilityLabel("clear")
+//            }
+//            .contentShape(Rectangle())
+//        }
+//        .padding(.top, 12)
+//        .padding(.horizontal)
+//        .animation(.easeInOut, value: keyboardResponder.currentHeight)
+//        .frame(maxWidth: .infinity)
+//    }
     
     private func performClearTask() {
         
         withAnimation {
             progressTracker.reset()
             self.thrownError = ""
-            self.clearButtonIsVisible = false
             Task {
                 await openAiManager.clearManager()
                 await pineconeManager.clearManager()
@@ -296,8 +303,8 @@ struct NewAddInfoView: View {
         
         do {
             //MARK: TEST THROW
-            //                let miaMalakia = AppCKError.UnableToGetNameSpace
-            //                throw miaMalakia
+//                            let miaMalakia = AppCKError.UnableToGetNameSpace
+//                            throw miaMalakia
             
             try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
             

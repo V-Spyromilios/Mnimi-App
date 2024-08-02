@@ -12,10 +12,10 @@ struct NotificationCellView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var manager: NotificationViewModel
     @Environment(\.presentationMode) var presentationMode
-
+    
     @State private var popUpOptions: [String] = [
-        "Delete",
-        "Edit..."
+        NSLocalizedString("Delete", comment: "Option to delete an item"),
+        NSLocalizedString("Edit...", comment: "Option to edit an item")
     ]
     
     @State private var showPopover: Bool = false
@@ -37,77 +37,80 @@ struct NotificationCellView: View {
     }
     
     var body: some View {
-
-            VStack {
-                HStack {
-                    Text(notification.title)
-                        .font(.title)
-                        .foregroundStyle(.notificationsTitle)
-                        .fontWeight(.bold)
-                        .fontDesign(.rounded)
-                        .padding(.bottom, 2)
-                        .padding(.top, 5)
-                        .padding(.leading)
-                    Spacer()
-                }
-                HStack {
-                    Text(notification.notificationBody)
-                        .foregroundStyle(colorScheme == .light ? .black : .white.opacity(0.6))
-                        .italic()
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(nil)
-                        .padding(.bottom, 10)
-                        .padding(.leading)
-                    Spacer()
-                }
-                
-                Text(formatDate(notification.date))
-                    .font(.title2)
+        
+        VStack {
+            HStack {
+                Text(notification.title)
+                    .font(.title)
+                    .foregroundStyle(.notificationsTitle)
+                    .fontWeight(.bold)
                     .fontDesign(.rounded)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
-                    .padding(.bottom)
-                
-                Text(viewModel.timeRemaining)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .contentTransition(.numericText())
-//                    .padding(.bottom, 18)
-               
-                HStack(alignment: .center) {
-                    ZStack {
-                        if notification.repeats {
-                            Text("Repeats: \(notification.repeatInterval!.description)")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                                .contentTransition(.numericText())
-                                .padding(.bottom, 18)
+                    .padding(.bottom, 2)
+                    .padding(.top, 5)
+                    .padding(.leading)
+                Spacer()
+            }
+            HStack {
+                Text(notification.notificationBody)
+                    .foregroundStyle(colorScheme == .light ? .black : .white.opacity(0.6))
+                    .italic()
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(nil)
+                    .padding(.bottom, 10)
+                    .padding(.leading)
+                Spacer()
+            }
+            
+            Text(formatDate(notification.date))
+                .font(.title2)
+                .fontDesign(.rounded)
+                .fontWeight(.medium)
+                .foregroundStyle(.secondary)
+                .padding(.bottom)
+            
+            Text(viewModel.timeRemaining)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .contentTransition(.numericText())
+            //                    .padding(.bottom, 18)
+            
+            HStack(alignment: .center) {
+                ZStack {
+                    if notification.repeats {
+                        HStack {
+                            Text(LocalizedStringKey("Repeats:"))
+                            Text(notification.repeatInterval!.description).padding(.leading, 8)
                         }
-                        Button(action: {
-                            
-                            showPopover.toggle()
-                            print("Button pressed: \(showPopover)")
-                        }) {
-                           
-                                            LottieRepresentable(filename: "Vertical Dot Menu", loopMode: .playOnce, isPlaying: $isAnimating)
-                                                .frame(width: 55, height: 55)
-                                                .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
-                                               
-                        }.offset(x: 150, y: -10)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .contentTransition(.numericText())
+                        .padding(.bottom, 18)
                     }
-                    
+                    Button(action: {
+                        
+                        showPopover.toggle()
+                        print("Button pressed: \(showPopover)")
+                    }) {
+                        
+                        LottieRepresentable(filename: "Vertical Dot Menu", loopMode: .playOnce, isPlaying: $isAnimating)
+                            .frame(width: 55, height: 55)
+                            .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                        
+                    }.offset(x: 150, y: -10)
                 }
+                
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top)
-            .background(Color.cardBackground)
-            .cornerRadius(10)
-            .shadow(radius: shadowRadius)
-
-            .popover(isPresented: $showPopover, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-                popOverContent()
-            }
-        .fullScreenCover(isPresented: $showNotificationEdit) {
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top)
+        .background(Color.cardBackground)
+        .cornerRadius(10)
+        .shadow(radius: shadowRadius)
+        
+        .popover(isPresented: $showPopover, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+            popOverContent()
+        }
+        .sheet(isPresented: $showNotificationEdit) {
             NotificationEditView(notification: notification, edited: $edited)
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
@@ -118,7 +121,7 @@ struct NotificationCellView: View {
                 }
         }
     }
-
+    
     private func formatDate(_ date: Date?) -> String {
         guard let date = date else { return "No date provided" }
         let dateFormatter = DateFormatter()
@@ -126,7 +129,7 @@ struct NotificationCellView: View {
         dateFormatter.timeStyle = .short
         return dateFormatter.string(from: date)
     }
-
+    
     
     private func popOverContent() -> some View {
         VStack(alignment: .leading, spacing: 7) {
@@ -142,8 +145,8 @@ struct NotificationCellView: View {
                 }) {
                     if option == popUpOptions.first {
                         
-                            Text(option).font(.body).foregroundStyle(.red)
-                            
+                        Text(option).font(.body).foregroundStyle(.red)
+                        
                     } else {
                         Text(option).font(.body).foregroundStyle(Color.primary)
                     }
@@ -175,7 +178,7 @@ struct NotificationCellView_Preview: PreviewProvider {
         )
         .environmentObject(NotificationViewModel()) // Add necessary environment objects
         .preferredColorScheme(.dark) // Preview in light mode
-//        .previewLayout(.sizeThatFits)
+        //        .previewLayout(.sizeThatFits)
         .padding(.horizontal, standardCardPadding)
     }
 }

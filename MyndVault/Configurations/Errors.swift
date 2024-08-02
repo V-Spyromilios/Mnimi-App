@@ -74,7 +74,7 @@ enum AppCKError: LocalizedError {
             return "iCloud Account Temporarily Unavailable."
             
         case .UnableToGetNameSpace:
-            return "Unable To retrieve namespace."
+            return "Unable to retrieve namespace."
             
         case .unknownError(let message):
             return "Unknown Error Occurred : \(message)"

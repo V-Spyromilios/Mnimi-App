@@ -24,7 +24,7 @@ struct NotificationsView: View {
     @State private var errorMessage: String = ""
     @State private var showNoInternet = false
     @State var selectedNotification: CustomNotification?
-    @State private var selectedOption: viewOptions = .Notifications
+    @State private var selectedOption: ViewOptions = .notifications
     @State private var showEmpty: Bool = false
     @State private var plusIsAnimating: Bool = false
     @State private var emptyIsAnimating: Bool = false
@@ -32,20 +32,29 @@ struct NotificationsView: View {
     @State private var hasBeenEdited: Bool = false
     
     
-    enum viewOptions: String, CaseIterable, Identifiable {
-        case Notifications = "Notifications"
-        case Summary = "Summary"
+    enum ViewOptions: String, CaseIterable, Identifiable {
+        case notifications = "Notifications"
+        case monthAhead = "Month Ahead"
         
         var id: String { self.rawValue }
+        
+        var localizedName: String {
+            switch self {
+            case .notifications:
+                return NSLocalizedString("Notifications", comment: "")
+            case .monthAhead:
+                return NSLocalizedString("Month Ahead", comment: "")
+            }
+        }
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack {
                 VStack {
                     Picker("", selection: $selectedOption) {
-                        ForEach(viewOptions.allCases) { option in
-                            Text(option.rawValue).tag(option)
+                        ForEach(ViewOptions.allCases) { option in
+                            Text(option.localizedName).tag(option)
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -55,7 +64,7 @@ struct NotificationsView: View {
                 
                 GeometryReader { geometry in
                     VStack {
-                        if selectedOption == .Summary {
+                        if selectedOption == .monthAhead {
                             VStack {
                                 
                                 if isLoadingSummary {
@@ -90,6 +99,7 @@ struct NotificationsView: View {
                                     }
                                 }
                             }.frame(maxWidth: .infinity, maxHeight: screenWidth)
+                            
                             .overlay {
                                 if showError {
                                     ErrorView(thrownError: errorMessage, dismissAction: clearError)
@@ -98,14 +108,9 @@ struct NotificationsView: View {
                                         .zIndex(1)
                                 }
                             }
-                            .refreshable {
-                                if !errorMessage.isEmpty {
-                                    errorMessage = ""
-                                }
-                                await getSummary()
-                            }
                             
-                        } else if selectedOption == .Notifications && !manager.scheduledNotifications.isEmpty {
+                            
+                        } else if selectedOption == .notifications && !manager.scheduledNotifications.isEmpty {
                             ScrollView {
                                 ForEach(manager.scheduledNotifications.indices, id: \.self) { index in
                                     let notification = manager.scheduledNotifications[index]
@@ -197,7 +202,7 @@ struct NotificationsView: View {
                 if manager.scheduledNotifications.isEmpty {
                     showEmpty = true
                     emptyIsAnimating = true
-                } else {
+                } else if openAi.notificationsSummary.isEmpty {
                     emptyIsAnimating = false
                     Task { await getSummary() }
                 }

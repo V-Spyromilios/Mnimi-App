@@ -42,8 +42,8 @@ struct MyndVaultApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     @StateObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
-    @StateObject var openAiManager = OpenAIManager()
     @StateObject var pineconeManager = PineconeManager()
+    @StateObject var openAiManager = OpenAIManager()
     @StateObject var progressTracker = ProgressTracker.shared
     @StateObject var notificationsManager = NotificationViewModel()
     @StateObject var speechManager = SpeechRecognizerManager()
@@ -51,6 +51,7 @@ struct MyndVaultApp: App {
     @StateObject var authManager = AuthenticationManager()
     @StateObject private var networkManager = NetworkManager()
     @StateObject var apiCallsViewModel = ApiCallViewModel()
+    @StateObject private var languageSettings = LanguageSettings.shared
     @State var showSplash: Bool = true
     
     
@@ -93,6 +94,7 @@ struct MyndVaultApp: App {
                         .environmentObject(authManager)
                         .environmentObject(networkManager)
                         .environmentObject(apiCallsViewModel)
+                        .environmentObject(languageSettings)
                         .statusBar(hidden: true)
                 }
                 
