@@ -56,6 +56,7 @@ let contentUnaivalableOffset: CGFloat = 40
 let buttonHeight: CGFloat = 50
 let backgroundSpeed: CGFloat = 0.4
 let standardCardPadding: CGFloat = 16
+let showLangDuration: CGFloat = 2.5
 
 extension String {
     func deletingPrefix(_ prefix: String) -> String {
@@ -360,7 +361,8 @@ struct CustomDatePicker: View {
     var body: some View {
         VStack {
             Button(action: {
-                showingDatePicker.toggle()
+                withAnimation {
+                    showingDatePicker.toggle() }
             }) {
                 
                     Text("\(selectedDate, formatter: dateFormatter)")
@@ -368,9 +370,9 @@ struct CustomDatePicker: View {
                     .fontDesign(.rounded)
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)
-                    .padding(.bottom)
+                    .padding(.bottom, 8)
             }
-            .padding()
+           
             .background(RoundedRectangle(cornerRadius: 10).fill(Color.clear))
             .shadow(radius: 4)
             
@@ -382,10 +384,12 @@ struct CustomDatePicker: View {
                 )
                 .datePickerStyle(GraphicalDatePickerStyle())
                 .labelsHidden()
-                .shadow(radius: 5)
+                
+                .padding(.bottom, 12)
+               // .shadow(radius: 5)
+               
             }
-        }
-        .padding()
+        }.frame(maxHeight: 500)
     }
     
     private var dateFormatter: DateFormatter {
@@ -405,18 +409,18 @@ enum RepeatInterval: String, CaseIterable, Identifiable {
     
     var id: String { self.rawValue }
     
-    var description: String {
-        switch self {
-        case .none:
-            return "Never"
-        case .daily:
-            return "Daily"
-        case .weekly:
-            return "Weekly"
-        case .weekdays:
-            return "Weekdays"
-        case .weekends:
-            return "Weekends"
+    var description: LocalizedStringKey {
+            switch self {
+            case .none:
+                return LocalizedStringKey("Never")
+            case .daily:
+                return LocalizedStringKey("Daily")
+            case .weekly:
+                return LocalizedStringKey("Weekly")
+            case .weekdays:
+                return LocalizedStringKey("Weekdays")
+            case .weekends:
+                return LocalizedStringKey("Weekends")
+            }
         }
-    }
 }

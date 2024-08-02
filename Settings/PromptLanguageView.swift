@@ -11,33 +11,8 @@ struct PromptLanguageView: View {
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
-    
-    @EnvironmentObject var openAiManager: OpenAIManager
-    
-    @State private var selectedLanguage: LanguageCode
-    
-    init() {
-//        if let savedLanguage = UserDefaults.standard.string(forKey: "selectedPromptLanguage"),
-//           let languageCode = LanguageCode(rawValue: savedLanguage) {
-//            _selectedLanguage = State(initialValue: languageCode)
-//        } else {
-//            _selectedLanguage = State(initialValue: .english)
-//        }
+    @EnvironmentObject var languageSettings: LanguageSettings
 
-        let systemLanguageCode = Locale.current.language.languageCode?.identifier ?? "en"
-
-        if let savedLanguage = UserDefaults.standard.string(forKey: "selectedPromptLanguage"),
-           let languageCode = LanguageCode(rawValue: savedLanguage) {
-            _selectedLanguage = State(initialValue: languageCode)
-        } 
-        else if let languageCode = LanguageCode(rawValue: systemLanguageCode), LanguageCode.allCases.contains(languageCode) {
-            _selectedLanguage = State(initialValue: languageCode)
-        } 
-        else {
-            _selectedLanguage = State(initialValue: .english)
-        }
-        
-    }
     
     var body: some View {
         ScrollView {
@@ -45,14 +20,14 @@ struct PromptLanguageView: View {
             VStack(spacing: 10) {
                 ForEach(LanguageCode.allCases, id: \.self) { language in
                     Button(action: {
-                        self.selectedLanguage = language
-                        saveLanguageSelection(language: language)
+                       
+                        languageSettings.selectedLanguage = language
                     }) {
                         HStack {
                             Text(language.displayName)
                                 .foregroundStyle(colorScheme == .light ? .black : Color.smoothWhite)
                             Spacer()
-                            if language == selectedLanguage {
+                            if language == languageSettings.selectedLanguage {
                                 Text(language.flagEmoji).font(.title3)
                             }
                         }
@@ -60,7 +35,7 @@ struct PromptLanguageView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background( Color.primaryBackground)
                         .cornerRadius(10)
-                        .shadow(color: colorScheme == .dark ? .white : .black, radius: language == selectedLanguage ? 5 : 2)
+                        .shadow(color: colorScheme == .dark ? .white : .black, radius: language == languageSettings.selectedLanguage ? 5 : 2)
                         .contentShape(Rectangle())
                         .accessibilityLabel("selected Language: \(language.rawValue)")
                     }
@@ -91,12 +66,6 @@ struct PromptLanguageView: View {
                 }
             }
         }
-    }
-    
-    private func saveLanguageSelection(language: LanguageCode) {
-        UserDefaults.standard.set(language.rawValue, forKey: "selectedPromptLanguage")
-        openAiManager.selectedLanguage = language
-        
     }
 }
 #Preview {

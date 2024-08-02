@@ -47,8 +47,6 @@ struct EditInfoView: View {
                    
                     .frame(height: geometry.size.height)
                 
-                //                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -189,16 +187,6 @@ struct EditInfoView: View {
                 )
             }
         }
-//        .navigationBarTitleView {
-//
-//            Button(action: {
-//                presentationMode.wrappedValue.dismiss()
-//            }) {
-//                HStack {
-//                    Text("<").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-//                    LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
-//            }
-//        }
         .navigationBarItems(leading: Button(action: {
                     presentationMode.wrappedValue.dismiss()
                 }) {
@@ -324,7 +312,7 @@ struct EditInfoView: View {
             .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
             
             if inProgress {
-                LottieRepresentable(filename: "Brain Configurations", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).id(UUID()).animation(.easeInOut, value: inProgress)
+                LottieRepresentable(filename: "Brain Configurations", speed: 0.8).frame(width: 220, height: 220).id(UUID()).animation(.easeInOut, value: inProgress)
             }
             
             else if showSuccess {

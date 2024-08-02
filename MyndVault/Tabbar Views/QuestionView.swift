@@ -18,19 +18,21 @@ struct QuestionView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var apiCalls: ApiCallViewModel
+    @EnvironmentObject var languageSettings: LanguageSettings
     
     @State private var question: String = ""
     @State private var thrownError: String = ""
     @State private var goButtonIsVisible: Bool = true
     @State private var selectedImageIndex: Int? = nil
     @State private var showNoInternet = false
-    @State private var clearButtonIsVisible: Bool = false
+
     @State private var showFullImage: Bool = false
     @State private var showSettings: Bool = false
     @State private var fetchedImages: [UIImage] = []
     @State private var isLoading: Bool = false
     @State private var shake: Bool = false
-    @State private var langHasShown: Bool = false
+    @State private var showLang: Bool = false
+    @State private var showError: Bool = false
 
     
     var body: some View {
@@ -41,7 +43,7 @@ struct QuestionView: View {
                 HStack {
                     Image(systemName: "questionmark.bubble").bold()
                     Text("Question").bold()
-                    if langHasShown { Text("\(openAiManager.selectedLanguage)".capitalized).foregroundStyle(.gray) }
+                   if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8) }
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
                 
@@ -61,24 +63,26 @@ struct QuestionView: View {
                     .padding(.bottom)
                     .padding(.horizontal, standardCardPadding)
                     .onAppear {
-                        withAnimation {
-                            if !langHasShown {
-                                langHasShown.toggle()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 3.7) {
-                                    langHasShown.toggle()
+                       
+                            if !showLang {
+                                withAnimation {
+                                    showLang.toggle() }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                                    withAnimation {
+                                        showLang.toggle() }
                                 }
-                            } }
+                            }
                     }
                 VStack {
                 
-                        if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-                            
-                            //                        ErrorView(thrownError: thrownError)
-                            //                            .padding(.horizontal, 7)
-                            //                                .padding(.vertical)
-                            ClearButton
-                                .padding(.bottom)
-                    }
+//                        if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
+//                            
+//                            //                        ErrorView(thrownError: thrownError)
+//                            //                            .padding(.horizontal, 7)
+//                            //                                .padding(.vertical)
+//                            ClearButton
+//                                .padding(.bottom)
+//                    }
 //                    else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
 //                       
 ////                        ErrorView(thrownError: thrownError)
@@ -177,8 +181,6 @@ struct QuestionView: View {
                             }
                             
                         }
-                        ClearButton
-                            .padding(.bottom)
                     }
                 }
                 
@@ -211,12 +213,17 @@ struct QuestionView: View {
                         }
                     }
                 }
-            }.overlay {
-                if self.thrownError != "" {
+            }
+            .sheet(isPresented: $showError) {
+
                     ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
-                }
+                    .presentationDetents([.fraction(0.4)])
+                    .presentationDragIndicator(.hidden)
+                    .presentationBackground(Color.clear)
+                
             }
             .fullScreenCover(isPresented: $showFullImage) {
+
                 if let selectedImageIndex = self.selectedImageIndex {
                     FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
                 } else {
@@ -229,19 +236,17 @@ struct QuestionView: View {
                         showFullImage = false }
                 }
             }
-            .onChange(of: openAiManager.selectedLanguage) {
+            .onChange(of: languageSettings.selectedLanguage) {
                 withAnimation {
-                    langHasShown = false }
+                    showLang = true }
+                DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                    withAnimation {
+                        showLang = false }
+                }
             }
-//            .onChange(of: pineconeManager.receivedError) { _, receivedError in
-//                if let unwrappedError = receivedError { withAnimation { self.thrownError = unwrappedError.localizedDescription } }
-//            }
-//            .onChange(of: openAiManager.thrownError) { _, errorMessage in
-////                if errorMessage != "" {
-//                withAnimation {
-//                    self.thrownError = errorMessage }
-////                }
-//            }
+            .onChange(of: thrownError) {
+                    showError.toggle()
+            }
             .onChange(of: shake) { _, newValue in
                 if newValue {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -301,32 +306,13 @@ struct QuestionView: View {
                     .accessibilityLabel("Go")
             }
             .contentShape(Rectangle())
-            
+
         }
         .padding(.top, 12)
+        .padding(.horizontal)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
         .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
-    }
-    
-    private var ClearButton: some View {
-        Button(action: performClearTask) {
-            ZStack {
-                RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.primaryAccent)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                    .frame(height: buttonHeight)
-                
-                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
-                    .accessibilityLabel("Clear and reset")
-            }
-            .contentShape(Rectangle())
-        }
-        .padding(.top, 12)
-        .padding(.bottom, 12)
-        .padding(.horizontal)
-        .frame(maxWidth: .infinity)
-        
     }
     
     private func performClearTask() {
@@ -335,7 +321,6 @@ struct QuestionView: View {
             self.question = ""
             self.thrownError = ""
             fetchedImages = []
-            self.clearButtonIsVisible = false
             self.goButtonIsVisible = true
             progressTracker.reset()
             if isLoading { isLoading = false }
@@ -363,6 +348,7 @@ struct QuestionView: View {
         }
         Task {
             do {
+//                throw AppNetworkError.invalidDBURL
                 try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
                 apiCalls.incrementApiCallCount()
                 guard openAiManager.questionEmbeddingsCompleted else {
@@ -380,7 +366,7 @@ struct QuestionView: View {
                         Task {
                             do {
                                 if let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
-                                    print("Successfully fetched image from iCloud with id: \(id)")
+
                                     await MainActor.run {
                                         fetchedImages.append(image)
                                     }
@@ -412,26 +398,22 @@ struct QuestionView: View {
                 await MainActor.run {
                     withAnimation {
                         isLoading = false
-                        clearButtonIsVisible = true
                     }
                 }
             } catch let error as AppNetworkError {
                 await MainActor.run {
                     self.thrownError = error.errorDescription
                     self.isLoading = false
-                    self.clearButtonIsVisible = true
                 }
             } catch let error as AppCKError {
                 await MainActor.run {
                     self.thrownError = error.errorDescription
                     self.isLoading = false
-                    self.clearButtonIsVisible = true
                 }
             } catch {
                 await MainActor.run {
                     self.thrownError = error.localizedDescription
                     self.isLoading = false
-                    self.clearButtonIsVisible = true
                 }
             }
         }

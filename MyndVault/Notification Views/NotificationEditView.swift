@@ -77,8 +77,10 @@ struct NotificationEditView: View {
                         Text("Select Date and Time").bold()
                             .font(.callout)
                         Spacer()
-                    }
+                    } .padding(.bottom, 8)
                         CustomDatePicker(selectedDate: $selectedDate)
+                        .padding(.bottom, 16)
+                       
                     
                     Button(action: {
                         if shake { return }
@@ -117,10 +119,12 @@ struct NotificationEditView: View {
                     }
                     .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                     .padding(.top, 12)
-                   
+                    .padding(.horizontal)
+                   Spacer()
                 }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+//                .padding(.bottom, 16)
+                
                 .onAppear {
                     selectedDate = notification.date
                     self.notificationTitle = notification.title

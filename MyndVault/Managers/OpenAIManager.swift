@@ -19,8 +19,7 @@ final class OpenAIManager: ObservableObject {
     @Published var gptMetadataResponseOnQuestion: MetadataResponse?
     
     @Published var stringResponseOnQuestion: String = ""
-    
-    @Published var selectedLanguage: LanguageCode
+    private var languageSettings = LanguageSettings.shared
     
     @Published var embeddings: [Float] = []
     @Published var embeddingsFromQuestion: [Float] = []
@@ -34,16 +33,6 @@ final class OpenAIManager: ObservableObject {
     private var tokensRequired:Int = 0
     var cancellables = Set<AnyCancellable>()
     
-    
-    init() {
-        
-        if let savedLanguage = UserDefaults.standard.string(forKey: "selectedPromptLanguage"),
-           let languageCode = LanguageCode(rawValue: savedLanguage) {
-            self.selectedLanguage = languageCode
-        } else {
-            self.selectedLanguage = .english
-        }
-    }
     
     
     //MARK: clearManager
@@ -313,7 +302,7 @@ final class OpenAIManager: ObservableObject {
             }
         }
         
-        switch selectedLanguage {
+        switch languageSettings.selectedLanguage {
         case .english:
             return """
                    You are an AI assistant, and you have been asked to provide concise information on a specific topic. Below is the user's question and one or two pieces of information retrieved by the vector database. Note that these pieces of information are the ones with the highest similarity score, but may be irrelevant for user's question:
@@ -457,6 +446,22 @@ final class OpenAIManager: ObservableObject {
             
             A resposta deve ser clara, envolvente e concisa.
             """
+        case .italian:
+            return """
+            Sei un assistente AI e ti è stato chiesto di fornire informazioni concise su un argomento specifico. Di seguito è riportata la domanda dell'utente e uno o due pezzi di informazioni recuperati dal database vettoriale. Nota che questi pezzi di informazioni sono quelli con il punteggio di somiglianza più alto, ma potrebbero essere irrilevanti per la domanda dell'utente:
+            
+            - Domanda dell'utente: \(question).
+            - Informazione rilevante 1: \(firstVector).
+            - Informazione rilevante 2: \(secondVector).
+            
+            Usando la domanda dell'utente, e se rilevanti le informazioni fornite, genera una risposta completa, informativa e concisa che affronti la domanda dell'utente. Valuta la rilevanza delle informazioni recuperate:
+            - Se le informazioni recuperate sono rilevanti, integrale nella tua risposta per fornire una risposta utile.
+            - Se le informazioni recuperate non sono rilevanti o sembrano ambigue, usa le tue conoscenze generali per fornire una risposta utile, evidenzia eventuali incertezze e suggerisci all'utente di fornire ulteriori informazioni all'app per risposte più accurate in futuro.
+            
+            Se rilevante per la tua risposta, oggi è \(readableDateString), e l'ora attuale nel formato ISO8601 è \(isoDateString). Non restituire date e orari completi a meno che non sia necessario.
+            
+            La risposta deve essere chiara, coinvolgente e concisa.
+            """
         }
     }
     
@@ -549,7 +554,7 @@ final class OpenAIManager: ObservableObject {
             "Title: \(notification.title), Body: \(notification.notificationBody), Date: \(notification.date)"
         }
         
-        switch selectedLanguage {
+        switch languageSettings.selectedLanguage {
         case .english:
             return """
 You are a helpful personal assistant. The date and time now in ISO8601 format is \(currentDate).
@@ -648,6 +653,17 @@ Abaixo está uma lista de notificações agendadas para o mês atual:
 Por favor, forneça um resumo dessas notificações, destacando eventos importantes e quaisquer padrões notáveis. Certifique-se de que o resumo seja fácil de entender, por exemplo "Na próxima quinta-feira você tem um encontro com Jane para um café às 18h."
 
 Concentre-se em criar uma visão geral concisa que possa ajudar o usuário a entender rapidamente sua agenda futura. Evite usar caracteres especiais como '*', evite usar anotações de tempo como 'hora local'.
+"""
+        case .italian:
+            return """
+Sei un assistente personale utile. La data e l'ora attuali nel formato ISO8601 sono \(currentDate).
+Di seguito è riportato un elenco delle notifiche programmate per il mese corrente:
+
+\(notificationTexts.joined(separator: "\n"))
+
+Fornisci un riepilogo di queste notifiche, evidenziando eventi importanti e eventuali schemi degni di nota. Assicurati che il riepilogo sia facile da comprendere, ad esempio "Giovedì prossimo devi incontrare Jane per un caffè alle 18:00."
+
+Concentrati sulla creazione di una panoramica concisa che possa aiutare l'utente a comprendere rapidamente il proprio programma imminente. Evita di usare caratteri speciali come '*', evita di usare annotazioni temporali come 'ora locale'.
 """
         }
     }
