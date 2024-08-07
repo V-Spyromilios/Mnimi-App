@@ -47,7 +47,7 @@ func userDefaultsKeyExists(_ key: String) -> Bool {
 
 let rectCornerRad: CGFloat = 50
 
-let toolbarButtonShadow: CGFloat = 6
+//let toolbarButtonShadow: CGFloat = 6
 let textEditorHeight: CGFloat = 140
 let smallTextEditorHeight: CGFloat = 50
 
@@ -135,32 +135,6 @@ func idealWidth(for availableWidth: CGFloat) -> CGFloat {
 }
 
 
-struct KeyboardToolbar: ViewModifier {
-    var toolbarContent: () -> AnyView
-
-    func body(content: Content) -> some View {
-        content
-            .background(
-                VStack {
-                    Spacer()
-                    toolbarContent()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(UIColor.systemBackground))
-                }
-            )
-    }
-}
-
-extension View {
-    func keyboardToolbar<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
-        self.modifier(KeyboardToolbar {
-            AnyView(content())
-        })
-    }
-   
-}
-
-
 final class KeyboardResponder: ObservableObject {
 
     @Published var currentHeight: CGFloat = 0
@@ -181,7 +155,6 @@ final class KeyboardResponder: ObservableObject {
             DispatchQueue.main.async {
                 self.currentHeight = keyboardHeight
                 self.keyboardVisible = true
-                print("Keyboard height changed to: \(keyboardHeight)")
             }
         }
     }

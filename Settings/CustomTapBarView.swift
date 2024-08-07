@@ -22,9 +22,9 @@ struct CustomTabBarView: View {
     
     var body: some View {
         ZStack {
-            //            Rectangle()
+
             VisualEffectBlur(blurStyle: .systemUltraThinMaterial)
-                .background(Color.clear) // Adjust opacity to your liking
+                .background(Color.clear)
                 .frame(height: customTabbarHeight)
             
             HStack(alignment: .top) {
@@ -46,8 +46,8 @@ struct CustomTabBarView: View {
                 
                 Spacer()
                 
-                lottieTabBarButton(name: "Bell ringing notification", tabId: 4, isPlaying: $notificationsIsAnimating)
-                    .frame(width: 50, height: 50)
+//                lottieTabBarButton(name: "Bell ringing notification", tabId: 4, isPlaying: $notificationsIsAnimating)
+//                    .frame(width: 50, height: 50)
                 //                ZStack {
                 //                tabBarButton(imageName: notificationsManager.scheduledNotifications.count > 0
                 //                             ? (todoIsAnimating ? "bell.and.waves.left.and.right.fill" : "bell.and.waves.left.and.right")
@@ -65,7 +65,7 @@ struct CustomTabBarView: View {
                 //                            .offset(x: 10, y: -10)
                 //                    }
                 //                }
-                Spacer()
+//                Spacer()
             }
             .frame(height: customTabbarHeight) // ! Same as capsule height !
         }

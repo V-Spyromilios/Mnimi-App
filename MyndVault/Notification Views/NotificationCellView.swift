@@ -74,8 +74,8 @@ struct NotificationCellView: View {
                 .contentTransition(.numericText())
             //                    .padding(.bottom, 18)
             
-            HStack(alignment: .center) {
-                ZStack {
+            HStack {
+                HStack {
                     if notification.repeats {
                         HStack {
                             Text(LocalizedStringKey("Repeats:"))
@@ -86,6 +86,7 @@ struct NotificationCellView: View {
                         .contentTransition(.numericText())
                         .padding(.bottom, 18)
                     }
+                    Spacer()
                     Button(action: {
                         
                         showPopover.toggle()
@@ -96,7 +97,7 @@ struct NotificationCellView: View {
                             .frame(width: 55, height: 55)
                             .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
                         
-                    }.offset(x: 150, y: -10)
+                    }
                 }
                 
             }
@@ -111,14 +112,7 @@ struct NotificationCellView: View {
             popOverContent()
         }
         .sheet(isPresented: $showNotificationEdit) {
-            NotificationEditView(notification: notification, edited: $edited)
-                .toolbar {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        Button("Cancel") {
-                            presentationMode.wrappedValue.dismiss()
-                        }.accessibilityLabel("Cancel")
-                    }
-                }
+            NotificationEditView(notification: notification, edited: $edited, showEdit: $showNotificationEdit)
         }
     }
     
