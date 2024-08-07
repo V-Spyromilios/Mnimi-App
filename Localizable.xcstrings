@@ -1162,7 +1162,6 @@
       }
     },
     "clear" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1197,7 +1196,6 @@
       }
     },
     "Clear and reset" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

@@ -33,6 +33,7 @@ struct QuestionView: View {
     @State private var shake: Bool = false
     @State private var showLang: Bool = false
     @State private var showError: Bool = false
+    @State private var clearButtonIsVisible: Bool = false
 
     
     var body: some View {
@@ -65,8 +66,8 @@ struct QuestionView: View {
                     .onAppear {
                        
                             if !showLang {
-                                withAnimation {
-                                    showLang.toggle() }
+                                
+                                    showLang.toggle()
                                 DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
                                     withAnimation {
                                         showLang.toggle() }
@@ -74,35 +75,9 @@ struct QuestionView: View {
                             }
                     }
                 VStack {
-                
-//                        if self.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-//                            
-//                            //                        ErrorView(thrownError: thrownError)
-//                            //                            .padding(.horizontal, 7)
-//                            //                                .padding(.vertical)
-//                            ClearButton
-//                                .padding(.bottom)
-//                    }
-//                    else if pineconeManager.receivedError != nil && openAiManager.stringResponseOnQuestion == "" {
-//                       
-////                        ErrorView(thrownError: thrownError)
-////                            .padding(.horizontal, 7)
-////                            .padding(.vertical)
-//                        ClearButton
-//                            .padding(.bottom)
-//                        
-//                    }
-//                    else if openAiManager.thrownError != "" && openAiManager.stringResponseOnQuestion == "" {
-//                        
-////                        ErrorView(thrownError: thrownError)
-////                            .padding(.horizontal, 7)
-////                            .padding(.vertical)
-//                        ClearButton
-//                            .padding(.bottom)
-//                        
-//                    }
-                
+
                     VStack {
+                        
                         if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && pineconeManager.receivedError == nil {
                             GoButton
                                 .padding(.bottom)
@@ -125,7 +100,6 @@ struct QuestionView: View {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
-                            //.foregroundColor(Color.gray)
                             
                             Text(openAiManager.stringResponseOnQuestion)
                                 .fontDesign(.rounded)
@@ -181,6 +155,11 @@ struct QuestionView: View {
                             }
                             
                         }
+                        if self.thrownError == "" && openAiManager.stringResponseOnQuestion != "" {
+                            ClearButton
+                                .padding(.bottom)
+                                .padding(.horizontal)
+                        }
                     }
                 }
                 
@@ -190,13 +169,7 @@ struct QuestionView: View {
                             Button {
                                 hideKeyboard()
                             } label: {
-                                Circle()
-                                    .foregroundStyle(Color.gray.opacity(0.6))
-                                    .frame(height: 30)
-                                    .shadow(color: Color.customShadow, radius: toolbarButtonShadow)
-                                    .overlay {
-                                        HideKeyboardLabel()
-                                    }
+                                HideKeyboardLabel()
                             }
                         }
                         
@@ -293,7 +266,26 @@ struct QuestionView: View {
     }
 
     }
-    
+    private var ClearButton: some View {
+            Button(action: performClearTask) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: rectCornerRad)
+                        .fill(Color.customLightBlue)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                        .frame(height: buttonHeight)
+
+                    Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
+                        .accessibilityLabel("Clear and reset")
+                }
+                .contentShape(Rectangle())
+            }
+            .padding(.top, 12)
+            .padding(.bottom, 12)
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity)
+
+            .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+        }
      
     private var GoButton: some View {
         Button(action: performTask) {

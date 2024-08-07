@@ -3,7 +3,7 @@ import UserNotifications
 
 struct NotificationEditView: View {
     
-    @Environment(\.presentationMode) var presentationMode
+//    @Environment(\.presentationMode) var presentationMode
     
     @State private var selectedDate = Date()
     @State private var notificationTitle: String = ""
@@ -13,6 +13,7 @@ struct NotificationEditView: View {
     @Environment(\.colorScheme) var colorScheme
     var notification: CustomNotification
     @Binding var edited: Bool
+    @Binding var showEdit: Bool
     
     var body: some View {
         NavigationStack {
@@ -27,7 +28,7 @@ struct NotificationEditView: View {
                     .font(.callout)
                     .padding(.top, 12)
                     .padding(.bottom, 8)
-                    VStack {
+                   
                     TextEditor(text: $notificationTitle)
                         .fontDesign(.rounded)
                         .font(.title2)
@@ -41,8 +42,7 @@ struct NotificationEditView: View {
                                 .opacity(colorScheme == .light ? 0.3 : 0.7)
                                 .foregroundColor(Color.gray)
                         )
-                       
-                }
+                
                         .padding(.bottom)
                     
                     HStack {
@@ -78,7 +78,11 @@ struct NotificationEditView: View {
                             .font(.callout)
                         Spacer()
                     } .padding(.bottom, 8)
-                        CustomDatePicker(selectedDate: $selectedDate)
+                    DatePicker(
+                        "",
+                        selection: $selectedDate,
+                        displayedComponents: [.date, .hourAndMinute]
+                    )
                         .padding(.bottom, 16)
                        
                     
@@ -101,7 +105,7 @@ struct NotificationEditView: View {
                                     rescheduleNotification(identifier: id, title: "\(newTitle)", body: notificationBody, date: newDate)
                                     print("Rescheduled for \(newDate)")
                                     edited = true
-                                    presentationMode.wrappedValue.dismiss()
+                                    showEdit = false
                                 }
                             }
                         }
@@ -123,7 +127,6 @@ struct NotificationEditView: View {
                    Spacer()
                 }
                 .padding(.horizontal, 16)
-//                .padding(.bottom, 16)
                 
                 .onAppear {
                     selectedDate = notification.date
@@ -146,29 +149,21 @@ struct NotificationEditView: View {
             
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
+                    if keyboardResponder.currentHeight > 0 {
+                       
+                            Button {
+                                hideKeyboard()
+                            } label: {
+                                HideKeyboardLabel()
+                            }
+                        
+                    }
                     
                     Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        showEdit.toggle()
                     }
                     .accessibilityLabel("Cancel")
                 }
-                if keyboardResponder.currentHeight > 0 {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        Button {
-                            hideKeyboard()
-                        } label: {
-                            Circle()
-                                .foregroundStyle(Color.gray.opacity(0.6))
-                                .frame(height: 30)
-                                .shadow(radius: toolbarButtonShadow)
-                                .overlay {
-                                    HideKeyboardLabel()
-                                    
-                                }
-                        }
-                    }
-                    }
-             
             }
             .navigationBarTitleView {
                 HStack {

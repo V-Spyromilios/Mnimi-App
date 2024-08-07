@@ -100,7 +100,7 @@ struct NotificationsView: View {
                                 }
                             }.frame(maxWidth: .infinity, maxHeight: screenWidth)
                             
-                            .overlay {
+                            .overlay { //TODO: Replace with new sheet Error View
                                 if showError {
                                     ErrorView(thrownError: errorMessage, dismissAction: clearError)
                                         

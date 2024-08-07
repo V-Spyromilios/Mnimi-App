@@ -13,7 +13,7 @@ struct NewAddInfoView: View {
     @State private var apiCallInProgress: Bool = false
     @State private var thrownError: String = ""
     @State private var showError: Bool = false
-
+    
     @State private var saveButtonIsVisible: Bool = true
     @State private var showSettings: Bool = false
     
@@ -21,6 +21,7 @@ struct NewAddInfoView: View {
     @State private var shake: Bool = false
     @State private var showNoInternet: Bool = false
     @State private var showLang: Bool = false
+    @State private var clearButtonIsVisible: Bool = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -138,26 +139,29 @@ struct NewAddInfoView: View {
                             }
                             
                         }
-                    }.padding(.horizontal, standardCardPadding)
+                        Spacer()
+                    }
+                    //                    .frame(height: geometry.size.height)
+                    .padding(.horizontal, standardCardPadding)
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
-
+                        
                     }
                     .onAppear {
-                       
-                            if !showLang {
-                                withAnimation {
-                                    showLang.toggle() }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
-                                    withAnimation {
-                                        showLang.toggle() }
-                                }
-                            }
+                        if !showLang {
+                            showLang.toggle() }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                            withAnimation {
+                                showLang.toggle() }
+                        }
                     }
-
+                    
+//                    if self.thrownError != "" {
+//                        ClearButton
+//                            .offset(y: keyboardResponder.currentHeight > 0 ? 70 : 0)
+//                    }
                     if saveButtonIsVisible && pineconeManager.receivedError == nil {
                         SaveButton
-                        
                     }
                     if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && pineconeManager.receivedError == nil {
                         CircularProgressView(progressTracker: progressTracker).padding()
@@ -167,25 +171,25 @@ struct NewAddInfoView: View {
                     
                 }
                 .sheet(isPresented: $showError) {
-
-                        ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
+                    
+                    ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
                         .presentationDetents([.fraction(0.4)])
                         .presentationDragIndicator(.hidden)
                         .presentationBackground(Color.clear)
                     
                 }
-//                .padding(.horizontal, standardCardPadding) //TODO: No padding !?!
-                    .background {
-                        LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
-                            .opacity(0.4)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .ignoresSafeArea()
-                    }
-                    .navigationBarTitleView {
-                        HStack {
-                            Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                            LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
-                    }
+                //                .padding(.horizontal, standardCardPadding) //TODO: No padding !?!
+                .background {
+                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                        .opacity(0.4)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
+                .navigationBarTitleView {
+                    HStack {
+                        Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                        LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
+                }
             }
             
             .onChange(of: shake) { _, newValue in
@@ -250,30 +254,31 @@ struct NewAddInfoView: View {
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
     }
     
-//    private var ClearButton: some View {
-//        Button(action: performClearTask) {
-//            ZStack {
-//                RoundedRectangle(cornerRadius: rectCornerRad)
-//                    .fill(Color.customLightBlue)
-//                    .frame(height: buttonHeight)
-//                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-//                
-//                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
-//                    .accessibilityLabel("clear")
-//            }
-//            .contentShape(Rectangle())
-//        }
-//        .padding(.top, 12)
-//        .padding(.horizontal)
-//        .animation(.easeInOut, value: keyboardResponder.currentHeight)
-//        .frame(maxWidth: .infinity)
-//    }
+    private var ClearButton: some View {
+        Button(action: performClearTask) {
+            ZStack {
+                RoundedRectangle(cornerRadius: rectCornerRad)
+                    .fill(Color.customLightBlue)
+                    .frame(height: buttonHeight)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                
+                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
+                    .accessibilityLabel("clear")
+            }
+            .contentShape(Rectangle())
+        }
+        .padding(.top, 12)
+        .padding(.horizontal)
+        .animation(.easeInOut, value: keyboardResponder.currentHeight)
+        .frame(maxWidth: .infinity)
+    }
     
     private func performClearTask() {
         
         withAnimation {
             progressTracker.reset()
             self.thrownError = ""
+            self.clearButtonIsVisible = false
             Task {
                 await openAiManager.clearManager()
                 await pineconeManager.clearManager()
@@ -290,7 +295,6 @@ struct NewAddInfoView: View {
             withAnimation { shake = true }
             return
         }
-        
         isLoading = true
         hideKeyboard()
         self.saveButtonIsVisible = false
@@ -303,8 +307,8 @@ struct NewAddInfoView: View {
         
         do {
             //MARK: TEST THROW
-//                            let miaMalakia = AppCKError.UnableToGetNameSpace
-//                            throw miaMalakia
+            let miaMalakia = AppCKError.UnableToGetNameSpace
+            throw miaMalakia
             
             try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
             
@@ -320,10 +324,12 @@ struct NewAddInfoView: View {
                     if let image = photoPicker.selectedImage {
                         try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
                     }
+                    //TODO: Add the tick or other Lottie to show upsertSuccesful
                 }
                 await MainActor.run {
                     apiCallInProgress = false
                     saveButtonIsVisible = true
+                    newInfo = ""
                     isLoading = false
                 }
             }
@@ -364,9 +370,9 @@ struct NewAddInfoView_Previews: PreviewProvider {
         let openAI = OpenAIManager()
         let pinecone = PineconeManager()
         NewAddInfoView()
-        .environmentObject(pinecone)
-        .environmentObject(openAI)
-        .environmentObject(progress)
-        .environmentObject(responder)
+            .environmentObject(pinecone)
+            .environmentObject(openAI)
+            .environmentObject(progress)
+            .environmentObject(responder)
     }
 }

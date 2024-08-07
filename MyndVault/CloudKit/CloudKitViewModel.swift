@@ -842,7 +842,7 @@ final class CloudKitViewModel: ObservableObject {
         while attempts < maxRetryAttempts {
             do {
                 try await db.deleteRecord(withID: recordID)
-                await MainActor.run {
+                await _ = MainActor.run {
                     fetchedNamespaceDict.removeValue(forKey: recordID)
                 }
                 return
