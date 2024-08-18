@@ -6,7 +6,8 @@
 //
 
 import SwiftUI
-import Firebase
+import RevenueCat
+import RevenueCatUI
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -15,21 +16,21 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
-        FirebaseApp.configure()
-        requestNotificationPermission()
+       
+       
         return true
     }
     
     
-    private func requestNotificationPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if granted {
-                print("Permission granted")
-            } else if let error = error {
-                print("Permission denied: \(error.localizedDescription)")
-            }
-        }
-    }
+//    private func requestNotificationPermission() {
+//        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+//            if granted {
+//                print("Permission granted")
+//            } else if let error = error {
+//                print("Permission denied: \(error.localizedDescription)")
+//            }
+//        }
+//    }
     
     
 }
@@ -39,13 +40,24 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct MyndVaultApp: App {
     
+    init() {
+        if let catKey = ApiConfiguration.catKey {
+            Purchases.configure(with: .init(withAPIKey: catKey)
+                .with(storeKitVersion: StoreKitVersion.storeKit2))
+                
+                
+//                withAPIKey: catKey)
+                
+        } else { print("Failed to configure RCat key.") }
+    }
+    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     @StateObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
     @StateObject var pineconeManager = PineconeManager()
     @StateObject var openAiManager = OpenAIManager()
     @StateObject var progressTracker = ProgressTracker.shared
-    @StateObject var notificationsManager = NotificationViewModel()
+//    @StateObject var notificationsManager = NotificationViewModel()
     @StateObject var speechManager = SpeechRecognizerManager()
     @StateObject var keyboardResponder = KeyboardResponder()
     @StateObject var authManager = AuthenticationManager()
@@ -53,62 +65,82 @@ struct MyndVaultApp: App {
     @StateObject var apiCallsViewModel = ApiCallViewModel()
     @StateObject private var languageSettings = LanguageSettings.shared
     @State var showSplash: Bool = true
-    
+   
     
     
     var body: some Scene {
-        
-        WindowGroup(content: {
-            if showSplash {
-                SplashScreen(showSplash: $showSplash)
-                    .environmentObject(cloudKitViewModel)
-                    .environmentObject(networkManager)
-                    .environmentObject(apiCallsViewModel)
-            }
-            
-            else if cloudKitViewModel.isFirstLaunch {
-                InitialSetupView()
-                    .environmentObject(openAiManager)
-                    .environmentObject(pineconeManager)
-                    .environmentObject(progressTracker)
-                    .environmentObject(notificationsManager)
-                    .environmentObject(cloudKitViewModel)
-                    .environmentObject(speechManager)
-                    .environmentObject(keyboardResponder)
-                    .environmentObject(authManager)
-                    .environmentObject(networkManager)
-                    .environmentObject(apiCallsViewModel)
-                    .statusBar(hidden: true)
-            } else  {
-                
-                if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
-                    
-                    FaceIDView()
-                        .environmentObject(openAiManager)
-                        .environmentObject(pineconeManager)
-                        .environmentObject(progressTracker)
-                        .environmentObject(notificationsManager)
+            WindowGroup(content: {
+
+                if showSplash {
+                    SplashScreen(showSplash: $showSplash)
                         .environmentObject(cloudKitViewModel)
-                        .environmentObject(speechManager)
-                        .environmentObject(keyboardResponder)
-                        .environmentObject(authManager)
                         .environmentObject(networkManager)
                         .environmentObject(apiCallsViewModel)
-                        .environmentObject(languageSettings)
+                        
+                } 
+                else if cloudKitViewModel.isFirstLaunch {
+                    InitialSetupView()
+                        .environmentObject(cloudKitViewModel)
+                        .environmentObject(networkManager)
+                        .environmentObject(apiCallsViewModel)
+                        .environmentObject(keyboardResponder)
+                        .environmentObject(authManager)
+                        .environmentObject(progressTracker)
+                        .environmentObject(openAiManager)
+                        .environmentObject(pineconeManager)
                         .statusBar(hidden: true)
+                        
                 }
-                
-                else if cloudKitViewModel.isLoading {
-                    Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
+                else  {
+                    if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
+                        FaceIDView()
+                            .environmentObject(cloudKitViewModel)
+                            .environmentObject(networkManager)
+                            .environmentObject(apiCallsViewModel)
+                            .environmentObject(authManager)
+                            .environmentObject(openAiManager)
+                            .environmentObject(pineconeManager)
+                            .environmentObject(progressTracker)
+                            .environmentObject(keyboardResponder)
+                            .environmentObject(languageSettings)
+                            .environmentObject(speechManager)
+                            .statusBar(hidden: true)
+                    } else if cloudKitViewModel.isLoading {
+                        Text("Signing in with iCloud...")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                    } else if cloudKitViewModel.CKErrorDesc != "" {
+                        let error = cloudKitViewModel.CKErrorDesc
+                        contentError(error: error).padding(.horizontal)
+                    }
                 }
-                else if cloudKitViewModel.CKErrorDesc != "" {
-                    
-                    let error = cloudKitViewModel.CKErrorDesc
-                    contentError(error: error).padding(.horizontal)
-                }
-            }
-        })
-    }
+            })
+        }
+
+//    private func checkPaywallEligibilityAndPresentIfNeeded() {
+//        Purchases.shared.getOfferings { offerings, error in
+//            if let product = offerings?.current?.availablePackages.first?.storeProduct {
+//                Purchases.shared.checkTrialOrIntroDiscountEligibility(product: product) { eligibility in
+//                    DispatchQueue.main.async {
+//                        if eligibility == .eligible {
+//                            // Show paywall with trial/introductory terms
+//                            shouldShowPaywall = true
+//                        } else {
+//                            // Show paywall without trial/introductory terms
+//                            shouldShowPaywall = true
+//                        }
+//                    }
+//                }
+//            } else {
+//                DispatchQueue.main.async {
+//                    // In case of error, decide whether to show paywall or handle the error differently
+//                    shouldShowPaywall = true
+//                }
+//            }
+//        }
+//    }
+        
+       
     
     private func contentError(error: String) -> some View {
         VStack{

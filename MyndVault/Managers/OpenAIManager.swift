@@ -462,6 +462,8 @@ final class OpenAIManager: ObservableObject {
             
             La risposta deve essere chiara, coinvolgente e concisa.
             """
+        case .hebrew:
+            return "thsi"
         }
     }
     
@@ -665,6 +667,8 @@ Fornisci un riepilogo di queste notifiche, evidenziando eventi importanti e even
 
 Concentrati sulla creazione di una panoramica concisa che possa aiutare l'utente a comprendere rapidamente il proprio programma imminente. Evita di usare caratteri speciali come '*', evita di usare annotazioni temporali come 'ora locale'.
 """
+        case .hebrew:
+            return "this"
         }
     }
     

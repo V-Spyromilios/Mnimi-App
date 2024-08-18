@@ -136,6 +136,7 @@ struct LottieRepresentableNavigation: UIViewRepresentable {
           func playAnimation() {
               animationView?.play { [weak self] _ in
                   self?.parent.isPlaying = false
+//               self?.animationView?.isHidden = true
               }
           }
       }

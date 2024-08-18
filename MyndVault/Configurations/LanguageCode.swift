@@ -18,6 +18,7 @@ enum LanguageCode: String, CaseIterable {
     case chineseSimplified = "zh-Hans"
     case portuguese = "pt"
     case italian = "it"
+    case hebrew = "he"
     
     var displayName: String {
         switch self {
@@ -41,6 +42,8 @@ enum LanguageCode: String, CaseIterable {
             return "Português"
         case .italian:
             return "Italiano"
+        case .hebrew:
+            return "עברית"
         }
     }
     
@@ -56,6 +59,7 @@ enum LanguageCode: String, CaseIterable {
         case .chineseSimplified: return "🇨🇳"
         case .portuguese: return "🇵🇹"
         case .italian: return "🇮🇹"
+        case .hebrew: return "🇮🇱"
         }
     }
 }

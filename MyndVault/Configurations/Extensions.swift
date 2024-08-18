@@ -286,16 +286,19 @@ struct NeumorphicStyle: ViewModifier {
 import SwiftUI
 
 struct FloatingLabelTextField: View {
+
+    @EnvironmentObject var keyboardResponder: KeyboardResponder
     @Binding var text: String
     let title: String
     let isSecure: Bool
     
-    @FocusState private var isFocused: Bool
+    @FocusState.Binding var isFocused: Bool 
     
     var body: some View {
         ZStack(alignment: .leading) {
             Text(title)
-                .foregroundColor(isFocused ? .gray : .secondary)
+                
+                .foregroundColor(isFocused || !text.isEmpty ? .customTiel : .gray)
                 .background(Color.clear)
                 .offset(y: isFocused || !text.isEmpty ? -30 : 0)
                 .scaleEffect(isFocused || !text.isEmpty ? 0.8 : 1.0, anchor: .leading)
@@ -323,6 +326,7 @@ struct FloatingLabelTextField: View {
         .onTapGesture {
             self.isFocused = true
         }
+       
     }
 }
 

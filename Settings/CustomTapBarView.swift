@@ -9,13 +9,13 @@ import SwiftUI
 
 struct CustomTabBarView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject var notificationsManager: NotificationViewModel
+    
     @Binding var tabSelection: Int
     @State private var questionIsAnimating: Bool = true
     @State private var addIsAnimating: Bool = false
     @State private var vaultIsAnimating: Bool = false
     @State private var notificationsIsAnimating: Bool = false
-    
+    @EnvironmentObject var languageSettings: LanguageSettings
     let customTabbarHeight: CGFloat = 80
     
     
@@ -33,15 +33,18 @@ struct CustomTabBarView: View {
                 
                 lottieTabBarButton(name: "UploadingFile", tabId: 1, isPlaying: $addIsAnimating)
                     .frame(width: 45, height: 45)
+                   
                 
                 Spacer()
                 
                 lottieTabBarButton(name: "robotForQuestion", tabId: 2, isPlaying: $questionIsAnimating)
                     .frame(width: 55, height: 58)
+                   
                 
                 Spacer()
                 lottieTabBarButton(name: "smallVault", tabId: 3, isPlaying: $vaultIsAnimating)
                     .frame(width: 50, height: 50)
+                    
                 //                tabBarButton(imageName: archiveIsAnimating ? "tray.fill" : "tray", tabId: 3) .offset(y: -1)
                 
                 Spacer()

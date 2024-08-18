@@ -7,6 +7,8 @@
 
 import SwiftUI
 import Network
+import RevenueCat
+import RevenueCatUI
 
 struct ContentView: View {
     
@@ -18,12 +20,14 @@ struct ContentView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var keyboardResponder: KeyboardResponder
     @EnvironmentObject var speechManager: SpeechRecognizerManager
+    @EnvironmentObject var languageSettings: LanguageSettings
     
     @State var keyboardAppeared: Bool = false
     @State var hideKyeboardButton: Bool = false
     @State private var tabSelection: Int = 1
     @State var showEditors: Bool = true
     @State var showNetworkError = false
+   
     
     var body: some View {
         ZStack {
@@ -34,10 +38,12 @@ struct ContentView: View {
                     .environmentObject(pineconeManager)
                     .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
+                    .environmentObject(languageSettings)
                 
                 QuestionView().tag(2)
                 
                 VaultView().tag(3)
+                    .environmentObject(languageSettings)
                 //                NotificationsView().tag(4)
             }
             .ignoresSafeArea(edges: .bottom)
@@ -66,6 +72,7 @@ struct ContentView: View {
                 hideKyeboardButton = height > 0
             }
         }
+        .presentPaywallIfNeeded(requiredEntitlementIdentifier: "Default")
         .alert(isPresented: $showNetworkError) {
             Alert(
                 title: Text("No Internet Connection"),

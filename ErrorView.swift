@@ -20,11 +20,9 @@ struct ErrorView: View {
                 Spacer()
                 VStack {
                     LottieRepresentable(filename: "alertWarning", loopMode: .loop).frame(height: 80)
-                    Text(thrownError).font(.title2).bold().multilineTextAlignment(.leading).padding(.bottom)
-                    if extraMessage != nil {
-                        Text(extraMessage ?? "").font(.title3)
-                            .multilineTextAlignment(.leading).padding(.bottom)
-                    }
+                    
+                    TypingTextView(fullText: thrownError + (extraMessage != nil ? "\n" + extraMessage! : ""))
+
                     Button(action: {
                         withAnimation {
                             dismissAction() }
@@ -32,6 +30,7 @@ struct ErrorView: View {
                         Text("Dismiss")
                             .font(.headline)
                             .padding()
+                            
                             .background(Color.yellow)
                             .foregroundColor(.white)
                             .cornerRadius(10)
