@@ -60,8 +60,8 @@ struct SplashScreen: View {
 
         .onChange(of: loadingComplete) {
             if loadingComplete {
-                withAnimation(.easeInOut(duration: 0.01)) {
-                    showSplash = false
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    showSplash.toggle()
                 }
             }
         }

@@ -1,0 +1,354 @@
+{
+  "identifier" : "7859BFBB",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6482981941",
+    "_developerTeamID" : "H4TST29A3U",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 745688919.82673705,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21474417",
+      "localizations" : [
+
+      ],
+      "name" : "sub group 1",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "89.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "6642652726",
+          "introductoryOffer" : {
+            "internalID" : "D3516D81",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
+          "localizations" : [
+            {
+              "description" : "Ετήσια Συνδρομή",
+              "displayName" : "Ετήσια Συνδρομή",
+              "locale" : "el"
+            },
+            {
+              "description" : " 年订阅",
+              "displayName" : " 年订阅",
+              "locale" : "zh_CN"
+            },
+            {
+              "description" : "Assinatura Anual",
+              "displayName" : "Assinatura Anual",
+              "locale" : "pt_BR"
+            },
+            {
+              "description" : "Abonnement Annuel",
+              "displayName" : "Abonnement Annuel",
+              "locale" : "fr"
+            },
+            {
+              "description" : "Yearly Subscription",
+              "displayName" : "Yearly Subscription",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "年間サブスクリプション",
+              "displayName" : "年間サブスクリプション",
+              "locale" : "ja"
+            },
+            {
+              "description" : "Jährliches Abonnement",
+              "displayName" : "Jährliches Abonnement",
+              "locale" : "de"
+            },
+            {
+              "description" : "Suscripción Anual",
+              "displayName" : "Suscripción Anual",
+              "locale" : "es_MX"
+            },
+            {
+              "description" : " מנוי שנתי",
+              "displayName" : " מנוי שנתי",
+              "locale" : "he"
+            },
+            {
+              "description" : "Suscripción Anual",
+              "displayName" : "Suscripción Anual",
+              "locale" : "es_ES"
+            },
+            {
+              "description" : "연간 구독",
+              "displayName" : "연간 구독",
+              "locale" : "ko"
+            },
+            {
+              "description" : "Abbonamento Annuale",
+              "displayName" : "Abbonamento Annuale",
+              "locale" : "it"
+            },
+            {
+              "description" : "Assinatura Anual",
+              "displayName" : "Assinatura Anual",
+              "locale" : "pt_PT"
+            }
+          ],
+          "productID" : "MV_Annual_99",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "MV_Annual_9999",
+          "subscriptionGroupID" : "21474417",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "17.99",
+          "familyShareable" : true,
+          "groupNumber" : 2,
+          "internalID" : "6502263387",
+          "introductoryOffer" : {
+            "internalID" : "9A9C50C5",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
+          "localizations" : [
+            {
+              "description" : "月订阅",
+              "displayName" : "月订阅",
+              "locale" : "zh_CN"
+            },
+            {
+              "description" : "Assinatura Mensal",
+              "displayName" : "Assinatura Mensal",
+              "locale" : "pt_BR"
+            },
+            {
+              "description" : "Μηνιαία Συνδρομή",
+              "displayName" : "Μηνιαία Συνδρομή",
+              "locale" : "el"
+            },
+            {
+              "description" : "Suscripción Mensual",
+              "displayName" : "Suscripción Mensual",
+              "locale" : "es_ES"
+            },
+            {
+              "description" : "Monthly Subscription",
+              "displayName" : "Monthly Subscription",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Abonnement Mensuel",
+              "displayName" : "Abonnement Mensuel",
+              "locale" : "fr"
+            },
+            {
+              "description" : "월간 구독",
+              "displayName" : "월간 구독",
+              "locale" : "ko"
+            },
+            {
+              "description" : "מנוי חודשי",
+              "displayName" : "מנוי חודשי",
+              "locale" : "he"
+            },
+            {
+              "description" : "Monatliches Abonnement",
+              "displayName" : "Monatliches Abonnement",
+              "locale" : "de"
+            },
+            {
+              "description" : "月額サブスクリプション",
+              "displayName" : "月額サブスクリプション",
+              "locale" : "ja"
+            },
+            {
+              "description" : "Assinatura Mensal",
+              "displayName" : "Assinatura Mensal",
+              "locale" : "pt_PT"
+            },
+            {
+              "description" : "Abbonamento Mensile",
+              "displayName" : "Abbonamento Mensile",
+              "locale" : "it"
+            },
+            {
+              "description" : "Suscripción Mensual",
+              "displayName" : "Suscripción Mensual",
+              "locale" : "es_MX"
+            }
+          ],
+          "productID" : "MyndVault_Key_1",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "MyndVault_monthly",
+          "subscriptionGroupID" : "21474417",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "5.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6642652946",
+          "introductoryOffer" : {
+            "internalID" : "3FBB9297",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P3D"
+          },
+          "localizations" : [
+            {
+              "description" : "Suscripción Semanal",
+              "displayName" : "Suscripción Semanal",
+              "locale" : "es_ES"
+            },
+            {
+              "description" : "Wöchentliches Abonnement",
+              "displayName" : "Wöchentliches Abonnement",
+              "locale" : "de"
+            },
+            {
+              "description" : "Weekly Subscription ",
+              "displayName" : "Weekly Subscription ",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Abonnement Hebdomadaire",
+              "displayName" : "Abonnement Hebdomadaire",
+              "locale" : "fr"
+            },
+            {
+              "description" : "Εβδομαδιαία Συνδρομή",
+              "displayName" : "Εβδομαδιαία Συνδρομή",
+              "locale" : "el"
+            },
+            {
+              "description" : "주간 구독 ",
+              "displayName" : "주간 구독 ",
+              "locale" : "ko"
+            },
+            {
+              "description" : "מנוי שבועי",
+              "displayName" : "מנוי שבועי",
+              "locale" : "he"
+            },
+            {
+              "description" : "週間サブスクリプション",
+              "displayName" : "週間サブスクリプション",
+              "locale" : "ja"
+            },
+            {
+              "description" : "Abonnement Hebdomadaire",
+              "displayName" : "Abonnement Hebdomadaire",
+              "locale" : "fr"
+            },
+            {
+              "description" : "周订阅 ",
+              "displayName" : "周订阅 ",
+              "locale" : "zh_CN"
+            },
+            {
+              "description" : "Assinatura Semanal",
+              "displayName" : "Assinatura Semanal",
+              "locale" : "pt_PT"
+            },
+            {
+              "description" : "Abbonamento Settimanale",
+              "displayName" : "Abbonamento Settimanale",
+              "locale" : "it"
+            },
+            {
+              "description" : "Suscripción Semanal",
+              "displayName" : "Suscripción Semanal",
+              "locale" : "es_MX"
+            },
+            {
+              "description" : "Assinatura Semanal",
+              "displayName" : "Assinatura Semanal",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "MV_Weekly_699",
+          "recurringSubscriptionPeriod" : "P1W",
+          "referenceName" : "MyndVault_Weekly",
+          "subscriptionGroupID" : "21474417",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

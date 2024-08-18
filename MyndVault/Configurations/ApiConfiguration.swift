@@ -8,6 +8,16 @@
 import Foundation
 
 struct ApiConfiguration {
+    
+    static var catKey: String? {
+        guard let path = Bundle.main.path(forResource: "OpenAIKey", ofType: "plist"),
+              let dictionary = NSDictionary(contentsOfFile: path),
+              let apiKey = dictionary["REVENUE_KEY"] as? String
+        else {
+            return nil
+        }
+        return apiKey
+    }
 
     static var openAIKey: String? {
         guard let path = Bundle.main.path(forResource: "OpenAIKey", ofType: "plist"),

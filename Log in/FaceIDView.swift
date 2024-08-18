@@ -13,7 +13,11 @@ struct FaceIDView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @EnvironmentObject var networkManager: NetworkManager
-//    @State private var greenHeight: CGFloat = UIScreen.main.bounds.height + (UIScreen.main.bounds.height * 0.15)
+    @EnvironmentObject var openAiManager: OpenAIManager
+    @EnvironmentObject var pinecone: PineconeManager
+    @EnvironmentObject var progressTracker: ProgressTracker
+    @EnvironmentObject var language: LanguageSettings
+    @EnvironmentObject var speechManager: SpeechRecognizerManager
     @State private var showError = false
     @State private var showNoInternet = false
     @State private var showPasswordAuth = false
@@ -28,6 +32,12 @@ struct FaceIDView: View {
         Group {
             if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn  {
                 MainView()
+                    .environmentObject(openAiManager)
+                    .environmentObject(pinecone)
+                    .environmentObject(progressTracker)
+                    .environmentObject(keyboardResponder)
+                    .environmentObject(language)
+                    .environmentObject(speechManager)
             } else if authManager.isLoggedOut {
                 LoggedOutView()
             } else {
@@ -39,26 +49,26 @@ struct FaceIDView: View {
                         LottieRepresentable(filename: "Image Recognition", loopMode: .loop).padding()
                             .frame(height: 400)
                             .onTapGesture(perform: authenticate)
-                       
-                    .padding(.top)
-                    .onAppear(perform: authenticate)
-                       
-                    
-                    Button {
-                        self.authenticate()
-                    } label: {
-                        Image(systemName: "faceid").resizable().frame(width: 100, height: 100)
-                            .foregroundStyle(Color.cardBackground).shadow(radius: 4, x: -3, y: -3)
-                           
-                    }
+                        
+                            .padding(.top)
+                            .onAppear(perform: authenticate)
+                        
+                        
+                        Button {
+                            self.authenticate()
+                        } label: {
+                            Image(systemName: "faceid").resizable().frame(width: 100, height: 100)
+                                .foregroundStyle(Color.cardBackground).shadow(radius: 4, x: -3, y: -3)
+                            
+                        }
                         Spacer()
-                }
+                    }
                 }
                 .statusBar(hidden: true)
-                    .sheet(isPresented: $showPasswordAuth) {
-                        UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
-                            .environmentObject(keyboardResponder)
-                    }
+                .sheet(isPresented: $showPasswordAuth) {
+                    UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
+                        .environmentObject(keyboardResponder)
+                }
             }
         }
         .alert(isPresented: $showNoInternet) {
@@ -74,46 +84,46 @@ struct FaceIDView: View {
             }
         }
         .alert(isPresented: $showErrorAlert) {
-                    Alert(
-                        title: Text("Authentication Failed"),
-                        message: Text(errorMessage),
-                        primaryButton: .default(Text("Retry"), action: authenticate),
-                        secondaryButton: .default(Text("Enter Username/Password"), action: {
-                            showPasswordAuth = true
-                        })
-                    )
-                }
-//        .onChange(of: authAttempts) {
-//            if authAttempts >= 2 {
-//                showPasswordAuth = true
-//            }
-//        }
+            Alert(
+                title: Text("Authentication Failed"),
+                message: Text(errorMessage),
+                primaryButton: .default(Text("Retry"), action: authenticate),
+                secondaryButton: .default(Text("Enter Username/Password"), action: {
+                    showPasswordAuth = true
+                })
+            )
+        }
+        //        .onChange(of: authAttempts) {
+        //            if authAttempts >= 2 {
+        //                showPasswordAuth = true
+        //            }
+        //        }
     }
     
     private func authenticate() {
         let context = LAContext()
         var error: NSError?
-
+        
         // check whether biometric authentication is possible
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             // it's possible, so go ahead and use it
             let reason = "We need to unlock your data."
-
+            
             context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
                 // authentication has now completed
                 if success {
                     // authenticated successfully
-                  
+                    
                     withAnimation(.easeInOut) {
                         
                         authManager.login()
                     }
-                   //
+                    //
                 } else {
-//                    authAttempts += 1
-//                    if authAttempts >= 2 {
-//                        showPasswordAuth = true
-//                    }
+                    //                    authAttempts += 1
+                    //                    if authAttempts >= 2 {
+                    //                        showPasswordAuth = true
+                    //                    }
                     handleAuthenticationError(error: error)
                 }
             }
@@ -129,69 +139,69 @@ struct FaceIDView: View {
     
     
     private func handleAuthenticationError(error: Error?) {
-            guard let laError = error as? LAError else {
-                errorMessage = "An unknown error occurred."
-                showErrorAlert = true
-                return
-            }
-            
-            switch laError.code {
-            case .authenticationFailed:
-                errorMessage = "There was a problem verifying your identity."
-            case .userCancel:
-                errorMessage = "You canceled the authentication."
-            case .userFallback:
-                showPasswordAuth = true
-                return
-            case .systemCancel:
-                errorMessage = "Authentication was canceled by the system."
-            case .passcodeNotSet:
-                errorMessage = "Passcode is not set on the device."
-            case .biometryNotAvailable:
-                errorMessage = "Biometric authentication is not available on this device."
-            case .biometryNotEnrolled:
-                errorMessage = "No biometric identities are enrolled."
-            case .biometryLockout:
-                errorMessage = "Biometric authentication is locked out."
-            default:
-                errorMessage = "An unknown error occurred."
-            }
-            
-            authAttempts += 1
-            if authAttempts >= 2 {
-                showPasswordAuth = true
-            } else {
-                showErrorAlert = true
-            }
+        guard let laError = error as? LAError else {
+            errorMessage = "An unknown error occurred."
+            showErrorAlert = true
+            return
         }
+        
+        switch laError.code {
+        case .authenticationFailed:
+            errorMessage = "There was a problem verifying your identity."
+        case .userCancel:
+            errorMessage = "You canceled the authentication."
+        case .userFallback:
+            showPasswordAuth = true
+            return
+        case .systemCancel:
+            errorMessage = "Authentication was canceled by the system."
+        case .passcodeNotSet:
+            errorMessage = "Passcode is not set on the device."
+        case .biometryNotAvailable:
+            errorMessage = "Biometric authentication is not available on this device."
+        case .biometryNotEnrolled:
+            errorMessage = "No biometric identities are enrolled."
+        case .biometryLockout:
+            errorMessage = "Biometric authentication is locked out."
+        default:
+            errorMessage = "An unknown error occurred."
+        }
+        
+        authAttempts += 1
+        if authAttempts >= 2 {
+            showPasswordAuth = true
+        } else {
+            showErrorAlert = true
+        }
+    }
     
-//    private func authenticate() {
-//          let context = LAContext()
-//          context.localizedCancelTitle = "Enter Username/Password"
-//          
-//          var authError: NSError?
-//          if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
-//              context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Log in with Face ID") { success, error in
-//                  DispatchQueue.main.async {
-//                      if success {
-//                          withAnimation(.easeInOut) {
-//                              authManager.login()
-//                          }
-//                      } else {
-//                          authAttempts += 1
-//                          if authAttempts >= 2 {
-//                              showPasswordAuth = true
-//                          }
-//                      }
-//                  }
-//              }
-//          } else {
-//              authAttempts += 1
-//              if authAttempts >= 2 {
-//                  showPasswordAuth = true
-//              }
-//          }
-//      }
+    //    private func authenticate() {
+    //          let context = LAContext()
+    //          context.localizedCancelTitle = "Enter Username/Password"
+    //
+    //          var authError: NSError?
+    //          if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
+    //              context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Log in with Face ID") { success, error in
+    //                  DispatchQueue.main.async {
+    //                      if success {
+    //                          withAnimation(.easeInOut) {
+    //                              authManager.login()
+    //                          }
+    //                      } else {
+    //                          authAttempts += 1
+    //                          if authAttempts >= 2 {
+    //                              showPasswordAuth = true
+    //                          }
+    //                      }
+    //                  }
+    //              }
+    //          } else {
+    //              authAttempts += 1
+    //              if authAttempts >= 2 {
+    //                  showPasswordAuth = true
+    //              }
+    //          }
+    //      }
 }
 
 struct UsernamePasswordLoginView: View {
@@ -206,6 +216,9 @@ struct UsernamePasswordLoginView: View {
     @State private var showPasswordError = false
     @State private var shake: Bool = false
     
+    @FocusState private var isUsernameFieldFocused: Bool
+    @FocusState private var isPasswordFieldFocused: Bool
+    
     var body: some View {
         ZStack {
             LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
@@ -219,10 +232,11 @@ struct UsernamePasswordLoginView: View {
                     .frame(height: 100)
                     .padding(.horizontal)
                 
-                FloatingLabelTextField(text: $username, title: "Username", isSecure: false)
+                FloatingLabelTextField(text: $username, title: "Username", isSecure: false, isFocused: $isUsernameFieldFocused)
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                 
-                FloatingLabelTextField(text: $password, title: "Password", isSecure: true)
+                
+                FloatingLabelTextField(text: $password, title: "Password", isSecure: true, isFocused: $isPasswordFieldFocused)
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                 
                 Button(action: {
@@ -253,7 +267,21 @@ struct UsernamePasswordLoginView: View {
                 .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
                 .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                 Spacer()
+                
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    if isUsernameFieldFocused || isPasswordFieldFocused {
+                        Button {
+                            hideKeyboard()
+                        } label: {
+                            HideKeyboardLabel()
+                        }
+                    }
+                }
+            }
+            //TODO: Check if this appears in the Keyboard, Check InitialSetUpView for correct implementation !
+            
         }
         .alert(isPresented: $showPasswordError) {
             Alert(
@@ -269,6 +297,7 @@ struct UsernamePasswordLoginView: View {
                 }
             }
         }
+        
     }
     
     private func authenticateWithPassword() {
@@ -292,7 +321,7 @@ struct UsernamePasswordLoginView: View {
 //struct FaceIDView_Previews: PreviewProvider {
 //    @State static var username = ""
 //    @State static var password = ""
-//    
+//
 //    static var previews: some View {
 //        FaceIDView()
 //            .environmentObject(AuthenticationManager())
@@ -312,6 +341,6 @@ struct UsernamePasswordLoginView_Previews: PreviewProvider {
             password: $password
         )
         .environmentObject(AuthenticationManager())
-                .environmentObject(KeyboardResponder())
+        .environmentObject(KeyboardResponder())
     }
 }

@@ -20,6 +20,7 @@ struct VaultView: View {
     @State private var searchText: String = ""
     @State private var selectedInfo : Vector?
     @State private var showEdit: Bool = false
+   
     
     var filteredVectors: [Vector] {
         if searchText.isEmpty {
@@ -115,7 +116,9 @@ struct VaultView: View {
                 .navigationBarTitleView {
                     HStack {
                         Text("Vault").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                        LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
+                        LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
+                  
+                    //TODO: Check how it looks
                     .padding(.bottom)
                 }
                 }
@@ -161,13 +164,13 @@ struct VaultView: View {
 //            let val = 1.0 - (progress(proxy) * scale)
 //            return val
 //        }
-//        
-//        
+//
+//
 //        func excessTop(_ proxy: GeometryProxy, offset: CGFloat = 12) -> CGFloat {
 //            let p = progress(proxy)
 //            return -p * offset
 //        }
-//        
+//
         
 //         func brightness(_ proxy: GeometryProxy) -> CGFloat {
 //            let progress = progress(proxy)
@@ -176,8 +179,8 @@ struct VaultView: View {
 //            let value = -progress * variation
 //            return value < threshold ? threshold : value
 //        }
-//        
-//       
+//
+//
 //         func progress(_ proxy: GeometryProxy) -> CGFloat {
 //            // when a card reached its top, start to calculate its progress
 //            if (minY(proxy) == 0) {
@@ -249,7 +252,11 @@ struct VaultView: View {
 
 }
 
-#Preview {
-    VaultView()
+struct VaultView_Previews: PreviewProvider {
+   
+    
+    static var previews: some View {
+        VaultView()
+     
+    }
 }
-

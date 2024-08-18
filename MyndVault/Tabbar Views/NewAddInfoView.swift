@@ -22,6 +22,7 @@ struct NewAddInfoView: View {
     @State private var showNoInternet: Bool = false
     @State private var showLang: Bool = false
     @State private var clearButtonIsVisible: Bool = false
+    @State private var showSuccess: Bool = false
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -72,6 +73,11 @@ struct NewAddInfoView: View {
                             photoPicker.presentPicker()
                         }) {
                             HStack {
+                                Image(systemName: photoPicker.selectedImage == nil ? "photo.badge.plus.fill" : "photo.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 35, height: 30)
+                                    .foregroundStyle(Color.customTiel)
                                 Text(photoPicker.selectedImage == nil ? "Add photo" : "Change photo")
                                 Spacer()
                                 if let image = photoPicker.selectedImage {
@@ -156,211 +162,228 @@ struct NewAddInfoView: View {
                         }
                     }
                     
-//                    if self.thrownError != "" {
-//                        ClearButton
-//                            .offset(y: keyboardResponder.currentHeight > 0 ? 70 : 0)
-//                    }
+                    //                    if self.thrownError != "" {
+                    //                        ClearButton
+                    //                            .offset(y: keyboardResponder.currentHeight > 0 ? 70 : 0)
+                    //                    }
                     if saveButtonIsVisible && pineconeManager.receivedError == nil {
                         SaveButton
                     }
-                    if apiCallInProgress && progressTracker.progress < 0.99 && thrownError == "" && pineconeManager.receivedError == nil {
+                    if apiCallInProgress && thrownError == "" && pineconeManager.receivedError == nil {
+                        
                         CircularProgressView(progressTracker: progressTracker).padding()
-                        LottieRepresentable(filename: "Brain Configurations", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).id(UUID())
+                        LottieRepresentable(filename: "Brain Configurations", loopMode: .playOnce, speed: 0.4)
+                            .frame(width: 220, height: 220)
+                            //.id(UUID())
+                            .animation(.easeInOut, value: apiCallInProgress)
                     }
-                    Spacer()
-                    
+                    else if pineconeManager.upsertSuccesful && showSuccess {
+                        
+                        LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+                                    withAnimation { showSuccess = false }
+                                }
+                            }
+                    }
+                        Spacer()
+                        
+                    }
+                        .sheet(isPresented: $showError) {
+                            
+                            ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
+                                .presentationDetents([.fraction(0.4)])
+                                .presentationDragIndicator(.hidden)
+                                .presentationBackground(Color.clear)
+                            
+                        }
+                    //                .padding(.horizontal, standardCardPadding) //TODO: No padding !?!
+                        .background {
+                            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                                .opacity(0.4)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .ignoresSafeArea()
+                        }
+                        .navigationBarTitleView {
+                            HStack {
+                                Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                                LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
+                        }
                 }
-                .sheet(isPresented: $showError) {
-                    
-                    ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
-                        .presentationDetents([.fraction(0.4)])
-                        .presentationDragIndicator(.hidden)
-                        .presentationBackground(Color.clear)
-                    
-                }
-                //                .padding(.horizontal, standardCardPadding) //TODO: No padding !?!
-                .background {
-                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
-                        .opacity(0.4)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .ignoresSafeArea()
-                }
-                .navigationBarTitleView {
-                    HStack {
-                        Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                        LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
-                }
-            }
-            
-            .onChange(of: shake) { _, newValue in
-                if newValue {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation {
-                            shake = false }
+                
+                .onChange(of: shake) { _, newValue in
+                    if newValue {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            withAnimation {
+                                shake = false }
+                        }
                     }
                 }
-            }
-            .onChange(of: languageSettings.selectedLanguage) {
-                withAnimation {
-                    showLang = true }
-                DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                .onChange(of: languageSettings.selectedLanguage) {
                     withAnimation {
-                        showLang = false }
-                }
-            }
-            .onChange(of: networkManager.hasInternet) { _, hasInternet in
-                if !hasInternet {
-                    showNoInternet = true
-                }
-            }
-            .onChange(of: thrownError) {
-                showError.toggle()
-            }
-            .alert(isPresented: $showNoInternet) {
-                Alert(
-                    title: Text("You are not connected to the Internet"),
-                    message: Text("Please check your connection"),
-                    dismissButton: .cancel(Text("OK"))
-                )
-            }
-        }
-        .fullScreenCover(isPresented: $showSettings) {
-            SettingsView(showSettings: $showSettings)
-        }
-        .onDisappear {
-            if thrownError != "" || pineconeManager.receivedError != nil {
-                performClearTask()
-            }
-        }
-    }
-    private var SaveButton: some View {
-        Button(action: addNewInfoAction) {
-            ZStack {
-                RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customLightBlue)
-                    .frame(height: buttonHeight)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
-                    .accessibilityLabel("save")
-            }
-            .contentShape(Rectangle())
-            
-        }
-        .frame(maxWidth: .infinity)
-        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
-        .padding(.top, 12)
-        .padding(.horizontal)
-        .padding(.horizontal)
-        .animation(.easeInOut, value: keyboardResponder.currentHeight)
-    }
-    
-    private var ClearButton: some View {
-        Button(action: performClearTask) {
-            ZStack {
-                RoundedRectangle(cornerRadius: rectCornerRad)
-                    .fill(Color.customLightBlue)
-                    .frame(height: buttonHeight)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                
-                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
-                    .accessibilityLabel("clear")
-            }
-            .contentShape(Rectangle())
-        }
-        .padding(.top, 12)
-        .padding(.horizontal)
-        .animation(.easeInOut, value: keyboardResponder.currentHeight)
-        .frame(maxWidth: .infinity)
-    }
-    
-    private func performClearTask() {
-        
-        withAnimation {
-            progressTracker.reset()
-            self.thrownError = ""
-            self.clearButtonIsVisible = false
-            Task {
-                await openAiManager.clearManager()
-                await pineconeManager.clearManager()
-            }
-            self.apiCallInProgress = false
-            self.saveButtonIsVisible = true
-        }
-    }
-    
-    private func addNewInfoAction() {
-        
-        if shake || isLoading { return }
-        if newInfo.count < 5 {
-            withAnimation { shake = true }
-            return
-        }
-        isLoading = true
-        hideKeyboard()
-        self.saveButtonIsVisible = false
-        self.apiCallInProgress = true
-        progressTracker.reset()
-        Task { await addInfoOperations() }
-    }
-    
-    private func addInfoOperations() async {
-        
-        do {
-            //MARK: TEST THROW
-            let miaMalakia = AppCKError.UnableToGetNameSpace
-            throw miaMalakia
-            
-            try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
-            
-            if openAiManager.embeddingsCompleted {
-                apiCalls.incrementApiCallCount()
-                let metadata = toDictionary(desc: self.newInfo)
-                
-                let uniqueID = UUID().uuidString
-                
-                try await pineconeManager.upsertDataToPinecone(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
-                if pineconeManager.upsertSuccesful {
-                    apiCalls.incrementApiCallCount()
-                    if let image = photoPicker.selectedImage {
-                        try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
+                        showLang = true }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                        withAnimation {
+                            showLang = false }
                     }
-                    //TODO: Add the tick or other Lottie to show upsertSuccesful
                 }
+                .onChange(of: networkManager.hasInternet) { _, hasInternet in
+                    if !hasInternet {
+                        showNoInternet = true
+                    }
+                }
+                .onChange(of: thrownError) {
+                    showError.toggle()
+                }
+                .alert(isPresented: $showNoInternet) {
+                    Alert(
+                        title: Text("You are not connected to the Internet"),
+                        message: Text("Please check your connection"),
+                        dismissButton: .cancel(Text("OK"))
+                    )
+                }
+            }
+            .fullScreenCover(isPresented: $showSettings) {
+                SettingsView(showSettings: $showSettings)
+            }
+            .onDisappear {
+                if thrownError != "" || pineconeManager.receivedError != nil {
+                    performClearTask()
+                }
+            }
+        }
+        private var SaveButton: some View {
+            Button(action: addNewInfoAction) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: rectCornerRad)
+                        .fill(Color.customLightBlue)
+                        .frame(height: buttonHeight)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                    Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
+                        .accessibilityLabel("save")
+                }
+                .contentShape(Rectangle())
+                
+            }
+            .frame(maxWidth: .infinity)
+            .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+            .padding(.top, 12)
+            .padding(.horizontal)
+            .padding(.horizontal)
+            .animation(.easeInOut, value: keyboardResponder.currentHeight)
+        }
+        
+        private var ClearButton: some View {
+            Button(action: performClearTask) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: rectCornerRad)
+                        .fill(Color.customLightBlue)
+                        .frame(height: buttonHeight)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                    
+                    Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
+                        .accessibilityLabel("clear")
+                }
+                .contentShape(Rectangle())
+            }
+            .padding(.top, 12)
+            .padding(.horizontal)
+            .animation(.easeInOut, value: keyboardResponder.currentHeight)
+            .frame(maxWidth: .infinity)
+        }
+        
+        private func performClearTask() {
+            
+            withAnimation {
+                progressTracker.reset()
+                self.thrownError = ""
+                self.clearButtonIsVisible = false
+                Task {
+                    await openAiManager.clearManager()
+                    await pineconeManager.clearManager()
+                }
+                self.apiCallInProgress = false
+                self.saveButtonIsVisible = true
+            }
+        }
+        
+        private func addNewInfoAction() {
+            
+            if shake || isLoading { return }
+            if newInfo.count < 5 {
+                withAnimation { shake = true }
+                return
+            }
+            isLoading = true
+            hideKeyboard()
+            self.saveButtonIsVisible = false
+            self.apiCallInProgress = true
+            progressTracker.reset()
+            if pineconeManager.upsertSuccesful {
+                pineconeManager.upsertSuccesful.toggle()
+            }
+            Task { await addInfoOperations() }
+        }
+        
+        private func addInfoOperations() async {
+            
+            do {
+                //MARK: TEST THROW
+                //            let miaMalakia = AppCKError.UnableToGetNameSpace
+                //            throw miaMalakia
+                
+                try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
+                
+                if openAiManager.embeddingsCompleted {
+                    apiCalls.incrementApiCallCount()
+                    let metadata = toDictionary(desc: self.newInfo)
+                    
+                    let uniqueID = UUID().uuidString
+                    
+                    try await pineconeManager.upsertDataToPinecone(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
+                    if pineconeManager.upsertSuccesful {
+                        
+                        apiCalls.incrementApiCallCount()
+                        if let image = photoPicker.selectedImage {
+                            try await cloudKit.saveImageItem(image: image, uniqueID: uniqueID)
+                        }
+                        showSuccess.toggle()
+                    }
+                    await MainActor.run {
+                        apiCallInProgress = false
+                        saveButtonIsVisible = true
+                        newInfo = ""
+                        isLoading = false
+                    }
+                }
+            }
+            catch let error as AppNetworkError {
                 await MainActor.run {
                     apiCallInProgress = false
-                    saveButtonIsVisible = true
-                    newInfo = ""
                     isLoading = false
-                }
+                    self.thrownError = error.errorDescription }
             }
+            catch let error as AppCKError {
+                await MainActor.run {
+                    apiCallInProgress = false
+                    isLoading = false
+                    self.thrownError = error.errorDescription }
+            }
+            catch let error as CKError {
+                await MainActor.run {
+                    apiCallInProgress = false
+                    isLoading = false
+                    self.thrownError = error.customErrorDescription }
+            }
+            catch {
+                await MainActor.run {
+                    apiCallInProgress = false
+                    isLoading = false
+                    self.thrownError = error.localizedDescription }
+            }
+            
         }
-        catch let error as AppNetworkError {
-            await MainActor.run {
-                apiCallInProgress = false
-                isLoading = false
-                self.thrownError = error.errorDescription }
-        }
-        catch let error as AppCKError {
-            await MainActor.run {
-                apiCallInProgress = false
-                isLoading = false
-                self.thrownError = error.errorDescription }
-        }
-        catch let error as CKError {
-            await MainActor.run {
-                apiCallInProgress = false
-                isLoading = false
-                self.thrownError = error.customErrorDescription }
-        }
-        catch {
-            await MainActor.run {
-                apiCallInProgress = false
-                isLoading = false
-                self.thrownError = error.localizedDescription }
-        }
-        
     }
-}
 
 
 struct NewAddInfoView_Previews: PreviewProvider {

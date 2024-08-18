@@ -13,11 +13,11 @@ struct MainView: View {
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
     @EnvironmentObject var progressTracker: ProgressTracker
-    @EnvironmentObject var notificationsManager: NotificationViewModel
+//    @EnvironmentObject var notificationsManager: NotificationViewModel
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
-    
-   /* @State private var navigateToQuestionView = false*/ //for widget
+    @EnvironmentObject var language: LanguageSettings
+    @EnvironmentObject var speechManager: SpeechRecognizerManager
     
     var body: some View {
 
@@ -28,10 +28,12 @@ struct MainView: View {
                         .environmentObject(openAiManager)
                         .environmentObject(pineconeManager)
                         .environmentObject(progressTracker)
-                        .environmentObject(notificationsManager)
+//                        .environmentObject(notificationsManager)
                         .environmentObject(cloudKitViewModel)
                         .environmentObject(keyboardResponder)
                         .environmentObject(apiCallsViewModel)
+                        .environmentObject(language)
+                        .environmentObject(speechManager)
                 }
                 
                 else if cloudKitViewModel.isLoading {

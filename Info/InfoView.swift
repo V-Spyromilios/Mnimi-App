@@ -93,7 +93,7 @@ struct InfoView: View {
             .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
 
             if inProgress {
-                LottieRepresentable(filename: "Brain Configurations", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).id(UUID()).animation(.easeInOut, value: inProgress)
+                LottieRepresentable(filename: "Brain Configurations",loopMode: .playOnce, speed: 0.4).frame(width: 220, height: 220).id(UUID()).animation(.easeInOut, value: inProgress)
             }
             
             else if showSuccess {

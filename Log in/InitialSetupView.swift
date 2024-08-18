@@ -10,7 +10,12 @@ import LocalAuthentication
 
 struct InitialSetupView: View {
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
-
+    @EnvironmentObject var language: LanguageSettings
+    @EnvironmentObject var speechManager: SpeechRecognizerManager
+    @EnvironmentObject var progressTracker: ProgressTracker
+    @EnvironmentObject var openAiManager: OpenAIManager
+    @EnvironmentObject var pinecone: PineconeManager
+    
     @Environment(\.colorScheme) var colorScheme
     @State private var username: String = ""
     @State private var password: String = ""
@@ -19,103 +24,112 @@ struct InitialSetupView: View {
     @State private var alertMessage = ""
     @State private var setupComplete = false
     @State private var shake = false
-
+    @State private var isEditingUsername: Bool = false
+    @State private var isEditingPassword: Bool = false
+    @State private var isEditingPasswordRepait: Bool = false
+    @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @EnvironmentObject var authManager: AuthenticationManager
+    
+    @FocusState private var isUsernameFieldFocused: Bool
+    @FocusState private var isPasswordFieldFocused: Bool
+    @FocusState private var isRepairPasswordFieldFocused: Bool
+   
+    
     var body: some View {
+
         GeometryReader { geometry in
+           
             ZStack {
-               
-                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
-                        .opacity(0.4)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .ignoresSafeArea()
                 
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
                 
                 VStack {
-                    Text("Mynd Vault 🗃️").font(.largeTitle).fontWeight(.semibold).foregroundStyle(.white).fontDesign(.rounded).padding()
-                    Text("Initial Setup")
-                        .foregroundStyle(Color.buttonText)
-                        .font(.title2)
-                        .padding()
-                    Spacer()
-                    TextField("Username", text: $username)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(maxWidth: idealWidth(for: geometry.size.width))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(Color.gray)
-                        )
-                        .padding()
+                    ScrollView {
                     
-                    SecureField("Password", text: $password)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(maxWidth: idealWidth(for: geometry.size.width))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(Color.gray)
-                        )
-                        .padding()
+                    LottieRepresentable(filename: "Woman_vault")
+                        .frame(height: 220)
+                    TypingTextView(fullText: "Please provide Username\nand Password to be used if FaceID is not available.", isTitle: false).shadow(radius: 1)
                     
-                    SecureField("Confirm Password", text: $confirmPassword)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(maxWidth: idealWidth(for: geometry.size.width))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(Color.gray)
-                        )
-                        .padding()
+                        .frame(height: 60)
+                    
+                    
+                        FloatingLabelTextField(text: $username, title: "Username", isSecure: false, isFocused: $isUsernameFieldFocused)
+                        .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                    
+                        FloatingLabelTextField(text: $password, title: "Password", isSecure: true, isFocused: $isPasswordFieldFocused)
+                        .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                    
+                        FloatingLabelTextField(text: $confirmPassword, title: "Repait Password", isSecure: true, isFocused: $isRepairPasswordFieldFocused)
+                        .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                    
                     
                     Button(action:  {
-                       completeSetup()
+                        completeSetup()
                     }
-        ) {
+                    ) {
                         ZStack {
                             RoundedRectangle(cornerRadius: rectCornerRad)
                                 .fill(Color.customLightBlue)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                 .frame(height: buttonHeight)
-                                
+                            
                             Text("Save").font(.title2).bold()
                                 .foregroundColor(Color.buttonText)
                                 .accessibilityLabel("save")
                         }
                         .contentShape(Rectangle())
-                       
+                        
                     }
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
                     .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                     .padding(.top, 12)
                     .padding(.horizontal)
-                    .padding()
+                    .padding(.horizontal)
+                    .animation(.easeInOut, value: keyboardResponder.currentHeight)
                     Spacer()
                 }.frame(maxWidth: .infinity)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                if isUsernameFieldFocused || isPasswordFieldFocused || isRepairPasswordFieldFocused {
+                                    Button {
+                                        hideKeyboard()
+                                    } label: {
+                                        HideKeyboardLabel()
+                                    }
+                                }
+                            }
+                        }
             }
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text("Setup Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+
             }
-            .onChange(of: shake) { _, newValue in
-                if newValue {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        shake = false
+        
+                .alert(isPresented: $showAlert) {
+                    Alert(title: Text("Setup Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                }
+                .onChange(of: shake) { _, newValue in
+                    if newValue {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            shake = false
+                        }
                     }
                 }
+                .fullScreenCover(isPresented: $setupComplete) {
+                    FaceIDView()
+//                        .environmentObject(<#T##object: ObservableObject##ObservableObject#>)
+                        .environmentObject(openAiManager)
+                        .environmentObject(pinecone)
+                        .environmentObject(progressTracker)
+                        .environmentObject(keyboardResponder)
+                        .environmentObject(language)
+                        .environmentObject(speechManager)
+                }
             }
-            .fullScreenCover(isPresented: $setupComplete) {
-                FaceIDView()
-            }
-        }
-    }
+        
+            
+}
 
     private func completeSetup() {
 

@@ -283,7 +283,6 @@ struct QuestionView: View {
             .padding(.bottom, 12)
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
-
             .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
         }
      

@@ -153,7 +153,7 @@ struct EditInfoView: View {
                                     viewModel.activeAlert = .error
                                 }
                                 
-                            } 
+                            }
                             catch let error as CKError {
                                 await MainActor.run {
                                     viewModel.occuredErrorDesc = error.customErrorDescription

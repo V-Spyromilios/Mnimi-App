@@ -41,7 +41,7 @@ struct SettingsView: View {
                     .contentShape(Rectangle())
                     
                     HStack {
-                        NavigationLink(destination: EmptyView()) {
+                        NavigationLink(destination: AboutUsView()) {
                             Text("About").foregroundStyle(colorScheme == .light ? .black : .white)
                             Spacer()
                             VStack {
