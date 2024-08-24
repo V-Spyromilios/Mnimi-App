@@ -465,6 +465,9 @@
         }
       }
     },
+    "Access the world's most advanced AI" : {
+
+    },
     "Add New Info" : {
       "localizations" : {
         "de" : {
@@ -1951,6 +1954,9 @@
         }
       }
     },
+    "F*** Notifications, Ads and Personal Data Collection" : {
+
+    },
     "Get Index Info" : {
       "localizations" : {
         "de" : {
@@ -2763,6 +2769,9 @@
           }
         }
       }
+    },
+    "Manage Subscription" : {
+
     },
     "Month Ahead" : {
       "localizations" : {
@@ -4331,6 +4340,9 @@
         }
       }
     },
+    "Securely save and retrieve your info" : {
+
+    },
     "Select Date and Time" : {
       "localizations" : {
         "de" : {
@@ -4910,6 +4922,9 @@
           }
         }
       }
+    },
+    "Use AI to Remember everything anytime" : {
+
     },
     "Username" : {
       "localizations" : {

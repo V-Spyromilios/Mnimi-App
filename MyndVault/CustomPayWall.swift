@@ -12,24 +12,54 @@ import RevenueCatUI
 struct CustomPayWall: View {
     var body: some View {
         ZStack {
-            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                 .opacity(0.4)
-            //                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
-            ScrollView {
-               
+
+             ScrollView(showsIndicators: false) {
               
-                LottieRepresentable(filename: "Woman_vault")
-                    .frame(height: 300)
-                Spacer()
-                
-                
+                    LottieRepresentable(filename: "Woman_vault")
+                    .frame(height: 250)
+                    .ignoresSafeArea()
+                    benefits()
             }
-        }.paywallFooter(condensed: true)
-            
+        }
+        .paywallFooter(condensed: true)
     }
 }
 
 #Preview {
     CustomPayWall()
+}
+
+
+@ViewBuilder
+private func benefits() -> some View {
+    
+    Text("Use AI to Remember everything anytime").font(.largeTitle).fontDesign(.rounded).bold().padding(.bottom, 12)
+    VStack {
+      
+        HStack(spacing: 12) {
+            Image(systemName: "lock.fill").resizable().frame(width: 20, height: 25).foregroundStyle(.customLightPurple)
+            
+            Text("Securely save and retrieve your info").fontDesign(.monospaced).bold()
+            Spacer()
+        }.padding(.bottom, 12)
+        
+        HStack(spacing: 12) {
+            Image(systemName: "lightbulb.fill").resizable().frame(width: 20, height: 25).foregroundStyle(.customLightPurple)
+            
+           Text("Access the world's most advanced AI").fontDesign(.monospaced).bold()
+            Spacer()
+        }.padding(.bottom, 12)
+        
+        HStack(spacing: 12) {
+            Image(systemName: "nosign").resizable().frame(width: 20, height: 20).foregroundStyle(.customLightPurple)
+            
+            Text("F*** Notifications, Ads and Personal Data Collection").fontDesign(.monospaced).bold()
+            Spacer()
+        }
+
+        
+    }.padding(.horizontal)
 }

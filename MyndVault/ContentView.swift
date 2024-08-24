@@ -26,7 +26,12 @@ struct ContentView: View {
     @State var hideKyeboardButton: Bool = false
     @State private var tabSelection: Int = 1
     @State var showEditors: Bool = true
+    @StateObject var RCviewModel = RCViewModel.shared
     @State var showNetworkError = false
+    @State private var showPayWall: Bool = false
+    @State private var isNewSubscriber: Bool = false
+    
+    @State var customerInfo: CustomerInfo? //to allow change in task
    
     
     var body: some View {
@@ -55,11 +60,16 @@ struct ContentView: View {
             )
             .ignoresSafeArea(edges: .bottom)
             .ignoresSafeArea(edges: .horizontal)
-            //                .shadow(color: .primaryAccent, radius: 3)
+            if isNewSubscriber {
+                LottieRepresentable(filename: "Confetti").frame(maxHeight: .infinity)
+            }
         }
         .onAppear {
             speechManager.requestSpeechAuthorization()
+            onAppearGetInfo()
+           
         }
+       
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
                 showNetworkError = true
@@ -72,7 +82,18 @@ struct ContentView: View {
                 hideKyeboardButton = height > 0
             }
         }
-        .presentPaywallIfNeeded(requiredEntitlementIdentifier: "Default")
+        .onChange(of: RCviewModel.isActiveSubscription) { wasActive, isActive in
+            if isActive {
+                print("is Now Active Subscription: \(isActive) and was \(wasActive)")
+                withAnimation { showPayWall = false }
+            }
+            else {
+                print("Now is Not Active Subscription: \(isActive), and was: \(wasActive)")
+                withAnimation { showPayWall = true }
+            }
+            
+        }
+       
         .alert(isPresented: $showNetworkError) {
             Alert(
                 title: Text("No Internet Connection"),
@@ -80,7 +101,78 @@ struct ContentView: View {
                 dismissButton: .default(Text("OK"))
             )
         }
+        .fullScreenCover(isPresented: $showPayWall) {
+            CustomPayWall()
+        }
     }
+
+    
+    
+    private func onAppearGetInfo() {
+        print("onAppear is Active: \(RCviewModel.isActiveSubscription)")
+        
+        
+        Task {
+                        do {
+                            customerInfo = try await Purchases.shared.customerInfo()
+                        } catch {
+                            // handle error
+                        }
+                        guard let customerInfo = customerInfo else { return }
+                        let entitlements = customerInfo.entitlements
+                        let entitlement = entitlements[Constants.entitlementID]
+                        let activationDate = entitlement?.latestPurchaseDate
+                        let hasSubscribed =  entitlement?.isActive ?? false
+            
+           
+                print("OnAppear with urchases.shared.customerInfo() : hasSubscribed: \(hasSubscribed)")
+            
+            if !hasSubscribed {
+                print("Has not subscribed, opening full screen cover...")
+                showPayWall = true
+            }
+            
+        }
+        
+    }
+//    private func getCustomersInfo() {
+//      
+//        
+//        if !RCViewModel.shared.isActiveSubscription {
+//            showPayWall = true
+//        }
+//       
+//        
+////        Task {
+////            do {
+////                customerInfo = try await Purchases.shared.customerInfo()
+////            } catch {
+////                // handle error
+////            }
+////            guard let customerInfo = customerInfo else { return }
+////            let entitlements = customerInfo.entitlements
+////            let entitlement = entitlements[Constants.entitlementID]
+////            let activationDate = entitlement?.latestPurchaseDate
+////            let hasSubscribed =  entitlement?.isActive ?? false
+////
+////            if !hasSubscribed {
+////                withAnimation {
+////                    showPayWall.toggle()
+////                }
+////            }
+////            if activationDate != nil {
+////                let now = Date()
+////                let calendar = Calendar.current
+////                let activationComponents = calendar.dateComponents([.year, .month, .day], from: activationDate!)
+////                let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
+////                
+////                if activationComponents == todayComponents {
+////                    isNewSubscriber.toggle()
+////                }
+////            }
+////            
+////        }
+//    }
 }
 
 

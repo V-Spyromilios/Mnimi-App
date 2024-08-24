@@ -11,7 +11,9 @@ import UIKit
 import Combine
 
 
-let assemblyCode = """
+struct Constants {
+
+  static let assemblyCode = """
 section .data
     message db 'LOGIN', 0
 
@@ -40,24 +42,33 @@ done:
     xor ebx, ebx
     int 0x80
 """.trimmingCharacters(in: .whitespacesAndNewlines)
+    
 
-func userDefaultsKeyExists(_ key: String) -> Bool {
-    return UserDefaults.standard.object(forKey: key) != nil
+    static let rectCornerRad: CGFloat = 50
+
+
+    static let textEditorHeight: CGFloat = 140
+
+
+    static let smallTextEditorHeight: CGFloat = 50
+
+
+    static let contentUnaivalableOffset: CGFloat = 40
+
+
+    static let buttonHeight: CGFloat = 50
+
+
+    static let backgroundSpeed: CGFloat = 0.4
+
+    static let standardCardPadding: CGFloat = 16
+
+
+    static let showLangDuration: CGFloat = 2.5
+
+
+    static let entitlementID: String = "Default"
 }
-
-let rectCornerRad: CGFloat = 50
-
-//let toolbarButtonShadow: CGFloat = 6
-let textEditorHeight: CGFloat = 140
-let smallTextEditorHeight: CGFloat = 50
-
-let contentUnaivalableOffset: CGFloat = 40
-
-let buttonHeight: CGFloat = 50
-let backgroundSpeed: CGFloat = 0.4
-let standardCardPadding: CGFloat = 16
-let showLangDuration: CGFloat = 2.5
-
 extension String {
     func deletingPrefix(_ prefix: String) -> String {
         guard self.hasPrefix(prefix) else { return self }
@@ -71,46 +82,6 @@ extension String {
 }
 
 
-func popOverView(animateStep: Binding<Int>, show: Binding<Bool>) -> some View {
-
-    VStack(alignment: .center) {
-               ZStack {
-                   Color.customLightBlue.ignoresSafeArea()
-                   
-                   if animateStep.wrappedValue == 0 || animateStep.wrappedValue == 1 {
-                       Image(systemName: "arrow.2.circlepath")
-                           .resizable().padding(5)
-                           .scaledToFit()
-                           .foregroundStyle(.white)
-                           .frame(width: 70, height: 70)
-                           .rotationEffect(Angle.degrees(animateStep.wrappedValue == 0 ? 360 : 0))
-//                           .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false))
-                           .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false), value: animateStep.wrappedValue)
-                   } else if animateStep.wrappedValue == 2 {
-                       Image(systemName: "checkmark.circle")
-                           .resizable().padding(5)
-                           .scaledToFit()
-                           .foregroundStyle(.white)
-                           .frame(width: 70, height: 70)
-                           .transition(.opacity)
-                   }
-               }
-               .onAppear{
-                   DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                  withAnimation {
-                                      animateStep.wrappedValue = 1 } }
-                   
-                   DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-                                  withAnimation {
-                                      animateStep.wrappedValue = 2 } }
-                   
-                   DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
-                                  withAnimation {
-                                      show.wrappedValue = false } }
-               }
-           }
-}
-
 extension View {
     
     func hideKeyboard() {
@@ -122,6 +93,10 @@ extension View {
     }
     
     
+}
+
+func userDefaultsKeyExists(_ key: String) -> Bool {
+    return UserDefaults.standard.object(forKey: key) != nil
 }
 
 func idealWidth(for availableWidth: CGFloat) -> CGFloat {
@@ -200,43 +175,6 @@ func toDictionary(desc: String) -> [String: String] {
 }
 
 
-
-struct TopNotificationBar: View {
-    let message: String
-    @Binding var show: Bool
-    
-    var body: some View {
-        VStack {
-            Text(message)
-                .foregroundColor(.white)
-                .padding(.horizontal)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity)
-                .background(Color.green)
-                .cornerRadius(rectCornerRad)
-                .gesture(DragGesture().onEnded { value in
-                    if value.translation.height < 0 {
-                        withAnimation {
-                            show = false
-                        }
-                    }
-                })
-            
-            Spacer()
-        }
-//        .padding(.top, 14)
-        .padding(.horizontal)
-        .shadow(radius: 10)
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                withAnimation {
-                    show = false
-                }
-            }
-        }
-    }
-}
-
 struct BlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
 
@@ -283,8 +221,7 @@ struct NeumorphicStyle: ViewModifier {
     }
 }
 
-import SwiftUI
-
+@MainActor
 struct FloatingLabelTextField: View {
 
     @EnvironmentObject var keyboardResponder: KeyboardResponder
@@ -330,44 +267,44 @@ struct FloatingLabelTextField: View {
     }
 }
 
-
-struct CustomDatePicker: View {
-    @Binding var selectedDate: Date
-    @State private var showingDatePicker = false
-    
-    var body: some View {
-        VStack {
-            Button(action: {
-                withAnimation {
-                    showingDatePicker.toggle() }
-            }) {
-                
-                    Text("\(selectedDate, formatter: dateFormatter)")
-                    .font(.title2)
-                    .fontDesign(.rounded)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
-                    .padding(.bottom, 8)
-            }
-           
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color.clear))
-            .shadow(radius: 4)
-            
-            if showingDatePicker {
-                DatePicker(
-                    "",
-                    selection: $selectedDate,
-                    displayedComponents: [.date, .hourAndMinute]
-                )
-                .datePickerStyle(GraphicalDatePickerStyle())
-                .labelsHidden()
-                
-                .padding(.bottom, 12)
-               // .shadow(radius: 5)
-               
-            }
-        }.frame(maxHeight: 500)
-    }
+//@MainActor
+//struct CustomDatePicker: View {
+//    @Binding var selectedDate: Date
+//    @State private var showingDatePicker = false
+//    
+//    var body: some View {
+//        VStack {
+//            Button(action: {
+//                withAnimation {
+//                    showingDatePicker.toggle() }
+//            }) {
+//                
+//                    Text("\(selectedDate, formatter: dateFormatter)")
+//                    .font(.title2)
+//                    .fontDesign(.rounded)
+//                    .fontWeight(.medium)
+//                    .foregroundStyle(.secondary)
+//                    .padding(.bottom, 8)
+//            }
+//           
+//            .background(RoundedRectangle(cornerRadius: 10).fill(Color.clear))
+//            .shadow(radius: 4)
+//            
+//            if showingDatePicker {
+//                DatePicker(
+//                    "",
+//                    selection: $selectedDate,
+//                    displayedComponents: [.date, .hourAndMinute]
+//                )
+//                .datePickerStyle(GraphicalDatePickerStyle())
+//                .labelsHidden()
+//                
+//                .padding(.bottom, 12)
+//               // .shadow(radius: 5)
+//               
+//            }
+//        }.frame(maxHeight: 500)
+//    }
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -375,7 +312,7 @@ struct CustomDatePicker: View {
         formatter.timeStyle = .short
         return formatter
     }
-}
+
 
 enum RepeatInterval: String, CaseIterable, Identifiable {
     case none = "None"

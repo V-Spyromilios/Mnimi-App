@@ -57,7 +57,7 @@ struct VaultView: View {
                                 
                                 NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
                                     InfosViewListCellView(data: data)
-                                        .padding(.horizontal, standardCardPadding)
+                                        .padding(.horizontal, Constants.standardCardPadding)
                                         .padding(.vertical)
                                 }
                             }
@@ -108,7 +108,7 @@ struct VaultView: View {
                     }
                 }
                 .background {
-                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                         .opacity(0.4)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .ignoresSafeArea()

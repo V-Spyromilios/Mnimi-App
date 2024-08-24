@@ -46,13 +46,13 @@ struct QuestionView: View {
                     Text("Question").bold()
                    if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8) }
                     Spacer()
-                }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
+                }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, Constants.standardCardPadding)
                 
                 TextEditor(text: $question)
                     .fontDesign(.rounded)
                     .font(.title2)
                     .multilineTextAlignment(.leading)
-                    .frame(height: textEditorHeight)
+                    .frame(height: Constants.textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     .overlay(
@@ -62,13 +62,13 @@ struct QuestionView: View {
                             .foregroundColor(Color.gray)
                     )
                     .padding(.bottom)
-                    .padding(.horizontal, standardCardPadding)
+                    .padding(.horizontal, Constants.standardCardPadding)
                     .onAppear {
                        
                             if !showLang {
                                 
                                     showLang.toggle()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
                                     withAnimation {
                                         showLang.toggle() }
                                 }
@@ -95,7 +95,7 @@ struct QuestionView: View {
                             Image(systemName: "quote.bubble").bold()
                             Text("Reply").bold()
                             Spacer()
-                        }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, standardCardPadding)
+                        }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, Constants.standardCardPadding)
                         ZStack {
                             RoundedRectangle(cornerRadius: 10.0)
                                 .stroke(lineWidth: 1)
@@ -120,7 +120,7 @@ struct QuestionView: View {
                                 )
                         }
                         .padding(.bottom)
-                        .padding(.horizontal, standardCardPadding)
+                        .padding(.horizontal, Constants.standardCardPadding)
                         LazyHGrid(rows: [GridItem(.flexible())], spacing: 20) {
                             
                             ForEach(0..<fetchedImages.count, id: \.self) { index in
@@ -212,7 +212,7 @@ struct QuestionView: View {
             .onChange(of: languageSettings.selectedLanguage) {
                 withAnimation {
                     showLang = true }
-                DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
                     withAnimation {
                         showLang = false }
                 }
@@ -229,7 +229,7 @@ struct QuestionView: View {
                 }
             }
             .background {
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
@@ -269,10 +269,10 @@ struct QuestionView: View {
     private var ClearButton: some View {
             Button(action: performClearTask) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: rectCornerRad)
+                    RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                         .fill(Color.customLightBlue)
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .frame(height: buttonHeight)
+                        .frame(height: Constants.buttonHeight)
 
                     Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
                         .accessibilityLabel("Clear and reset")
@@ -289,9 +289,9 @@ struct QuestionView: View {
     private var GoButton: some View {
         Button(action: performTask) {
             ZStack {
-                RoundedRectangle(cornerRadius: rectCornerRad)
+                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                     .fill(Color.customLightBlue)
-                    .frame(height: buttonHeight)
+                    .frame(height: Constants.buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                 Text("Go").font(.title2).bold().foregroundColor(Color.buttonText)
                     .accessibilityLabel("Go")

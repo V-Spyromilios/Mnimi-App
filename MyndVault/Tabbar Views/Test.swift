@@ -14,7 +14,7 @@ struct Test: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                    .ignoresSafeArea()

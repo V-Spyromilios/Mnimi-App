@@ -41,6 +41,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MyndVaultApp: App {
     
     init() {
+        Purchases.logLevel = .debug
+        
         if let catKey = ApiConfiguration.catKey {
             Purchases.configure(with: .init(withAPIKey: catKey)
                 .with(storeKitVersion: StoreKitVersion.storeKit2))
@@ -49,6 +51,8 @@ struct MyndVaultApp: App {
 //                withAPIKey: catKey)
                 
         } else { print("Failed to configure RCat key.") }
+        
+        Purchases.shared.delegate = PurchasesDelegateHandler.shared
     }
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -76,6 +80,14 @@ struct MyndVaultApp: App {
                         .environmentObject(cloudKitViewModel)
                         .environmentObject(networkManager)
                         .environmentObject(apiCallsViewModel)
+//                        .task {
+//                            do {
+//                               // RCViewModel.shared.offerings = try await Purchases.shared.offerings()
+//                            }
+//                            catch {
+//                                print("Error fetching Offerings (MyndValutApp) : \(error)")
+//                            }
+//                        }
                         
                 } 
                 else if cloudKitViewModel.isFirstLaunch {
@@ -116,30 +128,6 @@ struct MyndVaultApp: App {
                 }
             })
         }
-
-//    private func checkPaywallEligibilityAndPresentIfNeeded() {
-//        Purchases.shared.getOfferings { offerings, error in
-//            if let product = offerings?.current?.availablePackages.first?.storeProduct {
-//                Purchases.shared.checkTrialOrIntroDiscountEligibility(product: product) { eligibility in
-//                    DispatchQueue.main.async {
-//                        if eligibility == .eligible {
-//                            // Show paywall with trial/introductory terms
-//                            shouldShowPaywall = true
-//                        } else {
-//                            // Show paywall without trial/introductory terms
-//                            shouldShowPaywall = true
-//                        }
-//                    }
-//                }
-//            } else {
-//                DispatchQueue.main.async {
-//                    // In case of error, decide whether to show paywall or handle the error differently
-//                    shouldShowPaywall = true
-//                }
-//            }
-//        }
-//    }
-        
        
     
     private func contentError(error: String) -> some View {
