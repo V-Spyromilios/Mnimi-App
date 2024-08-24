@@ -173,7 +173,7 @@ struct NotificationCellView_Preview: PreviewProvider {
         .environmentObject(NotificationViewModel()) // Add necessary environment objects
         .preferredColorScheme(.dark) // Preview in light mode
         //        .previewLayout(.sizeThatFits)
-        .padding(.horizontal, standardCardPadding)
+        .padding(.horizontal, Constants.standardCardPadding)
     }
 }
 

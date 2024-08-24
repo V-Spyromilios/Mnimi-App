@@ -56,7 +56,7 @@ struct NewAddInfoView: View {
                                 .fontDesign(.rounded)
                                 .font(.title2)
                                 .multilineTextAlignment(.leading)
-                                .frame(height: textEditorHeight)
+                                .frame(height: Constants.textEditorHeight)
                                 .frame(maxWidth: idealWidth(for: geometry.size.width))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
@@ -148,15 +148,16 @@ struct NewAddInfoView: View {
                         Spacer()
                     }
                     //                    .frame(height: geometry.size.height)
-                    .padding(.horizontal, standardCardPadding)
+                    .padding(.horizontal, Constants.standardCardPadding)
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                         
                     }
                     .onAppear {
+                        onAppearGetInfo()
                         if !showLang {
                             showLang.toggle() }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
                             withAnimation {
                                 showLang.toggle() }
                         }
@@ -199,7 +200,7 @@ struct NewAddInfoView: View {
                         }
                     //                .padding(.horizontal, standardCardPadding) //TODO: No padding !?!
                         .background {
-                            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                                 .opacity(0.4)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .ignoresSafeArea()
@@ -222,7 +223,7 @@ struct NewAddInfoView: View {
                 .onChange(of: languageSettings.selectedLanguage) {
                     withAnimation {
                         showLang = true }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + showLangDuration) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
                         withAnimation {
                             showLang = false }
                     }
@@ -255,9 +256,9 @@ struct NewAddInfoView: View {
         private var SaveButton: some View {
             Button(action: addNewInfoAction) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: rectCornerRad)
+                    RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                         .fill(Color.customLightBlue)
-                        .frame(height: buttonHeight)
+                        .frame(height: Constants.buttonHeight)
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
                         .accessibilityLabel("save")
@@ -276,9 +277,9 @@ struct NewAddInfoView: View {
         private var ClearButton: some View {
             Button(action: performClearTask) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: rectCornerRad)
+                    RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                         .fill(Color.customLightBlue)
-                        .frame(height: buttonHeight)
+                        .frame(height: Constants.buttonHeight)
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     
                     Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
@@ -324,6 +325,10 @@ struct NewAddInfoView: View {
             }
             Task { await addInfoOperations() }
         }
+    
+    private func onAppearGetInfo() {
+        print("onAppear is Active: \(RCViewModel.shared.isActiveSubscription)")
+    }
         
         private func addInfoOperations() async {
             

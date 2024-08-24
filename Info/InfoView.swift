@@ -39,7 +39,7 @@ struct InfoView: View {
                     .fontDesign(.rounded)
                     .font(.title2)
                     .multilineTextAlignment(.leading)
-                    .frame(height: textEditorHeight)
+                    .frame(height: Constants.textEditorHeight)
 //                    .frame(maxWidth: idealWidth(for: geometry.size.width))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
@@ -72,10 +72,10 @@ struct InfoView: View {
             }
 ) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: rectCornerRad)
+                    RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                         .fill(Color.customLightBlue)
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .frame(height: buttonHeight)
+                        .frame(height: Constants.buttonHeight)
                         
                     Text("Save").font(.title2).bold()
                         .foregroundColor(Color.buttonText)
@@ -101,7 +101,7 @@ struct InfoView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, standardCardPadding)
+        .padding(.horizontal, Constants.standardCardPadding)
         .background { Color.red.ignoresSafeArea() }
         .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {

@@ -11,7 +11,7 @@ struct LoggedOutView: View {
     var body: some View {
         ZStack {
             
-                LottieRepresentable(filename: "Background Lines", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+            LottieRepresentable(filename: "Background Lines", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()

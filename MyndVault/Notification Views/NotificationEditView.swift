@@ -111,9 +111,9 @@ struct NotificationEditView: View {
                         }
                     }) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: rectCornerRad)
+                            RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                                 .fill(shake ? Color.gray : Color.customLightBlue)
-                                .frame(height: buttonHeight)
+                                .frame(height: Constants.buttonHeight)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
                         }
@@ -141,7 +141,7 @@ struct NotificationEditView: View {
                     }
                 }
             }.background {
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()

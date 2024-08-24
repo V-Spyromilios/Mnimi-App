@@ -41,7 +41,7 @@ struct InitialSetupView: View {
            
             ZStack {
                 
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
@@ -71,10 +71,10 @@ struct InitialSetupView: View {
                     }
                     ) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: rectCornerRad)
+                            RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                                 .fill(Color.customLightBlue)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                .frame(height: buttonHeight)
+                                .frame(height: Constants.buttonHeight)
                             
                             Text("Save").font(.title2).bold()
                                 .foregroundColor(Color.buttonText)

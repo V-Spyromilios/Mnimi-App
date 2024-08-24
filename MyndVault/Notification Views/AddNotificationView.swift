@@ -24,7 +24,7 @@ struct AddNotificationView: View {
     var body: some View {
         NavigationStack {
         ZStack {
-            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                 .opacity(0.4)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
@@ -42,7 +42,7 @@ struct AddNotificationView: View {
                             .fontDesign(.rounded)
                             .font(.title2)
                             .multilineTextAlignment(.leading)
-                            .frame(height: smallTextEditorHeight)
+                            .frame(height: Constants.smallTextEditorHeight)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             .overlay(
@@ -67,7 +67,7 @@ struct AddNotificationView: View {
                         //                        .foregroundColor(.white)
                         //                        .background(Color.black)
                             .multilineTextAlignment(.leading)
-                            .frame(height: textEditorHeight)
+                            .frame(height: Constants.textEditorHeight)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                             .overlay{
@@ -125,9 +125,9 @@ struct AddNotificationView: View {
                             Task { scheduleNotification() }
                         }) {
                             ZStack {
-                                RoundedRectangle(cornerRadius: rectCornerRad)
+                                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                                     .fill(Color.customLightBlue)
-                                    .frame(height: buttonHeight)
+                                    .frame(height: Constants.buttonHeight)
                                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                 
                                 Text("Save").font(.title2).bold()

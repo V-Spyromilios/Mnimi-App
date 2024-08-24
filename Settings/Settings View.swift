@@ -17,6 +17,7 @@ struct SettingsView: View {
     @State private var errorString = ""
     @State private var animateSettingsPowerOff: Bool = false
     @State private var animateSettingsButton: Bool = true
+    @State private var canShowSubscription: Bool = true
     
     var body: some View {
         
@@ -49,7 +50,7 @@ struct SettingsView: View {
                                     .padding(.trailing)
                                     .foregroundStyle(.blue)
                             }
-                           
+                            
                         }
                     } .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -70,7 +71,7 @@ struct SettingsView: View {
                                     .padding(.trailing)
                                     .foregroundStyle(.blue)
                             }
-                           
+                            
                         }
                     } .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -78,13 +79,36 @@ struct SettingsView: View {
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                         .contentShape(Rectangle())
+                    
+                    
+                    if canShowSubscription {
+                    Button(action: {
+                        openSubscriptionManagement()
+                    }) {
+                        HStack {
+                            Text("Manage Subscription")
+                                .foregroundColor(colorScheme == .light ? .black : .white)
+                            
+                            Spacer() // Pushes the image to the right edge
+                            
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.blue)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.primaryBackground)
+                        .cornerRadius(10)
+                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                        .contentShape(Rectangle()) // Ensures the whole button area is tappable
+                    }
+                }
                 }
                 .padding(.top, 15)
                     .padding(.horizontal)
                    
             }
             .background {
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
@@ -123,10 +147,31 @@ struct SettingsView: View {
                     
                 }
             }
+            .onAppear {
+                guard let url = URL(string: "https://apps.apple.com/account/subscriptions") else {
+                    return
+                }
+                if UIApplication.shared.canOpenURL(url) {
+                    canShowSubscription = true
+                }
+                else {
+                    withAnimation {
+                        canShowSubscription = false }
+                }
+            }
             
         }
         .statusBar(hidden: true)
     }
+    
+    private func openSubscriptionManagement() {
+            guard let url = URL(string: "https://apps.apple.com/account/subscriptions") else {
+                return
+            }
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
 }
 
 

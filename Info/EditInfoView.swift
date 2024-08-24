@@ -37,7 +37,7 @@ struct EditInfoView: View {
         ZStack {
             GeometryReader { geometry in
                 
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
 //                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
@@ -260,7 +260,7 @@ struct EditInfoView: View {
                 .fontDesign(.rounded)
                 .font(.title2)
                 .multilineTextAlignment(.leading)
-                .frame(height: textEditorHeight)
+                .frame(height: Constants.textEditorHeight)
             //                    .frame(maxWidth: idealWidth(for: geometry.size.width))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
@@ -291,10 +291,10 @@ struct EditInfoView: View {
             }
             ) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: rectCornerRad)
+                    RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                         .fill(Color.customLightBlue)
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .frame(height: buttonHeight)
+                        .frame(height: Constants.buttonHeight)
                     
                     Text("Save").font(.title2).bold()
                         .foregroundColor(Color.buttonText)
@@ -319,7 +319,7 @@ struct EditInfoView: View {
                 LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
             }
             Spacer()
-        } .padding(.horizontal, standardCardPadding)
+        } .padding(.horizontal, Constants.standardCardPadding)
                 .padding(.top, 12)
     }
     }

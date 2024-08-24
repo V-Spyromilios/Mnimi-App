@@ -94,7 +94,7 @@ struct NotificationsView: View {
                                                     .fill(Color.cardBackground)
                                                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                             )
-                                            .padding(.horizontal, standardCardPadding)
+                                            .padding(.horizontal, Constants.standardCardPadding)
                                             .padding(.vertical, 9)
                                     }
                                 }
@@ -116,7 +116,7 @@ struct NotificationsView: View {
                                     let notification = manager.scheduledNotifications[index]
                                     NotificationCellView(notification: notification, edited: $hasBeenEdited)
                                         .padding(.vertical)
-                                        .padding(.horizontal, standardCardPadding)
+                                        .padding(.horizontal, Constants.standardCardPadding)
                                         .id(UUID())
                                 }
                             }
@@ -138,7 +138,7 @@ struct NotificationsView: View {
                 }
             }
             .background {
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()

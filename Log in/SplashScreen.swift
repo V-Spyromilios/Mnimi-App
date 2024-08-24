@@ -22,7 +22,7 @@ struct SplashScreen: View {
             
             ZStack {
 
-                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: backgroundSpeed, contentMode: .scaleAspectFill)
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                         .opacity(0.4)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .ignoresSafeArea()
@@ -113,7 +113,7 @@ struct SplashScreen: View {
 
 
         private func startCodeAnimation() {
-            let lines = assemblyCode.split(separator: "\n").map { String($0) }
+            let lines = Constants.assemblyCode.split(separator: "\n").map { String($0) }
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
                 if currentLineIndex < lines.count {
                     withAnimation {
