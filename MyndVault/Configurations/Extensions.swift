@@ -46,28 +46,21 @@ done:
 
     static let rectCornerRad: CGFloat = 50
 
-
     static let textEditorHeight: CGFloat = 140
-
 
     static let smallTextEditorHeight: CGFloat = 50
 
-
     static let contentUnaivalableOffset: CGFloat = 40
 
-
     static let buttonHeight: CGFloat = 50
-
 
     static let backgroundSpeed: CGFloat = 0.4
 
     static let standardCardPadding: CGFloat = 16
 
-
     static let showLangDuration: CGFloat = 2.5
 
-
-    static let entitlementID: String = "Default"
+    static let entitlementID: String = "manager"
 }
 extension String {
     func deletingPrefix(_ prefix: String) -> String {
