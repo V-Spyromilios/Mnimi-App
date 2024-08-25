@@ -23,6 +23,7 @@ struct NewAddInfoView: View {
     @State private var showLang: Bool = false
     @State private var clearButtonIsVisible: Bool = false
     @State private var showSuccess: Bool = false
+    @Binding var showConfetti: Bool
     
     @EnvironmentObject var openAiManager: OpenAIManager
     @EnvironmentObject var pineconeManager: PineconeManager
@@ -67,7 +68,7 @@ struct NewAddInfoView: View {
                                         .foregroundColor(Color.gray)
                                 )
                                 .padding(.bottom)
-                            
+
                         }
                         Button(action: {
                             photoPicker.presentPicker()
@@ -198,12 +199,16 @@ struct NewAddInfoView: View {
                                 .presentationBackground(Color.clear)
                             
                         }
-                    //                .padding(.horizontal, standardCardPadding) //TODO: No padding !?!
                         .background {
                             LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                                 .opacity(0.4)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .ignoresSafeArea()
+                        }
+                        .overlay{
+                            if showConfetti {
+                                LottieRepresentable(filename: "Confetti").frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
+                            }
                         }
                         .navigationBarTitleView {
                             HStack {
@@ -386,7 +391,6 @@ struct NewAddInfoView: View {
                     isLoading = false
                     self.thrownError = error.localizedDescription }
             }
-            
         }
     }
 
@@ -397,10 +401,19 @@ struct NewAddInfoView_Previews: PreviewProvider {
         let progress = ProgressTracker()
         let openAI = OpenAIManager()
         let pinecone = PineconeManager()
-        NewAddInfoView()
+        let networkManager = NetworkManager()
+        let cloudKit = CloudKitViewModel()
+        let apiCalls = ApiCallViewModel()
+        let languageSettings = LanguageSettings()
+
+        NewAddInfoView(showConfetti: .constant(true))
             .environmentObject(pinecone)
             .environmentObject(openAI)
             .environmentObject(progress)
             .environmentObject(responder)
+            .environmentObject(networkManager)
+            .environmentObject(cloudKit)
+            .environmentObject(apiCalls)
+            .environmentObject(languageSettings)
     }
 }

@@ -38,7 +38,7 @@ struct ContentView: View {
         ZStack {
             TabView(selection: $tabSelection) {
                 
-                NewAddInfoView().tag(1)
+                NewAddInfoView(showConfetti: $isNewSubscriber).tag(1)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
                     .environmentObject(progressTracker)
@@ -60,9 +60,7 @@ struct ContentView: View {
             )
             .ignoresSafeArea(edges: .bottom)
             .ignoresSafeArea(edges: .horizontal)
-            if isNewSubscriber {
-                LottieRepresentable(filename: "Confetti").frame(maxHeight: .infinity)
-            }
+           
         }
         .onAppear {
             speechManager.requestSpeechAuthorization()
@@ -85,11 +83,11 @@ struct ContentView: View {
         .onChange(of: RCviewModel.isActiveSubscription) { wasActive, isActive in
             if isActive {
                 print("is Now Active Subscription: \(isActive) and was \(wasActive)")
-                withAnimation { showPayWall = false }
+                withAnimation(.easeInOut(duration: 0.5)) { showPayWall = false }
             }
             else {
                 print("Now is Not Active Subscription: \(isActive), and was: \(wasActive)")
-                withAnimation { showPayWall = true }
+                withAnimation(.easeInOut(duration: 0.5)) { showPayWall = true }
             }
             
         }
