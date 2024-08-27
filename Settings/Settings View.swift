@@ -18,6 +18,15 @@ struct SettingsView: View {
     @State private var animateSettingsPowerOff: Bool = false
     @State private var animateSettingsButton: Bool = true
     @State private var canShowSubscription: Bool = true
+    @State private var canShowAppSettings: Bool = true
+    enum AccountButton {
+    case idle, hidden
+    }
+    
+    @State private var deleteButton: AccountButton = .idle
+    var deleteAllWarningTitle: String = "With great power comes great responsibility"
+    var deleteAllWarningBody: String = "Are you sure that you want to Delete all your Info and all your uploaded images?\nThis action is irreversable."
+    @State private var showDeleteAll: Bool = false
     
     var body: some View {
         
@@ -28,11 +37,11 @@ struct SettingsView: View {
                         NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language").foregroundStyle(colorScheme == .light ? .black : .white)
                         }
                         Spacer()
-                        VStack {
+                       
                             Image(systemName: "chevron.right")
-                                .padding(.trailing)
+                               
                                 .foregroundStyle(.blue)
-                        }
+                        
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -45,11 +54,11 @@ struct SettingsView: View {
                         NavigationLink(destination: AboutUsView()) {
                             Text("About").foregroundStyle(colorScheme == .light ? .black : .white)
                             Spacer()
-                            VStack {
+                            
                                 Image(systemName: "chevron.right")
-                                    .padding(.trailing)
+                                   
                                     .foregroundStyle(.blue)
-                            }
+                            
                             
                         }
                     } .padding()
@@ -66,11 +75,11 @@ struct SettingsView: View {
                         NavigationLink(destination: ApiCallsView()) {
                             Text("Credit").foregroundStyle(colorScheme == .light ? .black : .white)
                             Spacer()
-                            VStack {
+                           
                                 Image(systemName: "chevron.right")
-                                    .padding(.trailing)
+                                    
                                     .foregroundStyle(.blue)
-                            }
+                            
                             
                         }
                     } .padding()
@@ -89,7 +98,7 @@ struct SettingsView: View {
                             Text("Manage Subscription")
                                 .foregroundColor(colorScheme == .light ? .black : .white)
                             
-                            Spacer() // Pushes the image to the right edge
+                            Spacer()
                             
                             Image(systemName: "chevron.right")
                                 .foregroundColor(.blue)
@@ -99,9 +108,46 @@ struct SettingsView: View {
                         .background(Color.primaryBackground)
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
-                        .contentShape(Rectangle()) // Ensures the whole button area is tappable
+                        .contentShape(Rectangle())
                     }
                 }
+                    Button(action: {
+                        deleteButton = .hidden
+                        showDeleteAll.toggle()
+                    }) {
+                        if deleteButton == .idle {
+                            HStack {
+//
+                                Text("Delete Account")
+                                    .foregroundColor(.red)
+                                Spacer()
+                                Image(systemName: "exclamationmark.octagon.fill")
+                                    .foregroundColor(.red)
+                                
+                                
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.primaryBackground)
+                            .cornerRadius(10)
+                            .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                            .contentShape(Rectangle())
+                            
+                        }
+                        else {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                Spacer()
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.primaryBackground)
+                            .cornerRadius(10)
+                            .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                            .contentShape(Rectangle())
+                        }
+                    }.disabled(deleteButton == .hidden)
                 }
                 .padding(.top, 15)
                     .padding(.horizontal)
@@ -122,19 +168,19 @@ struct SettingsView: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        withAnimation {
-                            animateSettingsPowerOff.toggle()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                authManager.logout() }
-                        }
-                    } label: {
-                        
-                        
-                        LottieRepresentable(filename: "PowerOffButton",speed: 0.8, isPlaying: $animateSettingsPowerOff).frame(width: 45, height: 45).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0).opacity(0.8)
-                        
-                            .accessibilityLabel("Log out.")
-                    }
+//                    Button {
+//                        withAnimation {
+//                            animateSettingsPowerOff.toggle()
+//                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                                authManager.logout() }
+//                        }
+//                    } label: {
+//                        
+//                        
+//                        LottieRepresentable(filename: "PowerOffButton",speed: 0.8, isPlaying: $animateSettingsPowerOff).frame(width: 45, height: 45).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0).opacity(0.8)
+//                        
+//                            .accessibilityLabel("Log out.")
+//                    }
                     
                     Button {
                         withAnimation {
@@ -144,6 +190,7 @@ struct SettingsView: View {
                         
                     }
                         .accessibilityLabel("Close Settings")
+                        .disabled(deleteButton == .hidden)
                     
                 }
             }
@@ -155,9 +202,20 @@ struct SettingsView: View {
                     canShowSubscription = true
                 }
                 else {
-                    withAnimation {
-                        canShowSubscription = false }
+                    withAnimation { canShowSubscription = false }
                 }
+                guard let urlSettings = URL(string: UIApplication.openSettingsURLString) else { return }
+                if UIApplication.shared.canOpenURL(urlSettings) {
+                    canShowAppSettings = true
+                }
+                else {
+                    withAnimation{ canShowAppSettings = false }
+                }
+                
+            }
+            .alert(isPresented: $showDeleteAll) {
+                Alert(title: Text(deleteAllWarningTitle), message: Text(deleteAllWarningBody), primaryButton: .cancel(), secondaryButton: .destructive(Text("Delete all"), action: deleteAll)
+                )
             }
             
         }
@@ -172,6 +230,16 @@ struct SettingsView: View {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             }
         }
+    
+    private func openAppSettings() {
+        if let appSettings = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(appSettings)
+        }
+    }
+    
+    private func deleteAll() {
+        
+    }
 }
 
 
