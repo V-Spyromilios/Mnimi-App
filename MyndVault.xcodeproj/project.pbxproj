@@ -352,7 +352,6 @@
 				E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */,
 				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
-				E87605BA2C7A266C002A13E5 /* Confetti.json */,
 				E81C6ECA2C724DAD000DC3C7 /* CustomPayWall.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
 				E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */,
@@ -373,6 +372,7 @@
 		E85055012C428B6800FBACC4 /* Lotties */ = {
 			isa = PBXGroup;
 			children = (
+				E87605BA2C7A266C002A13E5 /* Confetti.json */,
 				E878743F2C677F4B001299D9 /* ManWithLaptop.json */,
 				E86BE7592C566AF90030C81B /* deleteBin.json */,
 				E817A42A2C5524E700A0172A /* takingNotes.json */,
