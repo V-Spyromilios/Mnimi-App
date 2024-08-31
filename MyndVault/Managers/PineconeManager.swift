@@ -24,7 +24,8 @@ final class PineconeManager: ObservableObject {
     @Published var pineconeQueryResponse: PineconeQueryResponse?
     @Published var upsertSuccesful: Bool = false
     @Published var vectorDeleted: Bool = false
-    
+    @Published var accountDeleted: Bool = false
+
     var isDataSorted: Bool = false
    
     @Published var pineconeIDResponse: PineconeIDResponse?
@@ -48,7 +49,7 @@ final class PineconeManager: ObservableObject {
         }
     }
     
-    //this deletes localy
+    //deletes localy
     func deleteVector(withId id: String) {
             pineconeFetchedVectors.removeAll { $0.id == id }
         }
@@ -246,6 +247,63 @@ final class PineconeManager: ObservableObject {
             }
         }
     }
+    
+    //MARK: Delete Account
+    func deleteAllVectorsInNamespace() async throws {
+        
+        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+            throw AppCKError.UnableToGetNameSpace
+        }
+        
+        guard let apiKey = ApiConfiguration.pineconeKey else {
+            throw AppNetworkError.apiKeyNotFound
+        }
+        
+        struct DeleteAllVectorsRequest: Codable {
+            let deleteAll: Bool
+            let namespace: String
+        }
+        
+        let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/delete")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("2024-07", forHTTPHeaderField: "X-Pinecone-API-Version")
+        
+        let deleteRequest = DeleteAllVectorsRequest(deleteAll: true, namespace: namespace)
+        let requestData = try JSONEncoder().encode(deleteRequest)
+        request.httpBody = requestData
+        
+        let maxAttempts = 2
+        var attempts = 0
+        
+        while attempts < maxAttempts {
+            do {
+                let (_, response) = try await URLSession.shared.data(for: request)
+                
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                    throw AppNetworkError.unknownError("Unable to delete Vectors (bad Response).")
+                }
+                updateTokenUsage(api: APIs.pinecone, tokensUsed: 10, read: false)
+                await MainActor.run {
+                    self.pineconeFetchedVectors = []
+                    self.pineconeIDs = []
+                    self.accountDeleted = true
+                    self.refreshAfterEditing = true
+                }
+                break
+                
+            } catch {
+                attempts += 1
+                if attempts < maxAttempts {
+                    try await Task.sleep(nanoseconds: 200_000_000)
+                } else {
+                    throw error
+                }
+            }
+        }
+    }
 
 
     
@@ -395,7 +453,6 @@ final class PineconeManager: ObservableObject {
         }
         
         guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
-            print("upsertDataToPinecone:: guard let namespace: \(CKviewModel.fetchedNamespaceDict)")
             throw AppCKError.UnableToGetNameSpace
         }
 
@@ -524,7 +581,6 @@ final class PineconeManager: ObservableObject {
                     throw firstError
                 }
             } else {
-                // Successful execution, break
                 break
             }
         }

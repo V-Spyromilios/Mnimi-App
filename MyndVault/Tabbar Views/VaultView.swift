@@ -66,13 +66,13 @@ struct VaultView: View {
                         else if showEmpty && !vectorsAreLoading  && errorMessage == "" {
                             VStack {
                                 LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
-                                TypingTextView(fullText: "No Info has been saved yet. Add whatever you want to remember!")
+                                TypingTextView(fullText: "No Info has been saved. Add whatever you want to remember!")
                                     .padding(.horizontal)
                                 
                             }
                         }
                         
-                        else if errorMessage != "" {
+                        else if errorMessage != "" && !pineconeManger.accountDeleted {
                             ErrorView(thrownError: errorMessage) {
                                 self.errorMessage = ""
                             }
@@ -83,6 +83,7 @@ struct VaultView: View {
                 }
                 .padding(.top, 12)
                 .refreshable {
+                    if pineconeManger.accountDeleted { return }
                     vectorsAreLoading = true
                     if errorMessage != "" {
                         errorMessage = ""
@@ -126,9 +127,12 @@ struct VaultView: View {
         }
 
         .onAppear {
-            if pineconeManger.pineconeFetchedVectors.isEmpty {
+            if pineconeManger.pineconeFetchedVectors.isEmpty && !pineconeManger.accountDeleted {
                 self.vectorsAreLoading = true
                 fetchPineconeEntries()
+            }
+            else if pineconeManger.accountDeleted {
+                showEmpty = true
             }
         }
         .onReceive(pineconeManger.$pineconeFetchedVectors) { vectors in
@@ -194,6 +198,7 @@ struct VaultView: View {
 //        }
 
     private func fetchPineconeEntries() {
+        
         Task {
             do {
                 try await pineconeManger.fetchAllNamespaceIDs()

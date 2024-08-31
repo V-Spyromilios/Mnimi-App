@@ -12,7 +12,7 @@ struct TypingTextView: View {
     @State private var displayedText: String = ""
     @State private var hasTyped: Bool = false
     let fullText: String
-    var typingSpeed: Double =  0.1
+    var typingSpeed: Double =  0.01
     var isTitle: Bool = false
 
     var body: some View {

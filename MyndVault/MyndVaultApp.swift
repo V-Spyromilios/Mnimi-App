@@ -70,8 +70,7 @@ struct MyndVaultApp: App {
     @StateObject private var languageSettings = LanguageSettings.shared
     @State var showSplash: Bool = true
    
-    
-    
+
     var body: some Scene {
             WindowGroup(content: {
 
@@ -100,6 +99,8 @@ struct MyndVaultApp: App {
                         .environmentObject(progressTracker)
                         .environmentObject(openAiManager)
                         .environmentObject(pineconeManager)
+                        .environmentObject(languageSettings)
+                        .environmentObject(speechManager)
                         .statusBar(hidden: true)
                         
                 }

@@ -41,14 +41,36 @@ class KeychainManager {
         return result as? Data
     }
     
-    func delete(service: String, account: String) {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
-        ]
+    func delete(service: String, account: String) -> Bool {
+            let query: [String: Any] = [
+                kSecClass as String: kSecClassGenericPassword,
+                kSecAttrService as String: service,
+                kSecAttrAccount as String: account
+            ]
+            let status = SecItemDelete(query as CFDictionary)
+            return status == errSecSuccess
+        }
+}
+
+
+extension KeychainManager {
+    
+    func saveUsernameAndPassword(username: String, password: String) {
+        let passwordData = password.data(using: .utf8)!
         
-        SecItemDelete(query as CFDictionary)
+        // Save password
+        self.save(service: "dev.chillvibes.MyndVault", account: username, data: passwordData)
+        
+        // Optionally, save username in a separate entry (if needed for retrieval or other logic)
+        let usernameData = username.data(using: .utf8)!
+        self.save(service: "dev.chillvibes.MyndVault", account: "savedUsername", data: usernameData)
+    }
+    
+    func readUsername() -> String? {
+        guard let usernameData = self.read(service: "dev.chillvibes.MyndVault", account: "savedUsername"),
+              let username = String(data: usernameData, encoding: .utf8) else {
+            return nil
+        }
+        return username
     }
 }

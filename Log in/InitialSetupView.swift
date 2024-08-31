@@ -142,9 +142,9 @@ struct InitialSetupView: View {
             return
         }
 
-        let passwordData = Data(password.utf8)
-        KeychainManager.standard.save(service: "dev.chillvibes.MyndVault", account: username, data: passwordData)
-      
+//        let passwordData = Data(password.utf8)
+//        KeychainManager.standard.save(service: "dev.chillvibes.MyndVault", account: username, data: passwordData)
+        KeychainManager.standard.saveUsernameAndPassword(username: username, password: password)
         UserDefaults.standard.set(false, forKey: "isFirstLaunch")
         setupComplete = true
     }

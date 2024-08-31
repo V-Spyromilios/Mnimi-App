@@ -1547,6 +1547,12 @@
         }
       }
     },
+    "Delete Account" : {
+
+    },
+    "Delete all" : {
+
+    },
     "Delete Info?" : {
       "localizations" : {
         "de" : {
@@ -1955,6 +1961,9 @@
       }
     },
     "F*** Notifications, Ads and Personal Data Collection" : {
+
+    },
+    "General Settings" : {
 
     },
     "Get Index Info" : {
@@ -2597,6 +2606,7 @@
       }
     },
     "Log out." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

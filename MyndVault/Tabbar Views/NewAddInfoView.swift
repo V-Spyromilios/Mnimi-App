@@ -155,7 +155,6 @@ struct NewAddInfoView: View {
                         
                     }
                     .onAppear {
-                        onAppearGetInfo()
                         if !showLang {
                             showLang.toggle() }
                         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
@@ -331,9 +330,7 @@ struct NewAddInfoView: View {
             Task { await addInfoOperations() }
         }
     
-    private func onAppearGetInfo() {
-        print("onAppear is Active: \(RCViewModel.shared.isActiveSubscription)")
-    }
+    
         
         private func addInfoOperations() async {
             

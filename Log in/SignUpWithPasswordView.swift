@@ -126,7 +126,6 @@ struct SignUpWithPasswordView: View {
 
         let passwordData = Data(password.utf8)
         KeychainManager.standard.save(service: "dev.chillvibes.MyndVault", account: username, data: passwordData)
-
         hasSignedUp = true
     }
 }

@@ -234,7 +234,7 @@ struct FloatingLabelTextField: View {
                 .scaleEffect(isFocused || !text.isEmpty ? 0.8 : 1.0, anchor: .leading)
                 .animation(.easeInOut(duration: 0.2), value: isFocused || !text.isEmpty)
             
-            if isSecure {
+            if isSecure {  //TODO: Add eye to togle secure?
                 SecureField("", text: $text)
                     .focused($isFocused)
                     .textFieldStyle(PlainTextFieldStyle())
