@@ -77,7 +77,7 @@ enum AppCKError: LocalizedError {
             return "Unable to retrieve namespace."
             
         case .unknownError(let message):
-            return "Unknown Error Occurred : \(message)"
+            return "Error Occurred : \(message)"
             
         case .CKDatabaseNotInitialized:
             return "CK Database not initialized."

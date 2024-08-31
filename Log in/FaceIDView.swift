@@ -268,7 +268,7 @@ struct UsernamePasswordLoginView: View {
                 .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
                 Spacer()
                 
-            }
+            }// -VStack
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     if isUsernameFieldFocused || isPasswordFieldFocused {
@@ -282,7 +282,7 @@ struct UsernamePasswordLoginView: View {
             }
             //TODO: Check if this appears in the Keyboard, Check InitialSetUpView for correct implementation !
             
-        }
+        } // -ZStack
         .alert(isPresented: $showPasswordError) {
             Alert(
                 title: Text(alertPasswordMessage),
@@ -301,10 +301,18 @@ struct UsernamePasswordLoginView: View {
     }
     
     private func authenticateWithPassword() {
-        guard let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: username),
-              let savedPassword = String(data: savedPasswordData, encoding: .utf8),
-              savedPassword == password else {
-            alertPasswordMessage = "Invalid username or password."
+        guard let savedUsername = KeychainManager.standard.readUsername(),
+              let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: savedUsername),
+              let savedPassword = String(data: savedPasswordData, encoding: .utf8) else {
+            alertPasswordMessage = "Invalid username."
+            showPasswordAuth = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                showPasswordError = true
+            }
+            return
+        }
+            if savedPassword != password {
+            alertPasswordMessage = "Invalid password."
             showPasswordAuth = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 showPasswordError = true
