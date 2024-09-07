@@ -229,6 +229,7 @@ struct UsernamePasswordLoginView: View {
             VStack {
                 
                 TypingTextView(fullText: "FaceID/ TouchID failed.\nPlease provide Username and\nPassword instead")
+                    .shadow(radius: 1)
                     .frame(height: 100)
                     .padding(.horizontal)
                 

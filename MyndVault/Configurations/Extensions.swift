@@ -221,13 +221,13 @@ struct FloatingLabelTextField: View {
     @Binding var text: String
     let title: String
     let isSecure: Bool
-    
+    var onSubmit: (() -> Void)? = nil
     @FocusState.Binding var isFocused: Bool 
     
     var body: some View {
         ZStack(alignment: .leading) {
+            
             Text(title)
-                
                 .foregroundColor(isFocused || !text.isEmpty ? .customTiel : .gray)
                 .background(Color.clear)
                 .offset(y: isFocused || !text.isEmpty ? -30 : 0)
@@ -239,11 +239,17 @@ struct FloatingLabelTextField: View {
                     .focused($isFocused)
                     .textFieldStyle(PlainTextFieldStyle())
                     .padding(.top, 20)
+                    .onSubmit {
+                        onSubmit?()
+                    }
             } else {
                 TextField("", text: $text)
                     .focused($isFocused)
                     .textFieldStyle(PlainTextFieldStyle())
                     .padding(.top, 20)
+                    .onSubmit {
+                        onSubmit?()
+                    }
             }
         }
         .padding(10)

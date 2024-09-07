@@ -9,14 +9,14 @@ import Foundation
 import CloudKit
 
 struct NamespaceItem {
-    var recordID: CKRecord.ID?
+    var recordID: CKRecord.ID
     let namespace: String
 }
 
 // Representation of NamespaceItem in terms of required (for saving) 'record'
 extension NamespaceItem {
     var record: CKRecord {
-        let record = CKRecord(recordType: "NamespaceItem", recordID: recordID ?? CKRecord.ID())
+        let record = CKRecord(recordType: "NamespaceItem", recordID: recordID)
         record["namespace"] = namespace as CKRecordValue
         return record
     }

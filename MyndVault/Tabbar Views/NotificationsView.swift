@@ -127,6 +127,7 @@ struct NotificationsView: View {
                                 LottieRepresentable(filename: "noNotifications", loopMode: .playOnce, isPlaying: $emptyIsAnimating)
                                     .frame(height: 300)
                                 TypingTextView(fullText: "All quiet for now!\nScheduled Notifications will appear here")
+                                    .shadow(radius: 1)
                                     .frame(width: screenWidth)
                                     .padding(.horizontal)
                                 Spacer()
