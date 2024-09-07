@@ -600,10 +600,32 @@ final class CloudKitViewModel: ObservableObject {
     private var db: CKDatabase?
     private var cancellables = Set<AnyCancellable>()
     
+    var recordIDDelete: CKRecord.ID? {
+        didSet {
+            guard let recordIDDelete = recordIDDelete else { return }
+            saveRecordNameToKeychain(recordIDDelete)
+        }
+    }
+    
     static let shared = CloudKitViewModel()
+    
+    
+    private func saveRecordNameToKeychain(_ recordID: CKRecord.ID) {
+        do {
+            let recordNameData = try NSKeyedArchiver.archivedData(withRootObject: recordID, requiringSecureCoding: true)
+            KeychainManager.standard.save(account: "recordIDDelete", data: recordNameData)
+        } catch {
+            print("Failed to archive CKRecord.ID: \(error.localizedDescription)")
+        }
+        }
     
     init() {
         self.isFirstLaunch = CloudKitViewModel.checkIfFirstLaunch()
+        let tempRecordID = KeychainManager.standard.readRecordID(account: "recordIDDelete")
+        if let tempRecordID = tempRecordID {
+            self.recordIDDelete = tempRecordID
+        }
+
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleAccountChange), name: .CKAccountChanged, object: nil)
                 Task {
@@ -806,9 +828,12 @@ final class CloudKitViewModel: ObservableObject {
         guard let userID = userID?.recordName else {
             throw AppCKError.UnableToGetNameSpace
         }
+        let name = UUID().uuidString
+        let recordID = CKRecord.ID(recordName: name)
+        self.recordIDDelete = recordID
         
         let namespace = userID.lowercased()
-        let nsItem = NamespaceItem(namespace: namespace)
+        let nsItem = NamespaceItem(recordID: recordID, namespace: namespace)
         let maxRetryAttempts = 3
         let delayBetweenRetries: UInt64 = 200_000_000
         

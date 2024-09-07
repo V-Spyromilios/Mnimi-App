@@ -22,6 +22,7 @@ struct ErrorView: View {
                     LottieRepresentable(filename: "alertWarning", loopMode: .loop).frame(height: 80)
                     
                     TypingTextView(fullText: thrownError + (extraMessage != nil ? "\n" + extraMessage! : ""))
+                        .shadow(radius: 1)
 
                     Button(action: {
                         withAnimation {

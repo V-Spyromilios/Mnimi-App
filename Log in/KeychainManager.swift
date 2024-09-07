@@ -7,13 +7,15 @@
 
 import Security
 import Foundation
+import CloudKit
 
 class KeychainManager {
     
     static let standard = KeychainManager()
+    let service = "dev.chillvibes.MyndVault"
     private init() {}
     
-    func save(service: String, account: String, data: Data) {
+    func save(service: String = "dev.chillvibes.MyndVault", account: String, data: Data) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -59,18 +61,36 @@ extension KeychainManager {
         let passwordData = password.data(using: .utf8)!
         
         // Save password
-        self.save(service: "dev.chillvibes.MyndVault", account: username, data: passwordData)
+        self.save(service: service, account: username, data: passwordData)
         
         // Optionally, save username in a separate entry (if needed for retrieval or other logic)
         let usernameData = username.data(using: .utf8)!
-        self.save(service: "dev.chillvibes.MyndVault", account: "savedUsername", data: usernameData)
+        self.save(service: service, account: "savedUsername", data: usernameData)
     }
     
     func readUsername() -> String? {
-        guard let usernameData = self.read(service: "dev.chillvibes.MyndVault", account: "savedUsername"),
+        guard let usernameData = self.read(service: service, account: "savedUsername"),
               let username = String(data: usernameData, encoding: .utf8) else {
             return nil
         }
         return username
+    }
+}
+
+extension KeychainManager {
+    
+    func readRecordID(service: String = "dev.chillvibes.MyndVault", account: String) -> CKRecord.ID? {
+        // Read Data from Keychain
+        guard let recordIDData = read(service: service, account: account) else { return nil }
+        
+        do {
+            // Convert Data back to CKRecord.ID using NSKeyedUnarchiver
+            if let recordID = try NSKeyedUnarchiver.unarchivedObject(ofClass: CKRecord.ID.self, from: recordIDData) {
+                return recordID
+            }
+        } catch {
+            print("Failed to unarchive CKRecord.ID: \(error.localizedDescription)")
+        }
+        return nil
     }
 }

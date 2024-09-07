@@ -27,6 +27,7 @@ struct LoggedOutView: View {
                     .foregroundStyle(Color.primaryBackground)
                     .padding(.bottom)
                 TypingTextView(fullText: "You are logged out\nYou can close the app")
+                    .shadow(radius: 1)
                 
             Spacer()
             }

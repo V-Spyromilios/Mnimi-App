@@ -32,7 +32,7 @@ struct ContentView: View {
     @State private var isNewSubscriber: Bool = false
     
     @State var customerInfo: CustomerInfo? //to allow change in task
-   
+    
     
     var body: some View {
         ZStack {
@@ -60,14 +60,13 @@ struct ContentView: View {
             )
             .ignoresSafeArea(edges: .bottom)
             .ignoresSafeArea(edges: .horizontal)
-           
+            
         }
         .onAppear {
             speechManager.requestSpeechAuthorization()
-            onAppearGetInfo()
-           
+            checkIfNewSubscriber()
         }
-       
+        
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
                 showNetworkError = true
@@ -91,7 +90,7 @@ struct ContentView: View {
             }
             
         }
-       
+        
         .alert(isPresented: $showNetworkError) {
             Alert(
                 title: Text("No Internet Connection"),
@@ -103,74 +102,64 @@ struct ContentView: View {
             CustomPayWall()
         }
     }
+    
+    
+    
+    //    private func onAppearGetInfo() {
+    //        print("onAppear is Active: \(RCviewModel.isActiveSubscription)")
+    //
+    //
+    //        Task {
+    //            do {
+    //                customerInfo = try await Purchases.shared.customerInfo()
+    //            } catch {
+    //                // handle error
+    //            }
+    //            guard let customerInfo = customerInfo else { return }
+    //            let entitlements = customerInfo.entitlements
+    //            let entitlement = entitlements[Constants.entitlementID]
+    //            let activationDate = entitlement?.latestPurchaseDate
+    //            let hasSubscribed =  entitlement?.isActive ?? false
+    //
+    //
+    //            print("OnAppear with urchases.shared.customerInfo() : hasSubscribed: \(hasSubscribed)")
+    //
+    //            if !hasSubscribed {
+    //                print("Has not subscribed, opening full screen cover...")
+    //                showPayWall = true
+    //            }
+    //
+    //        }
+    //
+    //    }
+    
+    private func checkIfNewSubscriber() {
 
-    
-    
-    private func onAppearGetInfo() {
-        print("onAppear is Active: \(RCviewModel.isActiveSubscription)")
-        
-        
         Task {
-                        do {
-                            customerInfo = try await Purchases.shared.customerInfo()
-                        } catch {
-                            // handle error
-                        }
-                        guard let customerInfo = customerInfo else { return }
-                        let entitlements = customerInfo.entitlements
-                        let entitlement = entitlements[Constants.entitlementID]
-                        let activationDate = entitlement?.latestPurchaseDate
-                        let hasSubscribed =  entitlement?.isActive ?? false
-            
-           
-                print("OnAppear with urchases.shared.customerInfo() : hasSubscribed: \(hasSubscribed)")
-            
-            if !hasSubscribed {
-                print("Has not subscribed, opening full screen cover...")
-                showPayWall = true
+            do {
+                customerInfo = try await Purchases.shared.customerInfo()
             }
-            
+            catch {
+                print("Error from checkIfNewSubscriber() : \(error.localizedDescription)")
+            }
         }
         
+        guard let customerInfo = customerInfo else { return }
+        let entitlements = customerInfo.entitlements
+        let entitlement = entitlements[Constants.entitlementID]
+        let activationDate = entitlement?.latestPurchaseDate
+        
+        if activationDate != nil {
+            let now = Date()
+            let calendar = Calendar.current
+            let activationComponents = calendar.dateComponents([.year, .month, .day], from: activationDate!)
+            let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
+            
+            if activationComponents == todayComponents {
+                isNewSubscriber.toggle()
+            }
+        }
     }
-//    private func getCustomersInfo() {
-//      
-//        
-//        if !RCViewModel.shared.isActiveSubscription {
-//            showPayWall = true
-//        }
-//       
-//        
-////        Task {
-////            do {
-////                customerInfo = try await Purchases.shared.customerInfo()
-////            } catch {
-////                // handle error
-////            }
-////            guard let customerInfo = customerInfo else { return }
-////            let entitlements = customerInfo.entitlements
-////            let entitlement = entitlements[Constants.entitlementID]
-////            let activationDate = entitlement?.latestPurchaseDate
-////            let hasSubscribed =  entitlement?.isActive ?? false
-////
-////            if !hasSubscribed {
-////                withAnimation {
-////                    showPayWall.toggle()
-////                }
-////            }
-////            if activationDate != nil {
-////                let now = Date()
-////                let calendar = Calendar.current
-////                let activationComponents = calendar.dateComponents([.year, .month, .day], from: activationDate!)
-////                let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
-////                
-////                if activationComponents == todayComponents {
-////                    isNewSubscriber.toggle()
-////                }
-////            }
-////            
-////        }
-//    }
 }
 
 

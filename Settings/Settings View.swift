@@ -240,20 +240,14 @@ struct SettingsView: View {
         Task {
             do {
                 deleteNamespaceFromICloud()
-                // Perform deletions
-                //                try await cloudKit.deleteAllData(for: "NamespaceItem")
-                // Additional deletions and cleanup
-                // try await pineconeManager.deleteAllVectorsInNamespace()
-                // await deleteNamespace()
-                // try await cloudKit.deleteAllImageItems()
-                // deleteKeyChain()
-                // removeUserDefaults()
-                
-                // Mark account as deleted on the main thread
+//                try await pineconeManager.deleteAllVectorsInNamespace()
+
                 await MainActor.run {
                     pineconeManager.accountDeleted = true
                     pineconeManager.refreshAfterEditing = true
-                    //cloudKit.fetchedNamespaceDict = [:]
+//                    cloudKit.fetchedNamespaceDict = [:] // TODO: SOS app freezes
+//                    cloudKit.clearCloudKit()
+//                    await pineconeManager.clearManager()
                 }
                 //            } catch let error as AppCKError {
                 //                // Handle CloudKit specific errors
@@ -281,8 +275,10 @@ struct SettingsView: View {
                 //                }
                 //            }
             }
-            
-            // Set the delete button state after completion
+            catch {
+                //Show Warning 'try again' or sm
+            }
+
             deleteButton = .idle
         }
     }
@@ -326,11 +322,11 @@ struct SettingsView: View {
             do {
                 let container = CKContainer.default()
                 let privateDatabase = container.privateCloudDatabase
-                let recordID = CKRecord.ID(recordName: "NamespaceItem") // Replace with your actual record ID
+                let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete")
+                print("Before Deleting: \(String(describing: recordIDDelete))")
                 
-                // Call the delete function
-               
-                try await cloudKit.deleteRecordFromICloud(recordID: recordID, from: privateDatabase)
+                
+                try await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete!, from: privateDatabase)
             } catch {
                 print("Error deleting record: \(error.localizedDescription)")
             }

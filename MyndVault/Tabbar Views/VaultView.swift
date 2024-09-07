@@ -41,7 +41,19 @@ struct VaultView: View {
                
                 ScrollView {
                     LazyVStack {
-                        if vectorsAreLoading {
+                        
+                        if pineconeManger.accountDeleted {
+                            VStack {
+                                HStack(alignment: .center) {
+                                    Spacer()
+                                    TypingTextView(fullText: "Account Deleted.", isTitle: true)
+                                    Spacer()
+                                }
+                                LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
+                                    .padding(.horizontal)
+                            }
+                        }
+                        else if vectorsAreLoading {
                             ProgressView()
                                 .font(.title)
                                 .scaleEffect(1.5)
@@ -61,14 +73,15 @@ struct VaultView: View {
                                         .padding(.vertical)
                                 }
                             }
+                            .searchable(text: $searchText)
                         }
                         //TODO: Empty the Vault to check:
                         else if showEmpty && !vectorsAreLoading  && errorMessage == "" {
                             VStack {
                                 LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
                                 TypingTextView(fullText: "No Info has been saved. Add whatever you want to remember!")
+                                    .shadow(radius: 1)
                                     .padding(.horizontal)
-                                
                             }
                         }
                         
@@ -78,7 +91,7 @@ struct VaultView: View {
                             }
                         }
                     }
-                    .searchable(text: $searchText)
+                 
 
                 }
                 .padding(.top, 12)
