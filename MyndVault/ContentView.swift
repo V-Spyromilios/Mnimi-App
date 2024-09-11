@@ -90,7 +90,6 @@ struct ContentView: View {
             }
             
         }
-        
         .alert(isPresented: $showNetworkError) {
             Alert(
                 title: Text("No Internet Connection"),
@@ -102,9 +101,7 @@ struct ContentView: View {
             CustomPayWall()
         }
     }
-    
-    
-    
+
     //    private func onAppearGetInfo() {
     //        print("onAppear is Active: \(RCviewModel.isActiveSubscription)")
     //
