@@ -13,7 +13,7 @@ struct SettingsView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKit: CloudKitViewModel
     @EnvironmentObject var pineconeManager: PineconeManager
-   
+    
     @Environment(\.colorScheme) var colorScheme
     
     @Binding var showSettings: Bool
@@ -135,6 +135,27 @@ struct SettingsView: View {
                             .contentShape(Rectangle())
                         }
                     }
+                    
+                    Button(action: {
+                                        openPrivacyPolicy()
+                                    }) {
+                                        HStack {
+                                            Text("Privacy Policy")
+                                                .foregroundColor(colorScheme == .light ? .black : .white)
+
+                                            Spacer()
+
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(.blue)
+                                        }
+                                        .padding()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .background(Color.primaryBackground)
+                                        .cornerRadius(10)
+                                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                                        .contentShape(Rectangle())
+                                    }
+
                     Button(action: {
                         deleteButton = .hidden
                         showDeleteAll.toggle()
@@ -177,7 +198,7 @@ struct SettingsView: View {
                 .padding(.horizontal)
                 if showError {
                     ErrorView(thrownError: errorString)
-                        {
+                    {
                         self.showError = false
                         self.deleteButton = .idle
                     }
@@ -197,7 +218,7 @@ struct SettingsView: View {
             }
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-
+                    
                     Button {
                         withAnimation {
                             showSettings.toggle() }
@@ -221,6 +242,14 @@ struct SettingsView: View {
         .statusBar(hidden: true)
     }
     
+    private func openPrivacyPolicy() {
+        if let url = URL(string: "https://polydactyl-drain-3f7.notion.site/MyndVault-Privacy-Policy-3ddf94bced6c4481b1753cac12844f1c?pvs=4") {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    
+    
     private func openSubscriptionManagement() {
         guard let url = URL(string: "https://apps.apple.com/account/subscriptions") else {
             return
@@ -240,99 +269,88 @@ struct SettingsView: View {
         Task {
             do {
                 deleteNamespaceFromICloud()
-//                try await pineconeManager.deleteAllVectorsInNamespace()
-
+                try await pineconeManager.deleteAllVectorsInNamespace()
+                removeUserDefaults()
+            } catch let error as AppCKError {
+               
                 await MainActor.run {
-                    pineconeManager.accountDeleted = true
-                    pineconeManager.refreshAfterEditing = true
-//                    cloudKit.fetchedNamespaceDict = [:] // TODO: SOS app freezes
-//                    cloudKit.clearCloudKit()
-//                    await pineconeManager.clearManager()
+                    withAnimation {
+                        self.errorString = error.errorDescription
+                        self.showError = true
+                    }
                 }
-                //            } catch let error as AppCKError {
-                //                // Handle CloudKit specific errors
-                //                await MainActor.run {
-                //                    withAnimation {
-                //                        self.errorString = error.errorDescription
-                //                        self.showError = true
-                //                    }
-                //                }
-                //            } catch let error as AppNetworkError {
-                // Handle network related errors
-                //                await MainActor.run {
-                //                    print("The error: \(error.localizedDescription)")
-                //                    withAnimation {
-                //                        self.errorString = error.errorDescription
-                //                        self.showError = true
-                //                    }
-                //                }
-                //            } catch {
-                //                // General error handling
-                //                print("General error: \(error.localizedDescription)")
-                //                await MainActor.run {
-                //                    self.errorString = error.localizedDescription
-                //                    self.showError = true
-                //                }
-                //            }
-            }
-            catch {
-                //Show Warning 'try again' or sm
-            }
-
-            deleteButton = .idle
-        }
-    }
-    
-    private func checkOpeningSubscriptions() {
-        guard let url = URL(string: "https://apps.apple.com/account/subscriptions"),
-              UIApplication.shared.canOpenURL(url)
-        else {
-            withAnimation { canShowSubscription = false }
-            return
-        }
-    }
-    
-    private func checkOpeningSettings() {
-        guard let urlSettings = URL(string: UIApplication.openSettingsURLString),
-              UIApplication.shared.canOpenURL(urlSettings)
-        else {
-            withAnimation { canShowAppSettings = false }
-            return
-        }
-    }
-    
-    private func deleteKeyChain() {
-        
-        let username = KeychainManager.standard.readUsername()
-        if let username = username {
-            let success = KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username)
-            if success {
-                
-            } else {
-                print("Failed to delete the account from keychain.")
-            }
-        } else { print("Unable to get username for deleting KeyChain.") }
-    }
-    
-    
-    
-    private func deleteNamespaceFromICloud() {
-        // Example usage:
-        Task {
-            do {
-                let container = CKContainer.default()
-                let privateDatabase = container.privateCloudDatabase
-                let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete")
-                print("Before Deleting: \(String(describing: recordIDDelete))")
-                
-                
-                try await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete!, from: privateDatabase)
+            } catch let error as AppNetworkError {
+               
+                await MainActor.run {
+                    print("The error: \(error.localizedDescription)")
+                    withAnimation {
+                        self.errorString = error.errorDescription
+                        self.showError = true
+                    }
+                }
             } catch {
-                print("Error deleting record: \(error.localizedDescription)")
+                // General error handling
+                print("General error: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.errorString = error.localizedDescription
+                    self.showError = true
+                }
             }
         }
+        deleteButton = .idle
     }
-    ///Delete all vectors in a Namespace from Pinecone also deletes the namespace itself. Here we delete the namespace from CloudKit
+
+
+private func checkOpeningSubscriptions() {
+    guard let url = URL(string: "https://apps.apple.com/account/subscriptions"),
+          UIApplication.shared.canOpenURL(url)
+    else {
+        withAnimation { canShowSubscription = false }
+        return
+    }
+}
+
+private func checkOpeningSettings() {
+    guard let urlSettings = URL(string: UIApplication.openSettingsURLString),
+          UIApplication.shared.canOpenURL(urlSettings)
+    else {
+        withAnimation { canShowAppSettings = false }
+        return
+    }
+}
+
+private func deleteKeyChain() {
+    
+    let username = KeychainManager.standard.readUsername()
+    if let username = username {
+        let success = KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username)
+        if success {
+            
+        } else {
+            print("Failed to delete the account from keychain.")
+        }
+    } else { print("Unable to get username for deleting KeyChain.") }
+}
+
+
+
+private func deleteNamespaceFromICloud() {
+    // Example usage:
+    Task {
+        do {
+            let container = CKContainer.default()
+            let privateDatabase = container.privateCloudDatabase
+            let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete")
+            print("Before Deleting: \(String(describing: recordIDDelete))")
+            
+            
+            try await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete!, from: privateDatabase)
+        } catch {
+            print("Error deleting record: \(error.localizedDescription)")
+        }
+    }
+}
+///Delete all vectors in a Namespace from Pinecone also deletes the namespace itself. Here we delete the namespace from CloudKit
 //    private func deleteNamespace() async {
 //        Task {
 //            do {
@@ -340,7 +358,7 @@ struct SettingsView: View {
 //                if let recordID = self.cloudKit.fetchedNamespaceDict.keys.first {
 ////                    try await self.cloudKit.deleteNamespaceItem(recordID: recordID)
 //                    try await cloudKit.deleteAllData(for: "NamespaceItem")
-//                    
+//
 //                    // Update the dictionary on the main thread after successful deletion
 //                    await MainActor.run {
 //                        self.cloudKit.fetchedNamespaceDict.removeValue(forKey: recordID)
@@ -354,14 +372,15 @@ struct SettingsView: View {
 //            }
 //        }
 //    }
-    
-    private func removeUserDefaults() {
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "isFirstLaunch")
-        defaults.removeObject(forKey: "monthlyApiCalls")
-        defaults.removeObject(forKey: "selectedPromptLanguage")
-        defaults.removeObject(forKey: "APITokenUsage")
-    }
+
+private func removeUserDefaults() {
+    let defaults = UserDefaults.standard
+    defaults.removeObject(forKey: "isFirstLaunch")
+    defaults.removeObject(forKey: "monthlyApiCalls")
+    defaults.removeObject(forKey: "selectedPromptLanguage")
+    defaults.removeObject(forKey: "APITokenUsage")
+}
+
 }
 
 #Preview {
