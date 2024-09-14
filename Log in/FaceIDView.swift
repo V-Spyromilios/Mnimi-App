@@ -235,10 +235,12 @@ struct UsernamePasswordLoginView: View {
                 
                 FloatingLabelTextField(text: $username, title: "Username", isSecure: false, isFocused: $isUsernameFieldFocused)
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                    .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                 
                 
                 FloatingLabelTextField(text: $password, title: "Password", isSecure: true, isFocused: $isPasswordFieldFocused)
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                    .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                 
                 Button(action: {
                     if shake { return }

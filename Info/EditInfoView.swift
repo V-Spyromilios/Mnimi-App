@@ -312,16 +312,18 @@ struct EditInfoView: View {
             .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
             
             if inProgress {
-                LottieRepresentable(filename: "Brain Configurations", speed: 0.8).frame(width: 220, height: 220).id(UUID()).animation(.easeInOut, value: inProgress)
+                LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).animation(.easeInOut, value: inProgress)
+                    .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
             }
             
             else if showSuccess {
                 LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
+                    .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
             }
             Spacer()
         } .padding(.horizontal, Constants.standardCardPadding)
                 .padding(.top, 12)
-    }
+    } .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
     }
 
 }

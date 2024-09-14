@@ -888,62 +888,65 @@ final class CloudKitViewModel: ObservableObject {
         throw AppCKError.unknownError(message: "Failed to delete namespace item after \(maxRetryAttempts) attempts")
     }
     //MARK: NEW FOR DELETE ACCOUNT
-//    func deleteAllImageItems() async throws {
-//        let container = CKContainer.default()
-//        let privateDatabase = container.privateCloudDatabase
-//        let query = CKQuery(recordType: "ImageItem", predicate: NSPredicate(value: true))
-//        
-//        do {
-//            // Fetch all records
-//            let records = try await fetchAllRecords(using: query, from: privateDatabase)
-//            let recordIDs = records.map { $0.recordID }
-//            
-//            // Delete all fetched records
-//            if !recordIDs.isEmpty {
-//                try await deleteRecords(withIDs: recordIDs, from: privateDatabase)
-//            }
-//            
-//            // Update the UI on the main thread if needed
-//            await MainActor.run {
-//                allImagesDeleted = true
-//            }
-//            
-//        } catch {
-//            print("Error deleting items from iCloud: \(error.localizedDescription)")
-//            throw error
-//        }
-//    }
 
-    private func fetchAllRecords(using query: CKQuery, from database: CKDatabase) async throws -> [CKRecord] {
-        let operation = CKQueryOperation(query: query)
-        var fetchedRecords: [CKRecord] = []
+    //MARK: Delete Images functions
+    // Function to fetch all records matching a query
+    func fetchAllRecords(using query: CKQuery, from database: CKDatabase) async throws -> [CKRecord] {
+        var allRecords: [CKRecord] = []
+        var currentCursor: CKQueryOperation.Cursor? = nil
 
-        operation.recordMatchedBlock = { recordID, result in
-            switch result {
-            case .success(let record):
-                fetchedRecords.append(record)
-            case .failure(let error):
-                print("Error fetching record \(recordID): \(error.localizedDescription)")
-                // Handle individual record errors as needed
-            }
-        }
+        repeat {
+            let (records, cursor) = try await fetchRecords(withCursor: currentCursor, query: query, from: database)
+            allRecords.append(contentsOf: records)
+            currentCursor = cursor
+        } while currentCursor != nil
 
+        return allRecords
+    }
+
+    // Helper function to fetch records with pagination support
+    func fetchRecords(withCursor cursor: CKQueryOperation.Cursor?, query: CKQuery?, from database: CKDatabase) async throws -> (records: [CKRecord], cursor: CKQueryOperation.Cursor?) {
         return try await withCheckedThrowingContinuation { continuation in
+            var records: [CKRecord] = []
+            let operation: CKQueryOperation
+            if let cursor = cursor {
+                operation = CKQueryOperation(cursor: cursor)
+            } else if let query = query {
+                operation = CKQueryOperation(query: query)
+            } else {
+                continuation.resume(throwing: NSError(domain: "Invalid parameters", code: -1, userInfo: nil))
+                return
+            }
+
+            // Updated to use recordMatchedBlock
+            operation.recordMatchedBlock = { recordID, result in
+                switch result {
+                case .success(let record):
+                    records.append(record)
+                case .failure(let error):
+                    // Handle per-record error if necessary
+                    print("Error fetching record with ID \(recordID): \(error.localizedDescription)")
+                    // Decide if you want to handle the error or continue
+                    // For this example, we'll continue fetching other records
+                }
+            }
+
+            // Updated to use queryResultBlock
             operation.queryResultBlock = { result in
                 switch result {
-                case .success:
-                    continuation.resume(returning: fetchedRecords)
+                case .success(let cursor):
+                    continuation.resume(returning: (records, cursor))
                 case .failure(let error):
                     continuation.resume(throwing: error)
                 }
             }
+
             database.add(operation)
         }
     }
   
-  
 
-    // Function to delete a record from iCloud using CloudKit's modifyRecords method
+    // Function to delete a record from iCloud using CloudKit's modifyRecords method NOT FOR IMAGES
     func deleteRecordFromICloud(recordID: CKRecord.ID, from database: CKDatabase) async throws {
         do {
             // Call modifyRecords with empty saving array and the record ID in deleting array
@@ -973,34 +976,70 @@ final class CloudKitViewModel: ObservableObject {
             throw error
         }
     }
-   
-    
-//    func deleteAllData(for recordType: String) async throws {
-//        let container = CKContainer.default()
-//        let privateDatabase = container.privateCloudDatabase
-//        let query = CKQuery(recordType: recordType, predicate: NSPredicate(value: true)) // Fetch all records of this type
-//        
-//        do {
-//            // Fetch all records
-//            let records = try await fetchAllRecords(using: query, from: privateDatabase)
-//            let recordIDs = records.map { $0.recordID }
-//            
-//            // Delete all fetched records
-//            if !recordIDs.isEmpty {
-//                try await deleteRecords(withIDs: recordIDs, from: privateDatabase)
-//            }
-//            await MainActor.run {
-//                self.fetchedNamespaceDict = [:]
-//            }
-//            
-//        } catch {
-//            print("Error deleting data from iCloud: \(error.localizedDescription)")
-//            throw error
-//        }
-//    }
 
     
+    // Function to delete records with specified IDs (ALL IMAGES)
+    func deleteRecords(withIDs recordIDs: [CKRecord.ID], from database: CKDatabase) async throws {
+        guard !recordIDs.isEmpty else { return }
+        
+        do {
+            // Call modifyRecords with empty saving array and the record IDs in deleting array
+            let result = try await database.modifyRecords(
+                saving: [], // No records to save
+                deleting: recordIDs, // Record IDs to delete
+                savePolicy: .ifServerRecordUnchanged, // Save policy; does not affect delete
+                atomically: true // Operation fails entirely if any error occurs
+            )
+            
+            // Check deletion results
+            for recordID in recordIDs {
+                if let deleteResult = result.deleteResults[recordID] {
+                    switch deleteResult {
+                    case .success:
+                        print("Successfully deleted record with ID: \(recordID.recordName)")
+                    case .failure(let error):
+                        print("Failed to delete record with ID \(recordID.recordName): \(error.localizedDescription)")
+                        // Handle individual record deletion error if needed
+                    }
+                } else {
+                    print("Record ID \(recordID.recordName) not found in delete results.")
+                }
+            }
+            
+        } catch {
+            // Handle any errors from the modifyRecords call
+            print("Failed to delete records from iCloud: \(error.localizedDescription)")
+            throw error
+        }
+    }
     
+    func deleteAllImageItems() async throws {
+        let container = CKContainer.default()
+        let privateDatabase = container.privateCloudDatabase
+        let query = CKQuery(recordType: "ImageItem", predicate: NSPredicate(value: true))
+        
+        do {
+            // Fetch all records
+            let records = try await fetchAllRecords(using: query, from: privateDatabase)
+            let recordIDs = records.map { $0.recordID }
+            
+            // Delete all fetched records
+            if !recordIDs.isEmpty {
+                try await deleteRecords(withIDs: recordIDs, from: privateDatabase)
+            }
+            
+            // Update the UI on the main thread if needed
+            await MainActor.run {
+                allImagesDeleted = true
+            }
+            
+        } catch {
+            print("Error deleting items from iCloud: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    //MARK: Delete Images functions
     
     func fetchNamespaceItem(recordID: CKRecord.ID) async throws -> NamespaceItem? {
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }

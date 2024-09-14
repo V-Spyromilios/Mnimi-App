@@ -47,7 +47,9 @@ struct NewAddInfoView: View {
                         HStack {
                             Image(systemName: "plus.bubble").bold()
                             Text("info").bold()
-                            if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8) }
+                            if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8)
+                                    .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                            }
                             Spacer()
                         }.font(.callout).padding(.top,12).padding(.bottom, 8)
                         
@@ -109,6 +111,7 @@ struct NewAddInfoView: View {
                                     }
                                 }
                             }
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                         .buttonStyle(PlainButtonStyle())
                         .padding()
@@ -137,10 +140,9 @@ struct NewAddInfoView: View {
                                 Button {
                                     showSettings.toggle()
                                 } label: {
-                                    LottieRepresentable(filename: "Vertical Dot Menu", loopMode: .playOnce, speed: 0.5)
+                                   Image(systemName: "gearshape.2")
                                         .frame(width: 45, height: 45)
                                         .padding(.bottom, 5)
-                                        .shadow(color: colorScheme == .dark ? .gray : .clear, radius: colorScheme == .dark ? 4 : 0)
                                         .opacity(0.8)
                                     .accessibilityLabel("Settings") }
                             }
@@ -150,6 +152,11 @@ struct NewAddInfoView: View {
                     }
                     //                    .frame(height: geometry.size.height)
                     .padding(.horizontal, Constants.standardCardPadding)
+                    .overlay {
+                        if showConfetti {
+                            LottieRepresentable(filename: "Confetti").frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
+                        }
+                    }
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                         
@@ -169,18 +176,22 @@ struct NewAddInfoView: View {
                     //                    }
                     if saveButtonIsVisible && pineconeManager.receivedError == nil {
                         SaveButton
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                     }
                     if apiCallInProgress && thrownError == "" && pineconeManager.receivedError == nil {
                         
                         CircularProgressView(progressTracker: progressTracker).padding()
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         LottieRepresentable(filename: "Brain Configurations", loopMode: .playOnce, speed: 0.4)
                             .frame(width: 220, height: 220)
                             //.id(UUID())
                             .animation(.easeInOut, value: apiCallInProgress)
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                     }
                     else if pineconeManager.upsertSuccesful && showSuccess {
                         
                         LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             .onAppear {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                                     withAnimation { showSuccess = false }
@@ -196,6 +207,7 @@ struct NewAddInfoView: View {
                                 .presentationDetents([.fraction(0.4)])
                                 .presentationDragIndicator(.hidden)
                                 .presentationBackground(Color.clear)
+                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             
                         }
                         .background {
@@ -204,11 +216,7 @@ struct NewAddInfoView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .ignoresSafeArea()
                         }
-                        .overlay{
-                            if showConfetti {
-                                LottieRepresentable(filename: "Confetti").frame(maxWidth: .infinity, maxHeight: .infinity).ignoresSafeArea()
-                            }
-                        }
+                        
                         .navigationBarTitleView {
                             HStack {
                                 Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)

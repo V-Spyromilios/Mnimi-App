@@ -35,11 +35,18 @@ final class PineconeManager: ObservableObject {
     var pineconeIndex: String?
     var cancellables = Set<AnyCancellable>()
     @Published var refreshAfterEditing: Bool = false
-
+    
     
     init(cloudKitViewModel: CloudKitViewModel = .shared) {
-            self.CKviewModel = cloudKitViewModel
-        }
+        self.CKviewModel = cloudKitViewModel
+        self.accountDeleted = UserDefaults.standard.bool(forKey: "accountDeleted")
+        
+        $accountDeleted
+            .sink { newValue in
+                UserDefaults.standard.set(newValue, forKey: "accountDeleted")
+            }
+            .store(in: &cancellables)
+    }
     
     func clearManager() async {
         await MainActor.run {

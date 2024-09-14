@@ -44,7 +44,9 @@ struct QuestionView: View {
                 HStack {
                     Image(systemName: "questionmark.bubble").bold()
                     Text("Question").bold()
-                   if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8) }
+                    if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8)
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                    }
                     Spacer()
                 }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, Constants.standardCardPadding)
                 
@@ -81,12 +83,15 @@ struct QuestionView: View {
                         if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && pineconeManager.receivedError == nil {
                             GoButton
                                 .padding(.bottom)
+                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                         else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
+                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             
                             LottieRepresentable(filename: "Ai Cloud",loopMode: .loop, speed: 0.8)
                                 .frame(height: 300)
+                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                     }
                     
@@ -159,6 +164,7 @@ struct QuestionView: View {
                             ClearButton
                                 .padding(.bottom)
                                 .padding(.horizontal)
+                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                     }
                 }
@@ -173,14 +179,12 @@ struct QuestionView: View {
                             }
                         }
                         
-                        
                         Button {
                             showSettings.toggle()
                         } label: {
-                            LottieRepresentable(filename: "Vertical Dot Menu", loopMode: .playOnce, speed: 0.5)
+                            Image(systemName: "gearshape.2")
                                 .frame(width: 45, height: 45)
                                 .padding(.bottom, 5)
-                                .shadow(color: colorScheme == .dark ? .gray : .clear, radius: colorScheme == .dark ? 4 : 0)
                                 .opacity(0.8)
                                     .accessibilityLabel("settings") 
                         }

@@ -223,7 +223,9 @@ struct SettingsView: View {
                         withAnimation {
                             showSettings.toggle() }
                     } label: {
-                        LottieRepresentable(filename: "CancelButton", loopMode: .loop, speed: 0.8, isPlaying: $animateSettingsButton).frame(width: 45, height: 45).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0).opacity(0.8)
+//                        LottieRepresentable(filename: "CancelButton", loopMode: .loop, speed: 0.8, isPlaying: $animateSettingsButton)
+                        Image(systemName: "xmark.circle")
+                            .frame(width: 45, height: 45).padding(.bottom, 5).opacity(0.8)
                     }
                     .accessibilityLabel("Close Settings")
                     .disabled(deleteButton == .hidden)
@@ -235,7 +237,7 @@ struct SettingsView: View {
                 
             }
             .alert(isPresented: $showDeleteAll) {
-                Alert(title: Text(deleteAllWarningTitle), message: Text(deleteAllWarningBody), primaryButton: .cancel(), secondaryButton: .destructive(Text("Delete all"), action: deleteAll)
+                Alert(title: Text(deleteAllWarningTitle), message: Text(deleteAllWarningBody), primaryButton: .cancel(Text("Cancel")), secondaryButton: .destructive(Text("Delete all"), action: deleteAll)
                 )
             }
         }
@@ -265,12 +267,15 @@ struct SettingsView: View {
         }
     }
     
+    //MARK: DeleteAll
     private func deleteAll() {
         Task {
             do {
                 deleteNamespaceFromICloud()
                 try await pineconeManager.deleteAllVectorsInNamespace()
+                try await cloudKit.deleteAllImageItems()
                 removeUserDefaults()
+                
             } catch let error as AppCKError {
                
                 await MainActor.run {
