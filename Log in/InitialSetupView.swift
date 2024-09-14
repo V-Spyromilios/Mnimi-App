@@ -51,6 +51,7 @@ struct InitialSetupView: View {
                         
                         LottieRepresentable(filename: "Woman_vault")
                             .frame(height: 220)
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         TypingTextView(fullText: "Please provide Username\nand Password to be used if FaceID is not available.", isTitle: false)
                             .shadow(radius: 1)
                             .frame(height: 60)
@@ -60,14 +61,17 @@ struct InitialSetupView: View {
                             isPasswordFieldFocused = true
                         }, isFocused: $isUsernameFieldFocused)
                         .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
                         FloatingLabelTextField(text: $password, title: "Password", isSecure: true, onSubmit: {
                             isRepairPasswordFieldFocused = true
                         }, isFocused: $isPasswordFieldFocused)
                         .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
                         FloatingLabelTextField(text: $confirmPassword, title: "Repait Password", isSecure: true, onSubmit : { completeSetup() }, isFocused: $isRepairPasswordFieldFocused )
                             .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
                         
                         Button(action: {

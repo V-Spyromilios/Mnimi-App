@@ -14,7 +14,6 @@
 		E8002B652C4C951D00FD814D /* robotForQuestion.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B642C4C951D00FD814D /* robotForQuestion.json */; };
 		E8002B672C4CC10100FD814D /* UploadingFile.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B662C4CC10100FD814D /* UploadingFile.json */; };
 		E8002B692C4CC2AA00FD814D /* Settings.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B682C4CC2AA00FD814D /* Settings.json */; };
-		E8002B6D2C4CC60700FD814D /* CancelButton.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B6A2C4CC60700FD814D /* CancelButton.json */; };
 		E8002B6E2C4CC60700FD814D /* PowerOffButton.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B6B2C4CC60700FD814D /* PowerOffButton.json */; };
 		E8002B6F2C4CC60700FD814D /* Vertical Dot Menu.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B6C2C4CC60700FD814D /* Vertical Dot Menu.json */; };
 		E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E813C76C2BECF51900E3088D /* CountdownTimer.swift */; };
@@ -84,7 +83,6 @@
 		E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */; };
 		E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */; };
 		E8B4D5102BF8F17400F2A174 /* LoggedOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */; };
-		E8B50D8A2C24AD9900AC15DF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */; };
 		E8C7E2922C4D3BB2009760F2 /* Bell ringing notification.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */; };
 		E8C7E2942C4D3E8B009760F2 /* AddNotification.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2932C4D3E8B009760F2 /* AddNotification.json */; };
 		E8C7E2962C4D4205009760F2 /* Add.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2952C4D4205009760F2 /* Add.json */; };
@@ -128,7 +126,6 @@
 		E8002B642C4C951D00FD814D /* robotForQuestion.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = robotForQuestion.json; sourceTree = "<group>"; };
 		E8002B662C4CC10100FD814D /* UploadingFile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = UploadingFile.json; sourceTree = "<group>"; };
 		E8002B682C4CC2AA00FD814D /* Settings.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Settings.json; sourceTree = "<group>"; };
-		E8002B6A2C4CC60700FD814D /* CancelButton.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = CancelButton.json; sourceTree = "<group>"; };
 		E8002B6B2C4CC60700FD814D /* PowerOffButton.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = PowerOffButton.json; sourceTree = "<group>"; };
 		E8002B6C2C4CC60700FD814D /* Vertical Dot Menu.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Vertical Dot Menu.json"; sourceTree = "<group>"; };
 		E813C76C2BECF51900E3088D /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
@@ -187,6 +184,7 @@
 		E878743D2C677E4C001299D9 /* AboutUsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutUsView.swift; sourceTree = "<group>"; };
 		E878743F2C677F4B001299D9 /* ManWithLaptop.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ManWithLaptop.json; sourceTree = "<group>"; };
 		E878744A2C70D0DC001299D9 /* MyndVault.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = MyndVault.storekit; path = Settings/MyndVault.storekit; sourceTree = "<group>"; };
+		E878B7262C95A9A4003D782A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact.otf"; sourceTree = "<group>"; };
@@ -198,7 +196,6 @@
 		E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSetupView.swift; sourceTree = "<group>"; };
 		E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedOutView.swift; sourceTree = "<group>"; };
-		E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Bell ringing notification.json"; sourceTree = "<group>"; };
 		E8C7E2932C4D3E8B009760F2 /* AddNotification.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AddNotification.json; sourceTree = "<group>"; };
@@ -310,6 +307,7 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E878B7262C95A9A4003D782A /* PrivacyInfo.xcprivacy */,
 				E87605B62C7A18AD002A13E5 /* RCViewModel.swift */,
 				E878744A2C70D0DC001299D9 /* MyndVault.storekit */,
 				E83D83FB2C5903DD002BBDE7 /* Localizable.xcstrings */,
@@ -317,7 +315,6 @@
 				E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */,
 				E8CFEAF72C395876005A2630 /* VisualEffect.swift */,
 				E85055042C428BB900FBACC4 /* SwiftLogoView.swift */,
-				E8B50D892C24AD9900AC15DF /* PrivacyInfo.xcprivacy */,
 				E8A37F622BD00675004A98C9 /* Info */,
 				E8B4D5022BF8C07400F2A174 /* Log in */,
 				E8FA7F082BC5BC320012EBF6 /* Settings */,
@@ -353,6 +350,7 @@
 				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
 				E81C6ECA2C724DAD000DC3C7 /* CustomPayWall.swift */,
+				E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
 				E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */,
 				E85055012C428B6800FBACC4 /* Lotties */,
@@ -380,7 +378,6 @@
 				E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */,
 				E8C7E2972C4D460C009760F2 /* Delete.json */,
 				E8C7E2952C4D4205009760F2 /* Add.json */,
-				E8002B6A2C4CC60700FD814D /* CancelButton.json */,
 				E8002B6B2C4CC60700FD814D /* PowerOffButton.json */,
 				E8002B6C2C4CC60700FD814D /* Vertical Dot Menu.json */,
 				E8002B682C4CC2AA00FD814D /* Settings.json */,
@@ -399,7 +396,6 @@
 				E85055082C42CF2A00FBACC4 /* Image Recognition.json */,
 				E85055062C42C6A000FBACC4 /* Brain Configurations.json */,
 				E85055022C428B7C00FBACC4 /* Swift.json */,
-				E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */,
 			);
 			path = Lotties;
 			sourceTree = "<group>";
@@ -538,10 +534,8 @@
 				E86BE75A2C566AF90030C81B /* deleteBin.json in Resources */,
 				E87605BB2C7A266C002A13E5 /* Confetti.json in Resources */,
 				E8002B6E2C4CC60700FD814D /* PowerOffButton.json in Resources */,
-				E8002B6D2C4CC60700FD814D /* CancelButton.json in Resources */,
 				E83D83FC2C5903DD002BBDE7 /* Localizable.xcstrings in Resources */,
 				E877FA272C4A92D4002FBFFC /* Woman_vault.json in Resources */,
-				E8B50D8A2C24AD9900AC15DF /* PrivacyInfo.xcprivacy in Resources */,
 				E87874402C677F4B001299D9 /* ManWithLaptop.json in Resources */,
 				E85055092C42CF2A00FBACC4 /* Image Recognition.json in Resources */,
 				E8002B602C4C702700FD814D /* Background Lines.json in Resources */,
