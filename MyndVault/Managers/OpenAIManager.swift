@@ -305,7 +305,7 @@ final class OpenAIManager: ObservableObject {
         switch languageSettings.selectedLanguage {
         case .english:
             return """
-                   You are an AI assistant, and you have been asked to provide concise information on a specific topic. Below is the user's question and one or two pieces of information retrieved by the vector database. Note that these pieces of information are the ones with the highest similarity score, but may be irrelevant for user's question:
+                   You are an AI assistant, and you have been asked to provide concise reply to user's question. Below is the user's question and one or two pieces of information retrieved by the user's vector database. Note that these pieces of information are the ones with the highest similarity score, but may be irrelevant for user's question:
                                    
                        - User's Question: \(question).
                        - Relevant Information 1: \(firstVector).
@@ -313,7 +313,8 @@ final class OpenAIManager: ObservableObject {
                                    
                    Using the user's question, and if relevant the information provided, generate a comprehensive, informative, and concise reply that addresses the user's inquiry. Evaluate the relevance of the retrieved information:
                    - If the retrieved information is relevant, integrate it into your response to provide a helpful response.
-                   - If the retrieved information is not relevant or seems ambiguous, use your general knowledge to provide a helpful response, and highlight any uncertainties and suggest that the user provide additional information to the app for more accurate answers in the future.
+                   - If the retrieved information is not relevant at all, use your general knowledge to provide a helpful response, and suggest that the user provide additional information to the app for more accurate answers in the future.
+                - Always give priority to the relevant information provided by the user to craft an acurate reply.
                 
                    If relevant for your reply, today is \(readableDateString), and the current time in ISO8601 format is \(isoDateString). Do not return full dates and times unless necessary.
                 

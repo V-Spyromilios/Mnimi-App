@@ -35,7 +35,7 @@ struct QuestionView: View {
     @State private var showError: Bool = false
     @State private var clearButtonIsVisible: Bool = false
 
-    
+
     var body: some View {
         GeometryReader { geometry in
         NavigationStack {
@@ -131,34 +131,22 @@ struct QuestionView: View {
                             ForEach(0..<fetchedImages.count, id: \.self) { index in
                                 withAnimation {
                                     ZStack(alignment: .topTrailing) {
+                                      
                                         Image(uiImage: fetchedImages[index])
                                             .resizable()
                                             .scaledToFit()
                                             .frame(height: 160)
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
                                             .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 10.0)
-                                                    .stroke(lineWidth: 1)
-                                                    .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                                    .foregroundColor(Color.gray)
-                                            )
-                                        Button(action: {
                                             
-                                            self.selectedImageIndex = index
-                                            withAnimation { showFullImage = true }
-                                        }) {
-                                            Image(systemName: "arrow.up.left.and.arrow.down.right")
-                                                .foregroundColor(Color.white)
-                                                .background(Color.black.opacity(0.6))
-                                                .padding()
-                                                .clipShape(Circle())
-                                        }
-                                        .offset(x: 5, y: -5)
+                                    }
+                                    .contentShape(Rectangle()) // Ensure the entire area is tappable
+                                    .onTapGesture { // Make the entire ZStack tappable
+                                        self.selectedImageIndex = index
+                                        withAnimation { showFullImage = true }
                                     }
                                 }
                             }
-                            
                         }
                         if self.thrownError == "" && openAiManager.stringResponseOnQuestion != "" {
                             ClearButton

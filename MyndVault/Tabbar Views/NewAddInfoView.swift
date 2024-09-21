@@ -315,6 +315,9 @@ struct NewAddInfoView: View {
                     await openAiManager.clearManager()
                     await pineconeManager.clearManager()
                 }
+                if  photoPicker.selectedImage != nil {
+                    photoPicker.selectedImage = nil
+                }
                 self.apiCallInProgress = false
                 self.saveButtonIsVisible = true
             }

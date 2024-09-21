@@ -37,23 +37,26 @@ struct SettingsView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 15) {
-                    HStack {
-                        NavigationLink(destination: PromptLanguageView()) { Text("Prompt Language").foregroundStyle(colorScheme == .light ? .black : .white)
+                    //MARK: Language
+                    NavigationLink(destination: PromptLanguageView()) {
+                        HStack {
+                            Text("Prompt Language")
+                                .foregroundStyle(colorScheme == .light ? .black : .white)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.blue)
                         }
-                        Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                        
-                            .foregroundStyle(.blue)
-                        
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.primaryBackground)
+                        .cornerRadius(10)
+                        .shadow(color: colorScheme == .dark ? .white.opacity(0.8) : .black.opacity(0.8), radius: 5)
+                        .contentShape(Rectangle()) // Ensures the entire rectangle is tappable
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background( Color.primaryBackground)
-                    .cornerRadius(10)
-                    .shadow(color: colorScheme == .dark ? .white.opacity(0.8) : .black.opacity(0.8), radius: 5)
-                    .contentShape(Rectangle())
                     
+                    //MARK: About
                     HStack {
                         NavigationLink(destination: AboutUsView()) {
                             Text("About").foregroundStyle(colorScheme == .light ? .black : .white)
@@ -74,7 +77,7 @@ struct SettingsView: View {
                     
                     
                     
-                    
+                    //MARK: Credit
                     HStack {
                         NavigationLink(destination: ApiCallsView()) {
                             Text("Credit").foregroundStyle(colorScheme == .light ? .black : .white)
@@ -92,6 +95,8 @@ struct SettingsView: View {
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                         .contentShape(Rectangle())
+                    
+                    //MARK: Open App Settings
                     if canShowAppSettings {
                         Button(action: {
                             openAppSettings()
@@ -114,6 +119,7 @@ struct SettingsView: View {
                         }
                     }
                     
+                    //MARK: Open Subscription
                     if canShowSubscription {
                         Button(action: {
                             openSubscriptionManagement()
@@ -136,6 +142,7 @@ struct SettingsView: View {
                         }
                     }
                     
+                    //MARK: Open Privacy Policy
                     Button(action: {
                                         openPrivacyPolicy()
                                     }) {
@@ -155,7 +162,30 @@ struct SettingsView: View {
                                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                                         .contentShape(Rectangle())
                                     }
+                    
+                    //MARK: Open Support request
+                    Button(action: {
+                                        openSupportRequest()
+                                    }) {
+                                        HStack {
+                                            Text("Support Request")
+                                                .foregroundColor(colorScheme == .light ? .black : .white)
 
+                                            Spacer()
+
+                                            Image(systemName: "chevron.right")
+                                                .foregroundColor(.blue)
+                                        }
+                                        .padding()
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .background(Color.primaryBackground)
+                                        .cornerRadius(10)
+                                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                                        .contentShape(Rectangle())
+                                    }
+                    
+
+                    //MARK: Delete Account
                     Button(action: {
                         deleteButton = .hidden
                         showDeleteAll.toggle()
@@ -250,6 +280,11 @@ struct SettingsView: View {
         }
     }
 
+    private func openSupportRequest() {
+        if let url = URL(string: "https://polydactyl-drain-3f7.notion.site/MyndVault-d74ca5df50374eada3193a64c1cee7dc?pvs=4") {
+            UIApplication.shared.open(url)
+        }
+    }
     
     
     private func openSubscriptionManagement() {

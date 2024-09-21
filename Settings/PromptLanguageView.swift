@@ -52,7 +52,7 @@ struct PromptLanguageView: View {
                 .ignoresSafeArea()
         }
         .navigationTitle("Language")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {

@@ -350,6 +350,7 @@
       }
     },
     "<" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4877,6 +4878,12 @@
           }
         }
       }
+    },
+    "Support Request" : {
+
+    },
+    "Tap image to dismiss" : {
+
     },
     "Title" : {
       "localizations" : {
