@@ -69,7 +69,7 @@ struct InitialSetupView: View {
                         .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                         .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
-                        FloatingLabelTextField(text: $confirmPassword, title: "Repait Password", isSecure: true, onSubmit : { completeSetup() }, isFocused: $isRepairPasswordFieldFocused )
+                        FloatingLabelTextField(text: $confirmPassword, title: "Repeat Password", isSecure: true, onSubmit : { completeSetup() }, isFocused: $isRepairPasswordFieldFocused )
                             .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
