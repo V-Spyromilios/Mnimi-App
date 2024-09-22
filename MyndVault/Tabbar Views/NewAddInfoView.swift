@@ -140,7 +140,7 @@ struct NewAddInfoView: View {
                                 Button {
                                     showSettings.toggle()
                                 } label: {
-                                   Image(systemName: "gearshape.2")
+                                   Image(systemName: "gear")
                                         .frame(width: 45, height: 45)
                                         .padding(.bottom, 5)
                                         .opacity(0.8)
@@ -220,7 +220,7 @@ struct NewAddInfoView: View {
                         .navigationBarTitleView {
                             HStack {
                                 Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                                LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) } //TODO: Check how it looks
+                                LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
                         }
                 }
                 

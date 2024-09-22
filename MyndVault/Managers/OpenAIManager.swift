@@ -552,7 +552,7 @@ final class OpenAIManager: ObservableObject {
     
     
     func getGptPrompt(notifications: [CustomNotification], currentDate: String) -> String {
-        //TODO: " avoid using time annotations like 'local time' " in other languages as well
+
         let notificationTexts = notifications.map { notification in
             "Title: \(notification.title), Body: \(notification.notificationBody), Date: \(notification.date)"
         }

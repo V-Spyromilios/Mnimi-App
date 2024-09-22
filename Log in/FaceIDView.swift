@@ -283,7 +283,7 @@ struct UsernamePasswordLoginView: View {
                     }
                 }
             }
-            //TODO: Check if this appears in the Keyboard, Check InitialSetUpView for correct implementation !
+
             
         } // -ZStack
         .alert(isPresented: $showPasswordError) {
