@@ -51,7 +51,7 @@ struct ApiCallsView: View {
                     Image(systemName: "chevron.left")
                     Text("Settings")
                 }.font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-            }) //TODO: Right way to have Back Button in Nav. Apply where needed
+            })
     }
 }
 

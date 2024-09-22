@@ -8,17 +8,17 @@
 import Foundation
 
 enum LanguageCode: String, CaseIterable {
+    case german = "de"
     case english = "en"
     case spanish = "es"
     case french = "fr"
-    case german = "de"
     case greek = "gr"
-    case korean = "ko"
-    case japanese = "ja"
-    case chineseSimplified = "zh-Hans"
-    case portuguese = "pt"
-    case italian = "it"
     case hebrew = "he"
+    case italian = "it"
+    case japanese = "ja"
+    case korean = "ko"
+    case portuguese = "pt"
+    case chineseSimplified = "zh-Hans"
     
     var displayName: String {
         switch self {

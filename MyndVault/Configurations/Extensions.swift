@@ -222,7 +222,8 @@ struct FloatingLabelTextField: View {
     let title: String
     let isSecure: Bool
     var onSubmit: (() -> Void)? = nil
-    @FocusState.Binding var isFocused: Bool 
+    @FocusState.Binding var isFocused: Bool
+    @State private var isPasswordVisible: Bool = false // State to toggle visibility
     
     var body: some View {
         ZStack(alignment: .leading) {
@@ -234,14 +235,36 @@ struct FloatingLabelTextField: View {
                 .scaleEffect(isFocused || !text.isEmpty ? 0.8 : 1.0, anchor: .leading)
                 .animation(.easeInOut(duration: 0.2), value: isFocused || !text.isEmpty)
             
-            if isSecure {  //TODO: Add eye to togle secure?
-                SecureField("", text: $text)
-                    .focused($isFocused)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .padding(.top, 20)
-                    .onSubmit {
-                        onSubmit?()
+            if isSecure {
+                HStack {
+                    if isPasswordVisible {
+                        TextField("", text: $text)
+                            .focused($isFocused)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding(.top, 20)
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                            .onSubmit {
+                                onSubmit?()
+                            }
+                    } else {
+                        SecureField("", text: $text)
+                            .focused($isFocused)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding(.top, 20)
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                            .onSubmit {
+                                onSubmit?()
+                            }
                     }
+                    
+                    Button(action: {
+                        withAnimation { isPasswordVisible.toggle() }
+                    }) {
+                        Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.trailing, 8)
+                }
             } else {
                 TextField("", text: $text)
                     .focused($isFocused)
@@ -262,7 +285,6 @@ struct FloatingLabelTextField: View {
         .onTapGesture {
             self.isFocused = true
         }
-       
     }
 }
 

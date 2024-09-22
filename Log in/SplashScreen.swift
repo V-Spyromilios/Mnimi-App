@@ -73,10 +73,10 @@ struct SplashScreen: View {
         .onChange(of: cloudKit.isLoading) { _, isLoading in
             if !isLoading && cloudKit.CKErrorDesc == "" {
                 loadingComplete = true
-            } //TODO: Check if starts the main screen only if the cloudKit is OK
-            else if cloudKit.CKErrorDesc != "" {
-                
             }
+//            else if cloudKit.CKErrorDesc != "" {
+//                
+//            }
         }
     }
     

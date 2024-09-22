@@ -20,7 +20,7 @@ struct VaultView: View {
     @State private var searchText: String = ""
     @State private var selectedInfo : Vector?
     @State private var showEdit: Bool = false
-   
+    
     
     var filteredVectors: [Vector] {
         if searchText.isEmpty {
@@ -34,12 +34,13 @@ struct VaultView: View {
             }
         }
     }
-
+    
     var body: some View {
         GeometryReader { geometry in
             NavigationStack {
-               
+                
                 ScrollView {
+                    
                     LazyVStack {
                         
                         if pineconeManger.accountDeleted {
@@ -54,13 +55,8 @@ struct VaultView: View {
                             }.transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                         else if vectorsAreLoading {
-                            ProgressView()
-                                .font(.title)
-                                .scaleEffect(1.5)
-                                .bold()
-                                .background(Color.clear.ignoresSafeArea())
-                                .foregroundStyle(Color.customLightBlue)//TODO: Replace with Lottie
-                                .padding(.top, 20)
+                            Text("Loading...")
+                                .font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded)
                                 .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                         
@@ -72,13 +68,11 @@ struct VaultView: View {
                                     InfosViewListCellView(data: data)
                                         .padding(.horizontal, Constants.standardCardPadding)
                                         .padding(.vertical)
-                                       
+                                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                                 }
-                            } .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                            .searchable(text: $searchText)
-                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                            }
                         }
-                        //TODO: Empty the Vault to check:
+                        
                         else if  pineconeManger.pineconeFetchedVectors.isEmpty && !vectorsAreLoading  && errorMessage == "" {
                             VStack {
                                 LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
@@ -95,33 +89,43 @@ struct VaultView: View {
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                     }
-                 
-
+                    .searchable(text: $searchText) //Do not move outside of the Scroll. makes top padding when return from EditView
                 }
-                .padding(.top, 12)
+//                .padding(.top, 12)
                 .refreshable {
-                    if pineconeManger.accountDeleted { return }
-                    vectorsAreLoading = true
-                    if errorMessage != "" {
-                        errorMessage = ""
+                    withAnimation {
+                        if pineconeManger.accountDeleted { return }
+                        vectorsAreLoading = true
+                        if errorMessage != "" {
+                            errorMessage = ""
+                        }
                     }
                     Task {
                         do {
                             //                        throw AppNetworkError.invalidOpenAiURL
                             try await pineconeManger.refreshNamespacesIDs()
-                            await MainActor.run { vectorsAreLoading = false }
+                            await MainActor.run {
+                                withAnimation {
+                                    vectorsAreLoading = false }
+                            }
                         }
                         catch let error as AppNetworkError {
                             await MainActor.run {
-                                self.errorMessage = error.errorDescription }
+                                withAnimation {
+                                    self.errorMessage = error.errorDescription }
+                            }
                         }
                         catch let error as AppCKError {
                             await MainActor.run {
-                                self.errorMessage = error.errorDescription }
+                                withAnimation {
+                                    self.errorMessage = error.errorDescription }
+                            }
                         }
                         catch {
                             await MainActor.run {
-                                self.errorMessage = error.localizedDescription }
+                                withAnimation {
+                                    self.errorMessage = error.localizedDescription }
+                            }
                         }
                     }
                 }
@@ -134,18 +138,22 @@ struct VaultView: View {
                 .navigationBarTitleView {
                     HStack {
                         Text("Vault").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                        LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
-                  
-                    //TODO: Check how it looks
+                        
+                        LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55)
+                            .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                            .padding(.top, 7)
+                    }
                     .padding(.bottom)
                 }
-                }
-           
+            }
+            
         }
-
+        
         .onAppear {
             if pineconeManger.pineconeFetchedVectors.isEmpty && !pineconeManger.accountDeleted {
-                self.vectorsAreLoading = true
+                withAnimation {
+                    self.vectorsAreLoading = true
+                }
                 fetchPineconeEntries()
             }
             
@@ -153,7 +161,9 @@ struct VaultView: View {
         .onReceive(pineconeManger.$pineconeFetchedVectors) { vectors in
             
             if vectors.isEmpty {
-                showEmpty = true
+                withAnimation {
+                    showEmpty = true
+                }
             }
         }
         .alert(isPresented: $showNoInternet) {
@@ -165,17 +175,19 @@ struct VaultView: View {
         }
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
-                showNoInternet = true
+                withAnimation {
+                    showNoInternet = true
+                }
             }
         }
         
     }
-
+    
     private func clearSelectedInfo() {
         self.selectedInfo = nil
     }
-
-
+    
+    
     private func fetchPineconeEntries() {
         
         if pineconeManger.accountDeleted { return }
@@ -183,31 +195,40 @@ struct VaultView: View {
         Task {
             do {
                 try await pineconeManger.fetchAllNamespaceIDs()
-                await MainActor.run {  self.vectorsAreLoading = false }
+                await MainActor.run {
+                    withAnimation {
+                        self.vectorsAreLoading = false }
+                }
             }
             catch let error as AppNetworkError {
                 print("APPNetworlError: \(error.errorDescription)")
                 await MainActor.run {
-                    self.vectorsAreLoading = false
-                    self.errorMessage = error.errorDescription }
+                    withAnimation {
+                        self.vectorsAreLoading = false
+                        self.errorMessage = error.errorDescription }
+                }
             }
             catch let error as AppCKError {
                 await MainActor.run {
-                    print("APPCKError: \(error.errorDescription)")
-                    self.vectorsAreLoading = false
-                    self.errorMessage = error.errorDescription }
+                    withAnimation {
+//                        print("APPCKError: \(error.errorDescription)")
+                        self.vectorsAreLoading = false
+                        self.errorMessage = error.errorDescription }
+                }
             }
             catch {
                 await MainActor.run {
-                    print("otehr lError: \(error.localizedDescription)")
-                    self.vectorsAreLoading = false
-                    self.errorMessage = error.localizedDescription }
+                    withAnimation {
+                        //                    print("otehr lError: \(error.localizedDescription)")
+                        self.vectorsAreLoading = false
+                        self.errorMessage = error.localizedDescription }
+                }
             }
         }
     }
-
+    
     private func deleteInfo(at offsets: IndexSet) {
-
+        
         let idsToDelete = offsets.compactMap { offset -> String? in
             return pineconeManger.pineconeFetchedVectors[offset].id
         }
@@ -219,33 +240,43 @@ struct VaultView: View {
                     try await pineconeManger.deleteVectorFromPinecone(id: id)
                     if pineconeManger.vectorDeleted {
                         DispatchQueue.main.async {
-                            pineconeManger.pineconeFetchedVectors.removeAll { $0.id == id }
+                            withAnimation {
+                                pineconeManger.pineconeFetchedVectors.removeAll { $0.id == id }
+                            }
                         }
                     }
                 }
                 catch let error as AppNetworkError {
                     await MainActor.run {
-                        self.errorMessage = error.errorDescription }
+                        withAnimation {
+                            self.errorMessage = error.errorDescription }
+                    }
                 }
                 catch let error as AppCKError {
                     await MainActor.run {
-                        self.errorMessage = error.errorDescription }
+                        withAnimation {
+                            withAnimation {
+                                self.errorMessage = error.errorDescription }
+                        }
+                    }
                 }
                 catch {
                     await MainActor.run {
-                        self.errorMessage = error.localizedDescription }
+                        withAnimation {
+                            self.errorMessage = error.localizedDescription }
+                    }
                 }
             }
         }
     }
-
+    
 }
 
 struct VaultView_Previews: PreviewProvider {
-   
+    
     
     static var previews: some View {
         VaultView()
-     
+        
     }
 }

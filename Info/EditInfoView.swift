@@ -277,8 +277,7 @@ struct EditInfoView: View {
             Button(action:  {
                 
                 if shake { return }
-                
-                //TODO: if no change to the text -> Shake
+
                 if viewModel.description.isEmpty || (oldText == viewModel.description) {
                     withAnimation { shake = true }
                     return
