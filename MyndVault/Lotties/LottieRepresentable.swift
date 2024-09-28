@@ -120,10 +120,20 @@ struct LottieRepresentableNavigation: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-           if isPlaying {
-               context.coordinator.playAnimation()
-           }
-       }
+            guard let animationView = context.coordinator.animationView else { return }
+
+            if isPlaying {
+                if !animationView.isAnimationPlaying {
+                    animationView.play {_ in 
+                        self.isPlaying = false
+                    }
+                }
+            } else {
+                if animationView.isAnimationPlaying {
+                    animationView.stop()
+                }
+            }
+        }
     
     class Coordinator: NSObject {
           var parent: LottieRepresentableNavigation

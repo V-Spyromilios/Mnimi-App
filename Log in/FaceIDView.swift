@@ -27,6 +27,13 @@ struct FaceIDView: View {
     @State private var authAttempts: Int = 0
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
+
+    enum BiometricType {
+        case none
+        case touchID
+        case faceID
+    }
+    @State private var biometricType: BiometricType = .none
     
     var body: some View {
         Group {
@@ -53,13 +60,13 @@ struct FaceIDView: View {
                             .padding(.top)
                             .onAppear(perform: authenticate)
                         
-                        
                         Button {
                             self.authenticate()
                         } label: {
-                            Image(systemName: "faceid").resizable().frame(width: 100, height: 100)
+                            Image(systemName: biometricType == .faceID ? "faceid" : biometricType == .touchID ? "touchid" : "questionmark.circle")
+                                .resizable()
+                                .frame(width: 100, height: 100)
                                 .foregroundStyle(Color.cardBackground).shadow(radius: 4, x: -3, y: -3)
-                            
                         }
                         Spacer()
                     }
@@ -70,6 +77,9 @@ struct FaceIDView: View {
                         .environmentObject(keyboardResponder)
                 }
             }
+        }
+        .onAppear {
+            detectBiometricType()
         }
         .alert(isPresented: $showNoInternet) {
             Alert(
@@ -93,12 +103,26 @@ struct FaceIDView: View {
                 })
             )
         }
-        //        .onChange(of: authAttempts) {
-        //            if authAttempts >= 2 {
-        //                showPasswordAuth = true
-        //            }
-        //        }
     }
+    
+    private func detectBiometricType() {
+         let context = LAContext()
+         var error: NSError?
+
+         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+             switch context.biometryType {
+             case .faceID:
+                 biometricType = .faceID
+             case .touchID:
+                 biometricType = .touchID
+             default:
+                 biometricType = .none
+             }
+         } else {
+             biometricType = .none
+         }
+     }
+
     
     private func authenticate() {
         let context = LAContext()

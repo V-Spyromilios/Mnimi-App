@@ -267,11 +267,20 @@ struct SettingsView: View {
                 
             }
             .alert(isPresented: $showDeleteAll) {
-                Alert(title: Text(deleteAllWarningTitle), message: Text(deleteAllWarningBody), primaryButton: .cancel(Text("Cancel")), secondaryButton: .destructive(Text("Delete all"), action: deleteAll)
+                Alert(title: Text(deleteAllWarningTitle), message: Text(deleteAllWarningBody), primaryButton: .cancel(Text("Cancel"), action: cancelDelete), secondaryButton: .destructive(Text("Delete all"), action: deleteAll)
                 )
             }
         }
         .statusBar(hidden: true)
+    }
+    
+    private func cancelDelete() {
+        if deleteButton == .hidden {
+            withAnimation { deleteButton = .idle }
+        }
+        if showDeleteAll {
+            withAnimation { showDeleteAll = false }
+        }
     }
     
     private func openPrivacyPolicy() {

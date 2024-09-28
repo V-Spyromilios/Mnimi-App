@@ -64,7 +64,7 @@ struct EditInfoView: View {
                             hideKeyboard()
                         } label: {
                             HideKeyboardLabel()
-                        }
+                        }.padding(.top, isIPad() ? 15: 0)
                     }
                     
                     Button(action: {
@@ -74,6 +74,7 @@ struct EditInfoView: View {
                         LottieRepresentable(filename: "deleteBin", loopMode: .playOnce, isPlaying: $DeleteAnimating).foregroundStyle(.customLightBlue)
                             .frame(width: 40, height: 50)
                             .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                            .padding(.top, isIPad() ? 15: 0)
                     }
                 }
             }
@@ -193,7 +194,7 @@ struct EditInfoView: View {
                     HStack {
                         Image(systemName: "chevron.left").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
 //                        LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
-                    }
+                    }.padding(.top, isIPad() ? 15: 0)
                 })
             
     }
@@ -311,12 +312,12 @@ struct EditInfoView: View {
             .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
             
             if inProgress {
-                LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8).frame(width: 220, height: 220).animation(.easeInOut, value: inProgress)
+                LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8).frame(width: isIPad() ? 440: 220, height: isIPad() ? 440: 220).animation(.easeInOut, value: inProgress)
                     .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
             }
             
             else if showSuccess {
-                LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
+                LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: isIPad() ? 440: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
                     .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
             }
             Spacer()

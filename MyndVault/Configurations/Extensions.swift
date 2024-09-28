@@ -108,14 +108,31 @@ final class KeyboardResponder: ObservableObject {
     @Published var currentHeight: CGFloat = 0
     private var keyboardVisible = false
     
+    private var cancellables = Set<AnyCancellable>()
+
     init() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
+           NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+               .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue }
+               .map { $0.cgRectValue.height }
+               .receive(on: RunLoop.main)
+               .sink { [weak self] height in
+                   self?.currentHeight = height
+                   self?.keyboardVisible = true
+               }
+               .store(in: &cancellables)
+
+           NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+               .receive(on: RunLoop.main)
+               .sink { [weak self] _ in
+                   self?.currentHeight = 0
+                   self?.keyboardVisible = false
+               }
+               .store(in: &cancellables)
+       }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
+//    deinit {
+//        NotificationCenter.default.removeObserver(self)
+//    } NO need Combine handles observer
     
     @objc func keyboardWillShow(notification: Notification) {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
@@ -326,6 +343,20 @@ struct FloatingLabelTextField: View {
 //            }
 //        }.frame(maxHeight: 500)
 //    }
+
+extension View {
+    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
+
+func isIPad() -> Bool {
+       return UIDevice.current.userInterfaceIdiom == .pad
+   }
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()

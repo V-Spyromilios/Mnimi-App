@@ -43,16 +43,20 @@ struct FullScreenImage: View {
                             RoundedRectangle(cornerRadius: Constants.rectCornerRad)
                                 .fill(Color.customLightBlue)
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                .frame(width: 220, height: 30)
+                                .frame(height: 40)
                             
                             HStack {
                                 Spacer()
 
-                                Image(systemName: "hand.tap.fill").bold()
-                                Text("Tap image to dismiss").bold()
+                                Image(systemName: "hand.tap.fill").bold().padding(.leading)
+                                Text("Tap image to dismiss").bold().padding(.trailing)
                                 
                                 Spacer()
-                            }.font(.footnote).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, Constants.standardCardPadding).foregroundStyle(.gray)
+                            }.font(isIPad() ? .title2 : .footnote)
+//                                .padding(.top, 22)
+//                                .padding(.bottom, 8)
+                                .padding(.horizontal, Constants.standardCardPadding)
+                                .foregroundStyle(.gray)
 //                                .shadow(radius: 2)
                             
                                 .onAppear {

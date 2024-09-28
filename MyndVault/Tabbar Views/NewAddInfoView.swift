@@ -60,7 +60,9 @@ struct NewAddInfoView: View {
                                 .font(.title2)
                                 .multilineTextAlignment(.leading)
                                 .frame(height: Constants.textEditorHeight)
-                                .frame(maxWidth: idealWidth(for: geometry.size.width))
+                                .if(UIDevice.current.userInterfaceIdiom != .pad) { view in
+                                        view.frame(maxWidth: idealWidth(for: geometry.size.width))
+                                    }
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                 .overlay(
@@ -75,20 +77,36 @@ struct NewAddInfoView: View {
                         Button(action: {
                             photoPicker.presentPicker()
                         }) {
-                            HStack {
-                                Image(systemName: photoPicker.selectedImage == nil ? "photo.badge.plus.fill" : "photo.fill")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 35, height: 30)
-                                    .foregroundStyle(Color.customTiel)
-                                Text(photoPicker.selectedImage == nil ? "Add photo" : "Change photo")
-                                Spacer()
+                            VStack(alignment: .center) {
+                                if isIPad() {
+                                    // iPad layout with larger size and rectangular shape
+                                    Image(systemName: photoPicker.selectedImage == nil ? "photo.badge.plus.fill" : "photo.fill")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 50, height: 80) // Height greater than width
+                                        .foregroundColor(.white)
+                                        .background(Color.black)
+                                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                                } else {
+                                    // iPhone layout with only the symbol and equal width/height
+                                    Image(systemName: photoPicker.selectedImage == nil ? "photo.badge.plus.fill" : "photo.fill")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 50, height: 50) // Equal width and height
+                                        .foregroundColor(.white)
+                                        .background(Color.black)
+                                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                                }
+                                
+//                                Spacer()
+
+                                // If image is selected, show it with remove button (xmark.circle.fill)
                                 if let image = photoPicker.selectedImage {
                                     ZStack(alignment: .topTrailing) {
                                         Image(uiImage: image)
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(height: 160)
+                                            .frame(height: isIPad() ? 220: 160)
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
                                             .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                             .overlay(alignment: .center) {
@@ -97,25 +115,31 @@ struct NewAddInfoView: View {
                                                     .opacity(colorScheme == .light ? 0.3 : 0.7)
                                                     .foregroundColor(Color.gray)
                                             }
+
+                                        // Remove image button
                                         Button(action: {
                                             withAnimation {
                                                 photoPicker.selectedImage = nil
                                             }
                                         }) {
                                             Image(systemName: "xmark.circle.fill")
-                                                .foregroundColor(Color.white)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .foregroundColor(.white)
                                                 .background(Color.black.opacity(0.6))
                                                 .clipShape(Circle())
+                                                .frame(width: isIPad() ? 30 : 20, height: isIPad() ? 30 : 20)  // Different sizes for iPad/iPhone
                                         }
-                                        .offset(x: 5, y: -5)
+                                        .offset(x: isIPad() ? 10 : 5, y: isIPad() ? -10 : -5)  // Adjusted position for iPad/iPhone
                                     }
                                 }
                             }
-                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
+                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                        
                         .buttonStyle(PlainButtonStyle())
                         .padding()
-                        .frame(maxWidth: idealWidth(for: geometry.size.width))
+//                        .frame(maxWidth: isIPad() ? 400 : idealWidth(for: geometry.size.width))
                         .background(colorScheme == .light ? Color.cardBackground : Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
@@ -143,6 +167,7 @@ struct NewAddInfoView: View {
                                    Image(systemName: "gear")
                                         .frame(width: 45, height: 45)
                                         .padding(.bottom, 5)
+                                        .padding(.top, isIPad() ? 15: 0)
                                         .opacity(0.8)
                                     .accessibilityLabel("Settings") }
                             }
@@ -183,14 +208,14 @@ struct NewAddInfoView: View {
                         CircularProgressView(progressTracker: progressTracker).padding()
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         LottieRepresentable(filename: "Brain Configurations", loopMode: .playOnce, speed: 0.4)
-                            .frame(width: 220, height: 220)
+                            .frame(width: isIPad() ? 440: 220, height: isIPad() ? 440: 220)
                             //.id(UUID())
                             .animation(.easeInOut, value: apiCallInProgress)
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                     }
                     else if pineconeManager.upsertSuccesful && showSuccess {
                         
-                        LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
+                        LottieRepresentable(filename: "Approved", loopMode: .playOnce).frame(height: isIPad() ? 440: 130).padding(.top, 15).id(UUID()).animation(.easeInOut, value: showSuccess)
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             .onAppear {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
@@ -220,7 +245,8 @@ struct NewAddInfoView: View {
                         .navigationBarTitleView {
                             HStack {
                                 Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                                LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
+                                LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                            }.padding(.top, isIPad() ? 15: 0)
                         }
                 }
                 
@@ -315,9 +341,9 @@ struct NewAddInfoView: View {
                     await openAiManager.clearManager()
                     await pineconeManager.clearManager()
                 }
-                if  photoPicker.selectedImage != nil {
-                    photoPicker.selectedImage = nil
-                }
+//                if  photoPicker.selectedImage != nil {
+//                    photoPicker.selectedImage = nil
+//                }
                 self.apiCallInProgress = false
                 self.saveButtonIsVisible = true
             }
@@ -347,8 +373,8 @@ struct NewAddInfoView: View {
             
             do {
                 //MARK: TEST THROW
-                //            let miaMalakia = AppCKError.UnableToGetNameSpace
-                //            throw miaMalakia
+//                let miaMalakia = AppCKError.UnableToGetNameSpace
+//                throw miaMalakia
                 
                 try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
                 
@@ -368,10 +394,14 @@ struct NewAddInfoView: View {
                         showSuccess.toggle()
                     }
                     await MainActor.run {
-                        apiCallInProgress = false
-                        saveButtonIsVisible = true
-                        newInfo = ""
-                        isLoading = false
+                        withAnimation {
+                            apiCallInProgress = false
+                            saveButtonIsVisible = true
+                            newInfo = ""
+                            
+                            photoPicker.selectedImage = nil
+                            isLoading = false
+                        }
                     }
                 }
             }

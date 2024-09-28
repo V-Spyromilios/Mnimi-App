@@ -85,12 +85,12 @@ struct QuestionView: View {
                                 .padding(.bottom)
                                 .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
-                        else if !goButtonIsVisible && progressTracker.progress < 0.99 && thrownError == "" && pineconeManager.receivedError == nil {
+                        else if !goButtonIsVisible && progressTracker.progress < 0.99 && progressTracker.progress > 0.1 && thrownError == "" && pineconeManager.receivedError == nil {
                             CircularProgressView(progressTracker: progressTracker).padding()
                                 .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             
                             LottieRepresentable(filename: "Ai Cloud",loopMode: .loop, speed: 0.8)
-                                .frame(height: 300)
+                                .frame(height: isIPad() ? 440: 300)
                                 .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                     }
@@ -135,7 +135,7 @@ struct QuestionView: View {
                                         Image(uiImage: fetchedImages[index])
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(height: 160)
+                                            .frame(height: isIPad() ? 440: 160)
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
                                             .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                             
@@ -165,6 +165,7 @@ struct QuestionView: View {
                             } label: {
                                 HideKeyboardLabel()
                             }
+                            .padding(.top, isIPad() ? 15: 0)
                         }
                         
                         Button {
@@ -173,6 +174,7 @@ struct QuestionView: View {
                             Image(systemName: "gear") //gearshape.2
                                 .frame(width: 45, height: 45)
                                 .padding(.bottom, 5)
+                                .padding(.top, isIPad() ? 15: 0)
                                 .opacity(0.8)
                                     .accessibilityLabel("settings") 
                         }
@@ -229,7 +231,8 @@ struct QuestionView: View {
             .navigationBarTitleView {
                 HStack {
                     Text("Ask me").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                    LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0) }
+                    LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                }.padding(.top, isIPad() ? 15: 0)
             }
         }
         .fullScreenCover(isPresented: $showSettings) {
