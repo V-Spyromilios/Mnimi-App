@@ -626,15 +626,22 @@ final class CloudKitViewModel: ObservableObject {
             self.recordIDDelete = tempRecordID
         }
 
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(handleAccountChange), name: .CKAccountChanged, object: nil)
+        NotificationCenter.default.publisher(for: .CKAccountChanged)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
                 Task {
-                    do {
-                        try await getiCloudStatus()
-                    } catch {
-                        await handleCKError(error)
-                    }
+                    try? await self.getiCloudStatus()
                 }
+            }
+            .store(in: &cancellables)
+        
+        Task {
+            do {
+                try await getiCloudStatus()
+            } catch {
+                await handleCKError(error)
+            }
+        }
     }
     
     deinit {
@@ -642,6 +649,8 @@ final class CloudKitViewModel: ObservableObject {
     }
     
     private static func checkIfFirstLaunch() -> Bool {
+        UserDefaults.standard.synchronize()
+        
            if userDefaultsKeyExists("isFirstLaunch") {
                return UserDefaults.standard.bool(forKey: "isFirstLaunch")
            } else {

@@ -19,6 +19,7 @@
 		E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E813C76C2BECF51900E3088D /* CountdownTimer.swift */; };
 		E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */ = {isa = PBXBuildFile; fileRef = E814B82A2C433CA6004BC4F4 /* Approved.json */; };
 		E814B82D2C4340D9004BC4F4 /* alertWarning.json in Resources */ = {isa = PBXBuildFile; fileRef = E814B82C2C4340D9004BC4F4 /* alertWarning.json */; };
+		E816E7B52CA4002A0045CEE1 /* LoadingDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E816E7B42CA4002A0045CEE1 /* LoadingDotsView.swift */; };
 		E817A4272C54F7E300A0172A /* ApiCallsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E817A4262C54F7E300A0172A /* ApiCallsView.swift */; };
 		E817A4292C54F8DB00A0172A /* ApiCallViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E817A4282C54F8DB00A0172A /* ApiCallViewModel.swift */; };
 		E817A42B2C5524E700A0172A /* takingNotes.json in Resources */ = {isa = PBXBuildFile; fileRef = E817A42A2C5524E700A0172A /* takingNotes.json */; };
@@ -96,7 +97,6 @@
 		E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */; };
 		E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */; };
 		E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */; };
-		E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */; };
 		E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */; };
 		E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* VaultView.swift */; };
 		E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */; };
@@ -131,6 +131,7 @@
 		E813C76C2BECF51900E3088D /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
 		E814B82A2C433CA6004BC4F4 /* Approved.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Approved.json; sourceTree = "<group>"; };
 		E814B82C2C4340D9004BC4F4 /* alertWarning.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = alertWarning.json; sourceTree = "<group>"; };
+		E816E7B42CA4002A0045CEE1 /* LoadingDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingDotsView.swift; sourceTree = "<group>"; };
 		E817A4262C54F7E300A0172A /* ApiCallsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallsView.swift; sourceTree = "<group>"; };
 		E817A4282C54F8DB00A0172A /* ApiCallViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallViewModel.swift; sourceTree = "<group>"; };
 		E817A42A2C5524E700A0172A /* takingNotes.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = takingNotes.json; sourceTree = "<group>"; };
@@ -210,7 +211,6 @@
 		E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionView.swift; sourceTree = "<group>"; };
 		E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAddInfoView.swift; sourceTree = "<group>"; };
 		E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManager.swift; sourceTree = "<group>"; };
-		E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeveloperView.swift; sourceTree = "<group>"; };
 		E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditInfoView.swift; sourceTree = "<group>"; };
 		E8FA7F012BC5BC320012EBF6 /* VaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
@@ -312,6 +312,7 @@
 				E878744A2C70D0DC001299D9 /* MyndVault.storekit */,
 				E83D83FB2C5903DD002BBDE7 /* Localizable.xcstrings */,
 				E8459B2A2C45AC020039BFA7 /* ErrorView.swift */,
+				E816E7B42CA4002A0045CEE1 /* LoadingDotsView.swift */,
 				E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */,
 				E8CFEAF72C395876005A2630 /* VisualEffect.swift */,
 				E85055042C428BB900FBACC4 /* SwiftLogoView.swift */,
@@ -439,7 +440,6 @@
 		E8FA7F082BC5BC320012EBF6 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				E8FA7EFE2BC5BC320012EBF6 /* DeveloperView.swift */,
 				E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */,
 				E82F45892BC2A85D00945312 /* CustomTapBarView.swift */,
 				E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */,
@@ -509,6 +509,7 @@
 				ko,
 				"pt-PT",
 				ja,
+				he,
 			);
 			mainGroup = E8459EBB2BC1E3BE00CE34A7;
 			packageReferences = (
@@ -623,7 +624,6 @@
 				E817A4292C54F8DB00A0172A /* ApiCallViewModel.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
 				E8002B512C4C442400FD814D /* Test.swift in Sources */,
-				E8FA7F092BC5BC320012EBF6 /* DeveloperView.swift in Sources */,
 				E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */,
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,
 				E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */,
@@ -648,6 +648,7 @@
 				E8CFEAFA2C3D5064005A2630 /*  openSettingsView.swift in Sources */,
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
 				E840D1B02C427C9E000DB7AD /* LottieRepresentable.swift in Sources */,
+				E816E7B52CA4002A0045CEE1 /* LoadingDotsView.swift in Sources */,
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,

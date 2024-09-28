@@ -16,9 +16,8 @@ import SwiftUI
 final class PineconeManager: ObservableObject {
   
 
-    var CKviewModel: CloudKitViewModel
-    @Published var indexesList: String?
-    @Published var indexDetails: String?
+    weak var CKviewModel: CloudKitViewModel?
+
     @Published var receivedError: Error?
     @Published var indexInfo: String?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
@@ -49,10 +48,10 @@ final class PineconeManager: ObservableObject {
     }
     
     func clearManager() async {
-        await MainActor.run {
-            receivedError = nil
-            pineconeQueryResponse = nil
-            upsertSuccesful = false
+        await MainActor.run { [weak self] in
+            self?.receivedError = nil
+            self?.pineconeQueryResponse = nil
+            self?.upsertSuccesful = false
         }
     }
     
@@ -71,7 +70,7 @@ final class PineconeManager: ObservableObject {
     }
     
     func fetchAllNamespaceIDs() async throws {
-        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
 
@@ -95,11 +94,11 @@ final class PineconeManager: ObservableObject {
                 let (data, _) = try await URLSession.shared.data(for: request)
                 let decodedResponse = try JSONDecoder().decode(PineconeIDResponse.self, from: data)
 
-                await MainActor.run {
-                    self.pineconeIDResponse = decodedResponse
+                await MainActor.run { [weak self] in
+                    self?.pineconeIDResponse = decodedResponse
 
-                    if let idResponse = self.pineconeIDResponse {
-                        self.pineconeIDs.append(contentsOf: idResponse.vectors.map { $0.id })
+                    if let idResponse = self?.pineconeIDResponse {
+                        self?.pineconeIDs.append(contentsOf: idResponse.vectors.map { $0.id })
                     }
                 }
 
@@ -132,7 +131,7 @@ final class PineconeManager: ObservableObject {
 
     //MARK: New for proper sorting
     private func fetchDataForIds() async throws {
-        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
 
@@ -175,9 +174,9 @@ final class PineconeManager: ObservableObject {
                     return lhsDate > rhsDate
                 }
 
-                await MainActor.run {
-                    self.pineconeFetchedVectors = sortedVectors
-                    isDataSorted = true
+                await MainActor.run { [weak self] in
+                    self?.pineconeFetchedVectors = sortedVectors
+                    self?.isDataSorted = true
                 }
 
                 let readUnits = self.pineconeFetchedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
@@ -205,7 +204,7 @@ final class PineconeManager: ObservableObject {
             let namespace: String
         }
         
-        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
         
@@ -258,7 +257,7 @@ final class PineconeManager: ObservableObject {
     //MARK: Delete Account
     func deleteAllVectorsInNamespace() async throws {
         
-        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
         
@@ -293,11 +292,11 @@ final class PineconeManager: ObservableObject {
                     throw AppNetworkError.unknownError("Unable to delete Vectors (bad Response).")
                 }
                 updateTokenUsage(api: APIs.pinecone, tokensUsed: 10, read: false)
-                await MainActor.run {
-                    self.pineconeFetchedVectors = []
-                    self.pineconeIDs = []
-                    self.accountDeleted = true
-                    self.refreshAfterEditing = true
+                await MainActor.run { [weak self] in
+                    self?.pineconeFetchedVectors = []
+                    self?.pineconeIDs = []
+                    self?.accountDeleted = true
+                    self?.refreshAfterEditing = true
                 }
                 break
                 
@@ -328,7 +327,7 @@ final class PineconeManager: ObservableObject {
             throw AppNetworkError.apiKeyNotFound
         }
         
-        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
 
@@ -363,8 +362,8 @@ final class PineconeManager: ObservableObject {
         while attempts < maxAttempts {
             do {
                 let _ = try await performHTTPRequest(request: request)
-                await MainActor.run {
-                    self.upsertSuccesful = true
+                await MainActor.run { [weak self] in
+                    self?.upsertSuccesful = true
                     ProgressTracker.shared.setProgress(to: 0.98)
                     ProgressTracker.shared.setProgress(to: 0.99)
                 }
@@ -428,8 +427,8 @@ final class PineconeManager: ObservableObject {
                         try await self.performQueryPinecone(vector: vector, topK: topK, includeValues: includeValues)
                         return .success(())
                     } catch {
-                        await MainActor.run {
-                            self.receivedError = error
+                        await MainActor.run { [weak self] in
+                            self?.receivedError = error
                         }
 //                        print("Error querying Pinecone: \(error)")
                         return .failure(error)
@@ -476,7 +475,7 @@ final class PineconeManager: ObservableObject {
         request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        guard let namespace = CKviewModel.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
         
@@ -508,9 +507,9 @@ final class PineconeManager: ObservableObject {
         let decoder = JSONDecoder()
         let pineconeResponse = try decoder.decode(PineconeQueryResponse.self, from: data)
 
-        await MainActor.run {
+        await MainActor.run { [weak self] in
             ProgressTracker.shared.setProgress(to: 0.55)
-            self.pineconeQueryResponse = pineconeResponse
+            self?.pineconeQueryResponse = pineconeResponse
         }
 
 //        for _ in pineconeResponse.matches {

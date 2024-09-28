@@ -55,8 +55,10 @@ struct VaultView: View {
                             }.transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                         else if vectorsAreLoading {
-                            Text("Loading...")
-                                .font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded)
+                           LoadingDotsView()
+                                .if(isIPad()) { view in //TODO: Check if padding is needed for iphones
+                                    view.padding(.top, 40)
+                                }
                                 .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                         
@@ -143,6 +145,7 @@ struct VaultView: View {
                             .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
                             .padding(.top, 7)
                     }
+                    .padding(.top, isIPad() ? 15: 0)
                     .padding(.bottom)
                 }
             }

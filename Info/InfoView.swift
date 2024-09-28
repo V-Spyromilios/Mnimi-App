@@ -58,6 +58,10 @@ struct InfoView: View {
             Button(action:  {
 
                 if shake { return }
+                if inProgress || showSuccess {
+                    withAnimation { shake = true }
+                    return
+                }
 
                 if viewModel.description.isEmpty || (oldText == viewModel.description) {
                     withAnimation { shake = true }
@@ -102,26 +106,26 @@ struct InfoView: View {
         }
         .padding(.horizontal, Constants.standardCardPadding)
         .background { Color.red.ignoresSafeArea() }
-        .toolbar {
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    if keyboardResponder.currentHeight > 0 {
-                        Button {
-                            hideKeyboard()
-                        } label: {
-                            HideKeyboardLabel()
-                        }
-                    }
-                    
-                    Button(action: {
-                        DeleteAnimating = true
-                        self.viewModel.activeAlert = .deleteWarning
-                    }) {
-                        LottieRepresentable(filename: "Vertical Dot Menu", loopMode: .playOnce, isPlaying: $DeleteAnimating)
-                            .frame(width: 55, height: 55)
-                            .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
-                    }
-                }
-            }
+//        .toolbar {
+//                ToolbarItemGroup(placement: .navigationBarTrailing) {
+//                    if keyboardResponder.currentHeight > 0 {
+//                        Button {
+//                            hideKeyboard()
+//                        } label: {
+//                            HideKeyboardLabel()
+//                        }
+//                    }
+//
+////                    Button(action: {
+////                        DeleteAnimating = true
+////                        self.viewModel.activeAlert = .deleteWarning
+////                    }) {
+////                        LottieRepresentable(filename: "", loopMode: .playOnce, isPlaying: $DeleteAnimating)
+////                            .frame(width: 55, height: 55)
+////                            .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+////                    }
+//                }
+//            }
         .onChange(of: shake) { _, newValue in
             if newValue {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

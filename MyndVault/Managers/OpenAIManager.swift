@@ -11,7 +11,7 @@ import SwiftUI
 
 final class OpenAIManager: ObservableObject {
     
-    @Published var whisperResponse: String?
+   
     @Published var gptResponse: ChatCompletionResponse?
     @Published var gptMetadataResponse: MetadataResponse? // Contains Type and description to be sent for upserting
     
@@ -29,16 +29,16 @@ final class OpenAIManager: ObservableObject {
     @Published var gptResponseForAudioGeneration: String?
     
     @Published var notificationsSummary = ""
-    private var lastGptAudioResponse: URL?
-    private var tokensRequired:Int = 0
+
+    private lazy var tokensRequired:Int = 0
     var cancellables = Set<AnyCancellable>()
     
     
     
     //MARK: clearManager
+    @MainActor
     func clearManager() async {
-        await MainActor.run {
-            whisperResponse = nil
+
             gptResponse = nil
             gptMetadataResponse = nil
             
@@ -52,7 +52,7 @@ final class OpenAIManager: ObservableObject {
             embeddingsCompleted = false
             gptResponseForAudioGeneration = nil
             stringResponseOnQuestion = ""
-        }
+       
         //        print("clearManager() called.")
     }
     
@@ -83,21 +83,21 @@ final class OpenAIManager: ObservableObject {
         }
         
         if success, let response = localResponse {
-            await MainActor.run {
+            await MainActor.run { [weak self] in
                 for embedding in response.data {
                     if isQuestion {
-                        self.embeddingsFromQuestion.append(contentsOf: embedding.embedding)
+                        self?.embeddingsFromQuestion.append(contentsOf: embedding.embedding)
                     } else {
-                        self.embeddings.append(contentsOf: embedding.embedding)
+                        self?.embeddings.append(contentsOf: embedding.embedding)
                     }
                 }
                 
                 if isQuestion {
-                    self.questionEmbeddingsCompleted = true
+                    self?.questionEmbeddingsCompleted = true
                 } else {
-                    self.embeddingsCompleted = true
+                    self?.embeddingsCompleted = true
                 }
-                self.tokensRequired = response.usage.totalTokens
+                self?.tokensRequired = response.usage.totalTokens
             }
         } else if localError != nil {
             if let localError = localError {
@@ -192,8 +192,7 @@ final class OpenAIManager: ObservableObject {
             throw AppNetworkError.invalidResponse
         }
         ProgressTracker.shared.setProgress(to: 0.2)
-        await MainActor.run {
-        }
+        
         let decoder = JSONDecoder()
         return try decoder.decode(EmbeddingsResponse.self, from: data)
     }
@@ -209,10 +208,10 @@ final class OpenAIManager: ObservableObject {
         }
         ProgressTracker.shared.setProgress(to: 0.75)
         let gptResponse = try await getGptResponse(apiKey: apiKey, vectorResponses: queryMatches, question: question)
-        await MainActor.run {
+        await MainActor.run { [weak self] in
             ProgressTracker.shared.setProgress(to: 0.88)
             ProgressTracker.shared.setProgress(to: 0.99)
-            self.stringResponseOnQuestion = gptResponse
+            self?.stringResponseOnQuestion = gptResponse
         }
         
     }
