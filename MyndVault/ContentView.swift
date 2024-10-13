@@ -63,7 +63,9 @@ struct ContentView: View {
             
         }
         .onAppear {
-            speechManager.requestSpeechAuthorization()
+            Task {
+                await speechManager.requestSpeechAuthorization()
+            }
             checkIfNewSubscriber()
         }
         

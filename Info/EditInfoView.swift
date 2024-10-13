@@ -130,7 +130,7 @@ struct EditInfoView: View {
                                 try await cloudKit.deleteImageItem(uniqueID: idToDelete)
                                 if pineconeManager.vectorDeleted {
                                     apiCalls.incrementApiCallCount()
-                                    pineconeManager.deleteVector(withId: idToDelete)
+                                    await pineconeManager.deleteVector(withId: idToDelete)
                                     
                                     try await pineconeManager.fetchAllNamespaceIDs()
                                     apiCalls.incrementApiCallCount()
@@ -216,6 +216,7 @@ struct EditInfoView: View {
             if pineconeManager.upsertSuccesful {
                 await MainActor.run {
                     pineconeManager.isDataSorted = false
+                    
                     pineconeManager.refreshAfterEditing = true
                 }
             }

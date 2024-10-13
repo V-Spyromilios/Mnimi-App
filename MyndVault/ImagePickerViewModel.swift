@@ -8,8 +8,9 @@
 import SwiftUI
 import PhotosUI
 
+@MainActor
 final class ImagePickerViewModel: ObservableObject {
-    @Published var selectedImage: UIImage?
+    @Published var selectedImage: UIImage? = nil
     @Published var isPickerPresented = false
 
     func presentPicker() {
@@ -19,7 +20,7 @@ final class ImagePickerViewModel: ObservableObject {
     func handlePickedImage(result: PHPickerResult) {
         result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (object, error) in
             if let image = object as? UIImage {
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self?.selectedImage = image
                 }
             }

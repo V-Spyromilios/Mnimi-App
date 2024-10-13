@@ -6,14 +6,16 @@
 //
 
 import SwiftUI
+import Combine
 
 struct TypingTextView: View {
-
     @State private var displayedText: String = ""
     @State private var hasTyped: Bool = false
     let fullText: String
-    var typingSpeed: Double =  0.01
+    var typingSpeed: Double = 0.01
     var isTitle: Bool = false
+
+    @State private var timerCancellable: AnyCancellable?
 
     var body: some View {
         HStack {
@@ -25,27 +27,28 @@ struct TypingTextView: View {
                 .padding(.horizontal)
                 .onAppear {
                     if !hasTyped {
-                        typeText() }
+                        startTyping()
+                    }
                 }
             Spacer()
         }.frame(maxWidth: .infinity)
     }
 
-    private func typeText() {
-
-        displayedText = ""
+    private func startTyping() {
         let characters = Array(fullText)
         var currentIndex = 0
-        
-        Timer.scheduledTimer(withTimeInterval: typingSpeed, repeats: true) { timer in
-            if currentIndex < characters.count {
-                displayedText.append(characters[currentIndex])
-                currentIndex += 1
-            } else {
-                timer.invalidate()
-                hasTyped = true
+
+        timerCancellable = Timer.publish(every: typingSpeed, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                if currentIndex < characters.count {
+                    displayedText.append(characters[currentIndex])
+                    currentIndex += 1
+                } else {
+                    timerCancellable?.cancel()  // Safely cancels the Combine publisher
+                    hasTyped = true
+                }
             }
-        }
     }
 }
 
