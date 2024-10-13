@@ -9,32 +9,33 @@ import Foundation
 import Combine
 import SwiftUI
 
-final class OpenAIManager: ObservableObject {
-    
-   
-    @Published var gptResponse: ChatCompletionResponse?
-    @Published var gptMetadataResponse: MetadataResponse? // Contains Type and description to be sent for upserting
-    
-    @Published var gptResponseOnQuestion: ChatCompletionResponse?
-    @Published var gptMetadataResponseOnQuestion: MetadataResponse?
-    
-    @Published var stringResponseOnQuestion: String = ""
-    private var languageSettings = LanguageSettings.shared
-    
-    @Published var embeddings: [Float] = []
-    @Published var embeddingsFromQuestion: [Float] = []
-    
-    @Published var questionEmbeddingsCompleted: Bool = false
-    @Published var embeddingsCompleted: Bool = false
-    @Published var gptResponseForAudioGeneration: String?
-    
-    @Published var notificationsSummary = ""
+final class OpenAIManager: ObservableObject,  @unchecked Sendable {
+
+    @MainActor @Published var gptResponse: ChatCompletionResponse? = nil
+    @MainActor @Published var gptMetadataResponse: MetadataResponse? = nil // Contains Type and description to be sent for upserting
+
+    @MainActor @Published var gptResponseOnQuestion: ChatCompletionResponse? = nil
+    @MainActor @Published var gptMetadataResponseOnQuestion: MetadataResponse? = nil
+
+    @MainActor @Published var stringResponseOnQuestion: String = ""
+    @MainActor private var languageSettings = LanguageSettings.shared
+
+    @MainActor @Published var embeddings: [Float] = []
+    @MainActor @Published var embeddingsFromQuestion: [Float] = []
+
+    @MainActor @Published var questionEmbeddingsCompleted: Bool = false
+    @MainActor @Published var embeddingsCompleted: Bool = false
+    @MainActor @Published var gptResponseForAudioGeneration: String? = nil
 
     private lazy var tokensRequired:Int = 0
     var cancellables = Set<AnyCancellable>()
-    
-    
-    
+
+    @MainActor
+    init() {
+
+    }
+
+
     //MARK: clearManager
     @MainActor
     func clearManager() async {
@@ -52,23 +53,24 @@ final class OpenAIManager: ObservableObject {
             embeddingsCompleted = false
             gptResponseForAudioGeneration = nil
             stringResponseOnQuestion = ""
-       
-        //        print("clearManager() called.")
     }
     
     
     //MARK: requestEmbeddings USED in QuestionView
     // call with MetadataResponse.description
-    
+
+    @MainActor
     func requestEmbeddings(for text: String, isQuestion: Bool) async throws {
         ProgressTracker.shared.setProgress(to: 0.12)
-        
+
         let maxAttempts = 3
         var attempts = 0
         var success = false
         var localResponse: EmbeddingsResponse?
         var localError: Error?
-        
+        var localTokensRequired: Int = 0
+
+        // All self accesses are now inside MainActor.run
         while attempts < maxAttempts && !success {
             do {
                 localResponse = try await fetchEmbeddings(for: text)
@@ -81,89 +83,49 @@ final class OpenAIManager: ObservableObject {
                 }
             }
         }
-        
+
         if success, let response = localResponse {
             await MainActor.run { [weak self] in
+                guard let self = self else { return }
+
                 for embedding in response.data {
                     if isQuestion {
-                        self?.embeddingsFromQuestion.append(contentsOf: embedding.embedding)
+                        self.embeddingsFromQuestion.append(contentsOf: embedding.embedding)
                     } else {
-                        self?.embeddings.append(contentsOf: embedding.embedding)
+                        self.embeddings.append(contentsOf: embedding.embedding)
                     }
                 }
-                
+
                 if isQuestion {
-                    self?.questionEmbeddingsCompleted = true
+                    self.questionEmbeddingsCompleted = true
                 } else {
-                    self?.embeddingsCompleted = true
+                    self.embeddingsCompleted = true
                 }
-                self?.tokensRequired = response.usage.totalTokens
+                
+                self.tokensRequired = response.usage.totalTokens
+                localTokensRequired = self.tokensRequired // Capture for later use
             }
-        } else if localError != nil {
-            if let localError = localError {
-                throw localError
-            }
-            //            await MainActor.run {
-            //                self.thrownError = AppNetworkError.unknownError("Error 2.12").errorDescription
-            //            }
+        } else if let localError = localError {
+            throw localError
         }
-        
+
         if isQuestion {
-            ProgressTracker.shared.setProgress(to: 0.25)
+            await ProgressTracker.shared.setProgress(to: 0.25)
         } else {
-            ProgressTracker.shared.setProgress(to: 0.6)
+            await ProgressTracker.shared.setProgress(to: 0.6)
         }
-        updateTokenUsage(api: APIs.openAI, tokensUsed: tokensRequired, read: false)
+
+        // Using the locally stored tokensRequired outside of MainActor.run
+        updateTokenUsage(api: APIs.openAI, tokensUsed: localTokensRequired, read: false)
     }
-    
-    
-    //    func requestEmbeddings(for text: String, isQuestion: Bool) async {
-    ////        print("request Embeddings called..")
-    //        ProgressTracker.shared.setProgress(to: 0.12)
-    //        do {
-    //            let response = try await fetchEmbeddings(for: text)
-    ////            print("Embeddings Fetch completed successfully.")
-    //
-    //            await MainActor.run { [weak self] in
-    //                guard let self = self else { return }
-    //
-    //                for embedding in response.data {
-    //                    if isQuestion {
-    //                        self.embeddingsFromQuestion.append(contentsOf: embedding.embedding)
-    //                    } else {
-    //                        self.embeddings.append(contentsOf: embedding.embedding)
-    //                    }
-    //                }
-    //
-    //                if isQuestion {
-    //                    self.questionEmbeddingsCompleted = true
-    ////                    print("$questionEmbeddingsCompleted = true and Embeddings: OK")
-    //                } else {
-    //                    self.embeddingsCompleted = true
-    //                }
-    //                self.tokensRequired = response.usage.totalTokens
-    //            }
-    //        } catch {
-    //            await MainActor.run {
-    //                self.thrownError = error.localizedDescription
-    //            }
-    ////            print("Error fetching embeddings: \(error)")
-    //        }
-    //        if isQuestion {
-    //            ProgressTracker.shared.setProgress(to: 0.25)
-    //        } else {
-    //            ProgressTracker.shared.setProgress(to: 0.6)
-    //        }
-    //        updateTokenUsage(api: APIs.openAI, tokensUsed: tokensRequired, read: false)
-    //    }
-    
+
     
     // https://api.openai.com/v1/embeddings POST
     //model: text-embedding-3-large
     // inputText: description of the gpt-4 response.
     //MARK: private fetchEmbeddings USED in QuestionView and AddNew
     private func fetchEmbeddings(for inputText: String) async throws -> EmbeddingsResponse {
-        ProgressTracker.shared.setProgress(to: 0.15)
+        await ProgressTracker.shared.setProgress(to: 0.15)
         guard let url = URL(string: "https://api.openai.com/v1/embeddings"),
               let apiKey = ApiConfiguration.openAIKey else {
             throw AppNetworkError.invalidOpenAiURL
@@ -191,7 +153,7 @@ final class OpenAIManager: ObservableObject {
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw AppNetworkError.invalidResponse
         }
-        ProgressTracker.shared.setProgress(to: 0.2)
+        await ProgressTracker.shared.setProgress(to: 0.2)
         
         let decoder = JSONDecoder()
         return try decoder.decode(EmbeddingsResponse.self, from: data)
@@ -202,11 +164,11 @@ final class OpenAIManager: ObservableObject {
     //MARK: USED in QuestionView
     func getGptResponse(queryMatches: [String], question: String) async throws {
         
-        ProgressTracker.shared.setProgress(to: 0.7)
+        await ProgressTracker.shared.setProgress(to: 0.7)
         guard let apiKey = ApiConfiguration.openAIKey else {
             throw AppNetworkError.apiKeyNotFound
         }
-        ProgressTracker.shared.setProgress(to: 0.75)
+        await ProgressTracker.shared.setProgress(to: 0.75)
         let gptResponse = try await getGptResponse(apiKey: apiKey, vectorResponses: queryMatches, question: question)
         await MainActor.run { [weak self] in
             ProgressTracker.shared.setProgress(to: 0.88)
@@ -218,11 +180,11 @@ final class OpenAIManager: ObservableObject {
     
     //MARK: USED in QuestionView
     private func getGptResponse(apiKey: String, vectorResponses: [String], question: String) async throws -> String {
-        ProgressTracker.shared.setProgress(to: 0.8)
+        await ProgressTracker.shared.setProgress(to: 0.8)
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             throw AppNetworkError.invalidOpenAiURL
         }
-        let prompt = getGptPrompt(vectorResponses: vectorResponses, question: question)
+        let prompt = await getGptPrompt(vectorResponses: vectorResponses, question: question)
         
         let requestBody: [String: Any] = [
             "model": "gpt-4o", //gpt-4o
@@ -243,7 +205,7 @@ final class OpenAIManager: ObservableObject {
         while attempts < maxAttempts {
             do {
                 request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-                ProgressTracker.shared.setProgress(to: 0.85)
+                await ProgressTracker.shared.setProgress(to: 0.85)
                 let (data, response) = try await URLSession.shared.data(for: request)
                 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
@@ -271,7 +233,7 @@ final class OpenAIManager: ObservableObject {
     }
     
     
-    private func getGptPrompt(vectorResponses: [String], question: String) -> String {
+    private func getGptPrompt(vectorResponses: [String], question: String)async -> String {
         
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.timeZone = TimeZone.current
@@ -300,10 +262,11 @@ final class OpenAIManager: ObservableObject {
                 secondVector = vectorResponses[1]
             }
         }
-        
-        switch languageSettings.selectedLanguage {
-        case .english:
-            return """
+        let selectedLanguage = await MainActor.run { languageSettings.selectedLanguage }
+       
+                switch selectedLanguage {
+                case .english:
+                    return """
                    You are an AI assistant, and you have been asked to provide concise reply to user's question. Below is the user's question and one or two pieces of information retrieved by the user's vector database. Note that these pieces of information are the ones with the highest similarity score, but may be irrelevant for user's question:
                                    
                        - User's Question: \(question).
@@ -319,8 +282,8 @@ final class OpenAIManager: ObservableObject {
                 
                    The response should be clear, engaging and concise.
                 """
-        case .spanish:
-            return """
+                case .spanish:
+                    return """
                 Eres un asistente de IA y se te ha pedido que proporciones información concisa sobre un tema específico. A continuación, se presenta la pregunta del usuario y una o dos piezas de información recuperadas por la base de datos vectorial. Ten en cuenta que estas piezas de información son las que tienen la puntuación de similitud más alta, pero pueden no ser relevantes para la pregunta del usuario:
                 
                                        - Pregunta del usuario: \(question).
@@ -335,8 +298,8 @@ final class OpenAIManager: ObservableObject {
                 
                 La respuesta debe ser clara, atractiva y concisa.
                 """
-        case .french:
-            return """
+                case .french:
+                    return """
                 Vous êtes un assistant IA et on vous a demandé de fournir des informations concises sur un sujet spécifique. Voici la question de l'utilisateur et une ou deux pièces d'informations récupérées par la base de données vectorielle. Notez que ces informations sont celles avec le score de similarité le plus élevé, mais peuvent ne pas être pertinentes pour la question de l'utilisateur :
                 
                                        - Question de l'utilisateur : \(question).
@@ -351,8 +314,8 @@ final class OpenAIManager: ObservableObject {
                 
                 La réponse doit être claire, engageante et concise.
                 """
-        case .german:
-            return """
+                case .german:
+                    return """
                 Sie sind ein KI-Assistent und wurden gebeten, prägnante Informationen zu einem bestimmten Thema bereitzustellen. Unten finden Sie die Frage des Nutzers und ein oder zwei Informationen, die von der Vektordatenbank abgerufen wurden. Beachten Sie, dass diese Informationen die höchste Ähnlichkeitsbewertung haben, aber möglicherweise nicht relevant für die Frage des Nutzers sind:
                 
                                        - Frage des Nutzers: \(question).
@@ -367,8 +330,8 @@ final class OpenAIManager: ObservableObject {
                 
                 Die Antwort sollte klar, ansprechend und prägnant sein.
                 """
-        case .greek:
-            return """
+                case .greek:
+                    return """
               Είστε ένας βοηθός τεχνητής νοημοσύνης και σας ζητήθηκε να παρέχετε συνοπτικές πληροφορίες για ένα συγκεκριμένο θέμα. Παρακάτω είναι η ερώτηση του χρήστη και ένα ή δύο κομμάτια πληροφοριών που ανακτήθηκαν από τη βάση δεδομένων. Σημειώστε ότι αυτά τα κομμάτια πληροφοριών είναι αυτά με την υψηλότερη βαθμολογία ομοιότητας, αλλά μπορεί να είναι άσχετα με την ερώτηση του χρήστη:
 
                                      - Ερώτηση του χρήστη: \(question).
@@ -382,8 +345,8 @@ final class OpenAIManager: ObservableObject {
               Αν είναι σχετικό για την απάντησή σας, σήμερα είναι \(readableDateString), και η τρέχουσα ώρα σε μορφή ISO8601 είναι \(isoDateString). Μην επιστρέφετε πλήρεις ημερομηνίες και ώρες εκτός αν είναι απαραίτητο.
               Η απάντηση θα πρέπει να είναι σαφής, ελκυστική και συνοπτική.
 """
-        case .korean:
-            return """
+                case .korean:
+                    return """
             당신은 AI 어시스턴트이며, 특정 주제에 대한 간결한 정보를 제공해달라는 요청을 받았습니다. 아래는 사용자의 질문과 벡터 데이터베이스에서 검색된 한두 가지 정보입니다. 이 정보들은 가장 높은 유사도 점수를 가진 정보이지만, 사용자의 질문과는 무관할 수도 있습니다:
             
                                    - 사용자의 질문: \(question).
@@ -398,8 +361,8 @@ final class OpenAIManager: ObservableObject {
             
             답변은 명확하고, 흥미롭고, 간결해야 합니다.
             """
-        case .japanese:
-            return """
+                case .japanese:
+                    return """
             あなたはAIアシスタントであり、特定のトピックに関する簡潔な情報を提供するように求められています。以下はユーザーの質問とベクトルデータベースから取得された1つまたは2つの情報です。これらの情報は最も高い類似度スコアを持っていますが、ユーザーの質問に関連しない場合があります:
             
                                    - ユーザーの質問: \(question).
@@ -414,8 +377,8 @@ final class OpenAIManager: ObservableObject {
             
             回答は明確で、魅力的で、簡潔である必要があります。
             """
-        case .chineseSimplified:
-            return """
+                case .chineseSimplified:
+                    return """
 您是一名AI助手，您被要求提供有关特定主题的简明信息。以下是用户的问题和从向量数据库中检索到的一两条信息。请注意，这些信息是相似度得分最高的，但可能与用户的问题无关：
 
                        - 用户的问题: \(question)。
@@ -430,8 +393,8 @@ final class OpenAIManager: ObservableObject {
 
 回复应当清晰、吸引人且简洁。
 """
-        case .portuguese:
-            return """
+                case .portuguese:
+                    return """
             Você é um assistente de IA e foi solicitado a fornecer informações concisas sobre um tópico específico. Abaixo está a pergunta do usuário e uma ou duas peças de informação recuperadas pelo banco de dados vetorial. Note que essas informações são as que possuem a maior pontuação de similaridade, mas podem ser irrelevantes para a pergunta do usuário:
             
                                    - Pergunta do usuário: \(question).
@@ -446,8 +409,8 @@ final class OpenAIManager: ObservableObject {
             
             A resposta deve ser clara, envolvente e concisa.
             """
-        case .italian:
-            return """
+                case .italian:
+                    return """
             Sei un assistente AI e ti è stato chiesto di fornire informazioni concise su un argomento specifico. Di seguito è riportata la domanda dell'utente e uno o due pezzi di informazioni recuperati dal database vettoriale. Nota che questi pezzi di informazioni sono quelli con il punteggio di somiglianza più alto, ma potrebbero essere irrilevanti per la domanda dell'utente:
             
             - Domanda dell'utente: \(question).
@@ -462,103 +425,57 @@ final class OpenAIManager: ObservableObject {
             
             La risposta deve essere chiara, coinvolgente e concisa.
             """
-        case .hebrew:
-            return "thsi"
-        }
-    }
-    
-    func getMonthlySummary(notifications: [CustomNotification]) async throws {
-        
-        guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
-            throw AppNetworkError.invalidOpenAiURL
-        }
-        
-        guard let apiKey = ApiConfiguration.openAIKey else {
-            throw AppNetworkError.apiKeyNotFound
-        }
-        
-        let currentDate = Date()
-        let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.timeZone = TimeZone.current
-        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds, .withTimeZone]
-        let isoDateString = isoFormatter.string(from: currentDate)
-        
-        // Filter notifications for the current month
-        let calendar = Calendar.current
-        let currentMonthNotifications = notifications.filter { notification in
-            calendar.isDate(notification.date, equalTo: currentDate, toGranularity: .month)
-        }
-        
-        let prompt = getGptPrompt(notifications: currentMonthNotifications, currentDate: isoDateString)
-        
-        let requestBody: [String: Any] = [
-            "model": "gpt-4o",
-            "temperature": 0,
-            "messages": [["role": "system", "content": prompt]]
-        ]
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        do {
-            let summary = try await fetchSummaryResponse(request: request, requestBody: requestBody)
-            await MainActor.run {
-                notificationsSummary = summary
-            }
-        }
-        catch(let error) {
-            throw error
-        }
-        
-    }
-    
-    
-    private func fetchSummaryResponse(request: URLRequest, requestBody: [String: Any]) async throws -> String {
-        var mutableRequest = request
-        let maxAttempts = 2
-        var attempts = 0
-        var localError: Error?
-        
-        while attempts < maxAttempts {
-            do {
-                mutableRequest.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-                let (data, response) = try await URLSession.shared.data(for: mutableRequest)
-                
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                    throw AppNetworkError.invalidResponse
+                case .hebrew:
+                    return "thsi"
                 }
-                
-                let decoder = JSONDecoder()
-                let gptResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
-                guard let firstChoice = gptResponse.choices.first else {
-                    throw AppNetworkError.noChoicesInResponse
-                }
-                updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
-                return firstChoice.message.content
-                
-            } catch {
-                localError = error
-                attempts += 1
-                if attempts < maxAttempts {
-                    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 second
-                }
-            }
-        }
-        throw localError ?? AppNetworkError.unknownError("An unknown error occurred during GPT summary response ops.")
     }
-    
-    
-    func getGptPrompt(notifications: [CustomNotification], currentDate: String) -> String {
 
+    
+//    private func fetchSummaryResponse(request: URLRequest, requestBody: [String: Any]) async throws -> String {
+//        var mutableRequest = request
+//        let maxAttempts = 2
+//        var attempts = 0
+//        var localError: Error?
+//        
+//        while attempts < maxAttempts {
+//            do {
+//                mutableRequest.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+//                let (data, response) = try await URLSession.shared.data(for: mutableRequest)
+//                
+//                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+//                    throw AppNetworkError.invalidResponse
+//                }
+//                
+//                let decoder = JSONDecoder()
+//                let gptResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
+//                guard let firstChoice = gptResponse.choices.first else {
+//                    throw AppNetworkError.noChoicesInResponse
+//                }
+//                updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
+//                return firstChoice.message.content
+//                
+//            } catch {
+//                localError = error
+//                attempts += 1
+//                if attempts < maxAttempts {
+//                    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 second
+//                }
+//            }
+//        }
+//        throw localError ?? AppNetworkError.unknownError("An unknown error occurred during GPT summary response ops.")
+//    }
+    
+    
+    func getGptPrompt(notifications: [CustomNotification], currentDate: String)async  -> String {
+        
         let notificationTexts = notifications.map { notification in
             "Title: \(notification.title), Body: \(notification.notificationBody), Date: \(notification.date)"
         }
         
-        switch languageSettings.selectedLanguage {
-        case .english:
-            return """
+        let selectedLanguage = await MainActor.run { languageSettings.selectedLanguage }
+                switch selectedLanguage {
+                case .english:
+                    return """
 You are a helpful personal assistant. The date and time now in ISO8601 format is \(currentDate).
 Below is a list of scheduled notifications for the current month:
 
@@ -568,8 +485,8 @@ Please provide a summary of these notifications, highlighting important events a
 
 Focus on creating a concise overview that can help the user quickly understand their upcoming schedule. Avoid using special characters like '*', avoid using time annotations like 'local time'.
 """
-        case .spanish:
-            return """
+                case .spanish:
+                    return """
 Eres un asistente personal útil. La fecha y hora actual en formato ISO8601 es \(currentDate).
 A continuación, se muestra una lista de notificaciones programadas para el mes actual:
 
@@ -579,8 +496,8 @@ Por favor, proporciona un resumen de estas notificaciones, destacando eventos im
 
 Enfócate en crear una visión general concisa que pueda ayudar al usuario a entender rápidamente su agenda próxima. Evita usar caracteres especiales como '*', evita usar anotaciones de tiempo como 'hora local'.
 """
-        case .french:
-            return """
+                case .french:
+                    return """
 Vous êtes un assistant personnel utile. La date et l'heure actuelles au format ISO8601 sont \(currentDate).
 Voici une liste des notifications programmées pour le mois en cours :
 
@@ -590,8 +507,8 @@ Veuillez fournir un résumé de ces notifications, en soulignant les événement
 
 Concentrez-vous sur la création d'un aperçu concis qui peut aider l'utilisateur à comprendre rapidement son emploi du temps à venir. Évitez d'utiliser des caractères spéciaux comme '*', évitez d'utiliser des annotations temporelles comme 'heure locale'.
 """
-        case .german:
-            return """
+                case .german:
+                    return """
 Sie sind ein hilfreicher persönlicher Assistent. Das aktuelle Datum und die aktuelle Uhrzeit im ISO8601-Format sind \(currentDate).
 Im Folgenden finden Sie eine Liste der geplanten Benachrichtigungen für den aktuellen Monat:
 
@@ -601,8 +518,8 @@ Bitte geben Sie eine Zusammenfassung dieser Benachrichtigungen, heben Sie wichti
 
 Konzentrieren Sie sich darauf, eine prägnante Übersicht zu erstellen, die dem Benutzer hilft, seinen bevorstehenden Zeitplan schnell zu verstehen. Vermeiden Sie die Verwendung von Sonderzeichen wie '*', und vermeiden Sie Zeitangaben wie 'Ortszeit'.
 """
-        case .greek:
-            return """
+                case .greek:
+                    return """
            Είστε ένας χρήσιμος προσωπικός βοηθός. Η ημερομηνία και η ώρα τώρα σε μορφή ISO8601 είναι \(currentDate).
            Παρακάτω είναι μια λίστα με τις προγραμματισμένες ειδοποιήσεις για τον τρέχοντα μήνα:
 
@@ -612,8 +529,8 @@ Konzentrieren Sie sich darauf, eine prägnante Übersicht zu erstellen, die dem 
 
            Επικεντρωθείτε στη δημιουργία μιας συνοπτικής επισκόπησης που μπορεί να βοηθήσει τον χρήστη να κατανοήσει γρήγορα το προσεχές πρόγραμμα του. Αποφύγετε τη χρήση ειδικών χαρακτήρων όπως '*', και αποφύγετε τη χρήση χρονικών επισημάνσεων όπως 'τοπική ώρα'.
 """
-        case .korean:
-            return """
+                case .korean:
+                    return """
 당신은 도움이 되는 개인 비서입니다. 현재 날짜와 시간은 ISO8601 형식으로 \(currentDate)입니다.
 다음은 이번 달에 예정된 알림 목록입니다:
 
@@ -623,8 +540,8 @@ Konzentrieren Sie sich darauf, eine prägnante Übersicht zu erstellen, die dem 
 
 사용자가 다가오는 일정을 빠르게 이해할 수 있도록 간결한 개요를 작성하는 데 집중하세요. '*'와 같은 특수 문자를 사용하지 말고, '현지 시간'과 같은 시간 주석을 사용하지 마세요.
 """
-        case .japanese:
-            return """
+                case .japanese:
+                    return """
 あなたは役に立つパーソナルアシスタントです。現在の日付と時刻はISO8601形式で\(currentDate)です。
 以下は今月の予定通知のリストです：
 
@@ -634,8 +551,8 @@ Konzentrieren Sie sich darauf, eine prägnante Übersicht zu erstellen, die dem 
 
 ユーザーが今後のスケジュールをすぐに理解できるように、簡潔な概要を作成することに集中してください。'*'のような特殊文字や「現地時間」といった時間注釈の使用は避けてください。
 """
-        case .chineseSimplified:
-            return """
+                case .chineseSimplified:
+                    return """
 您是一名有帮助的个人助理。当前的日期和时间是ISO8601格式的\(currentDate)。
 以下是本月的预定通知列表：
 
@@ -645,8 +562,8 @@ Konzentrieren Sie sich darauf, eine prägnante Übersicht zu erstellen, die dem 
 
 重点创建一个简明的概述，帮助用户快速了解即将到来的日程安排。避免使用'*'等特殊字符，避免使用“当地时间”等时间注释。
 """
-        case .portuguese:
-            return """
+                case .portuguese:
+                    return """
 Você é um assistente pessoal útil. A data e hora atuais no formato ISO8601 são \(currentDate).
 Abaixo está uma lista de notificações agendadas para o mês atual:
 
@@ -656,8 +573,8 @@ Por favor, forneça um resumo dessas notificações, destacando eventos importan
 
 Concentre-se em criar uma visão geral concisa que possa ajudar o usuário a entender rapidamente sua agenda futura. Evite usar caracteres especiais como '*', evite usar anotações de tempo como 'hora local'.
 """
-        case .italian:
-            return """
+                case .italian:
+                    return """
 Sei un assistente personale utile. La data e l'ora attuali nel formato ISO8601 sono \(currentDate).
 Di seguito è riportato un elenco delle notifiche programmate per il mese corrente:
 
@@ -667,9 +584,9 @@ Fornisci un riepilogo di queste notifiche, evidenziando eventi importanti e even
 
 Concentrati sulla creazione di una panoramica concisa che possa aiutare l'utente a comprendere rapidamente il proprio programma imminente. Evita di usare caratteri speciali come '*', evita di usare annotazioni temporali come 'ora locale'.
 """
-        case .hebrew:
-            return "this"
-        }
-    }
+                case .hebrew:
+                    return "this"
+                }
+            }
     
 }

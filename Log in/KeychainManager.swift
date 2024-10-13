@@ -9,7 +9,7 @@ import Security
 import Foundation
 import CloudKit
 
-class KeychainManager {
+final class KeychainManager: Sendable {
     
     static let standard = KeychainManager()
     let service = "dev.chillvibes.MyndVault"

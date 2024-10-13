@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct SplashScreen: View {
     @EnvironmentObject var cloudKit: CloudKitViewModel // Use this to check if loading is ok, check Notes
@@ -14,6 +15,7 @@ struct SplashScreen: View {
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
     @Environment(\.colorScheme) var colorScheme
+    @State private var cancellable: AnyCancellable? = nil
     
     let symbols: [String] = ["link.icloud", "tray", "gear", "checkmark", ""]
     
@@ -112,21 +114,24 @@ struct SplashScreen: View {
     }
 
 
-        private func startCodeAnimation() {
-            let lines = Constants.assemblyCode.split(separator: "\n").map { String($0) }
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+    private func startCodeAnimation() {
+        let lines = Constants.assemblyCode.split(separator: "\n").map { String($0) }
+        
+        cancellable = Timer.publish(every: 0.1, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
                 if currentLineIndex < lines.count {
                     withAnimation {
                         codeLines.append(lines[currentLineIndex])
                     }
                     currentLineIndex += 1
                 } else {
-                    //                withAnimation {
-                    //                    codeLines = [] }
-                    timer.invalidate()
+                    cancellable?.cancel()  // Stop the timer when finished
                 }
             }
-        }
+    }
+    
+    
 
 }
     #Preview {

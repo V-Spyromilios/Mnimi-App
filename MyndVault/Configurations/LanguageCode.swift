@@ -64,22 +64,25 @@ enum LanguageCode: String, CaseIterable {
     }
 }
 
+@MainActor
 final class LanguageSettings: ObservableObject {
 /// if the device lang is one of the LanguageCode set the selected otherwirse set to English (or last selected language by the user)
-    @Published var selectedLanguage: LanguageCode = .english {
+   @Published var selectedLanguage: LanguageCode = .english {
         didSet {
             UserDefaults.standard.set(selectedLanguage.rawValue, forKey: "selectedPromptLanguage")
         }
     }
 
-    static var shared = LanguageSettings()
+    static let shared = LanguageSettings()
 
-    init() {
+    private init() {
             let systemLanguageCode = Locale.current.language.languageCode?.identifier ?? "en"
             
             if let savedLanguage = UserDefaults.standard.string(forKey: "selectedPromptLanguage"),
                let languageCode = LanguageCode(rawValue: savedLanguage) {
-                self.selectedLanguage = languageCode
+               
+                    self.selectedLanguage = languageCode
+                
             } else if let languageCode = LanguageCode(rawValue: systemLanguageCode), LanguageCode.allCases.contains(languageCode) {
                 self.selectedLanguage = languageCode
             } else {

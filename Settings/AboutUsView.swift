@@ -65,6 +65,7 @@ struct AboutUsView: View {
 }
 
 
+@MainActor
 private func madeWith() -> some View {
     HStack {
        

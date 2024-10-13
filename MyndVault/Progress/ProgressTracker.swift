@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 final class ProgressTracker: ObservableObject {
 
     @Published var progress: CGFloat = 0.0

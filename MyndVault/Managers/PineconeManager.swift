@@ -13,53 +13,64 @@ import SwiftUI
 // memoryindex HOST: https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io
 
 //MARK: create new index.
-final class PineconeManager: ObservableObject {
-  
-
-    weak var CKviewModel: CloudKitViewModel?
-
+actor PineconeManager: ObservableObject {
+    
+    
+    var CKviewModel: CloudKitViewModel? = nil
+    
     @Published var receivedError: Error?
     @Published var indexInfo: String?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
     @Published var upsertSuccesful: Bool = false
     @Published var vectorDeleted: Bool = false
     @Published var accountDeleted: Bool = false
-
-    var isDataSorted: Bool = false
-   
     @Published var pineconeIDResponse: PineconeIDResponse?
     @Published var pineconeIDs: [String] = []
     @Published var pineconeFetchedResponseFromID: PineconeFetchResponseFromID?
     @Published var pineconeFetchedVectors: [Vector] = []
-    var pineconeIndex: String?
-    var cancellables = Set<AnyCancellable>()
     @Published var refreshAfterEditing: Bool = false
     
+    var isDataSorted: Bool = false
+    var pineconeIndex: String?
+    var cancellables = Set<AnyCancellable>()
     
     init(cloudKitViewModel: CloudKitViewModel = .shared) {
         self.CKviewModel = cloudKitViewModel
-        self.accountDeleted = UserDefaults.standard.bool(forKey: "accountDeleted")
         
-        $accountDeleted
-            .sink { newValue in
-                UserDefaults.standard.set(newValue, forKey: "accountDeleted")
-            }
-            .store(in: &cancellables)
+        Task {
+                    // Ensure access to actor-isolated property within the actor's context
+                    await self.updateAccountDeletedFromUserDefaults()
+                }
+        
     }
     
+    func updateAccountDeletedFromUserDefaults() async {
+          self.accountDeleted = UserDefaults.standard.bool(forKey: "accountDeleted")
+          
+          // Observe changes to accountDeleted and insert cancellable
+          let cancellable = self.$accountDeleted
+              .sink { newValue in
+                  UserDefaults.standard.set(newValue, forKey: "accountDeleted")
+              }
+
+          // Store the cancellable inside the actor context
+          self.cancellables.insert(cancellable)
+      }
+    
     func clearManager() async {
-        await MainActor.run { [weak self] in
-            self?.receivedError = nil
-            self?.pineconeQueryResponse = nil
-            self?.upsertSuccesful = false
-        }
+       
+            self.receivedError = nil
+            self.pineconeQueryResponse = nil
+            self.upsertSuccesful = false
+
     }
     
     //deletes localy
+    @MainActor
     func deleteVector(withId id: String) {
-            pineconeFetchedVectors.removeAll { $0.id == id }
-        }
- 
+        pineconeFetchedVectors.removeAll { $0.id == id }
+    }
+    
     func refreshNamespacesIDs() async throws {
         do {
             try await fetchAllNamespaceIDs()
@@ -70,121 +81,131 @@ final class PineconeManager: ObservableObject {
     }
     
     func fetchAllNamespaceIDs() async throws {
-        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = await CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
-
+        
         guard let apiKey = ApiConfiguration.pineconeKey else {
             throw AppNetworkError.apiKeyNotFound
         }
-
+        
         guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/list?namespace=\(namespace)") else {
             throw AppNetworkError.unknownError("fetchAllNamespaceIDs() :: Invalid URL")
         }
-
+        
         var request = URLRequest(url: url)
         request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
         request.httpMethod = "GET"
-
+        
         let maxAttempts = 2
         var attempts = 0
-
+        
         while attempts < maxAttempts {
             do {
                 let (data, _) = try await URLSession.shared.data(for: request)
                 let decodedResponse = try JSONDecoder().decode(PineconeIDResponse.self, from: data)
-
+                
                 await MainActor.run { [weak self] in
                     self?.pineconeIDResponse = decodedResponse
-
+                    
                     if let idResponse = self?.pineconeIDResponse {
                         self?.pineconeIDs.append(contentsOf: idResponse.vectors.map { $0.id })
                     }
                 }
-
-                if !self.isDataSorted || self.refreshAfterEditing {
+                
+                let shouldFetchDataForIds = await MainActor.run { [weak self] in
+                    guard let self = self else { return false }
+                    return !self.isDataSorted || self.refreshAfterEditing
+                }
+                if shouldFetchDataForIds {
                     do {
                         try await fetchDataForIds()
                     } catch {
                         throw error
                     }
                 }
-
+                
                 // 1RU per call
                 updateTokenUsage(api: APIs.pinecone, tokensUsed: 1, read: true)
-
+                
                 // If successful, break the loop
                 break
-
+                
             } catch {
                 attempts += 1
                 if attempts < maxAttempts {
-//                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
+                    //                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
                     try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
                 } else {
-//                    print("All attempts failed.")
+                    //                    print("All attempts failed.")
                     throw error
                 }
             }
         }
     }
-
+    
     //MARK: New for proper sorting
     private func fetchDataForIds() async throws {
-        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = await CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
-
+        
         guard let apiKey = ApiConfiguration.pineconeKey else {
             throw AppNetworkError.apiKeyNotFound
         }
-
+        
+        // Safely access `pineconeIDs` inside `MainActor.run`
+        let queryItems = await MainActor.run { [weak self] in
+            self?.pineconeIDs.map { URLQueryItem(name: "ids", value: $0) } ?? []
+        }
+        
+        // Ensure namespace is added to query items
         var urlComponents = URLComponents(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/fetch")!
-        urlComponents.queryItems = self.pineconeIDs.map { URLQueryItem(name: "ids", value: $0) }
+        urlComponents.queryItems = queryItems
         urlComponents.queryItems?.append(URLQueryItem(name: "namespace", value: namespace))
-
+        
         guard let url = urlComponents.url else {
             throw URLError(.badURL)
         }
-
+        
         var request = URLRequest(url: url)
         request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
         request.httpMethod = "GET"
-
+        
         let maxAttempts = 2
         var attempts = 0
-
+        
         while attempts < maxAttempts {
             do {
                 let (data, _) = try await URLSession.shared.data(for: request)
                 let decodedResponse = try JSONDecoder().decode(PineconeFetchResponseFromID.self, from: data)
                 let dateFormatter = ISO8601DateFormatter()
                 dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
+                
                 let sortedVectors = decodedResponse.vectors.values.sorted { lhs, rhs in
-
                     guard let lhsTimestamp = lhs.metadata["timestamp"],
                           let rhsTimestamp = rhs.metadata["timestamp"]
                     else { return false }
-
+                    
                     guard let lhsDate = dateFormatter.date(from: lhsTimestamp),
                           let rhsDate = dateFormatter.date(from: rhsTimestamp)
                     else { return false }
-
+                    
                     return lhsDate > rhsDate
                 }
-
+                
+                // Safely update properties inside `MainActor.run`
                 await MainActor.run { [weak self] in
                     self?.pineconeFetchedVectors = sortedVectors
                     self?.isDataSorted = true
                 }
-
-                let readUnits = self.pineconeFetchedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
+                
+                let readUnits = sortedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
                 updateTokenUsage(api: APIs.pinecone, tokensUsed: readUnits, read: true)
-
-                //if the fetch was successful
+                
+                // If the fetch was successful
                 break
-
+                
             } catch {
                 attempts += 1
                 if attempts < maxAttempts {
@@ -195,8 +216,8 @@ final class PineconeManager: ObservableObject {
             }
         }
     }
-
-//MARK: deleteVector
+    
+    //MARK: deleteVector
     func deleteVectorFromPinecone(id: String) async throws {
         
         struct DeleteVectorsRequest: Codable {
@@ -204,7 +225,7 @@ final class PineconeManager: ObservableObject {
             let namespace: String
         }
         
-        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = await CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
         
@@ -230,7 +251,7 @@ final class PineconeManager: ObservableObject {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 
                 if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-
+                    
                     DispatchQueue.main.async {
                         self.vectorDeleted = false
                     }
@@ -257,7 +278,7 @@ final class PineconeManager: ObservableObject {
     //MARK: Delete Account
     func deleteAllVectorsInNamespace() async throws {
         
-        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = await CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
         
@@ -310,14 +331,14 @@ final class PineconeManager: ObservableObject {
             }
         }
     }
-
-
+    
+    
     //MARK: upsertData USED in NewAddInfoView
     // https://{index_host}/vectors/upsert
     func upsertDataToPinecone(id: String, vector: [Float], metadata: [String: Any]) async throws {
         print("Upserting to Pinecone...")
-
-        ProgressTracker.shared.setProgress(to: 0.7)
+        
+        await ProgressTracker.shared.setProgress(to: 0.7)
         guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/upsert") else {
             print("upsertDataToPinecone :: Invalid URL")
             throw AppNetworkError.invalidDBURL
@@ -327,10 +348,10 @@ final class PineconeManager: ObservableObject {
             throw AppNetworkError.apiKeyNotFound
         }
         
-        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
+        guard let namespace = await CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
-
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -346,19 +367,19 @@ final class PineconeManager: ObservableObject {
             ],
             "namespace": namespace
         ]
-        ProgressTracker.shared.setProgress(to: 0.8)
+        await ProgressTracker.shared.setProgress(to: 0.8)
         
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: payload, options: [])
             request.httpBody = jsonData
-            ProgressTracker.shared.setProgress(to: 0.85)
+            await ProgressTracker.shared.setProgress(to: 0.85)
         } catch {
             throw AppNetworkError.serializationError("Upsert :: Data")
         }
         
         let maxAttempts = 2
         var attempts = 0
-
+        
         while attempts < maxAttempts {
             do {
                 let _ = try await performHTTPRequest(request: request)
@@ -380,11 +401,11 @@ final class PineconeManager: ObservableObject {
         }
         updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
     }
-
-
+    
+    
     //MARK: USED in NewAddInfoView
     private func performHTTPRequest(request: URLRequest) async throws -> Data {
-
+        
         try await withCheckedThrowingContinuation { continuation in
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
@@ -405,21 +426,21 @@ final class PineconeManager: ObservableObject {
             }.resume()
         }
     }
-
+    
     //MARK: queryPinecone USED in QuestionView
     //topK = 2 if they prompt to gpt clearly states that second may be irrelevant!
     
     func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) async throws {
         let maxAttempts = 2
         var attempts = 0
-
+        
         DispatchQueue.main.async {
             ProgressTracker.shared.setProgress(to: 0.42)
         }
-
+        
         while attempts < maxAttempts {
             var taskResults = [Result<Void, Error>]()
-
+            
             await withTaskGroup(of: Result<Void, Error>.self) { taskGroup in
                 taskGroup.addTask(priority: .background) { [weak self] in
                     guard let self = self else { return .failure(AppCKError.UnableToGetNameSpace) }
@@ -430,16 +451,16 @@ final class PineconeManager: ObservableObject {
                         await MainActor.run { [weak self] in
                             self?.receivedError = error
                         }
-//                        print("Error querying Pinecone: \(error)")
+                        //                        print("Error querying Pinecone: \(error)")
                         return .failure(error)
                     }
                 }
-
+                
                 for await result in taskGroup {
                     taskResults.append(result)
                 }
             }
-
+            
             // Check the results of the tasks
             if let firstError = taskResults.compactMap({ try? $0.get() }).isEmpty ? taskResults.compactMap({ result -> Error? in
                 if case .failure(let error) = result {
@@ -449,10 +470,10 @@ final class PineconeManager: ObservableObject {
             }).first : nil {
                 attempts += 1
                 if attempts < maxAttempts {
-//                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
+                    //                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
                     try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
                 } else {
-//                    print("All attempts failed.")
+                    //                    print("All attempts failed.")
                     throw firstError
                 }
             } else {
@@ -460,7 +481,7 @@ final class PineconeManager: ObservableObject {
             }
         }
     }
-
+    
     private func performQueryPinecone(vector: [Float], topK: Int, includeValues: Bool) async throws {
         guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/query") else {
             fatalError("Invalid Pinecone URL")
@@ -474,15 +495,16 @@ final class PineconeManager: ObservableObject {
         request.httpMethod = "POST"
         request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        guard let namespace = CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
+        
+        // Capture necessary data from self before entering the task
+        guard let namespace = await CKviewModel?.fetchedNamespaceDict.first?.value.namespace else {
             throw AppCKError.UnableToGetNameSpace
         }
         
         DispatchQueue.main.async {
             ProgressTracker.shared.setProgress(to: 0.45)
         }
-
+        
         let requestBody: [String: Any] = [
             "vector": vector,
             "topK": topK,
@@ -493,36 +515,35 @@ final class PineconeManager: ObservableObject {
         
         let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
         request.httpBody = jsonData
-
+        
         let (data, response) = try await URLSession.shared.data(for: request)
-
-//        if let responseBody = String(data: data, encoding: .utf8) {
-//            print("Response Body: \(responseBody)")
-//        }
+        
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-
             throw AppNetworkError.invalidResponse
         }
-
+        
         let decoder = JSONDecoder()
         let pineconeResponse = try decoder.decode(PineconeQueryResponse.self, from: data)
-
+        
+        // Use MainActor.run to update the properties and ensure thread safety
         await MainActor.run { [weak self] in
+            guard let self = self else { return }
             ProgressTracker.shared.setProgress(to: 0.55)
-            self?.pineconeQueryResponse = pineconeResponse
+            self.pineconeQueryResponse = pineconeResponse
         }
-
-//        for _ in pineconeResponse.matches {
-//            print("Match ID: \(match.id), Score: \(match.score)")
-//            print("Query Response: \(match.metadata.debugDescription)")
-//        }
+        
         DispatchQueue.main.async {
             ProgressTracker.shared.setProgress(to: 0.62)
         }
-
-        if let response = self.pineconeQueryResponse {
+        
+        // Access pineconeQueryResponse within MainActor
+        let queryResponse = await MainActor.run { [weak self] in
+            return self?.pineconeQueryResponse
+        }
+        
+        if let response = queryResponse {
             updateTokenUsage(api: APIs.pinecone, tokensUsed: response.usage.readUnits, read: true)
         }
     }
-
+    
 }

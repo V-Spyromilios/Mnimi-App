@@ -93,9 +93,11 @@ struct NewAddInfoView: View {
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: 50, height: 50) // Equal width and height
-                                        .foregroundColor(.white)
-                                        .background(Color.black)
+                                        .foregroundColor(colorScheme == .light ? Color.customLightBlue : Color.darkModeImageBackground)
+//                                        .background(Color.black)
                                         .clipShape(RoundedRectangle(cornerRadius: 15))
+                                        .offset(x: 5)
+                                    //Mykonos
                                 }
                                 
 //                                Spacer()
