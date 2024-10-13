@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 
+@MainActor
 class AuthenticationManager: ObservableObject {
 
     @Published var isAuthenticated: Bool = false

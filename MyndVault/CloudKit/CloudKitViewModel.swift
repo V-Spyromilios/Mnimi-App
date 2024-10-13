@@ -19,11 +19,11 @@
 //    @Published var fetchedNamespaceDict: [CKRecord.ID: NamespaceItem] = [:]
 ////    @Published var fetchedImagesDict: [CKRecord.ID: ImageItem] = [:]
 //    @Published var isFirstLaunch: Bool
-//    
+//
 //    private var db: CKDatabase?
-//    
+//
 //    static let shared = CloudKitViewModel()
-//    
+//
 //    init() {
 //        if userDefaultsKeyExists("isFirstLaunch") {
 //            self.isFirstLaunch = UserDefaults.standard.bool(forKey: "isFirstLaunch")
@@ -33,20 +33,20 @@
 //            self.isFirstLaunch = true
 //        }
 //    }
-//    
+//
 //    func clearCloudKit() {
 //
 //        isLoading = false
 //        CKErrorDesc = ""
 //    }
-//    
+//
 //    //MARK: startCloudKit
 //    func startCloudKit() {
 //        isLoading = true
 //        Task {
 //            do {
 //                let key = fetchedNamespaceDict.keys.first
-//                
+//
 //                if key == nil { try await initializeCloudKitSetup() }
 //                else {
 //                    _ = try? await fetchNamespaceItem(recordID: key!)
@@ -59,7 +59,7 @@
 //            }
 //        }
 //    }
-//    
+//
 //    //MARK: fetchNameSpace
 //    func fetchNameSpace() async throws {
 //
@@ -73,21 +73,21 @@
 //            do {
 //                let query = CKQuery(recordType: "NamespaceItem", predicate: NSPredicate(value: true))
 //                let rs = try await db.records(matching: query)
-//                
+//
 //                let returnedRecords = rs.matchResults.compactMap { result in
 //                    try? result.1.get()
 //                }
-//                
+//
 //                await MainActor.run {
 //                    for record in returnedRecords {
 //                        fetchedNamespaceDict[record.recordID] = NamespaceItem(record: record)
 //                    }
 //                }
-//                
+//
 //                if fetchedNamespaceDict.isEmpty {
 //                    try await makeNewNamespace()
 //                }
-//                
+//
 //                return
 //            } catch {
 //                attempts += 1
@@ -99,7 +99,7 @@
 //            }
 //        }
 //    }
-//    
+//
 //
 //    //MARK: saveNamespaceItem
 //    func saveNamespaceItem(ns: NamespaceItem) async throws {
@@ -124,7 +124,7 @@
 //            }
 //        }
 //    }
-//    
+//
 //    //MARK: getiCloudStatus
 //    func getiCloudStatus() async throws {
 //
@@ -157,7 +157,7 @@
 //            }
 //        }
 //    }
-//    
+//
 //    //MARK: getUserID
 //    private func getUserID() async throws -> CKRecord.ID {
 //
@@ -186,14 +186,14 @@
 //        // this line should never be reached, but is required to satisfy the compiler
 //        throw AppCKError.unknownError(message: "Failed to get user ID after \(maxRetryAttempts) attempts")
 //    }
-//    
+//
 //    //MARK: initializeCloudKitSetup
 //    private func initializeCloudKitSetup() async throws {
 //
 //        do {
 //            try await getiCloudStatus()
 //            guard userIsSignedIn == true else { throw AppCKError.iCloudAccountNotFound }
-//            
+//
 //            if let tempuserID = try? await getUserID() {
 //                await MainActor.run {
 //                    self.userID = tempuserID
@@ -207,21 +207,21 @@
 //            throw error
 //        }
 //    }
-//    
+//
 //    //MARK: makeNewNamespace
 //    private func makeNewNamespace() async throws {
-//        
+//
 //        guard let userID = userID?.recordName else {
 //            throw AppCKError.UnableToGetNameSpace
 //        }
-//        
+//
 //        let namespace = userID.lowercased()
 //        let nsItem = NamespaceItem(namespace: namespace)
 //        let maxRetryAttempts = 3
 //        let delayBetweenRetries: UInt64 = 200_000_000 //0.2 sec in nanoseconds
-//        
+//
 //        var attempts = 0
-//        
+//
 //        while attempts < maxRetryAttempts {
 //            do {
 //                try await saveNamespaceItem(ns: nsItem)
@@ -269,7 +269,7 @@
 //        // required to satisfy the compiler
 //        throw AppCKError.unknownError(message: "Failed to delete namespace item after \(maxRetryAttempts) attempts")
 //    }
-//    
+//
 //    //MARK: fetchNamespaceItem
 //    func fetchNamespaceItem(recordID: CKRecord.ID) async throws -> NamespaceItem? {
 //
@@ -303,8 +303,8 @@
 //        // is required to satisfy the compiler
 //        throw AppCKError.unknownError(message: "Failed to fetch namespace item after \(maxRetryAttempts) attempts")
 //    }
-//    
-//    
+//
+//
 //    //MARK: saveImageItem
 //    func saveImageItem(image: UIImage, uniqueID: String) async throws {
 //
@@ -383,7 +383,7 @@
 //            }
 //        }
 //    }
-//    
+//
 //    private func deleteRecord(withRecordID recordID: CKRecord.ID, in db: CKDatabase) async throws {
 //
 //        let maxRetryAttempts = 2
@@ -413,18 +413,18 @@
 //
 //        throw AppCKError.unableToDeleteRecord
 //    }
-//  
+//
 //    //MARK: fetchImageItem
 //    func fetchImageItem(uniqueID: String) async throws -> UIImage? {
 //
 //        guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
-//        
+//
 //        let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
 //        let query = CKQuery(recordType: "ImageItem", predicate: predicate)
-//        
+//
 //        var attempt = 0
 //        let maxRetries = 3
-//        
+//
 //        while attempt < maxRetries {
 //            do {
 //                let records = try await performQuery(query, in: db)
@@ -433,7 +433,7 @@
 //                      let fileURL = asset.fileURL else {
 //                    return nil
 //                }
-//                
+//
 //                let data = try Data(contentsOf: fileURL)
 //                return UIImage(data: data)
 //            } catch {
@@ -489,7 +489,7 @@
 //        throw AppCKError.unknownError(message: "Failed to perform query after \(maxRetryAttempts) attempts")
 //    }
 //
-//    
+//
 //    private func handleCKError(_ error: Error) async {
 //            if let ckError = error as? CKError {
 //                await MainActor.run {
@@ -506,81 +506,81 @@
 extension CKError {
     var customErrorDescription: String {
         switch self.code {
-               case .accountTemporarilyUnavailable:
-                   return "Your iCloud account is temporarily unavailable. Please try again later."
-               case .alreadyShared:
-                   return "This item is already shared."
-               case .assetFileModified:
-                   return "The asset was modified while saving. Please try again."
-               case .assetFileNotFound:
-                   return "The specified asset could not be found."
-               case .assetNotAvailable:
-                   return "The asset is not available."
-               case .badContainer:
-                   return "There is an issue with the iCloud container. Please contact support."
-               case .badDatabase:
-                   return "There is an issue with the database. Please try again later."
-               case .batchRequestFailed:
-                   return "The request batch failed. Please try again."
-               case .changeTokenExpired:
-                   return "The change token has expired. Please refresh and try again."
-               case .constraintViolation:
-                   return "A constraint violation occurred. Please ensure all data is correct."
-               case .incompatibleVersion:
-                   return "Your app version is incompatible. Please update to the latest version."
-               case .internalError:
-                   return "An internal error occurred in CloudKit. Please try again later."
-               case .invalidArguments:
-                   return "Invalid information was provided. Please check and try again."
-               case .limitExceeded:
-                   return "The request exceeds the size limit. Please reduce the size and try again."
-               case .managedAccountRestricted:
-                   return "Your account has restrictions. Please check your Settings."
-               case .missingEntitlement:
-                   return "The app is missing a required entitlement. Please contact support."
-               case .networkFailure:
-                   return "A network error occurred. Please check your connection and try again."
-               case .networkUnavailable:
-                   return "The network is unavailable. Please check your connection and try again."
-               case .notAuthenticated:
-                   return "You are not authenticated. Please log in to iCloud and try again."
-               case .operationCancelled:
-                   return "The operation was cancelled."
-               case .partialFailure:
-                   return "The operation completed with partial failures. Please try again."
-               case .participantMayNeedVerification:
-                   return "You need to verify your participation in the share."
-               case .permissionFailure:
-                   return "You do not have permission to perform this action."
-               case .quotaExceeded:
-                   return "Your iCloud storage quota has been exceeded. Please free up some space."
-               case .referenceViolation:
-                   return "A reference violation occurred. Please ensure all data is correct."
-               case .requestRateLimited:
-                   return "You are making requests too frequently. Please slow down and try again later."
-               case .serverRecordChanged:
-                   return "The record has been changed on the server. Please refresh and try again."
-               case .serverRejectedRequest:
-                   return "The server rejected the request. Please try again."
-               case .serverResponseLost:
-                   return "The network connection was lost. Please try again."
-               case .serviceUnavailable:
-                   return "CloudKit service is currently unavailable. Please try again later."
-               case .tooManyParticipants:
-                   return "There are too many participants in the share."
-               case .unknownItem:
-                   return "The specified record does not exist."
-               case .userDeletedZone:
-                   return "The record zone was deleted by the user."
-               case .zoneBusy:
-                   return "The server is too busy to handle the request. Please try again later."
-               case .zoneNotFound:
-                   return "The specified record zone does not exist."
-               default:
-                   return "An unknown CK error occurred. Please try again."
-               }
+        case .accountTemporarilyUnavailable:
+            return "Your iCloud account is temporarily unavailable. Please try again later."
+        case .alreadyShared:
+            return "This item is already shared."
+        case .assetFileModified:
+            return "The asset was modified while saving. Please try again."
+        case .assetFileNotFound:
+            return "The specified asset could not be found."
+        case .assetNotAvailable:
+            return "The asset is not available."
+        case .badContainer:
+            return "There is an issue with the iCloud container. Please contact support."
+        case .badDatabase:
+            return "There is an issue with the database. Please try again later."
+        case .batchRequestFailed:
+            return "The request batch failed. Please try again."
+        case .changeTokenExpired:
+            return "The change token has expired. Please refresh and try again."
+        case .constraintViolation:
+            return "A constraint violation occurred. Please ensure all data is correct."
+        case .incompatibleVersion:
+            return "Your app version is incompatible. Please update to the latest version."
+        case .internalError:
+            return "An internal error occurred in CloudKit. Please try again later."
+        case .invalidArguments:
+            return "Invalid information was provided. Please check and try again."
+        case .limitExceeded:
+            return "The request exceeds the size limit. Please reduce the size and try again."
+        case .managedAccountRestricted:
+            return "Your account has restrictions. Please check your Settings."
+        case .missingEntitlement:
+            return "The app is missing a required entitlement. Please contact support."
+        case .networkFailure:
+            return "A network error occurred. Please check your connection and try again."
+        case .networkUnavailable:
+            return "The network is unavailable. Please check your connection and try again."
+        case .notAuthenticated:
+            return "You are not authenticated. Please log in to iCloud and try again."
+        case .operationCancelled:
+            return "The operation was cancelled."
+        case .partialFailure:
+            return "The operation completed with partial failures. Please try again."
+        case .participantMayNeedVerification:
+            return "You need to verify your participation in the share."
+        case .permissionFailure:
+            return "You do not have permission to perform this action."
+        case .quotaExceeded:
+            return "Your iCloud storage quota has been exceeded. Please free up some space."
+        case .referenceViolation:
+            return "A reference violation occurred. Please ensure all data is correct."
+        case .requestRateLimited:
+            return "You are making requests too frequently. Please slow down and try again later."
+        case .serverRecordChanged:
+            return "The record has been changed on the server. Please refresh and try again."
+        case .serverRejectedRequest:
+            return "The server rejected the request. Please try again."
+        case .serverResponseLost:
+            return "The network connection was lost. Please try again."
+        case .serviceUnavailable:
+            return "CloudKit service is currently unavailable. Please try again later."
+        case .tooManyParticipants:
+            return "There are too many participants in the share."
+        case .unknownItem:
+            return "The specified record does not exist."
+        case .userDeletedZone:
+            return "The record zone was deleted by the user."
+        case .zoneBusy:
+            return "The server is too busy to handle the request. Please try again later."
+        case .zoneNotFound:
+            return "The specified record zone does not exist."
+        default:
+            return "An unknown CK error occurred. Please try again."
         }
     }
+}
 
 
 
@@ -588,7 +588,8 @@ import Combine
 import CloudKit
 import SwiftUI
 
-final class CloudKitViewModel: ObservableObject, Sendable {
+actor CloudKitViewModel: ObservableObject, Sendable {
+    
     @MainActor
     @Published var userIsSignedIn: Bool = false
     @MainActor
@@ -624,28 +625,36 @@ final class CloudKitViewModel: ObservableObject, Sendable {
         } catch {
             print("Failed to archive CKRecord.ID: \(error.localizedDescription)")
         }
-        }
+    }
     
     init() {
         Task {
             // Perform background work first
             let isFirstLaunchResult = await CloudKitViewModel.checkIfFirstLaunch()
             let tempRecordID = KeychainManager.standard.readRecordID(account: "recordIDDelete")
-
-            // Now switch to the main actor to update UI-related state
+            await self.updateRecordID(tempRecordID) //switching from Task's thread to actor's isolation. check below
+            
+            
+            // switch to the main actor to update UI
             await MainActor.run {
                 self.isFirstLaunch = isFirstLaunchResult
-                if let tempRecordID = tempRecordID {
-                    self.recordIDDelete = tempRecordID
-                }
-
-                // Setup observers and start initial tasks
-                setupCloudKitObservers()
-                startInitialTasks()
             }
+            
+            // Setup observers and start initial tasks
+            await setupCloudKitObservers()
+            await startInitialTasks()
+            
         }
     }
-
+    
+    ///even when called from a Task, accessing or modifying actor-isolated properties and methods happens in the actor’s context,
+    ///provided you use await. The actor’s internal queue guarantees thread safety by isolating those accesses.
+    private func updateRecordID(_ tempRecordID: CKRecord.ID?) async {
+        if let tempRecordID = tempRecordID {
+            self.recordIDDelete = tempRecordID
+        }
+    }
+    
     private func setupCloudKitObservers() {
         NotificationCenter.default.publisher(for: .CKAccountChanged)
             .sink { [weak self] _ in
@@ -656,7 +665,7 @@ final class CloudKitViewModel: ObservableObject, Sendable {
             }
             .store(in: &cancellables)
     }
-
+    
     private func startInitialTasks() {
         Task {
             do {
@@ -676,18 +685,18 @@ final class CloudKitViewModel: ObservableObject, Sendable {
         
         let keyExists = await userDefaultsKeyExists("isFirstLaunch")
         if keyExists {
-               return UserDefaults.standard.bool(forKey: "isFirstLaunch")
-           } else {
-               UserDefaults.standard.set(true, forKey: "isFirstLaunch")
-               return true
-           }
-       }
-       
-//       private static func userDefaultsKeyExists(_ key: String) -> Bool {
-//           return UserDefaults.standard.object(forKey: key) != nil
-//       }
+            return UserDefaults.standard.bool(forKey: "isFirstLaunch")
+        } else {
+            UserDefaults.standard.set(true, forKey: "isFirstLaunch")
+            return true
+        }
+    }
     
-    @objc private func handleAccountChange() {
+    //       private static func userDefaultsKeyExists(_ key: String) -> Bool {
+    //           return UserDefaults.standard.object(forKey: key) != nil
+    //       }
+    
+    private func handleAccountChange() {
         Task {
             do {
                 try await getiCloudStatus()
@@ -798,11 +807,12 @@ final class CloudKitViewModel: ObservableObject, Sendable {
                         withAnimation(.easeInOut) {
                             self.userIsSignedIn = true
                         }
-                        self.db = CKContainer.default().privateCloudDatabase
+                        
                     default:
                         self.userIsSignedIn = false
                     }
                 }
+                self.db = CKContainer.default().privateCloudDatabase
                 return
             } catch {
                 attempts += 1
@@ -894,14 +904,14 @@ final class CloudKitViewModel: ObservableObject, Sendable {
     }
     
     func deleteNamespaceItem(recordID: CKRecord.ID) async throws {
-//        print("\nfetchedNamespaceDict: \(fetchedNamespaceDict)")
-
+        //        print("\nfetchedNamespaceDict: \(fetchedNamespaceDict)")
+        
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
-
+        
         let maxRetryAttempts = 3
         let delayBetweenRetries: UInt64 = 200_000_000
         var attempts = 0
-
+        
         while attempts < maxRetryAttempts {
             do {
                 // Delete the record from the database
@@ -910,7 +920,7 @@ final class CloudKitViewModel: ObservableObject, Sendable {
             } catch {
                 attempts += 1
                 print("Attempt \(attempts) failed: \(error.localizedDescription)")
-
+                
                 // Retry mechanism
                 if attempts >= maxRetryAttempts {
                     throw error // Throw the error after exceeding retry attempts
@@ -920,26 +930,26 @@ final class CloudKitViewModel: ObservableObject, Sendable {
                 }
             }
         }
-
+        
         throw AppCKError.unknownError(message: "Failed to delete namespace item after \(maxRetryAttempts) attempts")
     }
     //MARK: NEW FOR DELETE ACCOUNT
-
+    
     //MARK: Delete Images functions
     // Function to fetch all records matching a query
     func fetchAllRecords(using query: CKQuery, from database: CKDatabase) async throws -> [CKRecord] {
         var allRecords: [CKRecord] = []
         var currentCursor: CKQueryOperation.Cursor? = nil
-
+        
         repeat {
             let (records, cursor) = try await fetchRecords(withCursor: currentCursor, query: query, from: database)
             allRecords.append(contentsOf: records)
             currentCursor = cursor
         } while currentCursor != nil
-
+        
         return allRecords
     }
-
+    
     // Helper function to fetch records with pagination support
     func fetchRecords(withCursor cursor: CKQueryOperation.Cursor?, query: CKQuery?, from database: CKDatabase) async throws -> (records: [CKRecord], cursor: CKQueryOperation.Cursor?) {
         return try await withCheckedThrowingContinuation { continuation in
@@ -953,7 +963,7 @@ final class CloudKitViewModel: ObservableObject, Sendable {
                 continuation.resume(throwing: NSError(domain: "Invalid parameters", code: -1, userInfo: nil))
                 return
             }
-
+            
             // Updated to use recordMatchedBlock
             operation.recordMatchedBlock = { recordID, result in
                 switch result {
@@ -966,7 +976,7 @@ final class CloudKitViewModel: ObservableObject, Sendable {
                     // For this example, we'll continue fetching other records
                 }
             }
-
+            
             // Updated to use queryResultBlock
             operation.queryResultBlock = { result in
                 switch result {
@@ -976,12 +986,12 @@ final class CloudKitViewModel: ObservableObject, Sendable {
                     continuation.resume(throwing: error)
                 }
             }
-
+            
             database.add(operation)
         }
     }
-  
-
+    
+    
     // Function to delete a record from iCloud using CloudKit's modifyRecords method NOT FOR IMAGES
     func deleteRecordFromICloud(recordID: CKRecord.ID, from database: CKDatabase) async throws {
         do {
@@ -992,7 +1002,7 @@ final class CloudKitViewModel: ObservableObject, Sendable {
                 savePolicy: .ifServerRecordUnchanged, // Save policy; does not affect delete
                 atomically: true // Operation fails entirely if any error occurs
             )
-
+            
             // Check the deletion result for the specific record ID
             if let deleteResult = result.deleteResults[recordID] {
                 switch deleteResult {
@@ -1005,14 +1015,14 @@ final class CloudKitViewModel: ObservableObject, Sendable {
             } else {
                 print("Record ID \(recordID.recordName) not found in delete results.")
             }
-
+            
         } catch {
             // Handle any errors from the modifyRecords call
             print("Failed to delete record from iCloud: \(error.localizedDescription)")
             throw error
         }
     }
-
+    
     
     // Function to delete records with specified IDs (ALL IMAGES)
     func deleteRecords(withIDs recordIDs: [CKRecord.ID], from database: CKDatabase) async throws {
@@ -1285,5 +1295,5 @@ final class CloudKitViewModel: ObservableObject, Sendable {
             }
         }
     }
-
+    
 }

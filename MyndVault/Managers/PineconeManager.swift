@@ -13,21 +13,31 @@ import SwiftUI
 // memoryindex HOST: https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io
 
 //MARK: create new index.
-actor PineconeManager: ObservableObject {
+actor PineconeManager: ObservableObject, Sendable {
     
     
     var CKviewModel: CloudKitViewModel? = nil
-    
+    @MainActor
     @Published var receivedError: Error?
+    @MainActor
     @Published var indexInfo: String?
+    @MainActor
     @Published var pineconeQueryResponse: PineconeQueryResponse?
+    @MainActor
     @Published var upsertSuccesful: Bool = false
+    @MainActor
     @Published var vectorDeleted: Bool = false
+    @MainActor
     @Published var accountDeleted: Bool = false
+    @MainActor
     @Published var pineconeIDResponse: PineconeIDResponse?
+    @MainActor
     @Published var pineconeIDs: [String] = []
+    @MainActor
     @Published var pineconeFetchedResponseFromID: PineconeFetchResponseFromID?
+    @MainActor
     @Published var pineconeFetchedVectors: [Vector] = []
+    @MainActor
     @Published var refreshAfterEditing: Bool = false
     
     var isDataSorted: Bool = false
@@ -38,37 +48,40 @@ actor PineconeManager: ObservableObject {
         self.CKviewModel = cloudKitViewModel
         
         Task {
-                    // Ensure access to actor-isolated property within the actor's context
-                    await self.updateAccountDeletedFromUserDefaults()
-                }
+            // Ensure access to actor-isolated property within the actor's context
+            await self.updateAccountDeletedFromUserDefaults()
+        }
         
     }
     
     func updateAccountDeletedFromUserDefaults() async {
-          self.accountDeleted = UserDefaults.standard.bool(forKey: "accountDeleted")
-          
-          // Observe changes to accountDeleted and insert cancellable
-          let cancellable = self.$accountDeleted
-              .sink { newValue in
-                  UserDefaults.standard.set(newValue, forKey: "accountDeleted")
-              }
-
-          // Store the cancellable inside the actor context
-          self.cancellables.insert(cancellable)
-      }
+        await MainActor.run {
+            self.accountDeleted = UserDefaults.standard.bool(forKey: "accountDeleted")
+        }
+        
+        // Observe changes to accountDeleted and insert cancellable
+        let cancellable = self.$accountDeleted
+            .sink { newValue in
+                UserDefaults.standard.set(newValue, forKey: "accountDeleted")
+            }
+        
+        // Store the cancellable inside the actor context
+        self.cancellables.insert(cancellable)
+    }
     
     func clearManager() async {
-       
+        await MainActor.run {
             self.receivedError = nil
             self.pineconeQueryResponse = nil
             self.upsertSuccesful = false
-
+        }
     }
     
     //deletes localy
-    @MainActor
-    func deleteVector(withId id: String) {
-        pineconeFetchedVectors.removeAll { $0.id == id }
+    func deleteVector(withId id: String) async {
+        await MainActor.run {
+            pineconeFetchedVectors.removeAll { $0.id == id }
+        }
     }
     
     func refreshNamespacesIDs() async throws {
@@ -105,25 +118,26 @@ actor PineconeManager: ObservableObject {
                 let (data, _) = try await URLSession.shared.data(for: request)
                 let decodedResponse = try JSONDecoder().decode(PineconeIDResponse.self, from: data)
                 
-                await MainActor.run { [weak self] in
-                    self?.pineconeIDResponse = decodedResponse
+                await MainActor.run {
+                    self.pineconeIDResponse = decodedResponse
+                }
                     
-                    if let idResponse = self?.pineconeIDResponse {
-                        self?.pineconeIDs.append(contentsOf: idResponse.vectors.map { $0.id })
+                if let idResponse = await self.pineconeIDResponse {
+                    await MainActor.run {
+                        self.pineconeIDs.append(contentsOf: idResponse.vectors.map { $0.id })
                     }
+                    }
+                var needsRefrash: Bool = await MainActor.run {
+                    self.refreshAfterEditing == true
                 }
+                    if !self.isDataSorted || needsRefrash {
+                        do {
+                            try await fetchDataForIds()
+                        } catch {
+                            throw error
+                        }
+                    }
                 
-                let shouldFetchDataForIds = await MainActor.run { [weak self] in
-                    guard let self = self else { return false }
-                    return !self.isDataSorted || self.refreshAfterEditing
-                }
-                if shouldFetchDataForIds {
-                    do {
-                        try await fetchDataForIds()
-                    } catch {
-                        throw error
-                    }
-                }
                 
                 // 1RU per call
                 updateTokenUsage(api: APIs.pinecone, tokensUsed: 1, read: true)
@@ -154,21 +168,22 @@ actor PineconeManager: ObservableObject {
             throw AppNetworkError.apiKeyNotFound
         }
         
-        // Safely access `pineconeIDs` inside `MainActor.run`
-        let queryItems = await MainActor.run { [weak self] in
-            self?.pineconeIDs.map { URLQueryItem(name: "ids", value: $0) } ?? []
-        }
+        let queryItems: [URLQueryItem] = await MainActor.run {
+                self.pineconeIDs.map { URLQueryItem(name: "ids", value: $0) }
+            }
+            
+            // Ensure namespace is added to query items
+            var urlComponents = URLComponents(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/fetch")!
+            urlComponents.queryItems = queryItems
+            urlComponents.queryItems?.append(URLQueryItem(name: "namespace", value: namespace))
         
-        // Ensure namespace is added to query items
-        var urlComponents = URLComponents(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/fetch")!
-        urlComponents.queryItems = queryItems
-        urlComponents.queryItems?.append(URLQueryItem(name: "namespace", value: namespace))
         
         guard let url = urlComponents.url else {
             throw URLError(.badURL)
         }
         
         var request = URLRequest(url: url)
+            
         request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
         request.httpMethod = "GET"
         
@@ -195,10 +210,12 @@ actor PineconeManager: ObservableObject {
                 }
                 
                 // Safely update properties inside `MainActor.run`
-                await MainActor.run { [weak self] in
-                    self?.pineconeFetchedVectors = sortedVectors
-                    self?.isDataSorted = true
+                await MainActor.run {
+                    self.pineconeFetchedVectors = sortedVectors
                 }
+                    self.isDataSorted = true
+                
+                
                 
                 let readUnits = sortedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
                 updateTokenUsage(api: APIs.pinecone, tokensUsed: readUnits, read: true)
@@ -252,16 +269,17 @@ actor PineconeManager: ObservableObject {
                 
                 if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
                     
-                    DispatchQueue.main.async {
+                    await MainActor.run {
                         self.vectorDeleted = false
                     }
+                    
                     throw AppNetworkError.unknownError("Unable to Delete Info (bad Response).")
                 }
-                
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.vectorDeleted = true
-                    updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
                 }
+                updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
+                
                 break
                 
             } catch {
@@ -313,12 +331,14 @@ actor PineconeManager: ObservableObject {
                     throw AppNetworkError.unknownError("Unable to delete Vectors (bad Response).")
                 }
                 updateTokenUsage(api: APIs.pinecone, tokensUsed: 10, read: false)
-                await MainActor.run { [weak self] in
-                    self?.pineconeFetchedVectors = []
-                    self?.pineconeIDs = []
-                    self?.accountDeleted = true
-                    self?.refreshAfterEditing = true
+                
+                await MainActor.run {
+                    self.pineconeFetchedVectors = []
+                    self.pineconeIDs = []
+                    self.accountDeleted = true
+                    self.refreshAfterEditing = true
                 }
+                
                 break
                 
             } catch {
@@ -383,11 +403,14 @@ actor PineconeManager: ObservableObject {
         while attempts < maxAttempts {
             do {
                 let _ = try await performHTTPRequest(request: request)
-                await MainActor.run { [weak self] in
-                    self?.upsertSuccesful = true
-                    ProgressTracker.shared.setProgress(to: 0.98)
-                    ProgressTracker.shared.setProgress(to: 0.99)
+                
+                await ProgressTracker.shared.setProgress(to: 0.98)
+                await ProgressTracker.shared.setProgress(to: 0.99)
+                
+                await MainActor.run {
+                    self.upsertSuccesful = true
                 }
+                
                 break
             } catch {
                 attempts += 1
@@ -433,14 +456,14 @@ actor PineconeManager: ObservableObject {
     func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) async throws {
         let maxAttempts = 2
         var attempts = 0
-        
+
         DispatchQueue.main.async {
             ProgressTracker.shared.setProgress(to: 0.42)
         }
-        
+
         while attempts < maxAttempts {
             var taskResults = [Result<Void, Error>]()
-            
+
             await withTaskGroup(of: Result<Void, Error>.self) { taskGroup in
                 taskGroup.addTask(priority: .background) { [weak self] in
                     guard let self = self else { return .failure(AppCKError.UnableToGetNameSpace) }
@@ -448,19 +471,17 @@ actor PineconeManager: ObservableObject {
                         try await self.performQueryPinecone(vector: vector, topK: topK, includeValues: includeValues)
                         return .success(())
                     } catch {
-                        await MainActor.run { [weak self] in
-                            self?.receivedError = error
-                        }
-                        //                        print("Error querying Pinecone: \(error)")
+                        // Use `await` here to ensure we're inside the actor's context when updating `receivedError`
+                        await self.updateReceivedError(error: error)
                         return .failure(error)
                     }
                 }
-                
+
                 for await result in taskGroup {
                     taskResults.append(result)
                 }
             }
-            
+
             // Check the results of the tasks
             if let firstError = taskResults.compactMap({ try? $0.get() }).isEmpty ? taskResults.compactMap({ result -> Error? in
                 if case .failure(let error) = result {
@@ -470,15 +491,20 @@ actor PineconeManager: ObservableObject {
             }).first : nil {
                 attempts += 1
                 if attempts < maxAttempts {
-                    //                    print("Attempt \(attempts) failed, retrying after 0.1 seconds...")
                     try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
                 } else {
-                    //                    print("All attempts failed.")
                     throw firstError
                 }
             } else {
                 break
             }
+        }
+    }
+
+    // Helper function to update `receivedError` safely within the actor's context
+    func updateReceivedError(error: Error) async {
+        await MainActor.run {
+            self.receivedError = error
         }
     }
     
@@ -525,18 +551,16 @@ actor PineconeManager: ObservableObject {
         let decoder = JSONDecoder()
         let pineconeResponse = try decoder.decode(PineconeQueryResponse.self, from: data)
         
-        // Use MainActor.run to update the properties and ensure thread safety
-        await MainActor.run { [weak self] in
-            guard let self = self else { return }
-            ProgressTracker.shared.setProgress(to: 0.55)
+        
+        await ProgressTracker.shared.setProgress(to: 0.55)
+        await MainActor.run {
             self.pineconeQueryResponse = pineconeResponse
         }
+        
         
         DispatchQueue.main.async {
             ProgressTracker.shared.setProgress(to: 0.62)
         }
-        
-        // Access pineconeQueryResponse within MainActor
         let queryResponse = await MainActor.run { [weak self] in
             return self?.pineconeQueryResponse
         }

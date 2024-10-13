@@ -40,8 +40,10 @@ struct SplashScreen: View {
                     title: Text("iCloud"),
                     message: Text(alertMessage),
                     primaryButton: .default(Text("Retry")) {
-                        cloudKit.clearCloudKit()
-                        cloudKit.startCloudKit()
+                        Task {
+                            await cloudKit.clearCloudKit()
+                            await cloudKit.startCloudKit()
+                        }
                     },
                     secondaryButton: .default(Text("Login with iCloud")) {
                         openICloudSettings()
@@ -51,7 +53,9 @@ struct SplashScreen: View {
         }
         .onAppear {
             startAnimations()
-            cloudKit.startCloudKit()
+            Task {
+                await cloudKit.startCloudKit()
+            }
         }
         .onChange(of: cloudKit.userIsSignedIn) { _, isSignedIn in
                     if !isSignedIn {

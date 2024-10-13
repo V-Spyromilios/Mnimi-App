@@ -32,7 +32,7 @@ struct CustomPayWall: View {
     CustomPayWall()
 }
 
-
+@MainActor
 @ViewBuilder
 private func benefits() -> some View {
     

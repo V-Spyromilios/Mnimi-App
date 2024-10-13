@@ -1,214 +1,214 @@
-import SwiftUI
-import UserNotifications
-
-struct NotificationEditView: View {
-    
-//    @Environment(\.presentationMode) var presentationMode
-    
-    @State private var selectedDate = Date()
-    @State private var notificationTitle: String = ""
-    @State private var notificationBody: String = ""
-    @State private var shake: Bool = false
-    @EnvironmentObject var keyboardResponder: KeyboardResponder
-    @Environment(\.colorScheme) var colorScheme
-    var notification: CustomNotification
-    @Binding var edited: Bool
-    @Binding var showEdit: Bool
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Image(systemName: "pencil").bold()
-                            .font(.callout)
-                        Text("Title").bold()
-                        Spacer()
-                    }
-                    .font(.callout)
-                    .padding(.top, 12)
-                    .padding(.bottom, 8)
-                   
-                    TextEditor(text: $notificationTitle)
-                        .fontDesign(.rounded)
-                        .font(.title2)
-                        .multilineTextAlignment(.leading)
-                        .frame(height: 150) // Adjust height as needed
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(Color.gray)
-                        )
-                
-                        .padding(.bottom)
-                    
-                    HStack {
-                        Image(systemName: "pencil").bold()
-                            .font(.callout)
-                        Text("Notification").bold()
-                            .font(.callout)
-                        Spacer()
-                    }
-                    .font(.callout)
-                    .padding(.bottom, 8)
-                    .padding(.top, 12)
-                    
-                    TextEditor(text: $notificationBody)
-                        .fontDesign(.rounded)
-                        .font(.title2)
-                        .multilineTextAlignment(.leading)
-                        .frame(height: 150) // Adjust height as needed
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(Color.gray)
-                        )
-                        .padding(.bottom)
-                    
-                    HStack {
-                        Image(systemName: "clock").bold()
-                            .font(.callout)
-                        Text("Select Date and Time").bold()
-                            .font(.callout)
-                        Spacer()
-                    } .padding(.bottom, 8)
-                    DatePicker(
-                        "",
-                        selection: $selectedDate,
-                        displayedComponents: [.date, .hourAndMinute]
-                    )
-                        .padding(.bottom, 16)
-                       
-                    
-                    Button(action: {
-                        if shake { return }
-                        
-                        if notificationBody.isEmpty || notificationTitle.isEmpty {
-                            withAnimation { shake = true }
-                            return
-                        }
-                        
-                        Task {
-                            let id = notification.id
-                            let newDate = selectedDate
-                            let newTitle = notificationTitle
-                            let notificationBody = notification.notificationBody
-                            Task {
-                                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
-                                await MainActor.run {
-                                    rescheduleNotification(identifier: id, title: "\(newTitle)", body: notificationBody, date: newDate)
-                                    print("Rescheduled for \(newDate)")
-                                    edited = true
-                                    showEdit = false
-                                }
-                            }
-                        }
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: Constants.rectCornerRad)
-                                .fill(shake ? Color.gray : Color.customLightBlue)
-                                .frame(height: Constants.buttonHeight)
-                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                            Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
-                        }
-                        .padding(.vertical, 8)
-                        .contentShape(Rectangle())
-                        .accessibilityLabel("Save changes and reschedule")
-                    }
-                    .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
-                    .padding(.top, 12)
-                    .padding(.horizontal)
-                   Spacer()
-                }
-                .padding(.horizontal, 16)
-                
-                .onAppear {
-                    selectedDate = notification.date
-                    self.notificationTitle = notification.title
-                    self.notificationBody = notification.notificationBody
-                }
-                .onChange(of: shake) { _, newValue in
-                    if newValue {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            shake = false
-                        }
-                    }
-                }
-            }.background {
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                    .opacity(0.4)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
-            }
-            
-            .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    if keyboardResponder.currentHeight > 0 {
-                       
-                            Button {
-                                hideKeyboard()
-                            } label: {
-                                HideKeyboardLabel()
-                            }
-                        
-                    }
-                    
-                    Button("Cancel") {
-                        showEdit.toggle()
-                    }
-                    .accessibilityLabel("Cancel")
-                }
-            }
-            .navigationBarTitleView {
-                HStack {
-                    Text("Edit Notification").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-//                    LottieRepresentable(filename: "").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
-                }
-            }
-        }
-        .statusBar(hidden: true)
-    }
-}
-
-private func removeAppNamePrefix(from title: String, appName: String = "Mynd Vault: ") -> String {
-    while title.hasPrefix(appName) {
-        return String(title.dropFirst(appName.count))
-    }
-    return title
-}
-
-private func rescheduleNotification(identifier: String, title: String, body: String, date: Date) {
-    let content = UNMutableNotificationContent()
-    content.title = title
-    content.body = body
-    content.sound = UNNotificationSound.defaultCriticalSound(withAudioVolume: 1.0)
-    
-    let triggerDate = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: date)
-    let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
-    
-    let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-    
-    UNUserNotificationCenter.current().add(request) { error in
-        if let error = error {
-            print("Error RESCHEDULING notification: \(error.localizedDescription)")
-        }
-    }
-
-}
-
-//struct NotificationEditView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let responder = KeyboardResponder()
-//        
-//        NotificationEditView(notification:
-//                                CustomNotification(id: "2Sf3GT", title: "Custom Notification", notificationBody: "Remind me tomorrow to watch Big Bang Theory", date: Date(), repeats: true, edited: .constant(false))
-//                             )
-//            .environmentObject(responder)
+//import SwiftUI
+//import UserNotifications
+//
+//struct NotificationEditView: View {
+//    
+////    @Environment(\.presentationMode) var presentationMode
+//    
+//    @State private var selectedDate = Date()
+//    @State private var notificationTitle: String = ""
+//    @State private var notificationBody: String = ""
+//    @State private var shake: Bool = false
+//    @EnvironmentObject var keyboardResponder: KeyboardResponder
+//    @Environment(\.colorScheme) var colorScheme
+//    var notification: CustomNotification
+//    @Binding var edited: Bool
+//    @Binding var showEdit: Bool
+//    
+//    var body: some View {
+//        NavigationStack {
+//            ScrollView {
+//                VStack(alignment: .leading) {
+//                    HStack {
+//                        Image(systemName: "pencil").bold()
+//                            .font(.callout)
+//                        Text("Title").bold()
+//                        Spacer()
+//                    }
+//                    .font(.callout)
+//                    .padding(.top, 12)
+//                    .padding(.bottom, 8)
+//                   
+//                    TextEditor(text: $notificationTitle)
+//                        .fontDesign(.rounded)
+//                        .font(.title2)
+//                        .multilineTextAlignment(.leading)
+//                        .frame(height: 150) // Adjust height as needed
+//                        .clipShape(RoundedRectangle(cornerRadius: 10))
+//                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 10.0)
+//                                .stroke(lineWidth: 1)
+//                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+//                                .foregroundColor(Color.gray)
+//                        )
+//                
+//                        .padding(.bottom)
+//                    
+//                    HStack {
+//                        Image(systemName: "pencil").bold()
+//                            .font(.callout)
+//                        Text("Notification").bold()
+//                            .font(.callout)
+//                        Spacer()
+//                    }
+//                    .font(.callout)
+//                    .padding(.bottom, 8)
+//                    .padding(.top, 12)
+//                    
+//                    TextEditor(text: $notificationBody)
+//                        .fontDesign(.rounded)
+//                        .font(.title2)
+//                        .multilineTextAlignment(.leading)
+//                        .frame(height: 150) // Adjust height as needed
+//                        .clipShape(RoundedRectangle(cornerRadius: 10))
+//                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 10.0)
+//                                .stroke(lineWidth: 1)
+//                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+//                                .foregroundColor(Color.gray)
+//                        )
+//                        .padding(.bottom)
+//                    
+//                    HStack {
+//                        Image(systemName: "clock").bold()
+//                            .font(.callout)
+//                        Text("Select Date and Time").bold()
+//                            .font(.callout)
+//                        Spacer()
+//                    } .padding(.bottom, 8)
+//                    DatePicker(
+//                        "",
+//                        selection: $selectedDate,
+//                        displayedComponents: [.date, .hourAndMinute]
+//                    )
+//                        .padding(.bottom, 16)
+//                       
+//                    
+//                    Button(action: {
+//                        if shake { return }
+//                        
+//                        if notificationBody.isEmpty || notificationTitle.isEmpty {
+//                            withAnimation { shake = true }
+//                            return
+//                        }
+//                        
+//                        Task {
+//                            let id = notification.id
+//                            let newDate = selectedDate
+//                            let newTitle = notificationTitle
+//                            let notificationBody = notification.notificationBody
+//                            Task {
+//                                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
+//                                await MainActor.run {
+//                                    rescheduleNotification(identifier: id, title: "\(newTitle)", body: notificationBody, date: newDate)
+//                                    print("Rescheduled for \(newDate)")
+//                                    edited = true
+//                                    showEdit = false
+//                                }
+//                            }
+//                        }
+//                    }) {
+//                        ZStack {
+//                            RoundedRectangle(cornerRadius: Constants.rectCornerRad)
+//                                .fill(shake ? Color.gray : Color.customLightBlue)
+//                                .frame(height: Constants.buttonHeight)
+//                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+//                            Text("Reschedule").font(.title2).bold().foregroundColor(Color.buttonText)
+//                        }
+//                        .padding(.vertical, 8)
+//                        .contentShape(Rectangle())
+//                        .accessibilityLabel("Save changes and reschedule")
+//                    }
+//                    .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+//                    .padding(.top, 12)
+//                    .padding(.horizontal)
+//                   Spacer()
+//                }
+//                .padding(.horizontal, 16)
+//                
+//                .onAppear {
+//                    selectedDate = notification.date
+//                    self.notificationTitle = notification.title
+//                    self.notificationBody = notification.notificationBody
+//                }
+//                .onChange(of: shake) { _, newValue in
+//                    if newValue {
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                            shake = false
+//                        }
+//                    }
+//                }
+//            }.background {
+//                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+//                    .opacity(0.4)
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                    .ignoresSafeArea()
+//            }
+//            
+//            .toolbar {
+//                ToolbarItemGroup(placement: .topBarTrailing) {
+//                    if keyboardResponder.currentHeight > 0 {
+//                       
+//                            Button {
+//                                hideKeyboard()
+//                            } label: {
+//                                HideKeyboardLabel()
+//                            }
+//                        
+//                    }
+//                    
+//                    Button("Cancel") {
+//                        showEdit.toggle()
+//                    }
+//                    .accessibilityLabel("Cancel")
+//                }
+//            }
+//            .navigationBarTitleView {
+//                HStack {
+//                    Text("Edit Notification").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+////                    LottieRepresentable(filename: "").frame(width: 55, height: 55).padding(.bottom, 5).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+//                }
+//            }
+//        }
+//        .statusBar(hidden: true)
 //    }
 //}
+//
+//private func removeAppNamePrefix(from title: String, appName: String = "Mynd Vault: ") -> String {
+//    while title.hasPrefix(appName) {
+//        return String(title.dropFirst(appName.count))
+//    }
+//    return title
+//}
+//
+//private func rescheduleNotification(identifier: String, title: String, body: String, date: Date) {
+//    let content = UNMutableNotificationContent()
+//    content.title = title
+//    content.body = body
+//    content.sound = UNNotificationSound.defaultCriticalSound(withAudioVolume: 1.0)
+//    
+//    let triggerDate = Calendar.current.dateComponents([.year,.month,.day,.hour,.minute], from: date)
+//    let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
+//    
+//    let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+//    
+//    UNUserNotificationCenter.current().add(request) { error in
+//        if let error = error {
+//            print("Error RESCHEDULING notification: \(error.localizedDescription)")
+//        }
+//    }
+//
+//}
+//
+////struct NotificationEditView_Previews: PreviewProvider {
+////    static var previews: some View {
+////        let responder = KeyboardResponder()
+////        
+////        NotificationEditView(notification:
+////                                CustomNotification(id: "2Sf3GT", title: "Custom Notification", notificationBody: "Remind me tomorrow to watch Big Bang Theory", date: Date(), repeats: true, edited: .constant(false))
+////                             )
+////            .environmentObject(responder)
+////    }
+////}

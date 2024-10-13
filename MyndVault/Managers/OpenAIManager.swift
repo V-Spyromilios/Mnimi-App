@@ -466,127 +466,127 @@ final class OpenAIManager: ObservableObject,  @unchecked Sendable {
 //    }
     
     
-    func getGptPrompt(notifications: [CustomNotification], currentDate: String)async  -> String {
-        
-        let notificationTexts = notifications.map { notification in
-            "Title: \(notification.title), Body: \(notification.notificationBody), Date: \(notification.date)"
-        }
-        
-        let selectedLanguage = await MainActor.run { languageSettings.selectedLanguage }
-                switch selectedLanguage {
-                case .english:
-                    return """
-You are a helpful personal assistant. The date and time now in ISO8601 format is \(currentDate).
-Below is a list of scheduled notifications for the current month:
-
-\(notificationTexts.joined(separator: "\n"))
-
-Please provide a summary of these notifications, highlighting important events and any notable patterns. Ensure the summary is easy to understand, for example "Next Thursday you have to meet Jane for coffee at 6pm."
-
-Focus on creating a concise overview that can help the user quickly understand their upcoming schedule. Avoid using special characters like '*', avoid using time annotations like 'local time'.
-"""
-                case .spanish:
-                    return """
-Eres un asistente personal útil. La fecha y hora actual en formato ISO8601 es \(currentDate).
-A continuación, se muestra una lista de notificaciones programadas para el mes actual:
-
-\(notificationTexts.joined(separator: "\n"))
-
-Por favor, proporciona un resumen de estas notificaciones, destacando eventos importantes y cualquier patrón notable. Asegúrate de que el resumen sea fácil de entender, por ejemplo, "El próximo jueves tienes que reunirte con Jane para tomar un café a las 6pm."
-
-Enfócate en crear una visión general concisa que pueda ayudar al usuario a entender rápidamente su agenda próxima. Evita usar caracteres especiales como '*', evita usar anotaciones de tiempo como 'hora local'.
-"""
-                case .french:
-                    return """
-Vous êtes un assistant personnel utile. La date et l'heure actuelles au format ISO8601 sont \(currentDate).
-Voici une liste des notifications programmées pour le mois en cours :
-
-\(notificationTexts.joined(separator: "\n"))
-
-Veuillez fournir un résumé de ces notifications, en soulignant les événements importants et tout schéma notable. Assurez-vous que le résumé soit facile à comprendre, par exemple "Jeudi prochain, vous devez rencontrer Jane pour un café à 18h."
-
-Concentrez-vous sur la création d'un aperçu concis qui peut aider l'utilisateur à comprendre rapidement son emploi du temps à venir. Évitez d'utiliser des caractères spéciaux comme '*', évitez d'utiliser des annotations temporelles comme 'heure locale'.
-"""
-                case .german:
-                    return """
-Sie sind ein hilfreicher persönlicher Assistent. Das aktuelle Datum und die aktuelle Uhrzeit im ISO8601-Format sind \(currentDate).
-Im Folgenden finden Sie eine Liste der geplanten Benachrichtigungen für den aktuellen Monat:
-
-\(notificationTexts.joined(separator: "\n"))
-
-Bitte geben Sie eine Zusammenfassung dieser Benachrichtigungen, heben Sie wichtige Ereignisse und bemerkenswerte Muster hervor. Stellen Sie sicher, dass die Zusammenfassung leicht verständlich ist, zum Beispiel "Nächsten Donnerstag müssen Sie sich um 18 Uhr mit Jane auf einen Kaffee treffen."
-
-Konzentrieren Sie sich darauf, eine prägnante Übersicht zu erstellen, die dem Benutzer hilft, seinen bevorstehenden Zeitplan schnell zu verstehen. Vermeiden Sie die Verwendung von Sonderzeichen wie '*', und vermeiden Sie Zeitangaben wie 'Ortszeit'.
-"""
-                case .greek:
-                    return """
-           Είστε ένας χρήσιμος προσωπικός βοηθός. Η ημερομηνία και η ώρα τώρα σε μορφή ISO8601 είναι \(currentDate).
-           Παρακάτω είναι μια λίστα με τις προγραμματισμένες ειδοποιήσεις για τον τρέχοντα μήνα:
-
-           \(notificationTexts.joined(separator: "\n"))
-
-           Παρακαλώ παρέχετε μια σύνοψη αυτών των ειδοποιήσεων, επισημαίνοντας σημαντικά γεγονότα και οποιαδήποτε αξιοσημείωτα μοτίβα. Βεβαιωθείτε ότι η σύνοψη είναι εύκολη στην κατανόηση, για παράδειγμα "Την επόμενη Πέμπτη πρέπει να συναντήσετε την Τζέιν για καφέ στις 6μμ."
-
-           Επικεντρωθείτε στη δημιουργία μιας συνοπτικής επισκόπησης που μπορεί να βοηθήσει τον χρήστη να κατανοήσει γρήγορα το προσεχές πρόγραμμα του. Αποφύγετε τη χρήση ειδικών χαρακτήρων όπως '*', και αποφύγετε τη χρήση χρονικών επισημάνσεων όπως 'τοπική ώρα'.
-"""
-                case .korean:
-                    return """
-당신은 도움이 되는 개인 비서입니다. 현재 날짜와 시간은 ISO8601 형식으로 \(currentDate)입니다.
-다음은 이번 달에 예정된 알림 목록입니다:
-
-\(notificationTexts.joined(separator: "\n"))
-
-이 알림들의 요약을 제공해 주세요, 중요한 이벤트와 주목할 만한 패턴을 강조하세요. 요약이 이해하기 쉽게 작성되었는지 확인하세요, 예를 들어 "다음 주 목요일 오후 6시에 제인과 커피를 마셔야 합니다."
-
-사용자가 다가오는 일정을 빠르게 이해할 수 있도록 간결한 개요를 작성하는 데 집중하세요. '*'와 같은 특수 문자를 사용하지 말고, '현지 시간'과 같은 시간 주석을 사용하지 마세요.
-"""
-                case .japanese:
-                    return """
-あなたは役に立つパーソナルアシスタントです。現在の日付と時刻はISO8601形式で\(currentDate)です。
-以下は今月の予定通知のリストです：
-
-\(notificationTexts.joined(separator: "\n"))
-
-これらの通知の概要を提供し、重要なイベントや注目すべきパターンを強調してください。概要が分かりやすいものであることを確認してください。例えば、「次の木曜日の午後6時にジェーンとコーヒーを飲む予定があります」のようにしてください。
-
-ユーザーが今後のスケジュールをすぐに理解できるように、簡潔な概要を作成することに集中してください。'*'のような特殊文字や「現地時間」といった時間注釈の使用は避けてください。
-"""
-                case .chineseSimplified:
-                    return """
-您是一名有帮助的个人助理。当前的日期和时间是ISO8601格式的\(currentDate)。
-以下是本月的预定通知列表：
-
-\(notificationTexts.joined(separator: "\n"))
-
-请提供这些通知的摘要，突出重要事件和任何值得注意的模式。确保摘要易于理解，例如“下周四下午6点您要与简见面喝咖啡。”
-
-重点创建一个简明的概述，帮助用户快速了解即将到来的日程安排。避免使用'*'等特殊字符，避免使用“当地时间”等时间注释。
-"""
-                case .portuguese:
-                    return """
-Você é um assistente pessoal útil. A data e hora atuais no formato ISO8601 são \(currentDate).
-Abaixo está uma lista de notificações agendadas para o mês atual:
-
-\(notificationTexts.joined(separator: "\n"))
-
-Por favor, forneça um resumo dessas notificações, destacando eventos importantes e quaisquer padrões notáveis. Certifique-se de que o resumo seja fácil de entender, por exemplo "Na próxima quinta-feira você tem um encontro com Jane para um café às 18h."
-
-Concentre-se em criar uma visão geral concisa que possa ajudar o usuário a entender rapidamente sua agenda futura. Evite usar caracteres especiais como '*', evite usar anotações de tempo como 'hora local'.
-"""
-                case .italian:
-                    return """
-Sei un assistente personale utile. La data e l'ora attuali nel formato ISO8601 sono \(currentDate).
-Di seguito è riportato un elenco delle notifiche programmate per il mese corrente:
-
-\(notificationTexts.joined(separator: "\n"))
-
-Fornisci un riepilogo di queste notifiche, evidenziando eventi importanti e eventuali schemi degni di nota. Assicurati che il riepilogo sia facile da comprendere, ad esempio "Giovedì prossimo devi incontrare Jane per un caffè alle 18:00."
-
-Concentrati sulla creazione di una panoramica concisa che possa aiutare l'utente a comprendere rapidamente il proprio programma imminente. Evita di usare caratteri speciali come '*', evita di usare annotazioni temporali come 'ora locale'.
-"""
-                case .hebrew:
-                    return "this"
-                }
-            }
+//    func getGptPrompt(notifications: [CustomNotification], currentDate: String)async  -> String {
+//        
+//        let notificationTexts = notifications.map { notification in
+//            "Title: \(notification.title), Body: \(notification.notificationBody), Date: \(notification.date)"
+//        }
+//        
+//        let selectedLanguage = await MainActor.run { languageSettings.selectedLanguage }
+//                switch selectedLanguage {
+//                case .english:
+//                    return """
+//You are a helpful personal assistant. The date and time now in ISO8601 format is \(currentDate).
+//Below is a list of scheduled notifications for the current month:
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//Please provide a summary of these notifications, highlighting important events and any notable patterns. Ensure the summary is easy to understand, for example "Next Thursday you have to meet Jane for coffee at 6pm."
+//
+//Focus on creating a concise overview that can help the user quickly understand their upcoming schedule. Avoid using special characters like '*', avoid using time annotations like 'local time'.
+//"""
+//                case .spanish:
+//                    return """
+//Eres un asistente personal útil. La fecha y hora actual en formato ISO8601 es \(currentDate).
+//A continuación, se muestra una lista de notificaciones programadas para el mes actual:
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//Por favor, proporciona un resumen de estas notificaciones, destacando eventos importantes y cualquier patrón notable. Asegúrate de que el resumen sea fácil de entender, por ejemplo, "El próximo jueves tienes que reunirte con Jane para tomar un café a las 6pm."
+//
+//Enfócate en crear una visión general concisa que pueda ayudar al usuario a entender rápidamente su agenda próxima. Evita usar caracteres especiales como '*', evita usar anotaciones de tiempo como 'hora local'.
+//"""
+//                case .french:
+//                    return """
+//Vous êtes un assistant personnel utile. La date et l'heure actuelles au format ISO8601 sont \(currentDate).
+//Voici une liste des notifications programmées pour le mois en cours :
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//Veuillez fournir un résumé de ces notifications, en soulignant les événements importants et tout schéma notable. Assurez-vous que le résumé soit facile à comprendre, par exemple "Jeudi prochain, vous devez rencontrer Jane pour un café à 18h."
+//
+//Concentrez-vous sur la création d'un aperçu concis qui peut aider l'utilisateur à comprendre rapidement son emploi du temps à venir. Évitez d'utiliser des caractères spéciaux comme '*', évitez d'utiliser des annotations temporelles comme 'heure locale'.
+//"""
+//                case .german:
+//                    return """
+//Sie sind ein hilfreicher persönlicher Assistent. Das aktuelle Datum und die aktuelle Uhrzeit im ISO8601-Format sind \(currentDate).
+//Im Folgenden finden Sie eine Liste der geplanten Benachrichtigungen für den aktuellen Monat:
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//Bitte geben Sie eine Zusammenfassung dieser Benachrichtigungen, heben Sie wichtige Ereignisse und bemerkenswerte Muster hervor. Stellen Sie sicher, dass die Zusammenfassung leicht verständlich ist, zum Beispiel "Nächsten Donnerstag müssen Sie sich um 18 Uhr mit Jane auf einen Kaffee treffen."
+//
+//Konzentrieren Sie sich darauf, eine prägnante Übersicht zu erstellen, die dem Benutzer hilft, seinen bevorstehenden Zeitplan schnell zu verstehen. Vermeiden Sie die Verwendung von Sonderzeichen wie '*', und vermeiden Sie Zeitangaben wie 'Ortszeit'.
+//"""
+//                case .greek:
+//                    return """
+//           Είστε ένας χρήσιμος προσωπικός βοηθός. Η ημερομηνία και η ώρα τώρα σε μορφή ISO8601 είναι \(currentDate).
+//           Παρακάτω είναι μια λίστα με τις προγραμματισμένες ειδοποιήσεις για τον τρέχοντα μήνα:
+//
+//           \(notificationTexts.joined(separator: "\n"))
+//
+//           Παρακαλώ παρέχετε μια σύνοψη αυτών των ειδοποιήσεων, επισημαίνοντας σημαντικά γεγονότα και οποιαδήποτε αξιοσημείωτα μοτίβα. Βεβαιωθείτε ότι η σύνοψη είναι εύκολη στην κατανόηση, για παράδειγμα "Την επόμενη Πέμπτη πρέπει να συναντήσετε την Τζέιν για καφέ στις 6μμ."
+//
+//           Επικεντρωθείτε στη δημιουργία μιας συνοπτικής επισκόπησης που μπορεί να βοηθήσει τον χρήστη να κατανοήσει γρήγορα το προσεχές πρόγραμμα του. Αποφύγετε τη χρήση ειδικών χαρακτήρων όπως '*', και αποφύγετε τη χρήση χρονικών επισημάνσεων όπως 'τοπική ώρα'.
+//"""
+//                case .korean:
+//                    return """
+//당신은 도움이 되는 개인 비서입니다. 현재 날짜와 시간은 ISO8601 형식으로 \(currentDate)입니다.
+//다음은 이번 달에 예정된 알림 목록입니다:
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//이 알림들의 요약을 제공해 주세요, 중요한 이벤트와 주목할 만한 패턴을 강조하세요. 요약이 이해하기 쉽게 작성되었는지 확인하세요, 예를 들어 "다음 주 목요일 오후 6시에 제인과 커피를 마셔야 합니다."
+//
+//사용자가 다가오는 일정을 빠르게 이해할 수 있도록 간결한 개요를 작성하는 데 집중하세요. '*'와 같은 특수 문자를 사용하지 말고, '현지 시간'과 같은 시간 주석을 사용하지 마세요.
+//"""
+//                case .japanese:
+//                    return """
+//あなたは役に立つパーソナルアシスタントです。現在の日付と時刻はISO8601形式で\(currentDate)です。
+//以下は今月の予定通知のリストです：
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//これらの通知の概要を提供し、重要なイベントや注目すべきパターンを強調してください。概要が分かりやすいものであることを確認してください。例えば、「次の木曜日の午後6時にジェーンとコーヒーを飲む予定があります」のようにしてください。
+//
+//ユーザーが今後のスケジュールをすぐに理解できるように、簡潔な概要を作成することに集中してください。'*'のような特殊文字や「現地時間」といった時間注釈の使用は避けてください。
+//"""
+//                case .chineseSimplified:
+//                    return """
+//您是一名有帮助的个人助理。当前的日期和时间是ISO8601格式的\(currentDate)。
+//以下是本月的预定通知列表：
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//请提供这些通知的摘要，突出重要事件和任何值得注意的模式。确保摘要易于理解，例如“下周四下午6点您要与简见面喝咖啡。”
+//
+//重点创建一个简明的概述，帮助用户快速了解即将到来的日程安排。避免使用'*'等特殊字符，避免使用“当地时间”等时间注释。
+//"""
+//                case .portuguese:
+//                    return """
+//Você é um assistente pessoal útil. A data e hora atuais no formato ISO8601 são \(currentDate).
+//Abaixo está uma lista de notificações agendadas para o mês atual:
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//Por favor, forneça um resumo dessas notificações, destacando eventos importantes e quaisquer padrões notáveis. Certifique-se de que o resumo seja fácil de entender, por exemplo "Na próxima quinta-feira você tem um encontro com Jane para um café às 18h."
+//
+//Concentre-se em criar uma visão geral concisa que possa ajudar o usuário a entender rapidamente sua agenda futura. Evite usar caracteres especiais como '*', evite usar anotações de tempo como 'hora local'.
+//"""
+//                case .italian:
+//                    return """
+//Sei un assistente personale utile. La data e l'ora attuali nel formato ISO8601 sono \(currentDate).
+//Di seguito è riportato un elenco delle notifiche programmate per il mese corrente:
+//
+//\(notificationTexts.joined(separator: "\n"))
+//
+//Fornisci un riepilogo di queste notifiche, evidenziando eventi importanti e eventuali schemi degni di nota. Assicurati che il riepilogo sia facile da comprendere, ad esempio "Giovedì prossimo devi incontrare Jane per un caffè alle 18:00."
+//
+//Concentrati sulla creazione di una panoramica concisa che possa aiutare l'utente a comprendere rapidamente il proprio programma imminente. Evita di usare caratteri speciali come '*', evita di usare annotazioni temporali come 'ora locale'.
+//"""
+//                case .hebrew:
+//                    return "this"
+//                }
+//            }
     
 }

@@ -8,10 +8,11 @@
 import Foundation
 import Network
 
-final class NetworkManager: ObservableObject {
+final class NetworkManager: ObservableObject, @unchecked Sendable {
     private var monitor: NWPathMonitor?
     private let queue = DispatchQueue(label: "NetworkMonitor")
 
+    @MainActor
     @Published var hasInternet: Bool = true
 
     init() {
@@ -19,19 +20,17 @@ final class NetworkManager: ObservableObject {
     }
 
     deinit {
-        stopMonitoring()
+        stopMonitoringSync()
     }
 
     private func startMonitoring() {
-
-        stopMonitoring()
+        stopMonitoringSync() // Synchronous cleanup before starting again
 
         monitor = NWPathMonitor()
         monitor?.start(queue: queue)
 
         monitor?.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
-                // Update hasInternet only if there's a change
                 let currentlyHasInternet = path.status == .satisfied
                 if self?.hasInternet != currentlyHasInternet {
                     self?.hasInternet = currentlyHasInternet
@@ -40,9 +39,15 @@ final class NetworkManager: ObservableObject {
         }
     }
 
-    private func stopMonitoring() {
+    // Actor-isolated function for async contexts
+    func stopMonitoring() async {
+        monitor?.cancel()
+        monitor = nil
+    }
+
+    // Synchronous cleanup method for deinit
+    private func stopMonitoringSync() {
         monitor?.cancel()
         monitor = nil
     }
 }
-
