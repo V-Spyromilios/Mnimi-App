@@ -10,7 +10,8 @@ import RevenueCat
 import RevenueCatUI
 import SwiftUI
 
-class RCViewModel: ObservableObject {
+@MainActor
+final class RCViewModel: ObservableObject, Sendable {
     static let shared = RCViewModel()
 
     @Published var customerInfo: CustomerInfo? {

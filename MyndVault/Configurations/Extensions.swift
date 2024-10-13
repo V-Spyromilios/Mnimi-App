@@ -10,7 +10,7 @@ import SwiftUI
 import UIKit
 import Combine
 
-
+@MainActor
 struct Constants {
 
   static let assemblyCode = """
@@ -62,25 +62,27 @@ done:
 
     static let entitlementID: String = "manager"
 }
-extension String {
-    func deletingPrefix(_ prefix: String) -> String {
-        guard self.hasPrefix(prefix) else { return self }
-        return String(self.dropFirst(prefix.count))
-    }
-    
-    func deletingSuffix(_ suffix: String) -> String {
-        guard self.hasSuffix(suffix) else { return self }
-        return String(self.dropLast(suffix.count))
-    }
-}
+
+
+//extension String {
+//    func deletingPrefix(_ prefix: String) -> String {
+//        guard self.hasPrefix(prefix) else { return self }
+//        return String(self.dropFirst(prefix.count))
+//    }
+//    
+//    func deletingSuffix(_ suffix: String) -> String {
+//        guard self.hasSuffix(suffix) else { return self }
+//        return String(self.dropLast(suffix.count))
+//    }
+//}
 
 
 extension View {
-    
+    @MainActor
     func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
-    
+    @MainActor
     func navigationBarTitleView<Content: View>(_ content: @escaping () -> Content) -> some View {
         self.navigationBarItems(leading: content())
     }
@@ -88,8 +90,11 @@ extension View {
     
 }
 
-func userDefaultsKeyExists(_ key: String) -> Bool {
-    return UserDefaults.standard.object(forKey: key) != nil
+func userDefaultsKeyExists(_ key: String) async -> Bool {
+    // running only in a background task
+    return await Task(priority: .background) {
+        return UserDefaults.standard.object(forKey: key) != nil
+    }.value // Task returns 'Task<Bool, never>'
 }
 
 func idealWidth(for availableWidth: CGFloat) -> CGFloat {
@@ -103,6 +108,7 @@ func idealWidth(for availableWidth: CGFloat) -> CGFloat {
 }
 
 
+@MainActor
 final class KeyboardResponder: ObservableObject {
 
     @Published var currentHeight: CGFloat = 0
@@ -137,18 +143,16 @@ final class KeyboardResponder: ObservableObject {
     @objc func keyboardWillShow(notification: Notification) {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardHeight = keyboardFrame.cgRectValue.height
-            DispatchQueue.main.async {
                 self.currentHeight = keyboardHeight
                 self.keyboardVisible = true
-            }
+            
         }
     }
     
     @objc func keyboardWillHide(notification: Notification) {
-        DispatchQueue.main.async {
+       // no ' DispatchQueue.main.async {' as class marked @MainActor
             self.currentHeight = 0
             self.keyboardVisible = false
-        }
     }
 }
 
@@ -196,6 +200,7 @@ struct BlurView: UIViewRepresentable {
         uiView.effect = UIBlurEffect(style: style)
     }
 }
+
 
 final class ShakeEffect: GeometryEffect {
     private let amount: CGFloat //max movement(displacement)
@@ -354,7 +359,7 @@ extension View {
     }
 }
 
-func isIPad() -> Bool {
+@MainActor func isIPad() -> Bool {
        return UIDevice.current.userInterfaceIdiom == .pad
    }
     
@@ -366,27 +371,27 @@ func isIPad() -> Bool {
     }
 
 
-enum RepeatInterval: String, CaseIterable, Identifiable {
-    case none = "None"
-    case daily = "Daily"
-    case weekly = "Weekly"
-    case weekdays = "Weekdays"
-    case weekends = "Weekends"
-    
-    var id: String { self.rawValue }
-    
-    var description: LocalizedStringKey {
-            switch self {
-            case .none:
-                return LocalizedStringKey("Never")
-            case .daily:
-                return LocalizedStringKey("Daily")
-            case .weekly:
-                return LocalizedStringKey("Weekly")
-            case .weekdays:
-                return LocalizedStringKey("Weekdays")
-            case .weekends:
-                return LocalizedStringKey("Weekends")
-            }
-        }
-}
+//enum RepeatInterval: String, CaseIterable, Identifiable {
+//    case none = "None"
+//    case daily = "Daily"
+//    case weekly = "Weekly"
+//    case weekdays = "Weekdays"
+//    case weekends = "Weekends"
+//    
+//    var id: String { self.rawValue }
+//    
+//    var description: LocalizedStringKey {
+//            switch self {
+//            case .none:
+//                return LocalizedStringKey("Never")
+//            case .daily:
+//                return LocalizedStringKey("Daily")
+//            case .weekly:
+//                return LocalizedStringKey("Weekly")
+//            case .weekdays:
+//                return LocalizedStringKey("Weekdays")
+//            case .weekends:
+//                return LocalizedStringKey("Weekends")
+//            }
+//        }
+//}

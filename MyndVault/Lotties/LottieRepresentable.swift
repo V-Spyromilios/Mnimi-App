@@ -8,6 +8,7 @@
 import SwiftUI
 import Lottie
 
+@MainActor
 struct LottieRepresentable: UIViewRepresentable {
 
     let filename: String
@@ -64,7 +65,7 @@ struct LottieRepresentable: UIViewRepresentable {
               self.parent = parent
           }
 
-          func playAnimation() {
+        @MainActor func playAnimation() {
               animationView?.play { [weak self] _ in
                   self?.parent.isPlaying = false
               }
@@ -143,7 +144,7 @@ struct LottieRepresentableNavigation: UIViewRepresentable {
               self.parent = parent
           }
 
-          func playAnimation() {
+        @MainActor func playAnimation() {
               animationView?.play { [weak self] _ in
                   self?.parent.isPlaying = false
 //               self?.animationView?.isHidden = true

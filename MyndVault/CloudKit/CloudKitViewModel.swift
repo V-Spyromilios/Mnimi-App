@@ -588,13 +588,20 @@ import Combine
 import CloudKit
 import SwiftUI
 
-final class CloudKitViewModel: ObservableObject {
+final class CloudKitViewModel: ObservableObject, Sendable {
+    @MainActor
     @Published var userIsSignedIn: Bool = false
+    @MainActor
     @Published var isLoading: Bool = false
+    @MainActor
     @Published var CKErrorDesc: String = ""
+    @MainActor
     @Published var userID: CKRecord.ID?
+    @MainActor
     @Published var fetchedNamespaceDict: [CKRecord.ID: NamespaceItem] = [:]
-    @Published var isFirstLaunch: Bool
+    @MainActor
+    @Published var isFirstLaunch: Bool = false
+    @MainActor
     @Published var allImagesDeleted: Bool?
     
     private var db: CKDatabase?
@@ -620,12 +627,26 @@ final class CloudKitViewModel: ObservableObject {
         }
     
     init() {
-        self.isFirstLaunch = CloudKitViewModel.checkIfFirstLaunch()
-        let tempRecordID = KeychainManager.standard.readRecordID(account: "recordIDDelete")
-        if let tempRecordID = tempRecordID {
-            self.recordIDDelete = tempRecordID
-        }
+        Task {
+            // Perform background work first
+            let isFirstLaunchResult = await CloudKitViewModel.checkIfFirstLaunch()
+            let tempRecordID = KeychainManager.standard.readRecordID(account: "recordIDDelete")
 
+            // Now switch to the main actor to update UI-related state
+            await MainActor.run {
+                self.isFirstLaunch = isFirstLaunchResult
+                if let tempRecordID = tempRecordID {
+                    self.recordIDDelete = tempRecordID
+                }
+
+                // Setup observers and start initial tasks
+                setupCloudKitObservers()
+                startInitialTasks()
+            }
+        }
+    }
+
+    private func setupCloudKitObservers() {
         NotificationCenter.default.publisher(for: .CKAccountChanged)
             .sink { [weak self] _ in
                 guard let self = self else { return }
@@ -634,7 +655,9 @@ final class CloudKitViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-        
+    }
+
+    private func startInitialTasks() {
         Task {
             do {
                 try await getiCloudStatus()
@@ -648,10 +671,11 @@ final class CloudKitViewModel: ObservableObject {
         NotificationCenter.default.removeObserver(self, name: .CKAccountChanged, object: nil)
     }
     
-    private static func checkIfFirstLaunch() -> Bool {
+    private static func checkIfFirstLaunch() async -> Bool {
         UserDefaults.standard.synchronize()
         
-           if userDefaultsKeyExists("isFirstLaunch") {
+        let keyExists = await userDefaultsKeyExists("isFirstLaunch")
+        if keyExists {
                return UserDefaults.standard.bool(forKey: "isFirstLaunch")
            } else {
                UserDefaults.standard.set(true, forKey: "isFirstLaunch")
@@ -659,9 +683,9 @@ final class CloudKitViewModel: ObservableObject {
            }
        }
        
-       private static func userDefaultsKeyExists(_ key: String) -> Bool {
-           return UserDefaults.standard.object(forKey: key) != nil
-       }
+//       private static func userDefaultsKeyExists(_ key: String) -> Bool {
+//           return UserDefaults.standard.object(forKey: key) != nil
+//       }
     
     @objc private func handleAccountChange() {
         Task {
@@ -675,15 +699,18 @@ final class CloudKitViewModel: ObservableObject {
     }
     
     func clearCloudKit() {
-        isLoading = false
-        CKErrorDesc = ""
+        DispatchQueue.main.async {
+            self.isLoading = false
+            self.CKErrorDesc = ""
+        }
     }
     
     func startCloudKit() {
-        isLoading = true
+        DispatchQueue.main.async {
+            self.isLoading = true }
         Task {
             do {
-                let key = fetchedNamespaceDict.keys.first
+                let key = await fetchedNamespaceDict.keys.first
                 if key == nil {
                     try await initializeCloudKitSetup()
                 } else {
@@ -719,7 +746,7 @@ final class CloudKitViewModel: ObservableObject {
                     }
                 }
                 
-                if fetchedNamespaceDict.isEmpty {
+                if await fetchedNamespaceDict.isEmpty {
                     try await makeNewNamespace()
                 }
                 
@@ -817,7 +844,7 @@ final class CloudKitViewModel: ObservableObject {
     private func initializeCloudKitSetup() async throws {
         do {
             try await getiCloudStatus()
-            guard userIsSignedIn else { throw AppCKError.iCloudAccountNotFound }
+            guard await userIsSignedIn else { throw AppCKError.iCloudAccountNotFound }
             
             if let tempuserID = try? await getUserID() {
                 await MainActor.run {
@@ -825,7 +852,7 @@ final class CloudKitViewModel: ObservableObject {
                 }
             }
             try await fetchNameSpace()
-            if fetchedNamespaceDict.isEmpty {
+            if await fetchedNamespaceDict.isEmpty {
                 try await makeNewNamespace()
             }
         } catch {
@@ -834,7 +861,7 @@ final class CloudKitViewModel: ObservableObject {
     }
     
     private func makeNewNamespace() async throws {
-        guard let userID = userID?.recordName else {
+        guard let userID = await userID?.recordName else {
             throw AppCKError.UnableToGetNameSpace
         }
         let name = UUID().uuidString
@@ -867,7 +894,7 @@ final class CloudKitViewModel: ObservableObject {
     }
     
     func deleteNamespaceItem(recordID: CKRecord.ID) async throws {
-        print("\nfetchedNamespaceDict: \(fetchedNamespaceDict)")
+//        print("\nfetchedNamespaceDict: \(fetchedNamespaceDict)")
 
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
 
@@ -1258,8 +1285,5 @@ final class CloudKitViewModel: ObservableObject {
             }
         }
     }
-    
-//    private func userDefaultsKeyExists(_ key: String) -> Bool {
-//        return UserDefaults.standard.object(forKey: key) != nil
-//    }
+
 }

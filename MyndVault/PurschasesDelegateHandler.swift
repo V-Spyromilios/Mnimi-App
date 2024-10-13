@@ -9,13 +9,15 @@ import Foundation
 import RevenueCat
 import RevenueCatUI
 
+@MainActor
 class PurchasesDelegateHandler:NSObject, ObservableObject {
     
     static let shared =  PurchasesDelegateHandler()
 
 }
 
-extension PurchasesDelegateHandler: PurchasesDelegate {
+@MainActor
+extension PurchasesDelegateHandler: @preconcurrency PurchasesDelegate {
 
     func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
         print("Received updated customer info: \(customerInfo)")
