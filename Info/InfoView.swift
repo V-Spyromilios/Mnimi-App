@@ -12,8 +12,8 @@ struct InfoView: View {
     
     @ObservedObject var viewModel: EditInfoViewModel
     
-    @EnvironmentObject var openAiManager: OpenAIManager
-    @EnvironmentObject var pineconeManager: PineconeManager
+    @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @Environment(\.colorScheme) var colorScheme

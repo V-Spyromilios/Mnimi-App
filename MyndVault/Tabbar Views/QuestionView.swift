@@ -10,8 +10,8 @@ import CloudKit
 
 struct QuestionView: View {
     
-    @EnvironmentObject var openAiManager: OpenAIManager
-    @EnvironmentObject var pineconeManager: PineconeManager
+    @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var cloudKitManager: CloudKitViewModel
@@ -77,9 +77,7 @@ struct QuestionView: View {
                             }
                     }
                 VStack {
-
                     VStack {
-                        
                         if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && pineconeManager.receivedError == nil {
                             GoButton
                                 .padding(.bottom)
@@ -310,12 +308,10 @@ struct QuestionView: View {
             self.goButtonIsVisible = true
             progressTracker.reset()
             if isLoading { isLoading = false }
-            
-            Task {
-                await openAiManager.clearManager()
-                await pineconeManager.clearManager()
-            }
         }
+        openAiManager.clearManager()
+        pineconeManager.clearManager()
+        
     }
     
     private func performTask() {
@@ -410,13 +406,17 @@ struct QuestionView: View {
 
 struct QuestionView_Previews: PreviewProvider {
     static var previews: some View {
-        let openAiManager = OpenAIManager()
-        let pineconeManager = PineconeManager()
+        let cloudKit = CloudKitViewModel.shared
+        let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+        let openAIActor = OpenAIActor()
+
+        let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
+        let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
         let progressTracker = ProgressTracker()
         
         QuestionView()
-            .environmentObject(openAiManager)
-            .environmentObject(pineconeManager)
+            .environmentObject(openAIViewModel)
+            .environmentObject(pineconeViewModel)
             .environmentObject(progressTracker)
     }
 }

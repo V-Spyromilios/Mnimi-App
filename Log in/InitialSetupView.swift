@@ -13,8 +13,8 @@ struct InitialSetupView: View {
     @EnvironmentObject var language: LanguageSettings
     @EnvironmentObject var speechManager: SpeechRecognizerManager
     @EnvironmentObject var progressTracker: ProgressTracker
-    @EnvironmentObject var openAiManager: OpenAIManager
-    @EnvironmentObject var pinecone: PineconeManager
+    @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var pinecone: PineconeViewModel
     
     @Environment(\.colorScheme) var colorScheme
     @State private var username: String = ""

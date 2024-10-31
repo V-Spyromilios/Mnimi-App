@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 
+@MainActor
 struct TypingTextView: View {
     @State private var displayedText: String = ""
     @State private var hasTyped: Bool = false
@@ -45,7 +46,7 @@ struct TypingTextView: View {
                     displayedText.append(characters[currentIndex])
                     currentIndex += 1
                 } else {
-                    timerCancellable?.cancel()  // Safely cancels the Combine publisher
+                    timerCancellable?.cancel()  // cancel the Combine publisher
                     hasTyped = true
                 }
             }

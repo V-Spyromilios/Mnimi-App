@@ -13,8 +13,8 @@ struct FaceIDView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @EnvironmentObject var networkManager: NetworkManager
-    @EnvironmentObject var openAiManager: OpenAIManager
-    @EnvironmentObject var pinecone: PineconeManager
+    @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var pinecone: PineconeViewModel
     @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var language: LanguageSettings
     @EnvironmentObject var speechManager: SpeechRecognizerManager

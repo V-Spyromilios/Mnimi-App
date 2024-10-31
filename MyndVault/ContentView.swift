@@ -14,8 +14,8 @@ struct ContentView: View {
     
     @ObservedObject var networkManager = NetworkManager()
     
-    @EnvironmentObject var openAiManager: OpenAIManager
-    @EnvironmentObject var pineconeManager: PineconeManager
+    @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var progressTracker: ProgressTracker
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var keyboardResponder: KeyboardResponder
@@ -63,9 +63,7 @@ struct ContentView: View {
             
         }
         .onAppear {
-            Task {
-                await speechManager.requestSpeechAuthorization()
-            }
+            speechManager.checkSpeechAuthorizationStatus()
             checkIfNewSubscriber()
         }
         
