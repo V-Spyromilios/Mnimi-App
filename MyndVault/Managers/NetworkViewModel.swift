@@ -7,47 +7,53 @@
 
 import Foundation
 import Network
+import Combine
 
-final class NetworkManager: ObservableObject, @unchecked Sendable {
+final class NetworkManager: ObservableObject {
+    @Published var hasInternet: Bool = true
     private var monitor: NWPathMonitor?
     private let queue = DispatchQueue(label: "NetworkMonitor")
-
-    @MainActor
-    @Published var hasInternet: Bool = true
+    private var cancellable: AnyCancellable?
 
     init() {
         startMonitoring()
+        observeNetworkChanges()
     }
 
     deinit {
-        stopMonitoringSync()
+        stopMonitoring()
+    }
+
+    func stopMonitoring() {
+        monitor?.cancel()
+        monitor = nil
+        cancellable?.cancel()
     }
 
     private func startMonitoring() {
-        stopMonitoringSync() // Synchronous cleanup before starting again
+        stopMonitoring()
 
         monitor = NWPathMonitor()
         monitor?.start(queue: queue)
 
-        monitor?.pathUpdateHandler = { [weak self] path in
-            DispatchQueue.main.async {
-                let currentlyHasInternet = path.status == .satisfied
-                if self?.hasInternet != currentlyHasInternet {
-                    self?.hasInternet = currentlyHasInternet
-                }
-            }
+        monitor?.pathUpdateHandler = { path in
+            let status = path.status == .satisfied
+            NotificationCenter.default.post(
+                name: .networkStatusChanged,
+                object: nil,
+                userInfo: ["status": status]
+            )
         }
     }
 
-    // Actor-isolated function for async contexts
-    func stopMonitoring() async {
-        monitor?.cancel()
-        monitor = nil
+    private func observeNetworkChanges() {
+        cancellable = NotificationCenter.default.publisher(for: .networkStatusChanged)
+            .compactMap { $0.userInfo?["status"] as? Bool }
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.hasInternet, on: self)
     }
+}
 
-    // Synchronous cleanup method for deinit
-    private func stopMonitoringSync() {
-        monitor?.cancel()
-        monitor = nil
-    }
+extension Notification.Name {
+    static let networkStatusChanged = Notification.Name("networkStatusChanged")
 }

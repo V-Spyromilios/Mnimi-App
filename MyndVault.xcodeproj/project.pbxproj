@@ -73,6 +73,10 @@
 		E87874402C677F4B001299D9 /* ManWithLaptop.json in Resources */ = {isa = PBXBuildFile; fileRef = E878743F2C677F4B001299D9 /* ManWithLaptop.json */; };
 		E87874472C70CFD5001299D9 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = E87874462C70CFD5001299D9 /* RevenueCat */; };
 		E87874492C70CFD5001299D9 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = E87874482C70CFD5001299D9 /* RevenueCatUI */; };
+		E878FA892CCD169900CEA8EA /* PineconeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E878FA882CCD169900CEA8EA /* PineconeViewModel.swift */; };
+		E878FA8B2CCD16BF00CEA8EA /* PineconeActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E878FA8A2CCD16BF00CEA8EA /* PineconeActor.swift */; };
+		E878FA8D2CD3A87800CEA8EA /* OpenaiActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E878FA8C2CD3A87800CEA8EA /* OpenaiActor.swift */; };
+		E878FA8F2CD3A90F00CEA8EA /* OpenAIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
 		E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */; };
 		E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */; };
@@ -186,6 +190,10 @@
 		E878743F2C677F4B001299D9 /* ManWithLaptop.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ManWithLaptop.json; sourceTree = "<group>"; };
 		E878744A2C70D0DC001299D9 /* MyndVault.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = MyndVault.storekit; path = Settings/MyndVault.storekit; sourceTree = "<group>"; };
 		E878B7262C95A9A4003D782A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		E878FA882CCD169900CEA8EA /* PineconeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PineconeViewModel.swift; sourceTree = "<group>"; };
+		E878FA8A2CCD16BF00CEA8EA /* PineconeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PineconeActor.swift; sourceTree = "<group>"; };
+		E878FA8C2CD3A87800CEA8EA /* OpenaiActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenaiActor.swift; sourceTree = "<group>"; };
+		E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIViewModel.swift; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact.otf"; sourceTree = "<group>"; };
@@ -307,6 +315,10 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E878FA8C2CD3A87800CEA8EA /* OpenaiActor.swift */,
+				E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */,
+				E878FA882CCD169900CEA8EA /* PineconeViewModel.swift */,
+				E878FA8A2CCD16BF00CEA8EA /* PineconeActor.swift */,
 				E878B7262C95A9A4003D782A /* PrivacyInfo.xcprivacy */,
 				E87605B62C7A18AD002A13E5 /* RCViewModel.swift */,
 				E878744A2C70D0DC001299D9 /* MyndVault.storekit */,
@@ -593,6 +605,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E87605B92C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift in Sources */,
+				E878FA8D2CD3A87800CEA8EA /* OpenaiActor.swift in Sources */,
 				E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */,
 				E82F456E2BC2A77E00945312 /* Codables.swift in Sources */,
 				E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */,
@@ -611,6 +624,7 @@
 				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
 				E877FA2D2C4A9FB6002FBFFC /* TypingTextView.swift in Sources */,
+				E878FA892CCD169900CEA8EA /* PineconeViewModel.swift in Sources */,
 				E82F456D2BC2A77E00945312 /* ApiConfiguration.swift in Sources */,
 				E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */,
 				E82F455B2BC2A72100945312 /* ProgressTracker.swift in Sources */,
@@ -637,9 +651,11 @@
 				E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */,
 				E8B4D5082BF8CD7F00F2A174 /* KeychainManager.swift in Sources */,
 				E85055052C428BB900FBACC4 /* SwiftLogoView.swift in Sources */,
+				E878FA8B2CCD16BF00CEA8EA /* PineconeActor.swift in Sources */,
 				E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */,
 				E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */,
 				E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */,
+				E878FA8F2CD3A90F00CEA8EA /* OpenAIViewModel.swift in Sources */,
 				E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */,
 				E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */,
 				E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */,

@@ -8,48 +8,48 @@
 import Foundation
 import Speech
 
-actor SpeechRecognizerManager: ObservableObject {
+@MainActor
+class SpeechRecognizerManager: ObservableObject {
     @Published var isAuthorized: Bool = false
     @Published var authorizationMessage: String = ""
     
-    func requestSpeechAuthorization() {
-        SFSpeechRecognizer.requestAuthorization { authStatus in
-            
-            switch authStatus {
-            case .authorized:
-                self.isAuthorized = true
-                self.authorizationMessage = "User granted access to speech recognition."
-            case .denied:
-                self.isAuthorized = false
-                self.authorizationMessage = "User denied access to speech recognition."
-            case .restricted:
-                self.isAuthorized = false
-                self.authorizationMessage = "Speech recognition restricted on this device."
-            case .notDetermined:
-                self.isAuthorized = false
-                self.authorizationMessage = "Speech recognition not yet authorized."
-            @unknown default:
-                self.isAuthorized = false
-                self.authorizationMessage = "Unknown authorization status."
-            }
-            
-        }
+    func requestSpeechAuthorization() async {
+        let authStatus = await SFSpeechRecognizer.requestAuthorizationAsync()
+        updateAuthorizationStatus(authStatus)
     }
     
     func checkSpeechAuthorizationStatus() {
         let authStatus = SFSpeechRecognizer.authorizationStatus()
-        
+        updateAuthorizationStatus(authStatus)
+    }
+    
+    private func updateAuthorizationStatus(_ authStatus: SFSpeechRecognizerAuthorizationStatus) {
         switch authStatus {
         case .authorized:
             self.isAuthorized = true
             self.authorizationMessage = "Authorized for speech recognition."
-        case .denied, .restricted, .notDetermined:
+        case .denied:
             self.isAuthorized = false
-            self.authorizationMessage = "Not authorized for speech recognition."
+            self.authorizationMessage = "User denied access to speech recognition."
+        case .restricted:
+            self.isAuthorized = false
+            self.authorizationMessage = "Speech recognition restricted on this device."
+        case .notDetermined:
+            self.isAuthorized = false
+            self.authorizationMessage = "Speech recognition not yet authorized."
         @unknown default:
             self.isAuthorized = false
             self.authorizationMessage = "Unknown authorization status."
         }
-        
+    }
+}
+
+extension SFSpeechRecognizer {
+    static func requestAuthorizationAsync() async -> SFSpeechRecognizerAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            requestAuthorization { status in
+                continuation.resume(returning: status)
+            }
+        }
     }
 }

@@ -12,7 +12,7 @@ struct SettingsView: View {
     
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKit: CloudKitViewModel
-    @EnvironmentObject var pineconeManager: PineconeManager
+    @EnvironmentObject var pineconeManager: PineconeViewModel
     
     @Environment(\.colorScheme) var colorScheme
     

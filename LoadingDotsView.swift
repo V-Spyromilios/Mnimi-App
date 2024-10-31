@@ -33,8 +33,10 @@ struct LoadingDotsView: View {
     
     func startLoadingAnimation() {
         Timer.scheduledTimer(withTimeInterval: dotAnimationDuration, repeats: true) { _ in
-            withAnimation {
-                currentDot = (currentDot + 1) % dotCount
+            DispatchQueue.main.async {
+                withAnimation {
+                    currentDot = (currentDot + 1) % dotCount
+                }
             }
         }
     }

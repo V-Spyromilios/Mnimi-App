@@ -53,13 +53,24 @@ struct MyndVaultApp: App {
         } else { print("Failed to configure RCat key.") }
         
         Purchases.shared.delegate = PurchasesDelegateHandler.shared
+        
+        self.pineconeActor = PineconeActor()
+        let ckViewModel = CloudKitViewModel.shared
+        let pineconeActor = PineconeActor(cloudKitViewModel: ckViewModel)
+        _pineconeViewModel = StateObject(wrappedValue: PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: ckViewModel))
+        
+        let openAIActor = OpenAIActor()
+        _openAiManager = StateObject(wrappedValue: OpenAIViewModel(openAIActor: openAIActor))
     }
     
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject private var pineconeViewModel: PineconeViewModel
+    @StateObject private var openAiManager: OpenAIViewModel
     
+    private let pineconeActor: PineconeActor
+    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var cloudKitViewModel : CloudKitViewModel = CloudKitViewModel.shared
-    @StateObject var pineconeManager = PineconeManager()
-    @StateObject var openAiManager = OpenAIManager()
+    
     @StateObject var progressTracker = ProgressTracker.shared
 //    @StateObject var notificationsManager = NotificationViewModel()
     @StateObject var speechManager = SpeechRecognizerManager()
@@ -79,15 +90,6 @@ struct MyndVaultApp: App {
                         .environmentObject(cloudKitViewModel)
                         .environmentObject(networkManager)
                         .environmentObject(apiCallsViewModel)
-//                        .task {
-//                            do {
-//                               // RCViewModel.shared.offerings = try await Purchases.shared.offerings()
-//                            }
-//                            catch {
-//                                print("Error fetching Offerings (MyndValutApp) : \(error)")
-//                            }
-//                        }
-                        
                 } 
                 else if cloudKitViewModel.isFirstLaunch {
                     InitialSetupView()
@@ -98,7 +100,7 @@ struct MyndVaultApp: App {
                         .environmentObject(authManager)
                         .environmentObject(progressTracker)
                         .environmentObject(openAiManager)
-                        .environmentObject(pineconeManager)
+                        .environmentObject(pineconeViewModel)
                         .environmentObject(languageSettings)
                         .environmentObject(speechManager)
                         .statusBar(hidden: true)
@@ -112,7 +114,7 @@ struct MyndVaultApp: App {
                             .environmentObject(apiCallsViewModel)
                             .environmentObject(authManager)
                             .environmentObject(openAiManager)
-                            .environmentObject(pineconeManager)
+                            .environmentObject(pineconeViewModel)
                             .environmentObject(progressTracker)
                             .environmentObject(keyboardResponder)
                             .environmentObject(languageSettings)
