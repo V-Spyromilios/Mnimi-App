@@ -46,8 +46,17 @@ struct ContentView: View {
                     .environmentObject(languageSettings)
                 
                 QuestionView().tag(2)
+                    .environmentObject(openAiManager)
+                    .environmentObject(pineconeManager)
+                    .environmentObject(progressTracker)
+                    .environmentObject(keyboardResponder)
+                    .environmentObject(languageSettings)
                 
                 VaultView().tag(3)
+                    .environmentObject(openAiManager)
+                    .environmentObject(pineconeManager)
+                    .environmentObject(progressTracker)
+                    .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
                 //                NotificationsView().tag(4)
             }

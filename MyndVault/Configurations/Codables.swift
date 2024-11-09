@@ -175,7 +175,7 @@ struct EmbeddingObject: Codable {
 //    }
 }
 
-struct Usage: Codable {
+struct Usage: Codable, Equatable {
     let promptTokens: Int
     let totalTokens: Int
 
@@ -192,7 +192,7 @@ struct Usage: Codable {
 }
 
 //MARK: Pinecone Query Response
-struct PineconeQueryResponse: Codable {
+struct PineconeQueryResponse: Codable, Equatable {
     let matches: [Match]
     let usage: PineconeSingleUsage
     
@@ -222,7 +222,7 @@ struct PineconeQueryResponse: Codable {
 
 }
 
-struct Match: Codable {
+struct Match: Codable, Equatable {
     let id: String
     let score: Double
     let metadata: [String: String]?
@@ -233,7 +233,7 @@ struct Match: Codable {
 
 }
 
-struct PineconeSingleUsage: Codable {
+struct PineconeSingleUsage: Codable, Equatable {
         let readUnits: Int
 
     }

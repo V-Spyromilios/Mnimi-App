@@ -759,6 +759,7 @@
       }
     },
     "clear" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1025,6 +1026,7 @@
       }
     },
     "Daily" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1322,6 +1324,7 @@
       }
     },
     "Edit Notification" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2092,6 +2095,7 @@
       }
     },
     "Never" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2266,6 +2270,7 @@
       }
     },
     "Notification" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2907,6 +2912,7 @@
       }
     },
     "Reschedule" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3139,6 +3145,7 @@
       }
     },
     "Save changes and reschedule" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3258,6 +3265,7 @@
 
     },
     "Select Date and Time" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3786,6 +3794,7 @@
 
     },
     "Title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3963,6 +3972,7 @@
       }
     },
     "Weekdays" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4021,6 +4031,7 @@
       }
     },
     "Weekends" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4079,6 +4090,7 @@
       }
     },
     "Weekly" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

@@ -25,7 +25,7 @@ struct QuestionView: View {
     @State private var goButtonIsVisible: Bool = true
     @State private var selectedImageIndex: Int? = nil
     @State private var showNoInternet = false
-
+    
     @State private var showFullImage: Bool = false
     @State private var showSettings: Bool = false
     @State private var fetchedImages: [UIImage] = []
@@ -34,127 +34,86 @@ struct QuestionView: View {
     @State private var showLang: Bool = false
     @State private var showError: Bool = false
     @State private var clearButtonIsVisible: Bool = false
-
-
+    
+    private var shouldShowGoButton: Bool {
+        goButtonIsVisible &&
+        openAiManager.stringResponseOnQuestion.isEmpty &&
+        pineconeManager.pineconeError == nil
+    }
+    
+    private var shouldShowProgressView: Bool {
+        !goButtonIsVisible &&
+        progressTracker.progress < 0.99 &&
+        progressTracker.progress > 0.1 &&
+        thrownError.isEmpty &&
+        pineconeManager.pineconeError == nil
+    }
+    private var hasResponse: Bool {
+        !openAiManager.stringResponseOnQuestion.isEmpty
+    }
+    
     var body: some View {
-        GeometryReader { geometry in
-        NavigationStack {
-            ScrollView {
-                
-                HStack {
-                    Image(systemName: "questionmark.bubble").bold()
-                    Text("Question").bold()
-                    if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8)
-                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                    }
-                    Spacer()
-                }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, Constants.standardCardPadding)
-                
-                TextEditor(text: $question)
-                    .fontDesign(.rounded)
-                    .font(.title2)
-                    .multilineTextAlignment(.leading)
-                    .frame(height: Constants.textEditorHeight)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10.0)
-                            .stroke(lineWidth: 1)
-                            .opacity(colorScheme == .light ? 0.3 : 0.7)
-                            .foregroundColor(Color.gray)
-                    )
-                    .padding(.bottom)
-                    .padding(.horizontal, Constants.standardCardPadding)
-                    .onAppear {
-                       
+
+            NavigationStack {
+                ScrollView {
+                    
+                    HStack {
+                        Image(systemName: "questionmark.bubble").bold()
+                        Text("Question").bold()
+                        if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8)
+//                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                                .transition(.blurReplace(.downUp))
+                        }
+                        Spacer()
+                    }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, Constants.standardCardPadding)
+                    
+                    TextEditor(text: $question)
+                        .fontDesign(.rounded)
+                        .font(.title2)
+                        .multilineTextAlignment(.leading)
+                        .frame(height: Constants.textEditorHeight)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10.0)
+                                .stroke(lineWidth: 1)
+                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                .foregroundColor(Color.gray)
+                        )
+                        .padding(.bottom)
+                        .padding(.horizontal, Constants.standardCardPadding)
+                        .onAppear {
                             if !showLang {
-                                
-                                    showLang.toggle()
+                                showLang.toggle()
                                 DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
                                     withAnimation {
                                         showLang.toggle() }
                                 }
                             }
-                    }
-                VStack {
+                        }
                     VStack {
-                        if goButtonIsVisible && openAiManager.stringResponseOnQuestion == "" && pineconeManager.receivedError == nil {
-                            GoButton
-                                .padding(.bottom)
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                        }
-                        else if !goButtonIsVisible && progressTracker.progress < 0.99 && progressTracker.progress > 0.1 && thrownError == "" && pineconeManager.receivedError == nil {
-                            CircularProgressView(progressTracker: progressTracker).padding()
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                            
-                            LottieRepresentable(filename: "Ai Cloud",loopMode: .loop, speed: 0.8)
-                                .frame(height: isIPad() ? 440: 300)
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                        }
-                    }
-                    
-                    if openAiManager.stringResponseOnQuestion != "" {
-                        HStack {
-                            Image(systemName: "quote.bubble").bold()
-                            Text("Reply").bold()
-                            Spacer()
-                        }.font(.callout).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, Constants.standardCardPadding)
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                            
-                            Text(openAiManager.stringResponseOnQuestion)
-                                .fontDesign(.rounded)
-                                .font(.title2)
-                                .multilineTextAlignment(.leading)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(7)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(lineWidth: 1)
-                                        .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                        .foregroundColor(Color.gray)
-                                )
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(colorScheme == .light ? Color.white:  Color.black)
-                                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                )
-                        }
-                        .padding(.bottom)
-                        .padding(.horizontal, Constants.standardCardPadding)
-                        LazyHGrid(rows: [GridItem(.flexible())], spacing: 20) {
-                            
-                            ForEach(0..<fetchedImages.count, id: \.self) { index in
-                                withAnimation {
-                                    ZStack(alignment: .topTrailing) {
-                                      
-                                        Image(uiImage: fetchedImages[index])
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: isIPad() ? 440: 160)
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                            
-                                    }
-                                    .contentShape(Rectangle()) // Ensure the entire area is tappable
-                                    .onTapGesture { // Make the entire ZStack tappable
-                                        self.selectedImageIndex = index
-                                        withAnimation { showFullImage = true }
-                                    }
-                                }
+                        VStack {
+                            if shouldShowGoButton {
+                                GoButton
+                                    .padding(.bottom)
+                                    .transition(.blurReplace(.downUp))
+                            } else if shouldShowProgressView {
+                                ProgressViewContent
                             }
                         }
-                        if self.thrownError == "" && openAiManager.stringResponseOnQuestion != "" {
-                            ClearButton
-                                .padding(.bottom)
-                                .padding(.horizontal)
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                        }
+                        
+                        if hasResponse {
+                            ResponseView
+
+                            if self.thrownError == "" && hasResponse {
+                                ClearButton
+                                    .padding(.horizontal)
+                                    .padding(.bottom)
+                                    .transition(.blurReplace(.downUp))
+                            }
+                        } //END OF if hasResponse
                     }
                 }
-                
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         if keyboardResponder.currentHeight > 0 {
@@ -174,111 +133,207 @@ struct QuestionView: View {
                                 .padding(.bottom, 5)
                                 .padding(.top, isIPad() ? 15: 0)
                                 .opacity(0.8)
-                                    .accessibilityLabel("settings") 
+                                .accessibilityLabel("settings")
                         }
                     }
                 }
-            }
-            .sheet(isPresented: $showError) {
-
-                    ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
-                    .presentationDetents([.fraction(0.4)])
-                    .presentationDragIndicator(.hidden)
-                    .presentationBackground(Color.clear)
-                
-            }
-            .fullScreenCover(isPresented: $showFullImage) {
-
-                if let selectedImageIndex = self.selectedImageIndex {
-                    FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
-                } else {
-                    Text("No Image Selected").bold()
-                }
-            }
-            .onChange(of: selectedImageIndex) { oldValue, newValue in //to observe selectedIndex as remains null for the fullscreen cover.
-                if newValue == nil {
-                    withAnimation {
-                        showFullImage = false }
-                }
-            }
-            .onChange(of: languageSettings.selectedLanguage) {
-                withAnimation {
-                    showLang = true }
-                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-                    withAnimation {
-                        showLang = false }
-                }
-            }
-            .onChange(of: thrownError) {
-                    showError.toggle()
-            }
-            .onChange(of: shake) { _, newValue in
-                if newValue {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation {
-                            shake = false }
+                .fullScreenCover(isPresented: $showFullImage) {
+                    
+                    if let selectedImageIndex = self.selectedImageIndex {
+                        FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
+                    } else {
+                        Text("No Image Selected").bold()
                     }
                 }
-            }
-            .background {
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                    .opacity(0.4)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
-            }
-            .navigationBarTitleView {
-                HStack {
-                    Text("Ask me").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                    LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
-                }.padding(.top, isIPad() ? 15: 0)
-            }
-        }
-        .fullScreenCover(isPresented: $showSettings) {
-            SettingsView(showSettings: $showSettings)
-        }
-        .alert(isPresented: $showNoInternet) {
-            Alert(
-                title: Text("You are not connected to the Internet"),
-                message: Text("Please check your connection"),
-                dismissButton: .cancel(Text("OK"))
-            )
-        }
-        .onChange(of: networkManager.hasInternet) { _, hasInternet in
-            if !hasInternet {
-               showNoInternet = true
-                if isLoading {
-                    performClearTask()
+                .sheet(isPresented: $showError) {
+                    
+                    ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
+                        .presentationDetents([.fraction(0.4)])
+                        .presentationDragIndicator(.hidden)
+                        .presentationBackground(Color.clear)
                 }
-            }
-        }
-        .onDisappear {
-            if thrownError != "" || pineconeManager.receivedError != nil {
-                performClearTask()
-            }
-        }
-    }
+                .onChange(of: selectedImageIndex) { oldValue, newValue in //to observe selectedIndex as remains null for the fullscreen cover.
+                    if newValue == nil {
+//                        withAnimation(.easeOut) {
+                            showFullImage = false
+                    }
+                }
+                .onChange(of: languageSettings.selectedLanguage) { _, newValue in
+//                    withAnimation(.easeOut) {
+                        showLang = true
+//                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
+//                        withAnimation(.easeOut) {
+                            showLang = false
+//                        }
+                    }
+                }
+                .onChange(of: thrownError) {
+                    showError.toggle()
+                }
+                .onChange(of: openAiManager.openAIError) { _, newValue in
+                    if let error = newValue {
+                            self.isLoading = false
+                            self.thrownError = error.localizedDescription
+                    }
+                }
+                .onChange(of: pineconeManager.pineconeError) { _, newValue in
+                    if let error = newValue {
+                            self.isLoading = false
+                            self.thrownError = error.localizedDescription
+                    }
+                }
+                .onChange(of: openAiManager.stringResponseOnQuestion) { _, newValue in
+                        isLoading = false
+                }
+                .onChange(of: pineconeManager.pineconeQueryResponse) { _, newValue in
+                    if let pineconeResponse = newValue {
+                        handlePineconeResponse(pineconeResponse)
+                    }
+                }
+                .onChange(of: openAiManager.questionEmbeddingsCompleted) { _, newValue in
+                    if newValue {
+                        handleQuestionEmbeddingsCompleted()
+                    }
+                }
+                .onChange(of: shake) { _, newValue in
+                    if newValue {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            shake = false
+                        }
+                    }
+                }
+                .background {
+                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+                        .opacity(0.4)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .ignoresSafeArea()
+                }
+                .navigationBarTitleView {
+                    HStack {
+                        Text("Ask me").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                        LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                    }.padding(.top, isIPad() ? 15: 0)
+                }
+                .alert(isPresented: $showNoInternet) {
+                    Alert(
+                        title: Text("You are not connected to the Internet"),
+                        message: Text("Please check your connection"),
+                        dismissButton: .cancel(Text("OK"))
+                    )
+                }
+                .fullScreenCover(isPresented: $showSettings) {
+                    SettingsView(showSettings: $showSettings)
+                }
+                .onChange(of: networkManager.hasInternet) { _, hasInternet in
+                    if !hasInternet {
+                        showNoInternet = true
+                        if isLoading {
+                            performClearTask()
+                        }
+                    }
+                }
+                .onDisappear {
+                    if thrownError != "" || pineconeManager.pineconeError != nil {
+                        performClearTask()
+                    }
+                }
+            } //END OF NAV STACK
 
     }
+    
+    @ViewBuilder
+    private var ResponseView: some View {
+        HStack {
+            Image(systemName: "quote.bubble").bold()
+            Text("Reply").bold()
+            Spacer()
+        }
+        .font(.callout)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+        .padding(.horizontal, Constants.standardCardPadding)
+        
+        ZStack {
+            RoundedRectangle(cornerRadius: 10.0)
+                .stroke(lineWidth: 1)
+                .opacity(colorScheme == .light ? 0.3 : 0.7)
+            
+            Text(openAiManager.stringResponseOnQuestion)
+                .fontDesign(.rounded)
+                .font(.title2)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(7)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(lineWidth: 1)
+                        .opacity(colorScheme == .light ? 0.3 : 0.7)
+                        .foregroundColor(Color.gray)
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(colorScheme == .light ? Color.white : Color.black)
+                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3)
+                )
+        }
+        .padding(.bottom)
+        .padding(.horizontal, Constants.standardCardPadding)
+        
+        ImageGridView
+    }
+    
+    @ViewBuilder
+    private var ImageGridView: some View {
+        LazyHGrid(rows: [GridItem(.flexible())], spacing: 20) {
+            ForEach(0..<fetchedImages.count, id: \.self) { index in
+                ImageView(
+                    index: index,
+                    image: fetchedImages[index],
+                    selectedImageIndex: $selectedImageIndex,
+                    showFullImage: $showFullImage
+                )
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var ProgressViewContent: some View {
+        CircularProgressView(progressTracker: progressTracker)
+            .padding()
+//            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+
+        LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8)
+            .frame(height: isIPad() ? 440 : 300)
+//            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+    }
+    
+    private func handleQuestionEmbeddingsCompleted() {
+        progressTracker.setProgress(to: 0.35)
+        pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
+        apiCalls.incrementApiCallCount()
+    }
+    
     private var ClearButton: some View {
-            Button(action: performClearTask) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: Constants.rectCornerRad)
-                        .fill(Color.customLightBlue)
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                        .frame(height: Constants.buttonHeight)
-
-                    Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
-                        .accessibilityLabel("Clear and reset")
-                }
-                .contentShape(Rectangle())
+        Button(action: performClearTask) {
+            ZStack {
+                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
+                    .fill(Color.customLightBlue)
+                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                    .frame(height: Constants.buttonHeight)
+                
+                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
+                    .accessibilityLabel("Clear and reset")
             }
-            .padding(.top, 12)
-            .padding(.bottom, 12)
-            .padding(.horizontal)
-            .frame(maxWidth: .infinity)
-            .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+            .contentShape(Rectangle())
         }
-     
+        .padding(.top, 12)
+        .padding(.bottom, 12)
+        .padding(.horizontal)
+        .frame(maxWidth: .infinity)
+        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+    }
+    
     private var GoButton: some View {
         Button(action: performTask) {
             ZStack {
@@ -290,7 +345,7 @@ struct QuestionView: View {
                     .accessibilityLabel("Go")
             }
             .contentShape(Rectangle())
-
+            
         }
         .padding(.top, 12)
         .padding(.horizontal)
@@ -300,8 +355,8 @@ struct QuestionView: View {
     }
     
     private func performClearTask() {
-        
-        withAnimation {
+
+        withAnimation(.easeOut) { //TODO: Check the .easeOut to be applie to all views ??
             self.question = ""
             self.thrownError = ""
             fetchedImages = []
@@ -311,96 +366,66 @@ struct QuestionView: View {
         }
         openAiManager.clearManager()
         pineconeManager.clearManager()
-        
+
     }
     
+    //TIP: .onChange requires the type to conform to Equatable !!
+    
+    
     private func performTask() {
-
+        
         guard !shake && !isLoading else { return }
         
         if question.count < 8 {
-            withAnimation { shake = true }
+            withAnimation(.easeOut) { shake = true }
             return
         }
-        withAnimation {
+        withAnimation(.easeOut) {
             goButtonIsVisible = false
             hideKeyboard()
             isLoading = true
             progressTracker.reset()
         }
-        Task {
-            do {
-//                throw AppNetworkError.invalidDBURL
-                try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
-                apiCalls.incrementApiCallCount()
-                guard openAiManager.questionEmbeddingsCompleted else {
-                    isLoading = false
-                    return
-                }
-
-                progressTracker.setProgress(to: 0.35)
-               
-                try await pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
-                apiCalls.incrementApiCallCount()
-                if let pineconeResponse = pineconeManager.pineconeQueryResponse {
-                    for match in pineconeResponse.matches {
-                        let id = match.id
-                        Task {
-                            do {
-                                if let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
-
-                                    await MainActor.run {
-                                        fetchedImages.append(image)
-                                    }
-                                }
-                            } catch let error as AppNetworkError {
-                                await MainActor.run {
-                                    self.thrownError = error.errorDescription
-                                }
-                            } catch let error as AppCKError {
-                                await MainActor.run {
-                                    self.thrownError = error.errorDescription
-                                }
-                            }
-                            catch let error as CKError {
-                                await MainActor.run {
-                                    self.thrownError = error.customErrorDescription }
-                            }
-                            catch {
-                                await MainActor.run {
-                                    self.thrownError = error.localizedDescription
-                                }
-                            }
+        openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
+        apiCalls.incrementApiCallCount()
+    }
+    
+    private func handlePineconeResponse(_ pineconeResponse: PineconeQueryResponse) {
+        for match in pineconeResponse.matches {
+            let id = match.id
+            Task {
+                do {
+                    if let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
+                        await MainActor.run {
+                            fetchedImages.append(image)
                         }
                     }
-                    try await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
-                    apiCalls.incrementApiCallCount()
-                }
-                
-                await MainActor.run {
-                    withAnimation {
-                        isLoading = false
+                } catch let error as AppNetworkError {
+                    await MainActor.run {
+                        self.thrownError = error.errorDescription
+                    }
+                } catch let error as AppCKError {
+                    await MainActor.run {
+                        self.thrownError = error.errorDescription
                     }
                 }
-            } catch let error as AppNetworkError {
-                await MainActor.run {
-                    self.thrownError = error.errorDescription
-                    self.isLoading = false
+                catch let error as CKError {
+                    await MainActor.run {
+                        self.thrownError = error.customErrorDescription
+                    }
                 }
-            } catch let error as AppCKError {
-                await MainActor.run {
-                    self.thrownError = error.errorDescription
-                    self.isLoading = false
-                }
-            } catch {
-                await MainActor.run {
-                    self.thrownError = error.localizedDescription
-                    self.isLoading = false
+                catch {
+                    await MainActor.run {
+                        self.thrownError = error.localizedDescription
+                    }
                 }
             }
         }
+
+        // Proceed to get GPT response
+        openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
+        apiCalls.incrementApiCallCount()
     }
-    
 }
 
 
@@ -409,7 +434,7 @@ struct QuestionView_Previews: PreviewProvider {
         let cloudKit = CloudKitViewModel.shared
         let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
         let openAIActor = OpenAIActor()
-
+        
         let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
         let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
         let progressTracker = ProgressTracker()
