@@ -128,33 +128,33 @@ struct FaceIDView: View {
         let context = LAContext()
         var error: NSError?
         
-        // check whether biometric authentication is possible
+        // Check whether biometric authentication is possible
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            // it's possible, so go ahead and use it
-            let reason = "We need to unlock your data."
+            // It's possible, so go ahead and use it
+            let reason = "We need to confirm it's you."
             
             context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
-                // authentication has now completed
-                if success {
-                    // authenticated successfully
-                    
-                    withAnimation(.easeInOut) {
-                        
-                        authManager.login()
+                // Authentication has now completed
+                
+                // Dispatch UI updates to the main thread
+                DispatchQueue.main.async {
+                    if success {
+                        // Authenticated successfully
+                        withAnimation(.easeInOut) {
+                            authManager.login()
+                        }
+                    } else {
+                        handleAuthenticationError(error: authenticationError)
                     }
-                    //
-                } else {
-                    //                    authAttempts += 1
-                    //                    if authAttempts >= 2 {
-                    //                        showPasswordAuth = true
-                    //                    }
-                    handleAuthenticationError(error: error)
                 }
             }
         } else {
-            authAttempts += 1
-            if authAttempts >= 2 {
-                showPasswordAuth = true
+            // If canEvaluatePolicy returns false
+            DispatchQueue.main.async {
+                authAttempts += 1
+                if authAttempts >= 2 {
+                    showPasswordAuth = true
+                }
             }
         }
     }

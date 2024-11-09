@@ -319,6 +319,7 @@
 			children = (
 				E8B4C5772CDD69CA00813AC0 /* ImageView.swift */,
 				E878FA8C2CD3A87800CEA8EA /* OpenaiActor.swift */,
+				E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */,
 				E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */,
 				E878FA882CCD169900CEA8EA /* PineconeViewModel.swift */,
 				E878FA8A2CCD16BF00CEA8EA /* PineconeActor.swift */,
@@ -368,7 +369,6 @@
 				E81C6ECA2C724DAD000DC3C7 /* CustomPayWall.swift */,
 				E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
-				E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */,
 				E85055012C428B6800FBACC4 /* Lotties */,
 				E8459ECF2BC1E3BE00CE34A7 /* Preview Content */,
 			);
