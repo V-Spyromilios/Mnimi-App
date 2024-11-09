@@ -26,6 +26,28 @@ enum OpenAIError: Error, Identifiable {
         }
     }
 }
+// MARK: - Equatable
+extension OpenAIError: Equatable {
+    static func == (lhs: OpenAIError, rhs: OpenAIError) -> Bool {
+        switch (lhs, rhs) {
+        case (.embeddingsFailed(let lhsError), .embeddingsFailed(let rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        case (.gptResponseFailed(let lhsError), .gptResponseFailed(let rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        case (.unknown(let lhsError), .unknown(let rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        default:
+            return false
+        }
+    }
+}
+
+// MARK: - Hashable Needed for .onChange!!!
+extension OpenAIError: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(localizedDescription)
+    }
+}
 
 
 actor OpenAIActor {

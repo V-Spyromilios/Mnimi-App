@@ -34,6 +34,21 @@ enum PineconeError: Error, Identifiable {
     }
 }
 
+
+// MARK: - Equatable
+extension PineconeError: Equatable {
+    static func == (lhs: PineconeError, rhs: PineconeError) -> Bool {
+        return lhs.localizedDescription == rhs.localizedDescription
+    }
+}
+
+// MARK: - Hashable
+extension PineconeError: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(localizedDescription)
+    }
+}
+
 @MainActor
 class PineconeViewModel: ObservableObject {
     
