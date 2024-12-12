@@ -12,8 +12,8 @@ import Combine
 
 @MainActor
 struct Constants {
-
-  static let assemblyCode = """
+    
+    static let assemblyCode = """
 section .data
     message db 'LOGIN', 0
 
@@ -43,23 +43,23 @@ done:
     int 0x80
 """.trimmingCharacters(in: .whitespacesAndNewlines)
     
-
+    
     static let rectCornerRad: CGFloat = 50
-
+    
     static let textEditorHeight: CGFloat = 140
-
+    
     static let smallTextEditorHeight: CGFloat = 50
-
+    
     static let contentUnaivalableOffset: CGFloat = 40
-
+    
     static let buttonHeight: CGFloat = 50
-
+    
     static let backgroundSpeed: CGFloat = 0.4
-
+    
     static let standardCardPadding: CGFloat = 16
-
+    
     static let showLangDuration: CGFloat = 2.5
-
+    
     static let entitlementID: String = "manager"
 }
 
@@ -69,7 +69,7 @@ done:
 //        guard self.hasPrefix(prefix) else { return self }
 //        return String(self.dropFirst(prefix.count))
 //    }
-//    
+//
 //    func deletingSuffix(_ suffix: String) -> String {
 //        guard self.hasSuffix(suffix) else { return self }
 //        return String(self.dropLast(suffix.count))
@@ -98,11 +98,11 @@ func userDefaultsKeyExists(_ key: String) async -> Bool {
 }
 
 func idealWidth(for availableWidth: CGFloat) -> CGFloat {
-
+    
     if availableWidth < 800 {
         return availableWidth
     } else {
-
+        
         return availableWidth * 0.6
     }
 }
@@ -110,49 +110,49 @@ func idealWidth(for availableWidth: CGFloat) -> CGFloat {
 
 @MainActor
 final class KeyboardResponder: ObservableObject {
-
+    
     @Published var currentHeight: CGFloat = 0
     private var keyboardVisible = false
     
     private var cancellables = Set<AnyCancellable>()
-
-    init() {
-           NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
-               .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue }
-               .map { $0.cgRectValue.height }
-               .receive(on: RunLoop.main)
-               .sink { [weak self] height in
-                   self?.currentHeight = height
-                   self?.keyboardVisible = true
-               }
-               .store(in: &cancellables)
-
-           NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
-               .receive(on: RunLoop.main)
-               .sink { [weak self] _ in
-                   self?.currentHeight = 0
-                   self?.keyboardVisible = false
-               }
-               .store(in: &cancellables)
-       }
     
-//    deinit {
-//        NotificationCenter.default.removeObserver(self)
-//    } NO need Combine handles observer
+    init() {
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue }
+            .map { $0.cgRectValue.height }
+            .receive(on: RunLoop.main)
+            .sink { [weak self] height in
+                self?.currentHeight = height
+                self?.keyboardVisible = true
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.currentHeight = 0
+                self?.keyboardVisible = false
+            }
+            .store(in: &cancellables)
+    }
+    
+    //    deinit {
+    //        NotificationCenter.default.removeObserver(self)
+    //    } NO need Combine handles observer
     
     @objc func keyboardWillShow(notification: Notification) {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardHeight = keyboardFrame.cgRectValue.height
-                self.currentHeight = keyboardHeight
-                self.keyboardVisible = true
+            self.currentHeight = keyboardHeight
+            self.keyboardVisible = true
             
         }
     }
     
     @objc func keyboardWillHide(notification: Notification) {
-       // no ' DispatchQueue.main.async {' as class marked @MainActor
-            self.currentHeight = 0
-            self.keyboardVisible = false
+        // no ' DispatchQueue.main.async {' as class marked @MainActor
+        self.currentHeight = 0
+        self.keyboardVisible = false
     }
 }
 
@@ -191,11 +191,11 @@ func toDictionary(desc: String) -> [String: String] {
 
 struct BlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
-
+    
     func makeUIView(context: Context) -> UIVisualEffectView {
         return UIVisualEffectView(effect: UIBlurEffect(style: style))
     }
-
+    
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
         uiView.effect = UIBlurEffect(style: style)
     }
@@ -206,13 +206,13 @@ final class ShakeEffect: GeometryEffect {
     private let amount: CGFloat //max movement(displacement)
     private let shakesPerUnit: CGFloat // complete back and forth per animation
     var animatableData: CGFloat
-
+    
     init(amount: CGFloat = 5, shakesPerUnit: CGFloat = 2, animatableData: CGFloat) {
         self.amount = amount
         self.shakesPerUnit = shakesPerUnit
         self.animatableData = animatableData
     }
-
+    
     func effectValue(size: CGSize) -> ProjectionTransform {
         let translation = amount * sin(animatableData * .pi * shakesPerUnit)
         return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
@@ -238,7 +238,7 @@ struct NeumorphicStyle: ViewModifier {
 
 @MainActor
 struct FloatingLabelTextField: View {
-
+    
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @Binding var text: String
     let title: String
@@ -314,14 +314,14 @@ struct FloatingLabelTextField: View {
 //struct CustomDatePicker: View {
 //    @Binding var selectedDate: Date
 //    @State private var showingDatePicker = false
-//    
+//
 //    var body: some View {
 //        VStack {
 //            Button(action: {
 //                withAnimation {
 //                    showingDatePicker.toggle() }
 //            }) {
-//                
+//
 //                    Text("\(selectedDate, formatter: dateFormatter)")
 //                    .font(.title2)
 //                    .fontDesign(.rounded)
@@ -329,10 +329,10 @@ struct FloatingLabelTextField: View {
 //                    .foregroundStyle(.secondary)
 //                    .padding(.bottom, 8)
 //            }
-//           
+//
 //            .background(RoundedRectangle(cornerRadius: 10).fill(Color.clear))
 //            .shadow(radius: 4)
-//            
+//
 //            if showingDatePicker {
 //                DatePicker(
 //                    "",
@@ -341,10 +341,10 @@ struct FloatingLabelTextField: View {
 //                )
 //                .datePickerStyle(GraphicalDatePickerStyle())
 //                .labelsHidden()
-//                
+//
 //                .padding(.bottom, 12)
 //               // .shadow(radius: 5)
-//               
+//
 //            }
 //        }.frame(maxHeight: 500)
 //    }
@@ -361,16 +361,21 @@ extension View {
 }
 
 @MainActor func isIPad() -> Bool {
-       return UIDevice.current.userInterfaceIdiom == .pad
-   }
-    
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }
+    return UIDevice.current.userInterfaceIdiom == .pad
+}
 
+private var dateFormatter: DateFormatter {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .short
+    return formatter
+}
+
+func debugLog(_ message: String) {
+#if DEBUG
+    print(message)
+#endif
+}
 
 //enum RepeatInterval: String, CaseIterable, Identifiable {
 //    case none = "None"
@@ -378,9 +383,9 @@ extension View {
 //    case weekly = "Weekly"
 //    case weekdays = "Weekdays"
 //    case weekends = "Weekends"
-//    
+//
 //    var id: String { self.rawValue }
-//    
+//
 //    var description: LocalizedStringKey {
 //            switch self {
 //            case .none:

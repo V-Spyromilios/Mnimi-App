@@ -389,7 +389,7 @@ struct QuestionView: View {
             do {
                 try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             } catch {
-                print("\(error)")
+                debugLog("\(error)")
             }
         }
         apiCalls.incrementApiCallCount()

@@ -25,7 +25,7 @@ extension NamespaceItem {
 extension NamespaceItem {
     init?(record: CKRecord) {
         guard let ns = record["namespace"] as? String else {
-            print("init of NamespaceItem:: 'guard let ns = ' FAILED")
+            debugLog("init of NamespaceItem:: 'guard let ns = ' FAILED")
             return nil
         }
         self.init(recordID: record.recordID, namespace: ns)

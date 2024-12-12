@@ -23,6 +23,8 @@ struct SettingsView: View {
     @State private var canShowSubscription: Bool = true
     @State private var canShowAppSettings: Bool = true
     @State private var showError: Bool = false
+    @State private var isKeychainDeleted: Bool = false
+    @State private var showDeleteAll: Bool = false
     enum AccountButton {
         case idle, hidden
     }
@@ -30,8 +32,8 @@ struct SettingsView: View {
     @State private var deleteButton: AccountButton = .idle
     var deleteAllWarningTitle: String = "With great power comes great responsibility"
     var deleteAllWarningBody: String = "Are you sure that you want to Delete all your Info and all your uploaded images?\nThis action is irreversable."
-    @State private var showDeleteAll: Bool = false
-    
+
+
     var body: some View {
         
         NavigationView {
@@ -377,16 +379,42 @@ private func checkOpeningSettings() {
 
     
     //TODO: Proper error handling!
-    private func deleteKeyChain() {
-        if let username = KeychainManager.standard.readUsername(),
-           KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username) {
-            print("Successfully deleted keychain for username: \(username)")
+//    private func deleteKeyChain() {
+//        if let username = KeychainManager.standard.readUsername(),
+//           KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username) {
+//            print("Successfully deleted keychain for username: \(username)")
+//        } else {
+//            print("deleteKeyChain::Failed to delete keychain.")
+//        }
+//    }
+    
+    func deleteKeyChain() {
+        
+        var keychainDeleteRetryCount = 0
+        let keychainDeletemaxRetries = 3
+        
+        guard let username = KeychainManager.standard.readUsername() else {
+            debugLog("deleteKeyChain::No username found in keychain.")
+            isKeychainDeleted = false
+            return
+        }
+        
+        let success = KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username)
+        
+        if success {
+            debugLog("Successfully deleted keychain for username: \(username)")
+            isKeychainDeleted = true
         } else {
-            print("deleteKeyChain::Failed to delete keychain.")
+            debugLog("deleteKeyChain::Failed to delete keychain.")
+            isKeychainDeleted = false
+
+            if keychainDeleteRetryCount < keychainDeletemaxRetries {
+                keychainDeleteRetryCount += 1
+                debugLog("Retrying deletion... Attempt \(keychainDeleteRetryCount)")
+                deleteKeyChain()
+            }
         }
     }
-
-
 
 private func deleteNamespaceFromICloud() {
     // Example usage:
@@ -395,11 +423,11 @@ private func deleteNamespaceFromICloud() {
             let container = CKContainer.default()
             let privateDatabase = container.privateCloudDatabase
             let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete")
-            print("Before Deleting: \(String(describing: recordIDDelete))")
+            debugLog("Before Deleting: \(String(describing: recordIDDelete))")
 
             try await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete!, from: privateDatabase)
         } catch {
-            print("Error deleting record: \(error.localizedDescription)")
+            debugLog("Error deleting record: \(error.localizedDescription)")
         }
     }
 }

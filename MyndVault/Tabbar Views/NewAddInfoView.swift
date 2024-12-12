@@ -380,15 +380,11 @@ extension NewAddInfoView {
         
         do {
             // Request embeddings
-#if DEBUG
-            print("startAddInfoProcess do {")
-#endif
+            debugLog("startAddInfoProcess do {")
             try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
             // Proceed to handle embeddings completed
-            
-#if DEBUG
-            print("startAddInfoProcess before handleEmbeddingsCompleted{")
-#endif
+
+            debugLog("startAddInfoProcess before handleEmbeddingsCompleted{")
             await handleEmbeddingsCompleted()
         } catch {
             // Handle error
@@ -412,10 +408,8 @@ extension NewAddInfoView {
     }
     
     private func handleUpsertSuccess(uniqueID: String) {
-        
-#if DEBUG
-        print("handleUpsertSuccess Called")
-#endif
+
+        debugLog("handleUpsertSuccess Called")
         
         if let image = photoPicker.selectedImage {
             Task {
@@ -433,9 +427,8 @@ extension NewAddInfoView {
     }
     
     private func handleError(_ error: Error) {
-#if DEBUG
-        print("handleError called with error: \(error)")
-#endif
+
+        debugLog("handleError called with error: \(error)")
         withAnimation {
             apiCallInProgress = false
             isLoading = false

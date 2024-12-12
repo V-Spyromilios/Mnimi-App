@@ -114,9 +114,7 @@ struct MyndVaultApp: App {
                 .with(storeKitVersion: .storeKit2))
         }
         else {
-#if DEBUG
-            print("Failed to configure RCat key.")
-#endif
+            debugLog("Failed to configure RCat key.")
         }
         Purchases.shared.delegate = PurchasesDelegateHandler.shared
     }

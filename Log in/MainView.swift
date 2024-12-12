@@ -49,9 +49,6 @@ struct MainView: View {
                     
                 }
             }
-            .onAppear() {
-               print("MainView onAppear")
-            }
             .background {
                 LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
