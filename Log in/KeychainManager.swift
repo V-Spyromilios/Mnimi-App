@@ -79,6 +79,7 @@ extension KeychainManager {
 
 extension KeychainManager {
     
+    //TODO: - Perhaps throw!
     func readRecordID(service: String = "dev.chillvibes.MyndVault", account: String) -> CKRecord.ID? {
         // Read Data from Keychain
         guard let recordIDData = read(service: service, account: account) else { return nil }
@@ -89,7 +90,10 @@ extension KeychainManager {
                 return recordID
             }
         } catch {
+            
+#if DEBUG
             print("Failed to unarchive CKRecord.ID: \(error.localizedDescription)")
+            #endif
         }
         return nil
     }

@@ -15,12 +15,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        
-        
-        
         return true
     }
-    
     
     //    private func requestNotificationPermission() {
     //        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
@@ -32,16 +28,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     //        }
     //    }
     
-    
 }
-
-
 
 @main
 struct MyndVaultApp: App {
-
+    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
+    
     @StateObject private var pineconeViewModel: PineconeViewModel
     @StateObject private var openAiManager: OpenAIViewModel
     
@@ -57,34 +50,25 @@ struct MyndVaultApp: App {
     @State var showSplash: Bool = true
     
     init() {
-        Purchases.logLevel = .debug
-        
-        if let catKey = ApiConfiguration.catKey {
-            Purchases.configure(with: .init(withAPIKey: catKey)
-                .with(storeKitVersion: .storeKit2))
-        } else {
-            print("Failed to configure RCat key.")
-        }
-        
-        Purchases.shared.delegate = PurchasesDelegateHandler.shared
-        
         let ckViewModel = CloudKitViewModel.shared
         let pineconeActor = PineconeActor(cloudKitViewModel: ckViewModel)
         _pineconeViewModel = StateObject(wrappedValue: PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: ckViewModel))
         
         let openAIActor = OpenAIActor()
         _openAiManager = StateObject(wrappedValue: OpenAIViewModel(openAIActor: openAIActor))
+        
+        configureRevenueCat()
     }
     
-    
     var body: some Scene {
-        WindowGroup(content: {
+        WindowGroup {
             
             if showSplash {
                 SplashScreen(showSplash: $showSplash)
                     .environmentObject(cloudKitViewModel)
                     .environmentObject(networkManager)
                     .environmentObject(apiCallsViewModel)
+                    .statusBar(hidden: true)
             }
             else if cloudKitViewModel.isFirstLaunch {
                 InitialSetupView()
@@ -99,34 +83,43 @@ struct MyndVaultApp: App {
                     .environmentObject(languageSettings)
                     .environmentObject(speechManager)
                     .statusBar(hidden: true)
-                
             }
-            else  {
-                if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
-                    FaceIDView()
-                        .environmentObject(cloudKitViewModel)
-                        .environmentObject(networkManager)
-                        .environmentObject(apiCallsViewModel)
-                        .environmentObject(authManager)
-                        .environmentObject(openAiManager)
-                        .environmentObject(pineconeViewModel)
-                        .environmentObject(progressTracker)
-                        .environmentObject(keyboardResponder)
-                        .environmentObject(languageSettings)
-                        .environmentObject(speechManager)
-                        .statusBar(hidden: true)
-                } else if cloudKitViewModel.isLoading {
-                    Text("Signing in with iCloud...")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                } else if cloudKitViewModel.CKErrorDesc != "" {
-                    let error = cloudKitViewModel.CKErrorDesc
-                    contentError(error: error).padding(.horizontal)
-                }
+            else {
+                RootView()
+                    .environmentObject(cloudKitViewModel)
+                    .environmentObject(networkManager)
+                    .environmentObject(apiCallsViewModel)
+                    .environmentObject(authManager)
+                    .environmentObject(openAiManager)
+                    .environmentObject(pineconeViewModel)
+                    .environmentObject(progressTracker)
+                    .environmentObject(keyboardResponder)
+                    .environmentObject(languageSettings)
+                    .environmentObject(speechManager)
+                    .statusBar(hidden: true)
+                    .transition(.opacity)
             }
-        })
+        }
     }
     
+    private func configureRevenueCat() {
+        
+#if DEBUG
+        Purchases.logLevel = .debug
+#else
+        Purchases.logLevel = .info
+#endif
+        if let catKey = ApiConfiguration.catKey {
+            Purchases.configure(with: .init(withAPIKey: catKey)
+                .with(storeKitVersion: .storeKit2))
+        }
+        else {
+#if DEBUG
+            print("Failed to configure RCat key.")
+#endif
+        }
+        Purchases.shared.delegate = PurchasesDelegateHandler.shared
+    }
     
     private func contentError(error: String) -> some View {
         VStack{
@@ -137,5 +130,3 @@ struct MyndVaultApp: App {
             .statusBarHidden()
     }
 }
-
-

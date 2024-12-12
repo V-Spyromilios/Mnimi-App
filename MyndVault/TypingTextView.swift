@@ -21,7 +21,7 @@ struct TypingTextView: View {
     var body: some View {
         HStack {
             Text(displayedText)
-                .font(Font.custom(isTitle ? "SF Compact" : "SF Mono Semibold", size: isTitle ? 29 : 16))
+                .font(Font.custom(isTitle ? "SF Compact Display" : "SF Mono Semibold", size: isTitle ? 29 : 16))
                 .fontDesign(isTitle ? .rounded : .monospaced)
                 .foregroundStyle(isTitle ? Color.customTiel : .primary)
                 .multilineTextAlignment(.leading)

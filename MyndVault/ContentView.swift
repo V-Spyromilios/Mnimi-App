@@ -44,6 +44,7 @@ struct ContentView: View {
                     .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
+                    .transition(.opacity)
                 
                 QuestionView().tag(2)
                     .environmentObject(openAiManager)
@@ -51,6 +52,7 @@ struct ContentView: View {
                     .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
+                    .transition(.opacity)
                 
                 VaultView().tag(3)
                     .environmentObject(openAiManager)
@@ -58,6 +60,7 @@ struct ContentView: View {
                     .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
+                    .transition(.opacity)
                 //                NotificationsView().tag(4)
             }
             .ignoresSafeArea(edges: .bottom)
@@ -90,11 +93,15 @@ struct ContentView: View {
         }
         .onChange(of: RCviewModel.isActiveSubscription) { wasActive, isActive in
             if isActive {
+#if DEBUG
                 print("is Now Active Subscription: \(isActive) and was \(wasActive)")
+#endif
                 withAnimation(.easeInOut(duration: 0.5)) { showPayWall = false }
             }
             else {
+#if DEBUG
                 print("Now is Not Active Subscription: \(isActive), and was: \(wasActive)")
+#endif
                 withAnimation(.easeInOut(duration: 0.5)) { showPayWall = true }
             }
             
@@ -110,7 +117,7 @@ struct ContentView: View {
             CustomPayWall()
         }
     }
-
+    
     //    private func onAppearGetInfo() {
     //        print("onAppear is Active: \(RCviewModel.isActiveSubscription)")
     //
@@ -140,7 +147,7 @@ struct ContentView: View {
     //    }
     
     private func checkIfNewSubscriber() {
-
+        
         Task {
             do {
                 customerInfo = try await Purchases.shared.customerInfo()

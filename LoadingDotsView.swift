@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct LoadingDotsView: View {
+
     @State private var currentDot = 0
     private let dotCount = 3
-    private let dotAnimationDuration = 0.5
-    
+    private let dotAnimationDuration = 0.3
+    var text : String?
+
     var body: some View {
         HStack(spacing: 5) {
-            Text("Loading")
+            Text(text ?? "Loading")
                 .font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded)
             
             HStack(spacing: 5) {

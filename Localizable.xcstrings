@@ -322,6 +322,7 @@
       }
     },
     "%lld%%" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2181,6 +2182,7 @@
       }
     },
     "Loading" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4165,6 +4167,7 @@
       }
     },
     "Signing in with iCloud..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4419,6 +4422,9 @@
           }
         }
       }
+    },
+    "Upsert Successful: %@" : {
+
     },
     "Use AI to Remember everything anytime" : {
       "localizations" : {

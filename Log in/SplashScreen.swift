@@ -17,8 +17,6 @@ struct SplashScreen: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var cancellable: AnyCancellable? = nil
     
-    let symbols: [String] = ["link.icloud", "tray", "gear", "checkmark", ""]
-    
     var body: some View {
         GeometryReader { geometry in
             

@@ -10,11 +10,11 @@ import Foundation
 
 enum OpenAIError: Error, Identifiable {
     var id: String { localizedDescription }
-
+    
     case embeddingsFailed(Error)
     case gptResponseFailed(Error)
     case unknown(Error)
-
+    
     var localizedDescription: String {
         switch self {
         case .embeddingsFailed(let error):
@@ -26,6 +26,7 @@ enum OpenAIError: Error, Identifiable {
         }
     }
 }
+
 // MARK: - Equatable
 extension OpenAIError: Equatable {
     static func == (lhs: OpenAIError, rhs: OpenAIError) -> Bool {
@@ -51,55 +52,78 @@ extension OpenAIError: Hashable {
 
 
 actor OpenAIActor {
-    // MARK: - Properties
-    private let apiKey: String?
 
+    private let apiKey: String?
+    
     // MARK: - Initializer
     init() {
         self.apiKey = ApiConfiguration.openAIKey
+#if DEBUG
+        print("OpenAI Actor Initialized with apiKey: \(String(describing: apiKey))")
+#endif
     }
-
+    
     // MARK: - Methods
-
+    
     // Fetch Embeddings
     func fetchEmbeddings(for inputText: String) async throws -> EmbeddingsResponse {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
-
+#if DEBUG
+        print("Fetching Embeddings for: \(inputText)")
+#endif
         while attempts < maxAttempts {
             do {
                 guard let url = URL(string: "https://api.openai.com/v1/embeddings"),
                       let apiKey = self.apiKey else {
                     throw AppNetworkError.invalidOpenAiURL
                 }
-
+                
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
                 request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
+                
                 let requestBody: [String: Any] = [
                     "input": inputText,
                     "model": "text-embedding-3-large",
-                    "encoding_format": "float"
                 ]
-
+                
                 let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
                 request.httpBody = jsonData
-
+#if DEBUG
+                print("Fetching Embeddings jsonData")
+#endif
+                
                 let (data, response) = try await URLSession.shared.data(for: request)
-
+                
+#if DEBUG
+                print("Fetching Embeddings URLSession")
+#endif
+                
+                let httpresponse = response as? HTTPURLResponse
+                let code = httpresponse?.statusCode
+                
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+#if DEBUG
+                    print("http Response Code \(String(describing: code))!!")
+#endif
                     throw AppNetworkError.invalidResponse
                 }
-
+#if DEBUG
+                print("Fetching Embeddings Before decoder")
+#endif
+                
                 let decoder = JSONDecoder()
+#if DEBUG
+                print("Fetching Embeddings Will decode")
+#endif
                 let embeddingsResponse = try decoder.decode(EmbeddingsResponse.self, from: data)
-
+                
                 // Update token usage
                 updateTokenUsage(api: APIs.openAI, tokensUsed: embeddingsResponse.usage.totalTokens, read: false)
-
+                
                 return embeddingsResponse
             } catch {
                 lastError = error
@@ -109,53 +133,58 @@ actor OpenAIActor {
                 }
             }
         }
-
+#if DEBUG
+        let error = lastError as? AppNetworkError
+        let msg = error?.errorDescription
+        print("Fetching Embeddings last Error: \(String(describing: msg))")
+#endif
+        
         throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during embeddings fetch.")
     }
-
+    
     // Get GPT Response
     func getGptResponse(vectorResponses: [String], question: String, selectedLanguage: LanguageCode) async throws -> String {
         let maxAttempts = 2
         var attempts = 0
         var lastError: Error?
-
+        
         while attempts < maxAttempts {
             do {
                 guard let url = URL(string: "https://api.openai.com/v1/chat/completions"),
                       let apiKey = self.apiKey else {
                     throw AppNetworkError.invalidOpenAiURL
                 }
-
+                
                 let prompt = getGptPrompt(vectorResponses: vectorResponses, question: question, selectedLanguage: selectedLanguage)
-
+                
                 let requestBody: [String: Any] = [
                     "model": "gpt-4o",
                     "temperature": 0,
                     "messages": [["role": "system", "content": prompt]]
                 ]
-
+                
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
                 request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
+                
                 request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-
+                
                 let (data, response) = try await URLSession.shared.data(for: request)
-
+                
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                     throw AppNetworkError.invalidResponse
                 }
-
+                
                 let decoder = JSONDecoder()
                 let gptResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
                 guard let firstChoice = gptResponse.choices.first else {
                     throw AppNetworkError.noChoicesInResponse
                 }
-
+                
                 // Update token usage
                 updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
-
+                
                 return firstChoice.message.content
             } catch {
                 lastError = error
@@ -165,40 +194,40 @@ actor OpenAIActor {
                 }
             }
         }
-
+        
         throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during GPT response fetch.")
     }
-
+    
     // Get GPT Prompt
     private func getGptPrompt(vectorResponses: [String], question: String, selectedLanguage: LanguageCode) -> String {
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.timeZone = TimeZone.current
         isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let isoDateString = isoFormatter.string(from: Date())
-
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEE, MMMM d, yyyy"
         let readableDateString = dateFormatter.string(from: Date())
-
+        
         let firstVector = vectorResponses.indices.contains(0) ? vectorResponses[0] : ""
         let secondVector = vectorResponses.indices.contains(1) ? vectorResponses[1] : ""
-
+        
         switch selectedLanguage {
         case .english:
             return """
             You are an AI assistant, and you have been asked to provide a concise reply to the user's question. Below is the user's question and one or two pieces of information retrieved by the user's vector database. Note that these pieces of information are the ones with the highest similarity score but may be irrelevant to the user's question:
-
+            
             - User's Question: \(question).
             - Relevant Information 1: \(firstVector).
             - Relevant Information 2: \(secondVector).
-
+            
             Using the user's question, and if relevant the information provided, generate a comprehensive, informative, and concise reply that addresses the user's inquiry. Evaluate the relevance of the retrieved information:
             - If the retrieved information is relevant, integrate it into your response to provide a helpful response.
             - If the retrieved information is not relevant at all, use your general knowledge to provide a helpful response, and suggest that the user provide additional information to the app for more accurate answers in the future.
             - Always give priority to the relevant information provided by the user to craft an accurate reply.
-
+            
             If relevant for your reply, today is \(readableDateString), and the current time in ISO8601 format is \(isoDateString). Do not return full dates and times unless necessary.
-
+            
             The response should be clear, engaging, and concise.
             """
         case .spanish:
@@ -360,7 +389,7 @@ actor OpenAIActor {
 
 התשובה צריכה להיות ברורה, מעניינת ותמציתית.
 """
-
+            
         }
     }
 }
