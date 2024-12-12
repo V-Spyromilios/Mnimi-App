@@ -27,60 +27,67 @@ struct FaceIDView: View {
     @State private var authAttempts: Int = 0
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
-
+    @State private var shouldShowMainView = false
+    
     enum BiometricType {
         case none
         case touchID
         case faceID
     }
+
     @State private var biometricType: BiometricType = .none
     
     var body: some View {
-        Group {
-            if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn  {
-                MainView()
-                    .environmentObject(openAiManager)
-                    .environmentObject(pinecone)
-                    .environmentObject(progressTracker)
-                    .environmentObject(keyboardResponder)
-                    .environmentObject(language)
-                    .environmentObject(speechManager)
-            } else if authManager.isLoggedOut {
-                LoggedOutView()
-            } else {
-                ZStack {
-                    Color.customTiel
-                        .ignoresSafeArea()
-                    VStack {
-                        
-                        LottieRepresentable(filename: "Image Recognition", loopMode: .loop).padding()
-                            .frame(height: 400)
-                            .onTapGesture(perform: authenticate)
-                        
-                            .padding(.top)
-                            .onAppear(perform: authenticate)
-                        
-                        Button {
-                            self.authenticate()
-                        } label: {
-                            Image(systemName: biometricType == .faceID ? "faceid" : biometricType == .touchID ? "touchid" : "questionmark.circle")
-                                .resizable()
-                                .frame(width: 100, height: 100)
-                                .foregroundStyle(Color.cardBackground).shadow(radius: 4, x: -3, y: -3)
-                        }
-                        Spacer()
-                    }
-                }
-                .statusBar(hidden: true)
-                .sheet(isPresented: $showPasswordAuth) {
-                    UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
-                        .environmentObject(keyboardResponder)
-                }
+        //        Group {
+        //            if shouldShowMainView {
+        //                MainView()
+        //                    .environmentObject(openAiManager)
+        //                    .environmentObject(pinecone)
+        //                    .environmentObject(progressTracker)
+        //                    .environmentObject(keyboardResponder)
+        //                    .environmentObject(language)
+        //                    .environmentObject(speechManager)
+        //            } else if authManager.isLoggedOut {
+        //                LoggedOutView()
+        //            } else {
+        ZStack {
+            
+            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+                .opacity(0.4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+            
+            VStack {
+                
+                LottieRepresentable(filename: "Image Recognition", loopMode: .loop).padding()
+                    .frame(height: 400)
+                    .padding(.top)
+                
+                //                        Button {
+                //                            print("Thread -Button-: \(Thread.isMainThread ? "Main" : "Background")")
+                //                            self.authenticate()
+                //                        } label: {
+                //                            Image(systemName: biometricType == .faceID ? "faceid" : biometricType == .touchID ? "touchid" : "questionmark.circle")
+                //                                .resizable()
+                //                                .frame(width: 100, height: 100)
+                //                                .foregroundStyle(Color.cardBackground).shadow(radius: 4, x: -3, y: -3)
+                //                        }
+                Spacer()
             }
         }
+        .statusBar(hidden: true)
+        .sheet(isPresented: $showPasswordAuth) {
+            UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
+                .environmentObject(keyboardResponder)
+        }
+        //            }
         .onAppear {
             detectBiometricType()
+            authenticate()
+            checkAuthenticationStatus()
         }
+        
+        
         .alert(isPresented: $showNoInternet) {
             Alert(
                 title: Text("You are not connected to the Internet"),
@@ -93,6 +100,14 @@ struct FaceIDView: View {
                 showNoInternet = true
             }
         }
+        .onChange(of: authManager.isAuthenticated) {
+#if DEBUG
+            print("isAuthenticated: \(authManager.isAuthenticated)")
+#endif
+        }
+        .onChange(of: cloudKitViewModel.userIsSignedIn) { _, newValue in
+            print("cloudKitViewModel.userIsSignedIn changed to \(newValue)")
+        }
         .alert(isPresented: $showErrorAlert) {
             Alert(
                 title: Text("Authentication Failed"),
@@ -104,63 +119,83 @@ struct FaceIDView: View {
             )
         }
     }
-    
     private func detectBiometricType() {
-         let context = LAContext()
-         var error: NSError?
-
-         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-             switch context.biometryType {
-             case .faceID:
-                 biometricType = .faceID
-             case .touchID:
-                 biometricType = .touchID
-             default:
-                 biometricType = .none
-             }
-         } else {
-             biometricType = .none
-         }
-     }
-
-    
-    private func authenticate() {
         let context = LAContext()
         var error: NSError?
         
-        // Check whether biometric authentication is possible
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            // It's possible, so go ahead and use it
-            let reason = "We need to confirm it's you."
-            
-            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
-                // Authentication has now completed
-                
-                // Dispatch UI updates to the main thread
-                DispatchQueue.main.async {
-                    if success {
-                        // Authenticated successfully
-                        withAnimation(.easeInOut) {
-                            authManager.login()
-                        }
-                    } else {
-                        handleAuthenticationError(error: authenticationError)
-                    }
+#if DEBUG
+            print("Thread -detectBiometricType-: \(Thread.isMainThread ? "Main" : "Background")")
+#endif
+            let biometryType = context.biometryType
+            DispatchQueue.main.async {
+                switch biometryType {
+                case .faceID:
+                    biometricType = .faceID
+                case .touchID:
+                    biometricType = .touchID
+                default:
+                    biometricType = .none
                 }
             }
         } else {
-            // If canEvaluatePolicy returns false
             DispatchQueue.main.async {
-                authAttempts += 1
-                if authAttempts >= 2 {
-                    showPasswordAuth = true
-                }
+                biometricType = .none
+            }
+        }
+    }
+    
+    private func checkAuthenticationStatus() {
+        if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn {
+            shouldShowMainView = true
+#if DEBUG
+            print("Calling checkAuthenticationStatus OK !")
+#endif
+        } else {
+            // Retry after a short delay
+#if DEBUG
+            print("Calling checkAuthenticationStatus again...")
+#endif
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                checkAuthenticationStatus()
             }
         }
     }
     
     
-    
+    private func authenticate() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let context = LAContext()
+            var error: NSError?
+            
+            if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+                let reason = "We need to confirm it's you."
+                
+                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+                    DispatchQueue.main.async {
+                        if success {
+                            authManager.login()
+#if DEBUG
+                            print("Authentication succeeded, calling authManager.login()")
+#endif
+                        } else {
+                            handleAuthenticationError(error: authenticationError)
+#if DEBUG
+                            print("Authentication failed, calling handleAuthenticationError()")
+#endif
+                        }
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    authAttempts += 1
+                    if authAttempts >= 2 {
+                        showPasswordAuth = true
+                    }
+                }
+            }
+        }
+    }
     
     private func handleAuthenticationError(error: Error?) {
         guard let laError = error as? LAError else {
@@ -199,33 +234,6 @@ struct FaceIDView: View {
         }
     }
     
-    //    private func authenticate() {
-    //          let context = LAContext()
-    //          context.localizedCancelTitle = "Enter Username/Password"
-    //
-    //          var authError: NSError?
-    //          if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
-    //              context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Log in with Face ID") { success, error in
-    //                  DispatchQueue.main.async {
-    //                      if success {
-    //                          withAnimation(.easeInOut) {
-    //                              authManager.login()
-    //                          }
-    //                      } else {
-    //                          authAttempts += 1
-    //                          if authAttempts >= 2 {
-    //                              showPasswordAuth = true
-    //                          }
-    //                      }
-    //                  }
-    //              }
-    //          } else {
-    //              authAttempts += 1
-    //              if authAttempts >= 2 {
-    //                  showPasswordAuth = true
-    //              }
-    //          }
-    //      }
 }
 
 struct UsernamePasswordLoginView: View {
@@ -307,7 +315,7 @@ struct UsernamePasswordLoginView: View {
                     }
                 }
             }
-
+            
             
         } // -ZStack
         .alert(isPresented: $showPasswordError) {
@@ -328,17 +336,17 @@ struct UsernamePasswordLoginView: View {
     }
     
     private func authenticateWithPassword() {
-        guard let savedUsername = KeychainManager.standard.readUsername(),
+        guard let savedUsername     = KeychainManager.standard.readUsername(),
               let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: savedUsername),
-              let savedPassword = String(data: savedPasswordData, encoding: .utf8) else {
-            alertPasswordMessage = "Invalid username."
+              let savedPassword     = String(data: savedPasswordData, encoding: .utf8) else {
+            alertPasswordMessage   = "Invalid username."
             showPasswordAuth = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 showPasswordError = true
             }
             return
         }
-            if savedPassword != password {
+        if savedPassword != password {
             alertPasswordMessage = "Invalid password."
             showPasswordAuth = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

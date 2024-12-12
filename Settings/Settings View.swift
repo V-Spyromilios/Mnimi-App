@@ -316,9 +316,11 @@ struct SettingsView: View {
         Task {
             do {
                 deleteNamespaceFromICloud()
-                try await pineconeManager.deleteAllVectorsInNamespace()
+                pineconeManager.deleteAllVectorsInNamespace()
                 try await cloudKit.deleteAllImageItems()
                 removeUserDefaults()
+                deleteKeyChain()
+                checkPineconeError()
                 
             } catch let error as AppCKError {
                
@@ -331,15 +333,12 @@ struct SettingsView: View {
             } catch let error as AppNetworkError {
                
                 await MainActor.run {
-                    print("The error: \(error.localizedDescription)")
                     withAnimation {
                         self.errorString = error.errorDescription
                         self.showError = true
                     }
                 }
             } catch {
-                // General error handling
-                print("General error: \(error.localizedDescription)")
                 await MainActor.run {
                     self.errorString = error.localizedDescription
                     self.showError = true
@@ -349,6 +348,14 @@ struct SettingsView: View {
         deleteButton = .idle
     }
 
+    
+    private func  checkPineconeError() {
+        if let error = pineconeManager.pineconeError {
+            errorString = error.localizedDescription
+            showError = true
+            
+        }
+    }
 
 private func checkOpeningSubscriptions() {
     guard let url = URL(string: "https://apps.apple.com/account/subscriptions"),
@@ -368,18 +375,16 @@ private func checkOpeningSettings() {
     }
 }
 
-private func deleteKeyChain() {
     
-    let username = KeychainManager.standard.readUsername()
-    if let username = username {
-        let success = KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username)
-        if success {
-            
+    //TODO: Proper error handling!
+    private func deleteKeyChain() {
+        if let username = KeychainManager.standard.readUsername(),
+           KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username) {
+            print("Successfully deleted keychain for username: \(username)")
         } else {
-            print("Failed to delete the account from keychain.")
+            print("deleteKeyChain::Failed to delete keychain.")
         }
-    } else { print("Unable to get username for deleting KeyChain.") }
-}
+    }
 
 
 
@@ -391,8 +396,7 @@ private func deleteNamespaceFromICloud() {
             let privateDatabase = container.privateCloudDatabase
             let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete")
             print("Before Deleting: \(String(describing: recordIDDelete))")
-            
-            
+
             try await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete!, from: privateDatabase)
         } catch {
             print("Error deleting record: \(error.localizedDescription)")

@@ -36,9 +36,9 @@ struct MainView: View {
                         .environmentObject(speechManager)
                 }
                 
-                else if cloudKitViewModel.isLoading {
-                    Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
-                }
+//                else if cloudKitViewModel.isLoading {
+//                    Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
+//                }
                 else if cloudKitViewModel.CKErrorDesc != "" {
                     
                     let errorDesc = cloudKitViewModel.CKErrorDesc
@@ -48,6 +48,9 @@ struct MainView: View {
                     }
                     
                 }
+            }
+            .onAppear() {
+               print("MainView onAppear")
             }
             .background {
                 LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)

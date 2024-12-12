@@ -79,7 +79,6 @@
 		E878FA8F2CD3A90F00CEA8EA /* OpenAIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */; };
 		E87FB25F2BC96EA000B1A16D /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87FB25E2BC96EA000B1A16D /* InfoView.swift */; };
 		E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */; };
-		E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */; };
 		E8AD72452C2E03BC0049FC11 /* ImageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AD72442C2E03BC0049FC11 /* ImageItem.swift */; };
 		E8B4C5782CDD69CA00813AC0 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4C5772CDD69CA00813AC0 /* ImageView.swift */; };
 		E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */; };
@@ -89,6 +88,8 @@
 		E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */; };
 		E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */; };
 		E8B4D5102BF8F17400F2A174 /* LoggedOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */; };
+		E8BDF9C22CFC854E0026BAE2 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BDF9C12CFC854E0026BAE2 /* RootView.swift */; };
+		E8BDF9C42CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8BDF9C32CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf */; };
 		E8C7E2922C4D3BB2009760F2 /* Bell ringing notification.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */; };
 		E8C7E2942C4D3E8B009760F2 /* AddNotification.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2932C4D3E8B009760F2 /* AddNotification.json */; };
 		E8C7E2962C4D4205009760F2 /* Add.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2952C4D4205009760F2 /* Add.json */; };
@@ -197,7 +198,6 @@
 		E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIViewModel.swift; sourceTree = "<group>"; };
 		E87FB25E2BC96EA000B1A16D /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
-		E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact.otf"; sourceTree = "<group>"; };
 		E8AD72442C2E03BC0049FC11 /* ImageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageItem.swift; sourceTree = "<group>"; };
 		E8B4C5772CDD69CA00813AC0 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceIDView.swift; sourceTree = "<group>"; };
@@ -208,6 +208,8 @@
 		E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedOutView.swift; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E8BDF9C12CFC854E0026BAE2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		E8BDF9C32CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact-Display-Regular.otf"; sourceTree = "<group>"; };
 		E8C7E2912C4D3BB2009760F2 /* Bell ringing notification.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Bell ringing notification.json"; sourceTree = "<group>"; };
 		E8C7E2932C4D3E8B009760F2 /* AddNotification.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AddNotification.json; sourceTree = "<group>"; };
 		E8C7E2952C4D4205009760F2 /* Add.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Add.json; sourceTree = "<group>"; };
@@ -319,7 +321,6 @@
 			children = (
 				E8B4C5772CDD69CA00813AC0 /* ImageView.swift */,
 				E878FA8C2CD3A87800CEA8EA /* OpenaiActor.swift */,
-				E8A1B52B2C1DB72F00D9A712 /* SF-Compact.otf */,
 				E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */,
 				E878FA882CCD169900CEA8EA /* PineconeViewModel.swift */,
 				E878FA8A2CCD16BF00CEA8EA /* PineconeActor.swift */,
@@ -352,6 +353,7 @@
 		E8459EC62BC1E3BE00CE34A7 /* MyndVault */ = {
 			isa = PBXGroup;
 			children = (
+				E8BDF9C32CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf */,
 				E8B72E902BC93B9600E0C90D /* Info.plist */,
 				E8FA7F182BC5D3C60012EBF6 /* MyndVault.entitlements */,
 				E82F45672BC2A77E00945312 /* Configurations */,
@@ -362,6 +364,7 @@
 				E82F454B2BC2A6D100945312 /* OpenAIKey.plist */,
 				E82F457F2BC2A80B00945312 /* Tabbar Views */,
 				E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */,
+				E8BDF9C12CFC854E0026BAE2 /* RootView.swift */,
 				E87605B82C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift */,
 				E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */,
 				E82F457D2BC2A80B00945312 /* SpeechRecognitionViewModel.swift */,
@@ -563,8 +566,8 @@
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
 				E8C7E2982C4D460C009760F2 /* Delete.json in Resources */,
 				E817A42B2C5524E700A0172A /* takingNotes.json in Resources */,
-				E8A1B52C2C1DB72F00D9A712 /* SF-Compact.otf in Resources */,
 				E814B82B2C433CA6004BC4F4 /* Approved.json in Resources */,
+				E8BDF9C42CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf in Resources */,
 				E8002B652C4C951D00FD814D /* robotForQuestion.json in Resources */,
 				E877FA2B2C4A98A6002FBFFC /* noNotifications.json in Resources */,
 				E8002B692C4CC2AA00FD814D /* Settings.json in Resources */,
@@ -664,6 +667,7 @@
 				E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */,
 				E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */,
 				E82F45742BC2A77E00945312 /* NotificationCellView.swift in Sources */,
+				E8BDF9C22CFC854E0026BAE2 /* RootView.swift in Sources */,
 				E82F45732BC2A77E00945312 /* ResponseModel.swift in Sources */,
 				E8CFEAFA2C3D5064005A2630 /*  openSettingsView.swift in Sources */,
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
@@ -818,7 +822,7 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mynd Vault secures the access to your infos with Face ID. ";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "MyndVault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -827,13 +831,13 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -857,7 +861,7 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mynd Vault secures the access to your infos with Face ID. ";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "MyndVault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -866,13 +870,13 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

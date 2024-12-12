@@ -503,6 +503,7 @@
 //        }
 //}
 //
+
 extension CKError {
     var customErrorDescription: String {
         switch self.code {
@@ -619,12 +620,8 @@ actor CloudKitViewModel: ObservableObject, Sendable {
     
     
     private func saveRecordNameToKeychain(_ recordID: CKRecord.ID) {
-        do {
-            let recordNameData = try NSKeyedArchiver.archivedData(withRootObject: recordID, requiringSecureCoding: true)
-            KeychainManager.standard.save(account: "recordIDDelete", data: recordNameData)
-        } catch {
-            print("Failed to archive CKRecord.ID: \(error.localizedDescription)")
-        }
+        let recordName = recordID.recordName
+        KeychainManager.standard.save(account: "recordIDDelete", data: Data(recordName.utf8))
     }
     
     init() {
@@ -643,7 +640,6 @@ actor CloudKitViewModel: ObservableObject, Sendable {
             // Setup observers and start initial tasks
             await setupCloudKitObservers()
             await startInitialTasks()
-            
         }
     }
     
@@ -675,11 +671,8 @@ actor CloudKitViewModel: ObservableObject, Sendable {
             }
         }
     }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: .CKAccountChanged, object: nil)
-    }
-    
+
+
     private static func checkIfFirstLaunch() async -> Bool {
         UserDefaults.standard.synchronize()
         
@@ -696,16 +689,16 @@ actor CloudKitViewModel: ObservableObject, Sendable {
     //           return UserDefaults.standard.object(forKey: key) != nil
     //       }
     
-    private func handleAccountChange() {
-        Task {
-            do {
-                try await getiCloudStatus()
-            }
-            catch {
-                throw error
-            }
-        }
-    }
+//    private func handleAccountChange() throws {
+//        Task {
+//            do {
+//                try await getiCloudStatus()
+//            }
+//            catch {
+//                throw error
+//            }
+//        }
+//    }
     
     func clearCloudKit() {
         DispatchQueue.main.async {
@@ -714,6 +707,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         }
     }
     
+    //MARK: startCloudKit
     func startCloudKit() {
         DispatchQueue.main.async {
             self.isLoading = true }
@@ -737,7 +731,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
         
         let maxRetryAttempts = 3
-        let delayBetweenRetries: UInt64 = 200_000_000
+        let delayBetweenRetries: UInt64 = 100_000_000
         var attempts = 0
         
         while attempts < maxRetryAttempts {
@@ -793,9 +787,10 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         }
     }
     
+    //MARK: getiCloudStatus
     func getiCloudStatus() async throws {
         let maxRetryAttempts = 3
-        let delayBetweenRetries: UInt64 = 200_000_000
+        let delayBetweenRetries: UInt64 = 100_000_000
         var attempts = 0
         
         while attempts < maxRetryAttempts {
@@ -825,6 +820,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         }
     }
     
+    //MARK: getUserID
     private func getUserID() async throws -> CKRecord.ID {
         let maxRetryAttempts = 3
         let delayBetweenRetries: UInt64 = 200_000_000
@@ -851,6 +847,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         throw AppCKError.unknownError(message: "Failed to get user ID after \(maxRetryAttempts) attempts")
     }
     
+    //MARK: initializeCloudKitSetup
     private func initializeCloudKitSetup() async throws {
         do {
             try await getiCloudStatus()
@@ -940,13 +937,51 @@ actor CloudKitViewModel: ObservableObject, Sendable {
     func fetchAllRecords(using query: CKQuery, from database: CKDatabase) async throws -> [CKRecord] {
         var allRecords: [CKRecord] = []
         var currentCursor: CKQueryOperation.Cursor? = nil
-        
+
+        let maxAttempts = 3
+        let delayBetweenRetries: UInt64 = 100_000_000
+
         repeat {
-            let (records, cursor) = try await fetchRecords(withCursor: currentCursor, query: query, from: database)
-            allRecords.append(contentsOf: records)
-            currentCursor = cursor
+            var attempts = 0
+            var lastError: Error?
+            
+            while attempts < maxAttempts {
+                do {
+                    let result: (matchResults: [(CKRecord.ID, Result<CKRecord, Error>)], queryCursor: CKQueryOperation.Cursor?)
+                    
+                    if let cursor = currentCursor {
+                        // Fetch next batch using the cursor
+                        result = try await database.records(continuingMatchFrom: cursor)
+                    } else {
+                        // Initial query
+                        result = try await database.records(matching: query)
+                    }
+                    
+                    let records = result.matchResults.compactMap { (_, result) -> CKRecord? in
+                        switch result {
+                        case .success(let record):
+                            return record
+                        case .failure(let error):
+                            print("Error fetching record: \(error.localizedDescription)")
+                            return nil
+                        }
+                    }
+                    
+                    allRecords.append(contentsOf: records)
+                    currentCursor = result.queryCursor
+                    break // Break out of the retry loop on success
+                } catch {
+                    attempts += 1
+                    lastError = error
+                    if attempts >= maxAttempts {
+                        throw lastError ?? AppCKError.unknownError(message: "Failed to fetch records after \(maxAttempts) attempts")
+                    } else {
+                        try await Task.sleep(nanoseconds: delayBetweenRetries)
+                    }
+                }
+            }
         } while currentCursor != nil
-        
+
         return allRecords
     }
     
@@ -976,7 +1011,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
                     // For this example, we'll continue fetching other records
                 }
             }
-            
+
             // Updated to use queryResultBlock
             operation.queryResultBlock = { result in
                 switch result {
@@ -994,33 +1029,50 @@ actor CloudKitViewModel: ObservableObject, Sendable {
     
     // Function to delete a record from iCloud using CloudKit's modifyRecords method NOT FOR IMAGES
     func deleteRecordFromICloud(recordID: CKRecord.ID, from database: CKDatabase) async throws {
-        do {
-            // Call modifyRecords with empty saving array and the record ID in deleting array
-            let result = try await database.modifyRecords(
-                saving: [], // No records to save, just deleting
-                deleting: [recordID], // Record ID to delete
-                savePolicy: .ifServerRecordUnchanged, // Save policy; does not affect delete
-                atomically: true // Operation fails entirely if any error occurs
-            )
-            
-            // Check the deletion result for the specific record ID
-            if let deleteResult = result.deleteResults[recordID] {
-                switch deleteResult {
-                case .success:
-                    print("Successfully deleted record with ID: \(recordID.recordName)")
-                case .failure(let error):
-                    print("Failed to delete record: \(error.localizedDescription)")
-                    throw error // Throw the specific error to handle it further up
+        let maxAttempts = 3
+        var attempts = 0
+        var lastError: Error?
+
+        while attempts < maxAttempts {
+            do {
+                // Call modifyRecords with empty saving array and the record ID in deleting array
+                let result = try await database.modifyRecords(
+                    saving: [], // No records to save, just deleting
+                    deleting: [recordID], // Record ID to delete
+                    savePolicy: .ifServerRecordUnchanged, // Save policy; does not affect delete
+                    atomically: true // Operation fails entirely if any error occurs
+                )
+                
+                // Check the deletion result for the specific record ID
+                if let deleteResult = result.deleteResults[recordID] {
+                    switch deleteResult {
+                    case .success:
+                        print("Successfully deleted record with ID: \(recordID.recordName)")
+                        return // Deletion succeeded, exit function
+                    case .failure(let error):
+                        print("Failed to delete record: \(error.localizedDescription)")
+                        throw error // Throw the specific error to handle it further up
+                    }
+                } else {
+                    print("Record ID \(recordID.recordName) not found in delete results.")
                 }
-            } else {
-                print("Record ID \(recordID.recordName) not found in delete results.")
+                
+            } catch {
+                // Handle any errors from the modifyRecords call
+                print("Attempt \(attempts + 1) failed to delete record from iCloud: \(error.localizedDescription)")
+                lastError = error
+                attempts += 1
+                if attempts < maxAttempts {
+                    // Optional delay before retrying
+                    try await Task.sleep(nanoseconds: 300_000_000) // 0.5 seconds
+                } else {
+                    // Max attempts reached, rethrow the last error
+                    throw lastError!
+                }
             }
-            
-        } catch {
-            // Handle any errors from the modifyRecords call
-            print("Failed to delete record from iCloud: \(error.localizedDescription)")
-            throw error
         }
+        // If all attempts fail, throw the last encountered error
+        throw lastError ?? NSError(domain: "UnknownError", code: -1, userInfo: nil)
     }
     
     
@@ -1164,12 +1216,25 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
         let query = CKQuery(recordType: "ImageItem", predicate: predicate)
         
-        var attempt = 0
-        let maxRetries = 3
+        let maxAttempts = 3
+        let delayBetweenRetries: UInt64 = 200_000_000 // 0.2 seconds
+        var attempts = 0
+        var lastError: Error?
         
-        while attempt < maxRetries {
+        while attempts < maxAttempts {
             do {
-                let records = try await performQuery(query, in: db)
+                // Use the new async API for fetching records
+                let (matchedResults, _) = try await db.records(matching: query)
+                let records = matchedResults.compactMap { (_, result) -> CKRecord? in
+                    switch result {
+                    case .success(let record):
+                        return record
+                    case .failure(let error):
+                        print("Error fetching record: \(error.localizedDescription)")
+                        return nil
+                    }
+                }
+                
                 guard let record = records.first else {
                     return
                 }
@@ -1177,35 +1242,31 @@ actor CloudKitViewModel: ObservableObject, Sendable {
                 try await deleteRecord(withRecordID: record.recordID, in: db)
                 return
             } catch {
-                attempt += 1
-                if attempt == maxRetries {
-                    throw error
+                attempts += 1
+                lastError = error
+                if attempts >= maxAttempts {
+                    throw lastError ?? AppCKError.unknownError(message: "Failed to delete image after \(maxAttempts) attempts")
                 }
-                try await Task.sleep(nanoseconds: 100_000_000)
+                try await Task.sleep(nanoseconds: delayBetweenRetries)
             }
         }
     }
     
     private func deleteRecord(withRecordID recordID: CKRecord.ID, in db: CKDatabase) async throws {
         let maxRetryAttempts = 2
-        let delayBetweenRetries: UInt64 = 200_000_000
+        let delayBetweenRetries: UInt64 = 100_000_000
         var attempts = 0
+        var lastError: Error?
         
         while attempts < maxRetryAttempts {
             do {
-                return try await withCheckedThrowingContinuation { continuation in
-                    db.delete(withRecordID: recordID) { recordID, error in
-                        if let error = error {
-                            continuation.resume(throwing: error)
-                        } else {
-                            continuation.resume(returning: ())
-                        }
-                    }
-                }
+                try await db.deleteRecord(withID: recordID)
+                return
             } catch {
                 attempts += 1
+                lastError = error
                 if attempts >= maxRetryAttempts {
-                    throw error
+                    throw lastError ?? AppCKError.unableToDeleteRecord
                 } else {
                     try await Task.sleep(nanoseconds: delayBetweenRetries)
                 }
@@ -1221,12 +1282,25 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         let predicate = NSPredicate(format: "uniqueID == %@", uniqueID)
         let query = CKQuery(recordType: "ImageItem", predicate: predicate)
         
-        var attempt = 0
-        let maxRetries = 3
+        let maxAttempts = 3
+        let delayBetweenRetries: UInt64 = 100_000_000 // 0.2 seconds
+        var attempts = 0
+        var lastError: Error?
         
-        while attempt < maxRetries {
+        while attempts < maxAttempts {
             do {
-                let records = try await performQuery(query, in: db)
+                // Use the new async API for fetching records
+                let (matchedResults, _) = try await db.records(matching: query)
+                let records = matchedResults.compactMap { (_, result) -> CKRecord? in
+                    switch result {
+                    case .success(let record):
+                        return record
+                    case .failure(let error):
+                        print("Error fetching record: \(error.localizedDescription)")
+                        return nil
+                    }
+                }
+                
                 guard let record = records.first,
                       let asset = record["imageAsset"] as? CKAsset,
                       let fileURL = asset.fileURL else {
@@ -1236,46 +1310,46 @@ actor CloudKitViewModel: ObservableObject, Sendable {
                 let data = try Data(contentsOf: fileURL)
                 return UIImage(data: data)
             } catch {
-                attempt += 1
-                if attempt >= maxRetries {
-                    throw error
+                attempts += 1
+                lastError = error
+                if attempts >= maxAttempts {
+                    throw lastError ?? AppCKError.unknownError(message: "Failed to fetch image after \(maxAttempts) attempts")
                 }
-                try await Task.sleep(nanoseconds: 100_000)
+                try await Task.sleep(nanoseconds: delayBetweenRetries)
             }
         }
+        
         return nil
     }
     
     private func performQuery(_ query: CKQuery, in db: CKDatabase) async throws -> [CKRecord] {
         let maxRetryAttempts = 3
-        let delayBetweenRetries: UInt64 = 200_000_000
+        let delayBetweenRetries: UInt64 = 100_000_000
         var attempts = 0
-        
+
         while attempts < maxRetryAttempts {
             do {
-                return try await withCheckedThrowingContinuation { continuation in
-                    db.fetch(withQuery: query, inZoneWith: nil, desiredKeys: nil, resultsLimit: 1) { result in
-                        switch result {
-                        case .success(let (matchedResults, _)):
-                            let records = matchedResults.compactMap { _, result in
-                                switch result {
-                                case .success(let record):
-                                    return record
-                                case .failure:
-                                    return nil
-                                }
-                            }
-                            continuation.resume(returning: records)
-                        case .failure(let error):
-                            continuation.resume(throwing: error)
-                        }
+                // Perform the query using the async API
+                let (matchedResults, _) = try await db.records(matching: query)
+                
+                // Extract records from matched results
+                let records = matchedResults.compactMap { (_, result) -> CKRecord? in
+                    switch result {
+                    case .success(let record):
+                        return record
+                    case .failure(let error):
+                        print("Error fetching record: \(error.localizedDescription)")
+                        return nil
                     }
                 }
+                
+                return records
             } catch {
                 attempts += 1
                 if attempts >= maxRetryAttempts {
                     throw error
                 } else {
+                    // Optional delay before retrying
                     try await Task.sleep(nanoseconds: delayBetweenRetries)
                 }
             }

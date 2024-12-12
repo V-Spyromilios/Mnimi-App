@@ -14,11 +14,14 @@ import SwiftUI
 final class RCViewModel: ObservableObject, Sendable {
     static let shared = RCViewModel()
 
+    @Published var isActiveSubscription: Bool = false
     @Published var customerInfo: CustomerInfo? {
         didSet {
             // Check the current subscription status
             let newSubscriptionStatus = customerInfo?.entitlements[Constants.entitlementID]?.isActive == true
+#if DEBUG
             print("customerInfo didSet: \(String(describing: newSubscriptionStatus))")
+            #endif
             
             // Update the isActiveSubscription and ensure view updates
             if isActiveSubscription != newSubscriptionStatus {
@@ -30,9 +33,4 @@ final class RCViewModel: ObservableObject, Sendable {
         }
     }
     
-    @Published var isActiveSubscription: Bool = false {
-        didSet {
-            print("isActiveSubscription didSet: \(isActiveSubscription)")
-        }
-    }
 }

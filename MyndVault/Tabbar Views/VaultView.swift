@@ -52,14 +52,16 @@ struct VaultView: View {
                                 }
                                 LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
                                     .padding(.horizontal)
-                            }.transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                            }
+                            .transition(.opacity)
                         }
                         else if vectorsAreLoading {
                            LoadingDotsView()
-                                .if(isIPad()) { view in //TODO: Check if padding is needed for iphones
-                                    view.padding(.top, 40)
+                                .if(isIPad()) { loadingDots in
+                                    loadingDots.padding(.top, 40)
                                 }
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                                .transition(.opacity)
+//                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                         
                         else if !vectorsAreLoading && !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeError == nil {
@@ -68,7 +70,8 @@ struct VaultView: View {
                                     InfosViewListCellView(data: data)
                                         .padding(.horizontal, Constants.standardCardPadding)
                                         .padding(.vertical)
-                                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                                        .transition(.opacity)
+//                                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                                 }
                             }
                         }
@@ -79,14 +82,17 @@ struct VaultView: View {
                                 TypingTextView(fullText: "No Info has been saved. Add whatever you want to remember!")
                                     .shadow(radius: 1)
                                     .padding(.horizontal)
-                            }.transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                            }
+                            .transition(.opacity)
+//                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                         
                         else if pineconeVm.pineconeError != nil && !pineconeVm.accountDeleted {
                             ErrorView(thrownError: pineconeVm.pineconeError!.localizedDescription) {
                                 pineconeVm.pineconeError = nil
                             }
-                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                            .transition(.opacity)
+//                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         }
                     }
                     .searchable(text: $searchText) //Do not move outside of the Scroll. makes top padding when return from EditView

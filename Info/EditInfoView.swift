@@ -30,6 +30,7 @@ struct EditInfoView: View {
     @State private var shake: Bool = false
     @State private var oldText: String = ""
     @State private var deleteAnimating: Bool = false
+    @State private var lottieAnimationID: UUID = UUID()
     
     var body: some View {
         ZStack {
@@ -65,7 +66,6 @@ struct EditInfoView: View {
                     self.viewModel.activeAlert = .deleteWarning
                 }) {
                     LottieRepresentable(filename: "deleteBin", loopMode: .playOnce, isPlaying: $deleteAnimating)
-                        .foregroundStyle(.customLightBlue)
                         .frame(width: 40, height: 50)
                         .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
                         .padding(.top, isIPad() ? 15 : 0)
@@ -80,14 +80,16 @@ struct EditInfoView: View {
                 }
             }
         }
-        .onChange(of: showSuccess) { _, show in
-            if show {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
-                    showSuccess = false
-                    presentationMode.wrappedValue.dismiss()
-                }
-            }
-        }
+//        .onChange(of: showSuccess) { _, show in
+//            if show {
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+//                    showSuccess = false
+//                    //pineconeManager.refreshAfterEditing = true
+//
+//                    presentationMode.wrappedValue.dismiss()
+//                }
+//            }
+//        }
         .alert(item: $viewModel.activeAlert) { alertType in
             switch alertType {
             case .editConfirmation:
@@ -95,10 +97,7 @@ struct EditInfoView: View {
                     title: Text("Save Info?"),
                     message: Text("Are you sure you want to save these changes?"),
                     primaryButton: .destructive(Text("OK")) {
-                        upsertEditedInfo()
-                        apiCalls.incrementApiCallCount()
-                        openAiManager.clearManager()
-                        pineconeManager.clearManager()
+                        onEdit()
                     },
                     secondaryButton: .cancel {
                         viewModel.activeAlert = nil
@@ -138,115 +137,74 @@ struct EditInfoView: View {
         })
     }
     
-    private func upsertEditedInfo() {
-        inProgress = true
-        cancellables.removeAll()
-        
-        let metadata = toDictionary(desc: self.viewModel.description)
-        openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
-        
-        // Observe embeddings completion
-        openAiManager.$embeddingsCompleted
-            .receive(on: DispatchQueue.main)
-            .filter { $0 }
-            .sink { _ in
-                handleEmbeddingsReady(metadata: metadata)
-            }
-            .store(in: &cancellables)
-        
-        // Observe OpenAI errors
-        openAiManager.$openAIError
-            .receive(on: DispatchQueue.main)
-            .compactMap { $0 }
-            .sink { error in
-                handleError(error)
-            }
-            .store(in: &cancellables)
-    }
-    
-    private func handleEmbeddingsReady(metadata: [String: Any]) {
-        if !openAiManager.embeddings.isEmpty {
-            pineconeManager.upsertData(id: self.viewModel.id, vector: openAiManager.embeddings, metadata: metadata)
-            
-            // Observe upsert success
-            pineconeManager.$upsertSuccesful
-                .receive(on: DispatchQueue.main)
-                .filter { $0 }
-                .sink { _ in
-                    handleUpsertSuccess()
-                }
-                .store(in: &cancellables)
-            
-            // Observe Pinecone errors
-            pineconeManager.$pineconeError
-                .receive(on: DispatchQueue.main)
-                .compactMap { $0 }
-                .sink { error in
-                    handleError(error)
-                }
-                .store(in: &cancellables)
-        } else {
-            // Handle the case where embeddings are empty
-            inProgress = false
-            viewModel.occuredErrorDesc = "Embeddings are empty."
-            viewModel.activeAlert = .error
-            cancellables.removeAll()
+    private func onEdit() {
+        Task {
+            await upsertEditedInfo()
+            apiCalls.incrementApiCallCount()
+            openAiManager.clearManager()
+            pineconeManager.clearManager()
         }
     }
+    
+    @MainActor
+    private func upsertEditedInfo() async {
+        inProgress = true
+        
+        let metadata = toDictionary(desc: self.viewModel.description)
+        do {
+            try await openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
+            
+            if !openAiManager.embeddings.isEmpty {
+                pineconeManager.upsertData(id: self.viewModel.id, vector: openAiManager.embeddings, metadata: metadata)
+                
+                handleUpsertSuccess()
+            } else {
+                // Handle the case where embeddings are empty
+                inProgress = false
+                viewModel.occuredErrorDesc = "Embeddings are empty."
+                viewModel.activeAlert = .error
+            }
+        } catch {
+            handleError(error)
+        }
+    }
+
     
     private func handleUpsertSuccess() {
         pineconeManager.resetAfterSuccessfulUpserting()
         pineconeManager.refreshNamespacesIDs()
-        
         inProgress = false
         showSuccess = true
+//        lottieAnimationID = UUID()
+        openAiManager.clearManager()
+        pineconeManager.clearManager()
         
-        // Clear cancellables related to this operation
-        cancellables.removeAll()
+        apiCalls.incrementApiCallCount()
     }
     
     private func handleError(_ error: Error) {
         inProgress = false
         viewModel.occuredErrorDesc = error.localizedDescription
         viewModel.activeAlert = .error
-        
-        // Clear cancellables related to this operation
-        cancellables.removeAll()
     }
     
     private func deleteInfo() {
-        cancellables.removeAll()
-        let idToDelete = viewModel.id
-        pineconeManager.deleteVectorFromPinecone(id: idToDelete)
-        
-        // Observe deletion success
-        pineconeManager.$vectorDeleted
-            .receive(on: DispatchQueue.main)
-            .filter { $0 }
-            .sink { _ in
-                handleDeletionSuccess(idToDelete: idToDelete)
-            }
-            .store(in: &cancellables)
-        
-        // Observe errors
-        pineconeManager.$pineconeError
-            .receive(on: DispatchQueue.main)
-            .compactMap { $0 }
-            .sink { error in
-                handleError(error)
-            }
-            .store(in: &cancellables)
+        Task {
+            inProgress = true
+            let idToDelete = viewModel.id
+            
+            pineconeManager.deleteVectorFromPinecone(id: idToDelete)
+            handleDeletionSuccess(idToDelete: idToDelete)
+        }
     }
     
     private func handleDeletionSuccess(idToDelete: String) {
+
         pineconeManager.deleteVector(withId: idToDelete)
         pineconeManager.refreshNamespacesIDs()
-        
         inProgress = false
         showSuccess = true
-        
-        // Clear cancellables
-        cancellables.removeAll()
+//        lottieAnimationID = UUID()
     }
     
     private func newInfo() -> some View {
@@ -305,30 +263,40 @@ struct EditInfoView: View {
                 .id("SubmitButton")
                 .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
                 
-                if inProgress {
-                    LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8)
-                        .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
-                        .animation(.easeInOut, value: inProgress)
-                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                } else if showSuccess {
-                    LottieRepresentable(filename: "Approved", loopMode: .playOnce)
-                        .frame(height: isIPad() ? 440 : 130)
-                        .padding(.top, 15)
-                        .id(UUID())
-                        .animation(.easeInOut, value: showSuccess)
-                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                }
+//                VStack {
+                    if inProgress {
+                        LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8)
+                            .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
+                            .animation(.easeInOut, value: inProgress)
+                            .transition(.blurReplace(.downUp))
+                    }
+                    Group {
+                    if showSuccess {
+                            LottieRepresentable(filename: "Approved", loopMode: .playOnce)
+                                .frame(height: isIPad() ? 440 : 130)
+                                .padding(.top, 15)
+                                .id(lottieAnimationID) //TODO: Was restarting 2-3 times Check if now animates once bofore view goes back to Vault
+                                .animation(.easeInOut, value: showSuccess)
+                                .transition(.blurReplace(.downUp))
+                                .onAppear {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+                                        withAnimation {
+                                            showSuccess = false
+                                            presentationMode.wrappedValue.dismiss()
+                                        }
+                                    }
+                                }
+                        }// to isolate the Lottie and not trigger multiple restarts
+                    }
+//                }
                 Spacer()
             }
             .padding(.horizontal, Constants.standardCardPadding)
             .padding(.top, 12)
         }
-        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+//        .transition(.blurReplace(.downUp))
     }
     
-    private func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
 }
 
 #Preview {

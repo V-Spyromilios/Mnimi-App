@@ -55,7 +55,6 @@ class PineconeViewModel: ObservableObject {
     @Published var pineconeError: PineconeError?
     @Published var indexInfo: String?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
-    @Published var upsertSuccesful: Bool = false
     @Published var vectorDeleted: Bool = false
     @Published var accountDeleted: Bool = false
     @Published var pineconeIDResponse: PineconeIDResponse?
@@ -95,7 +94,7 @@ class PineconeViewModel: ObservableObject {
     func clearManager() {
         self.pineconeError = nil
         self.pineconeQueryResponse = nil
-        self.upsertSuccesful = false
+        self.upsertSuccessful = false
     }
     
     func deleteVector(withId id: String) {
@@ -105,44 +104,44 @@ class PineconeViewModel: ObservableObject {
     // MARK: - Methods to Update Properties
     
     func updateUpsertSuccessful(_ success: Bool) {
-        self.upsertSuccesful = success
+        self.upsertSuccessful = success
     }
     
-    func updateVectorDeleted(_ deleted: Bool) {
-        self.vectorDeleted = deleted
-    }
-    
-    func updatePineconeIDResponse(_ response: PineconeIDResponse) {
-        self.pineconeIDResponse = response
-    }
-    
-    func appendPineconeIDs(_ ids: [String]) {
-        self.pineconeIDs.append(contentsOf: ids)
-    }
-    
-    func updatePineconeFetchedVectors(_ vectors: [Vector]) {
-        self.pineconeFetchedVectors = vectors
-    }
-    
-    func setIsDataSorted(_ sorted: Bool) {
-        self.isDataSorted = sorted
-    }
-    
-    func setRefreshAfterEditing(_ refresh: Bool) {
-        self.refreshAfterEditing = refresh
-    }
-    
-    func updateAccountDeleted(_ deleted: Bool) {
-        self.accountDeleted = deleted
-    }
-    
-    func updatePineconeQueryResponse(_ response: PineconeQueryResponse) {
-        self.pineconeQueryResponse = response
-    }
-    
-    func removeAllPinconeIDs() {
-        self.pineconeIDs.removeAll()
-    }
+//    func updateVectorDeleted(_ deleted: Bool) {
+//        self.vectorDeleted = deleted
+//    }
+//    
+//    func updatePineconeIDResponse(_ response: PineconeIDResponse) {
+//        self.pineconeIDResponse = response
+//    }
+//    
+//    func appendPineconeIDs(_ ids: [String]) {
+//        self.pineconeIDs.append(contentsOf: ids)
+//    }
+//    
+//    func updatePineconeFetchedVectors(_ vectors: [Vector]) {
+//        self.pineconeFetchedVectors = vectors
+//    }
+//    
+//    func setIsDataSorted(_ sorted: Bool) {
+//        self.isDataSorted = sorted
+//    }
+//    
+//    func setRefreshAfterEditing(_ refresh: Bool) {
+//        self.refreshAfterEditing = refresh
+//    }
+//    
+//    func updateAccountDeleted(_ deleted: Bool) {
+//        self.accountDeleted = deleted
+//    }
+//    
+//    func updatePineconeQueryResponse(_ response: PineconeQueryResponse) {
+//        self.pineconeQueryResponse = response
+//    }
+//    
+//    func removeAllPinconeIDs() {
+//        self.pineconeIDs.removeAll()
+//    }
     
     //MARK: - Methods for the Views
     func refreshNamespacesIDs() {
@@ -157,10 +156,19 @@ class PineconeViewModel: ObservableObject {
     }
     
     func upsertData(id: String, vector: [Float], metadata: [String: Any]) {
+#if DEBUG
+        print("upsertData called")
+#endif
         Task {
             do {
                 try await pineconeActor.upsertDataToPinecone(id: id, vector: vector, metadata: metadata)
-                self.upsertSuccessful = true
+                await MainActor.run {
+                    self.upsertSuccessful = true
+                    
+                }
+#if DEBUG
+                print("upsertSuccess: \(self.upsertSuccessful)")
+#endif
             } catch {
                 self.pineconeError = .upsertFailed(error)
             }
@@ -202,5 +210,5 @@ class PineconeViewModel: ObservableObject {
             }
         }
     }
-
+    
 }

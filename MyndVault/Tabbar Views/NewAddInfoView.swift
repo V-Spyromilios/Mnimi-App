@@ -39,8 +39,8 @@ struct NewAddInfoView: View {
     @State private var cancellables = Set<AnyCancellable>()
     
     var body: some View {
+        NavigationStack {
         GeometryReader { geometry in
-            NavigationStack {
                 ScrollView {
                     VStack {
                         HStack {
@@ -53,6 +53,15 @@ struct NewAddInfoView: View {
                                     .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             }
                             Spacer()
+                            
+#if DEBUG
+                            Text("Upsert Successful: \(pineconeManager.upsertSuccessful ? "Yes" : "No")")
+                                .foregroundColor(pineconeManager.upsertSuccessful ? .green : .red)
+                                .padding()
+                                .onTapGesture {
+                                    pineconeManager.upsertSuccessful.toggle()
+                                }
+                            #endif
                         }
                         .font(.callout)
                         .padding(.top, 12)
@@ -164,17 +173,18 @@ struct NewAddInfoView: View {
                             LottieRepresentable(filename: "Brain Configurations", loopMode: .playOnce, speed: 0.4)
                                 .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
                                 .animation(.easeInOut, value: apiCallInProgress)
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                                .transition(.blurReplace(.downUp))
                         }
                         
                         // Success View
-                        else if pineconeManager.upsertSuccesful && showSuccess {
+                        else if pineconeManager.upsertSuccessful && showSuccess {
                             LottieRepresentable(filename: "Approved", loopMode: .playOnce)
                                 .frame(height: isIPad() ? 440 : 130)
                                 .padding(.top, 15)
                                 .id(UUID())
                                 .animation(.easeInOut, value: showSuccess)
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+//                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                                .transition(.blurReplace(.downUp))
                                 .onAppear {
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                                         withAnimation { showSuccess = false }
@@ -210,12 +220,6 @@ struct NewAddInfoView: View {
                             .presentationDragIndicator(.hidden)
                             .presentationBackground(Color.clear)
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                    }
-                    .background {
-                        LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                            .opacity(0.4)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .ignoresSafeArea()
                     }
                     .navigationBarTitleView {
                         HStack {
@@ -272,6 +276,20 @@ struct NewAddInfoView: View {
                 .onChange(of: thrownError) {
                     showError.toggle()
                 }
+
+                .onChange(of: pineconeManager.upsertSuccessful) { _, isSuccesful in
+                    if isSuccesful {
+                        withAnimation {
+                            apiCallInProgress = false
+                            saveButtonIsVisible = true
+                            newInfo = ""
+                            photoPicker.selectedImage = nil
+                            isLoading = false
+                            showSuccess = true
+                        }
+                    }
+                    
+                }
                 .alert(isPresented: $showNoInternet) {
                     Alert(
                         title: Text("You are not connected to the Internet"),
@@ -288,6 +306,18 @@ struct NewAddInfoView: View {
                     }
                 }
             }
+        .background {
+            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+                .opacity(0.4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+        }
+        }
+        .background {
+            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+                .opacity(0.4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
         }
     }
 }
@@ -336,39 +366,37 @@ extension NewAddInfoView {
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
         progressTracker.reset()
-        if pineconeManager.upsertSuccesful {
-            pineconeManager.upsertSuccesful.toggle()
+        if pineconeManager.upsertSuccessful {
+            pineconeManager.upsertSuccessful.toggle()
         }
-        startAddInfoProcess()
+        Task {
+            await startAddInfoProcess()
+        }
     }
     
-    private func startAddInfoProcess() {
+    private func startAddInfoProcess() async {
         // Clear any existing subscriptions
         cancellables.removeAll()
         
-        // Request embeddings
-        openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
-        
-        // Observe embeddings completion
-        openAiManager.$embeddingsCompleted
-            .receive(on: DispatchQueue.main)
-            .filter { $0 }
-            .sink { _ in
-                handleEmbeddingsCompleted()
-            }
-            .store(in: &cancellables)
-        
-        // Observe OpenAI errors
-        openAiManager.$openAIError
-            .receive(on: DispatchQueue.main)
-            .compactMap { $0 }
-            .sink { error in
-                handleError(error)
-            }
-            .store(in: &cancellables)
+        do {
+            // Request embeddings
+#if DEBUG
+            print("startAddInfoProcess do {")
+#endif
+            try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
+            // Proceed to handle embeddings completed
+            
+#if DEBUG
+            print("startAddInfoProcess before handleEmbeddingsCompleted{")
+#endif
+            await handleEmbeddingsCompleted()
+        } catch {
+            // Handle error
+            handleError(error)
+        }
     }
     
-    private func handleEmbeddingsCompleted() {
+    private func handleEmbeddingsCompleted() async {
         if openAiManager.embeddings.isEmpty {
             handleError(NSError(domain: "OpenAI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Embeddings are empty"]))
             return
@@ -378,29 +406,16 @@ extension NewAddInfoView {
         let metadata = toDictionary(desc: self.newInfo)
         let uniqueID = UUID().uuidString
         
-        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
         
-        // Observe upsert success
-        pineconeManager.$upsertSuccesful
-            .receive(on: DispatchQueue.main)
-            .filter { $0 }
-            .sink { _ in
-                handleUpsertSuccess(uniqueID: uniqueID)
-            }
-            .store(in: &cancellables)
-        
-        // Observe Pinecone errors
-        pineconeManager.$pineconeError
-            .receive(on: DispatchQueue.main)
-            .compactMap { $0 }
-            .sink { error in
-                handleError(error)
-            }
-            .store(in: &cancellables)
+            pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
+            handleUpsertSuccess(uniqueID: uniqueID)
     }
     
     private func handleUpsertSuccess(uniqueID: String) {
-        apiCalls.incrementApiCallCount()
+        
+#if DEBUG
+        print("handleUpsertSuccess Called")
+#endif
         
         if let image = photoPicker.selectedImage {
             Task {
@@ -414,42 +429,24 @@ extension NewAddInfoView {
             }
         }
         
-        withAnimation {
-            apiCallInProgress = false
-            saveButtonIsVisible = true
-            newInfo = ""
-            photoPicker.selectedImage = nil
-            isLoading = false
-            showSuccess = true
-        }
-        
-        // Clear subscriptions
         cancellables.removeAll()
     }
     
     private func handleError(_ error: Error) {
+#if DEBUG
+        print("handleError called with error: \(error)")
+#endif
         withAnimation {
             apiCallInProgress = false
             isLoading = false
             self.thrownError = error.localizedDescription
-            self.showError = true
         }
         
         // Clear subscriptions
         cancellables.removeAll()
     }
-    
-    private func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
+
 }
-
-// Helper function to create metadata dictionary
-//func toDictionary(desc: String) -> [String: Any] {
-//    let timestamp = "\(Date().timeIntervalSince1970)"
-//    return ["timestamp": timestamp, "description": desc]
-//}
-
 
 struct NewAddInfoView_Previews: PreviewProvider {
     static var previews: some View {
