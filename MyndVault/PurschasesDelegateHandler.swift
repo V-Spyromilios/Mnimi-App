@@ -20,7 +20,7 @@ class PurchasesDelegateHandler:NSObject, ObservableObject {
 extension PurchasesDelegateHandler: @preconcurrency PurchasesDelegate {
 
     func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
-        print("Received updated customer info: \(customerInfo)")
+        debugLog("Received updated customer info: \(customerInfo)")
         RCViewModel.shared.customerInfo = customerInfo
     }
 }

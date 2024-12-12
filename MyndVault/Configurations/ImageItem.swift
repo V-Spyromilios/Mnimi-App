@@ -27,7 +27,7 @@ extension ImageItem {
               let uniqueID = record["uniqueID"] as? String else {
             return nil
         }
-        print("ImageItem init -> Image Asset: \(imageAsset.description)\n-> uniqueID: \(uniqueID)")
+        debugLog("ImageItem init -> Image Asset: \(imageAsset.description)\n-> uniqueID: \(uniqueID)")
         self.init(recordID: record.recordID, imageAsset: imageAsset, uniqueID: uniqueID)
     }
 }

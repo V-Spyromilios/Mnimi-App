@@ -106,7 +106,9 @@ struct FaceIDView: View {
 #endif
         }
         .onChange(of: cloudKitViewModel.userIsSignedIn) { _, newValue in
+#if DEBUG
             print("cloudKitViewModel.userIsSignedIn changed to \(newValue)")
+            #endif
         }
         .alert(isPresented: $showErrorAlert) {
             Alert(

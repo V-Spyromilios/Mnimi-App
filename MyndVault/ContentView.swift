@@ -93,15 +93,11 @@ struct ContentView: View {
         }
         .onChange(of: RCviewModel.isActiveSubscription) { wasActive, isActive in
             if isActive {
-#if DEBUG
-                print("is Now Active Subscription: \(isActive) and was \(wasActive)")
-#endif
+                debugLog("is Now Active Subscription: \(isActive) and was \(wasActive)")
                 withAnimation(.easeInOut(duration: 0.5)) { showPayWall = false }
             }
             else {
-#if DEBUG
-                print("Now is Not Active Subscription: \(isActive), and was: \(wasActive)")
-#endif
+                debugLog("Now is Not Active Subscription: \(isActive), and was: \(wasActive)")
                 withAnimation(.easeInOut(duration: 0.5)) { showPayWall = true }
             }
             
@@ -118,34 +114,6 @@ struct ContentView: View {
         }
     }
     
-    //    private func onAppearGetInfo() {
-    //        print("onAppear is Active: \(RCviewModel.isActiveSubscription)")
-    //
-    //
-    //        Task {
-    //            do {
-    //                customerInfo = try await Purchases.shared.customerInfo()
-    //            } catch {
-    //                // handle error
-    //            }
-    //            guard let customerInfo = customerInfo else { return }
-    //            let entitlements = customerInfo.entitlements
-    //            let entitlement = entitlements[Constants.entitlementID]
-    //            let activationDate = entitlement?.latestPurchaseDate
-    //            let hasSubscribed =  entitlement?.isActive ?? false
-    //
-    //
-    //            print("OnAppear with urchases.shared.customerInfo() : hasSubscribed: \(hasSubscribed)")
-    //
-    //            if !hasSubscribed {
-    //                print("Has not subscribed, opening full screen cover...")
-    //                showPayWall = true
-    //            }
-    //
-    //        }
-    //
-    //    }
-    
     private func checkIfNewSubscriber() {
         
         Task {
@@ -153,7 +121,7 @@ struct ContentView: View {
                 customerInfo = try await Purchases.shared.customerInfo()
             }
             catch {
-                print("Error from checkIfNewSubscriber() : \(error.localizedDescription)")
+                debugLog("Error from checkIfNewSubscriber() : \(error.localizedDescription)")
             }
         }
         
