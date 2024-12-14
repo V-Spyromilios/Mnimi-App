@@ -64,7 +64,6 @@
 		E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */; };
 		E87605B72C7A18AD002A13E5 /* RCViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87605B62C7A18AD002A13E5 /* RCViewModel.swift */; };
 		E87605B92C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87605B82C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift */; };
-		E87605BB2C7A266C002A13E5 /* Confetti.json in Resources */ = {isa = PBXBuildFile; fileRef = E87605BA2C7A266C002A13E5 /* Confetti.json */; };
 		E877FA272C4A92D4002FBFFC /* Woman_vault.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA262C4A92D4002FBFFC /* Woman_vault.json */; };
 		E877FA292C4A953D002FBFFC /* smallVault.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA282C4A953D002FBFFC /* smallVault.json */; };
 		E877FA2B2C4A98A6002FBFFC /* noNotifications.json in Resources */ = {isa = PBXBuildFile; fileRef = E877FA2A2C4A98A6002FBFFC /* noNotifications.json */; };
@@ -183,7 +182,6 @@
 		E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewModel.swift; sourceTree = "<group>"; };
 		E87605B62C7A18AD002A13E5 /* RCViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RCViewModel.swift; sourceTree = "<group>"; };
 		E87605B82C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurschasesDelegateHandler.swift; sourceTree = "<group>"; };
-		E87605BA2C7A266C002A13E5 /* Confetti.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Confetti.json; sourceTree = "<group>"; };
 		E877FA262C4A92D4002FBFFC /* Woman_vault.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Woman_vault.json; sourceTree = "<group>"; };
 		E877FA282C4A953D002FBFFC /* smallVault.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = smallVault.json; sourceTree = "<group>"; };
 		E877FA2A2C4A98A6002FBFFC /* noNotifications.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = noNotifications.json; sourceTree = "<group>"; };
@@ -389,7 +387,6 @@
 		E85055012C428B6800FBACC4 /* Lotties */ = {
 			isa = PBXGroup;
 			children = (
-				E87605BA2C7A266C002A13E5 /* Confetti.json */,
 				E878743F2C677F4B001299D9 /* ManWithLaptop.json */,
 				E86BE7592C566AF90030C81B /* deleteBin.json */,
 				E817A42A2C5524E700A0172A /* takingNotes.json */,
@@ -551,7 +548,6 @@
 				E8C7E2962C4D4205009760F2 /* Add.json in Resources */,
 				E8002B612C4C702700FD814D /* Waves.json in Resources */,
 				E86BE75A2C566AF90030C81B /* deleteBin.json in Resources */,
-				E87605BB2C7A266C002A13E5 /* Confetti.json in Resources */,
 				E8002B6E2C4CC60700FD814D /* PowerOffButton.json in Resources */,
 				E83D83FC2C5903DD002BBDE7 /* Localizable.xcstrings in Resources */,
 				E877FA272C4A92D4002FBFFC /* Woman_vault.json in Resources */,
@@ -832,7 +828,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -871,7 +867,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

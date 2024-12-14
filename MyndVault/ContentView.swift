@@ -29,7 +29,6 @@ struct ContentView: View {
     @StateObject var RCviewModel = RCViewModel.shared
     @State var showNetworkError = false
     @State private var showPayWall: Bool = false
-    @State private var isNewSubscriber: Bool = false
     
     @State var customerInfo: CustomerInfo? //to allow change in task
     
@@ -38,7 +37,7 @@ struct ContentView: View {
         ZStack {
             TabView(selection: $tabSelection) {
                 
-                NewAddInfoView(showConfetti: $isNewSubscriber).tag(1)
+                NewAddInfoView().tag(1)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
                     .environmentObject(progressTracker)
@@ -76,7 +75,7 @@ struct ContentView: View {
         }
         .onAppear {
             speechManager.checkSpeechAuthorizationStatus()
-            checkIfNewSubscriber()
+//            checkIfNewSubscriber()
         }
         
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
@@ -114,33 +113,33 @@ struct ContentView: View {
         }
     }
     
-    private func checkIfNewSubscriber() {
-        
-        Task {
-            do {
-                customerInfo = try await Purchases.shared.customerInfo()
-            }
-            catch {
-                debugLog("Error from checkIfNewSubscriber() : \(error.localizedDescription)")
-            }
-        }
-        
-        guard let customerInfo = customerInfo else { return }
-        let entitlements = customerInfo.entitlements
-        let entitlement = entitlements[Constants.entitlementID]
-        let activationDate = entitlement?.latestPurchaseDate
-        
-        if activationDate != nil {
-            let now = Date()
-            let calendar = Calendar.current
-            let activationComponents = calendar.dateComponents([.year, .month, .day], from: activationDate!)
-            let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
-            
-            if activationComponents == todayComponents {
-                isNewSubscriber.toggle()
-            }
-        }
-    }
+//    private func checkIfNewSubscriber() {
+//        
+//        Task {
+//            do {
+//                customerInfo = try await Purchases.shared.customerInfo()
+//            }
+//            catch {
+//                debugLog("Error from checkIfNewSubscriber() : \(error.localizedDescription)")
+//            }
+//        }
+//        
+//        guard let customerInfo = customerInfo else { return }
+//        let entitlements = customerInfo.entitlements
+//        let entitlement = entitlements[Constants.entitlementID]
+//        let activationDate = entitlement?.latestPurchaseDate
+//        
+//        if activationDate != nil {
+//            let now = Date()
+//            let calendar = Calendar.current
+//            let activationComponents = calendar.dateComponents([.year, .month, .day], from: activationDate!)
+//            let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
+//            
+//            if activationComponents == todayComponents {
+//                isNewSubscriber.toggle()
+//            }
+//        }
+//    }
 }
 
 

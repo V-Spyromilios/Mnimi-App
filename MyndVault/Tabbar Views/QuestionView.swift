@@ -58,7 +58,6 @@ struct QuestionView: View {
                 
                 LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
-                //                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -66,11 +65,20 @@ struct QuestionView: View {
                     HStack {
                         Image(systemName: "questionmark.bubble").bold()
                         Text("Question").bold()
-                        if showLang { Text("\(languageSettings.selectedLanguage.displayName)").foregroundStyle(.gray).padding(.leading, 8)
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                        if showLang {
+                            Text("\(languageSettings.selectedLanguage.displayName)")
+                                .foregroundStyle(.gray)
+                                .padding(.leading, 8)
+                                .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                        removal: .opacity))
+                                .animation(.easeInOut(duration: 0.5), value: showLang)
                         }
                         Spacer()
-                    }.font(.caption).padding(.top, 12).padding(.bottom, 8).padding(.horizontal, Constants.standardCardPadding)
+                    }
+                    .font(.callout)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
+                    .padding(.horizontal, Constants.standardCardPadding)
                     
                     TextEditor(text: $question)
                         .fontDesign(.rounded)
@@ -92,154 +100,161 @@ struct QuestionView: View {
                                 showLang.toggle()
                                 DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
                                     withAnimation {
-                                        showLang.toggle() }
+                                        showLang.toggle()
+                                    }
                                 }
                             }
                         }
                     VStack {
-                        VStack {
+                        ZStack {
                             if shouldShowGoButton {
                                 GoButton
                                     .padding(.bottom)
-                                    .transition(.blurReplace(.downUp))
+                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                            removal: .opacity))
+    
                             } else if shouldShowProgressView {
-                                ProgressViewContent
+                                LoadingTransitionView(isUpserting: $isLoading, isSuccess: .constant(false))
+                                    .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
+                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                            removal: .opacity))
+                                   
                             }
                         }
+                        .animation(.easeInOut(duration: 0.5), value: shouldShowProgressView)
                         
                         if hasResponse {
-                            ResponseView
-                            
-                            if self.thrownError == "" && hasResponse {
-                                ClearButton
-                                    .padding(.horizontal)
-                                    .padding(.bottom)
-                                    .transition(.blurReplace(.downUp))
-                            }
-                        } //END OF if hasResponse
-                    }
-                }.background(Color.clear)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .topBarTrailing) {
-                            if keyboardResponder.currentHeight > 0 {
-                                Button {
-                                    hideKeyboard()
-                                } label: {
-                                    HideKeyboardLabel()
+                            Group {
+                                ResponseView
+                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                            removal: .opacity))
+                                    .animation(.easeInOut(duration: 0.5), value: hasResponse)
+                                
+                                if self.thrownError == "" && hasResponse {
+                                    ClearButton
+                                        .padding(.horizontal)
+                                        .padding(.bottom)
+                                        .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                                removal: .opacity))
+                                        .animation(.easeInOut(duration: 0.5), value: hasResponse)
                                 }
-                                .padding(.top, isIPad() ? 15: 0)
                             }
-                            
+                        }
+                    }
+                }
+                .background(Color.clear)
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        if keyboardResponder.currentHeight > 0 {
                             Button {
-                                showSettings.toggle()
+                                hideKeyboard()
                             } label: {
-                                Image(systemName: "gear") //gearshape.2
-                                    .frame(width: 45, height: 45)
-                                    .padding(.bottom, 5)
-                                    .padding(.top, isIPad() ? 15: 0)
-                                    .opacity(0.8)
-                                    .accessibilityLabel("settings")
+                                HideKeyboardLabel()
                             }
+                            .padding(.top, isIPad() ? 15: 0)
                         }
-                    }
-                    .fullScreenCover(isPresented: $showFullImage) {
                         
-                        if let selectedImageIndex = self.selectedImageIndex {
-                            FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
-                        } else {
-                            Text("No Image Selected").bold()
+                        Button {
+                            showSettings.toggle()
+                        } label: {
+                            Image(systemName: "gear")
+                                .frame(width: 45, height: 45)
+                                .padding(.bottom, 5)
+                                .padding(.top, isIPad() ? 15: 0)
+                                .opacity(0.8)
+                                .accessibilityLabel("settings")
                         }
                     }
-                    .sheet(isPresented: $showError) {
-                        
-                        ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
-                            .presentationDetents([.fraction(0.4)])
-                            .presentationDragIndicator(.hidden)
-                            .presentationBackground(Color.clear)
+                }
+                .fullScreenCover(isPresented: $showFullImage) {
+                    if let selectedImageIndex = self.selectedImageIndex {
+                        FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
+                    } else {
+                        Text("No Image Selected").bold()
                     }
-                    .onChange(of: selectedImageIndex) { oldValue, newValue in //to observe selectedIndex as remains null for the fullscreen cover.
-                        if newValue == nil {
-                            //                        withAnimation(.easeOut) {
-                            showFullImage = false
+                }
+                .sheet(isPresented: $showError) {
+                    ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
+                        .presentationDetents([.fraction(0.4)])
+                        .presentationDragIndicator(.hidden)
+                        .presentationBackground(Color.clear)
+                }
+                .onChange(of: selectedImageIndex) { oldValue, newValue in
+                    if newValue == nil {
+                        showFullImage = false
+                    }
+                }
+                .onChange(of: languageSettings.selectedLanguage) { _, newValue in
+                    showLang = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
+                        showLang = false
+                    }
+                }
+                .onChange(of: thrownError) {
+                    showError.toggle()
+                }
+                .onChange(of: openAiManager.openAIError) { _, newValue in
+                    if let error = newValue {
+                        self.isLoading = false
+                        self.thrownError = error.localizedDescription
+                    }
+                }
+                .onChange(of: pineconeManager.pineconeError) { _, newValue in
+                    if let error = newValue {
+                        self.isLoading = false
+                        self.thrownError = error.localizedDescription
+                    }
+                }
+                .onChange(of: openAiManager.stringResponseOnQuestion) { _, newValue in
+                    isLoading = false
+                }
+                .onChange(of: pineconeManager.pineconeQueryResponse) { _, newValue in
+                    if let pineconeResponse = newValue {
+                        handlePineconeResponse(pineconeResponse)
+                    }
+                }
+                .onChange(of: openAiManager.questionEmbeddingsCompleted) { _, newValue in
+                    if newValue {
+                        handleQuestionEmbeddingsCompleted()
+                    }
+                }
+                .onChange(of: shake) { _, newValue in
+                    if newValue {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            shake = false
                         }
                     }
-                    .onChange(of: languageSettings.selectedLanguage) { _, newValue in
-                        //                    withAnimation(.easeOut) {
-                        showLang = true
-                        //                    }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-                            //                        withAnimation(.easeOut) {
-                            showLang = false
-                            //                        }
-                        }
-                    }
-                    .onChange(of: thrownError) {
-                        showError.toggle()
-                    }
-                    .onChange(of: openAiManager.openAIError) { _, newValue in
-                        if let error = newValue {
-                            self.isLoading = false
-                            self.thrownError = error.localizedDescription
-                        }
-                    }
-                    .onChange(of: pineconeManager.pineconeError) { _, newValue in
-                        if let error = newValue {
-                            self.isLoading = false
-                            self.thrownError = error.localizedDescription
-                        }
-                    }
-                    .onChange(of: openAiManager.stringResponseOnQuestion) { _, newValue in
-                        isLoading = false
-                    }
-                    .onChange(of: pineconeManager.pineconeQueryResponse) { _, newValue in
-                        if let pineconeResponse = newValue {
-                            handlePineconeResponse(pineconeResponse)
-                        }
-                    }
-                    .onChange(of: openAiManager.questionEmbeddingsCompleted) { _, newValue in
-                        if newValue {
-                            handleQuestionEmbeddingsCompleted()
-                        }
-                    }
-                    .onChange(of: shake) { _, newValue in
-                        if newValue {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                shake = false
-                            }
-                        }
-                    }
-                    .navigationBarTitleView {
-                        HStack {
-                            Text("Ask me").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
-                            LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
-                        }.padding(.top, isIPad() ? 15: 0)
-                    }
-                    .alert(isPresented: $showNoInternet) {
-                        Alert(
-                            title: Text("You are not connected to the Internet"),
-                            message: Text("Please check your connection"),
-                            dismissButton: .cancel(Text("OK"))
-                        )
-                    }
-                    .fullScreenCover(isPresented: $showSettings) {
-                        SettingsView(showSettings: $showSettings)
-                    }
-                    .onChange(of: networkManager.hasInternet) { _, hasInternet in
-                        if !hasInternet {
-                            showNoInternet = true
-                            if isLoading {
-                                performClearTask()
-                            }
-                        }
-                    }
-                    .onDisappear {
-                        if thrownError != "" || pineconeManager.pineconeError != nil {
+                }
+                .navigationBarTitleView {
+                    HStack {
+                        Text("Ask me").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                        LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                    }.padding(.top, isIPad() ? 15: 0)
+                }
+                .alert(isPresented: $showNoInternet) {
+                    Alert(
+                        title: Text("You are not connected to the Internet"),
+                        message: Text("Please check your connection"),
+                        dismissButton: .cancel(Text("OK"))
+                    )
+                }
+                .fullScreenCover(isPresented: $showSettings) {
+                    SettingsView(showSettings: $showSettings)
+                }
+                .onChange(of: networkManager.hasInternet) { _, hasInternet in
+                    if !hasInternet {
+                        showNoInternet = true
+                        if isLoading {
                             performClearTask()
                         }
                     }
-            } //END OF NAV STACK
-            
-            
+                }
+                .onDisappear {
+                    if thrownError != "" || pineconeManager.pineconeError != nil {
+                        performClearTask()
+                    }
+                }
+            }
         }
     }
     
@@ -300,14 +315,12 @@ struct QuestionView: View {
     
     @ViewBuilder
     private var ProgressViewContent: some View {
-        CircularProgressView(progressTracker: progressTracker)
-            .padding()
-        //            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-        
+
         LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8)
             .frame(height: isIPad() ? 440 : 300)
-        //            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
     }
+    //...more function below
+
     
     private func handleQuestionEmbeddingsCompleted() {
         progressTracker.setProgress(to: 0.35)
@@ -323,7 +336,9 @@ struct QuestionView: View {
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                     .frame(height: Constants.buttonHeight)
                 
-                Text("OK").font(.title2).bold().foregroundColor(Color.buttonText)
+                Text("OK").font(.title2).bold()
+                    .fontDesign(.rounded)
+                    .foregroundColor(Color.buttonText)
                     .accessibilityLabel("Clear and reset")
             }
             .contentShape(Rectangle())
@@ -342,7 +357,9 @@ struct QuestionView: View {
                     .fill(Color.customLightBlue)
                     .frame(height: Constants.buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                Text("Go").font(.title2).bold().foregroundColor(Color.buttonText)
+                Text("Go").font(.title2).bold()
+                    .fontDesign(.rounded)
+                    .foregroundColor(Color.buttonText)
                     .accessibilityLabel("Go")
             }
             .contentShape(Rectangle())
@@ -357,7 +374,7 @@ struct QuestionView: View {
     
     private func performClearTask() {
         
-        withAnimation(.smooth) {
+        withAnimation(.easeInOut(duration: 0.4)) {
             self.question = ""
             self.thrownError = ""
             fetchedImages = []
