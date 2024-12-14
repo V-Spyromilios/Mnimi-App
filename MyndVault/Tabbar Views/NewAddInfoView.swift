@@ -23,7 +23,6 @@ struct NewAddInfoView: View {
     @State private var showNoInternet: Bool = false
     @State private var showLang: Bool = false
     @State private var showSuccess: Bool = false
-    @Binding var showConfetti: Bool
     
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
@@ -38,9 +37,17 @@ struct NewAddInfoView: View {
     
     @State private var cancellables = Set<AnyCancellable>()
     
+    private var shouldShowLoading: Bool {
+        apiCallInProgress || showSuccess
+    }
+    
     var body: some View {
         NavigationStack {
-        GeometryReader { geometry in
+            ZStack {
+                
+                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+                    .opacity(0.4)
+                    .ignoresSafeArea()
                 ScrollView {
                     VStack {
                         HStack {
@@ -49,20 +56,22 @@ struct NewAddInfoView: View {
                             if showLang {
                                 Text("\(languageSettings.selectedLanguage.displayName)")
                                     .foregroundStyle(.gray)
-                                    .padding(.leading, 8)
-                                    .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+//                                    .padding(.leading, 8)
+                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                            removal: .opacity))
                             }
                             Spacer()
                             
-#if DEBUG
-                            Text("Upsert Successful: \(pineconeManager.upsertSuccessful ? "Yes" : "No")")
-                                .foregroundColor(pineconeManager.upsertSuccessful ? .green : .red)
-                                .padding()
-                                .onTapGesture {
-                                    pineconeManager.upsertSuccessful.toggle()
-                                }
-                            #endif
+//#if DEBUG
+//                            Text("Upsert Successful: \(pineconeManager.upsertSuccessful ? "Yes" : "No")")
+//                                .foregroundColor(pineconeManager.upsertSuccessful ? .green : .red)
+//                                .padding()
+//                                .onTapGesture {
+//                                    pineconeManager.upsertSuccessful.toggle()
+//                                }
+//#endif
                         }
+                        .padding(.horizontal, Constants.standardCardPadding)
                         .font(.callout)
                         .padding(.top, 12)
                         .padding(.bottom, 8)
@@ -74,9 +83,9 @@ struct NewAddInfoView: View {
                                 .font(.title2)
                                 .multilineTextAlignment(.leading)
                                 .frame(height: Constants.textEditorHeight)
-                                .if(UIDevice.current.userInterfaceIdiom != .pad) { view in
-                                    view.frame(maxWidth: idealWidth(for: geometry.size.width))
-                                }
+//                                .if(UIDevice.current.userInterfaceIdiom != .pad) { view in
+//                                    view.frame(maxWidth: idealWidth(for: geometry.size.width))
+//                                }
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                 .overlay(
@@ -159,48 +168,24 @@ struct NewAddInfoView: View {
                                 .foregroundColor(Color.gray)
                         )
                         .padding(.bottom)
-                        
-                        // Save Button
-                        if saveButtonIsVisible && pineconeManager.pineconeError == nil {
-                            SaveButton
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                        ZStack {
+                            if saveButtonIsVisible && pineconeManager.pineconeError == nil {
+                                SaveButton
+                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                            removal: .opacity))
+                            } else if pineconeManager.pineconeError == nil && shouldShowLoading {
+                                LoadingTransitionView(isUpserting: $apiCallInProgress, isSuccess: $showSuccess)
+                                    .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
+                                    .padding()
+                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                            removal: .opacity))
+                            }
                         }
-                        
-                        // Progress View
-                        if apiCallInProgress && thrownError.isEmpty && pineconeManager.pineconeError == nil {
-                            CircularProgressView(progressTracker: progressTracker).padding()
-                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                            LottieRepresentable(filename: "Brain Configurations", loopMode: .playOnce, speed: 0.4)
-                                .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
-                                .animation(.easeInOut, value: apiCallInProgress)
-                                .transition(.blurReplace(.downUp))
-                        }
-                        
-                        // Success View
-                        else if pineconeManager.upsertSuccessful && showSuccess {
-                            LottieRepresentable(filename: "Approved", loopMode: .playOnce)
-                                .frame(height: isIPad() ? 440 : 130)
-                                .padding(.top, 15)
-                                .id(UUID())
-                                .animation(.easeInOut, value: showSuccess)
-//                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                                .transition(.blurReplace(.downUp))
-                                .onAppear {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                                        withAnimation { showSuccess = false }
-                                    }
-                                }
-                        }
+                        .animation(.easeInOut(duration: 0.5), value: shouldShowLoading)
                         Spacer()
                     }
                     .padding(.horizontal, Constants.standardCardPadding)
-                    .overlay {
-                        if showConfetti {
-                            LottieRepresentable(filename: "Confetti")
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .ignoresSafeArea()
-                        }
-                    }
+                    
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                     }
@@ -276,16 +261,20 @@ struct NewAddInfoView: View {
                 .onChange(of: thrownError) {
                     showError.toggle()
                 }
-
+                
                 .onChange(of: pineconeManager.upsertSuccessful) { _, isSuccesful in
                     if isSuccesful {
                         withAnimation {
-                            apiCallInProgress = false
-                            saveButtonIsVisible = true
                             newInfo = ""
                             photoPicker.selectedImage = nil
-                            isLoading = false
+                            apiCallInProgress = false
                             showSuccess = true
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+                            saveButtonIsVisible = true
+                            showSuccess = false
+                            isLoading = false
+                            
                         }
                     }
                     
@@ -305,19 +294,21 @@ struct NewAddInfoView: View {
                         performClearTask()
                     }
                 }
+                
+                //        .background {
+                //            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+                //                .opacity(0.4)
+                //                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                //                .ignoresSafeArea()
+                //        }
+                
             }
-        .background {
-            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                .opacity(0.4)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
-        }
-        }
-        .background {
-            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                .opacity(0.4)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
+            //        .background {
+            //            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+            //                .opacity(0.4)
+            //                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            //                .ignoresSafeArea()
+            //        }
         }
     }
 }
@@ -332,7 +323,9 @@ extension NewAddInfoView {
                     .fill(Color.customLightBlue)
                     .frame(height: Constants.buttonHeight)
                     .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                Text("Save").font(.title2).bold().foregroundColor(Color.buttonText)
+                Text("Save").font(.title2).bold()
+                    .fontDesign(.rounded)
+                    .foregroundColor(Color.buttonText)
                     .accessibilityLabel("save")
             }
             .contentShape(Rectangle())
@@ -343,6 +336,7 @@ extension NewAddInfoView {
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
     }
+    
     
     private func performClearTask() {
         withAnimation {
@@ -383,7 +377,7 @@ extension NewAddInfoView {
             debugLog("startAddInfoProcess do {")
             try await openAiManager.requestEmbeddings(for: self.newInfo, isQuestion: false)
             // Proceed to handle embeddings completed
-
+            
             debugLog("startAddInfoProcess before handleEmbeddingsCompleted{")
             await handleEmbeddingsCompleted()
         } catch {
@@ -403,12 +397,12 @@ extension NewAddInfoView {
         let uniqueID = UUID().uuidString
         
         
-            pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
-            handleUpsertSuccess(uniqueID: uniqueID)
+        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
+        handleUpsertSuccess(uniqueID: uniqueID)
     }
     
     private func handleUpsertSuccess(uniqueID: String) {
-
+        
         debugLog("handleUpsertSuccess Called")
         
         if let image = photoPicker.selectedImage {
@@ -427,19 +421,17 @@ extension NewAddInfoView {
     }
     
     private func handleError(_ error: Error) {
-
+        
         debugLog("handleError called with error: \(error)")
         withAnimation {
             apiCallInProgress = false
             isLoading = false
             self.thrownError = error.localizedDescription
         }
-        
-        // Clear subscriptions
         cancellables.removeAll()
     }
-
 }
+
 
 struct NewAddInfoView_Previews: PreviewProvider {
     static var previews: some View {
@@ -457,7 +449,7 @@ struct NewAddInfoView_Previews: PreviewProvider {
         let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
         let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
 
-        NewAddInfoView(showConfetti: .constant(true))
+        NewAddInfoView()
             .environmentObject(pineconeViewModel)
             .environmentObject(openAIViewModel)
             .environmentObject(progress)

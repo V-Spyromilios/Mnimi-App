@@ -4038,6 +4038,9 @@
         }
       }
     },
+    "Show/Hide" : {
+
+    },
     "Sign Up Error" : {
       "localizations" : {
         "de" : {
@@ -4423,7 +4426,7 @@
         }
       }
     },
-    "Upsert Successful: %@" : {
+    "Toggle" : {
 
     },
     "Use AI to Remember everything anytime" : {
