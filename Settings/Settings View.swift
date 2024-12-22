@@ -32,8 +32,8 @@ struct SettingsView: View {
     @State private var deleteButton: AccountButton = .idle
     var deleteAllWarningTitle: String = "With great power comes great responsibility"
     var deleteAllWarningBody: String = "Are you sure that you want to Delete all your Info and all your uploaded images?\nThis action is irreversable."
-
-
+    
+    
     var body: some View {
         
         NavigationView {
@@ -146,47 +146,47 @@ struct SettingsView: View {
                     
                     //MARK: Open Privacy Policy
                     Button(action: {
-                                        openPrivacyPolicy()
-                                    }) {
-                                        HStack {
-                                            Text("Privacy Policy")
-                                                .foregroundColor(colorScheme == .light ? .black : .white)
-
-                                            Spacer()
-
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(.blue)
-                                        }
-                                        .padding()
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .background(Color.primaryBackground)
-                                        .cornerRadius(10)
-                                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
-                                        .contentShape(Rectangle())
-                                    }
+                        openPrivacyPolicy()
+                    }) {
+                        HStack {
+                            Text("Privacy Policy")
+                                .foregroundColor(colorScheme == .light ? .black : .white)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.blue)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.primaryBackground)
+                        .cornerRadius(10)
+                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                        .contentShape(Rectangle())
+                    }
                     
                     //MARK: Open Support request
                     Button(action: {
-                                        openSupportRequest()
-                                    }) {
-                                        HStack {
-                                            Text("Support Request")
-                                                .foregroundColor(colorScheme == .light ? .black : .white)
-
-                                            Spacer()
-
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(.blue)
-                                        }
-                                        .padding()
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .background(Color.primaryBackground)
-                                        .cornerRadius(10)
-                                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
-                                        .contentShape(Rectangle())
-                                    }
+                        openSupportRequest()
+                    }) {
+                        HStack {
+                            Text("Support Request")
+                                .foregroundColor(colorScheme == .light ? .black : .white)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.blue)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.primaryBackground)
+                        .cornerRadius(10)
+                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                        .contentShape(Rectangle())
+                    }
                     
-
+                    
                     //MARK: Delete Account
                     Button(action: {
                         deleteButton = .hidden
@@ -255,7 +255,7 @@ struct SettingsView: View {
                         withAnimation {
                             showSettings.toggle() }
                     } label: {
-//                        LottieRepresentable(filename: "CancelButton", loopMode: .loop, speed: 0.8, isPlaying: $animateSettingsButton)
+                        //                        LottieRepresentable(filename: "CancelButton", loopMode: .loop, speed: 0.8, isPlaying: $animateSettingsButton)
                         Image(systemName: "xmark.circle")
                             .frame(width: 45, height: 45).padding(.bottom, 5).opacity(0.8)
                     }
@@ -271,6 +271,12 @@ struct SettingsView: View {
             .alert(isPresented: $showDeleteAll) {
                 Alert(title: Text(deleteAllWarningTitle), message: Text(deleteAllWarningBody), primaryButton: .cancel(Text("Cancel"), action: cancelDelete), secondaryButton: .destructive(Text("Delete all"), action: deleteAll)
                 )
+            }
+            .onChange(of: showDeleteAll) { _, newValue in
+                if newValue {
+                    let haptic = UINotificationFeedbackGenerator()
+                    haptic.notificationOccurred(.warning)
+                }
             }
         }
         .statusBar(hidden: true)
@@ -290,7 +296,7 @@ struct SettingsView: View {
             UIApplication.shared.open(url)
         }
     }
-
+    
     private func openSupportRequest() {
         if let url = URL(string: "https://polydactyl-drain-3f7.notion.site/MyndVault-d74ca5df50374eada3193a64c1cee7dc?pvs=4") {
             UIApplication.shared.open(url)
@@ -325,7 +331,7 @@ struct SettingsView: View {
                 checkPineconeError()
                 
             } catch let error as AppCKError {
-               
+                
                 await MainActor.run {
                     withAnimation {
                         self.errorString = error.errorDescription
@@ -333,7 +339,7 @@ struct SettingsView: View {
                     }
                 }
             } catch let error as AppNetworkError {
-               
+                
                 await MainActor.run {
                     withAnimation {
                         self.errorString = error.errorDescription
@@ -350,7 +356,6 @@ struct SettingsView: View {
         deleteButton = .idle
     }
 
-    
     private func  checkPineconeError() {
         if let error = pineconeManager.pineconeError {
             errorString = error.localizedDescription
@@ -358,35 +363,35 @@ struct SettingsView: View {
             
         }
     }
-
-private func checkOpeningSubscriptions() {
-    guard let url = URL(string: "https://apps.apple.com/account/subscriptions"),
-          UIApplication.shared.canOpenURL(url)
-    else {
-        withAnimation { canShowSubscription = false }
-        return
+    
+    private func checkOpeningSubscriptions() {
+        guard let url = URL(string: "https://apps.apple.com/account/subscriptions"),
+              UIApplication.shared.canOpenURL(url)
+        else {
+            withAnimation { canShowSubscription = false }
+            return
+        }
     }
-}
-
-private func checkOpeningSettings() {
-    guard let urlSettings = URL(string: UIApplication.openSettingsURLString),
-          UIApplication.shared.canOpenURL(urlSettings)
-    else {
-        withAnimation { canShowAppSettings = false }
-        return
+    
+    private func checkOpeningSettings() {
+        guard let urlSettings = URL(string: UIApplication.openSettingsURLString),
+              UIApplication.shared.canOpenURL(urlSettings)
+        else {
+            withAnimation { canShowAppSettings = false }
+            return
+        }
     }
-}
-
+    
     
     //TODO: Proper error handling!
-//    private func deleteKeyChain() {
-//        if let username = KeychainManager.standard.readUsername(),
-//           KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username) {
-//            print("Successfully deleted keychain for username: \(username)")
-//        } else {
-//            print("deleteKeyChain::Failed to delete keychain.")
-//        }
-//    }
+    //    private func deleteKeyChain() {
+    //        if let username = KeychainManager.standard.readUsername(),
+    //           KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username) {
+    //            print("Successfully deleted keychain for username: \(username)")
+    //        } else {
+    //            print("deleteKeyChain::Failed to delete keychain.")
+    //        }
+    //    }
     
     func deleteKeyChain() {
         
@@ -407,7 +412,7 @@ private func checkOpeningSettings() {
         } else {
             debugLog("deleteKeyChain::Failed to delete keychain.")
             isKeychainDeleted = false
-
+            
             if keychainDeleteRetryCount < keychainDeletemaxRetries {
                 keychainDeleteRetryCount += 1
                 debugLog("Retrying deletion... Attempt \(keychainDeleteRetryCount)")
@@ -415,53 +420,53 @@ private func checkOpeningSettings() {
             }
         }
     }
+    
+    private func deleteNamespaceFromICloud() {
 
-private func deleteNamespaceFromICloud() {
-    // Example usage:
-    Task {
-        do {
-            let container = CKContainer.default()
-            let privateDatabase = container.privateCloudDatabase
-            let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete")
-            debugLog("Before Deleting: \(String(describing: recordIDDelete))")
-
-            try await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete!, from: privateDatabase)
-        } catch {
-            debugLog("Error deleting record: \(error.localizedDescription)")
+        Task {
+            do {
+                let container = CKContainer.default()
+                let privateDatabase = container.privateCloudDatabase
+                let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete")
+                debugLog("Before Deleting: \(String(describing: recordIDDelete))")
+                
+                try await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete!, from: privateDatabase)
+            } catch {
+                debugLog("Error deleting record: \(error.localizedDescription)")
+            }
         }
     }
-}
-///Delete all vectors in a Namespace from Pinecone also deletes the namespace itself. Here we delete the namespace from CloudKit
-//    private func deleteNamespace() async {
-//        Task {
-//            do {
-//                // Retrieve the first recordID from the fetchedNamespaceDict
-//                if let recordID = self.cloudKit.fetchedNamespaceDict.keys.first {
-////                    try await self.cloudKit.deleteNamespaceItem(recordID: recordID)
-//                    try await cloudKit.deleteAllData(for: "NamespaceItem")
-//
-//                    // Update the dictionary on the main thread after successful deletion
-//                    await MainActor.run {
-//                        self.cloudKit.fetchedNamespaceDict.removeValue(forKey: recordID)
-//                    }
-//                    print("After delete: \(cloudKit.fetchedNamespaceDict)")
-//                } else {
-//                    print("No namespace item found to delete.")
-//                }
-//            } catch {
-//                print("Error deleting namespace item: \(error.localizedDescription)")
-//            }
-//        }
-//    }
-
-private func removeUserDefaults() {
-    let defaults = UserDefaults.standard
-    defaults.removeObject(forKey: "isFirstLaunch")
-    defaults.removeObject(forKey: "monthlyApiCalls")
-    defaults.removeObject(forKey: "selectedPromptLanguage")
-    defaults.removeObject(forKey: "APITokenUsage")
-}
-
+    ///Delete all vectors in a Namespace from Pinecone also deletes the namespace itself. Here we delete the namespace from CloudKit
+    //    private func deleteNamespace() async {
+    //        Task {
+    //            do {
+    //                // Retrieve the first recordID from the fetchedNamespaceDict
+    //                if let recordID = self.cloudKit.fetchedNamespaceDict.keys.first {
+    ////                    try await self.cloudKit.deleteNamespaceItem(recordID: recordID)
+    //                    try await cloudKit.deleteAllData(for: "NamespaceItem")
+    //
+    //                    // Update the dictionary on the main thread after successful deletion
+    //                    await MainActor.run {
+    //                        self.cloudKit.fetchedNamespaceDict.removeValue(forKey: recordID)
+    //                    }
+    //                    print("After delete: \(cloudKit.fetchedNamespaceDict)")
+    //                } else {
+    //                    print("No namespace item found to delete.")
+    //                }
+    //            } catch {
+    //                print("Error deleting namespace item: \(error.localizedDescription)")
+    //            }
+    //        }
+    //    }
+    
+    private func removeUserDefaults() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "isFirstLaunch")
+        defaults.removeObject(forKey: "monthlyApiCalls")
+        defaults.removeObject(forKey: "selectedPromptLanguage")
+        defaults.removeObject(forKey: "APITokenUsage")
+    }
+    
 }
 
 #Preview {

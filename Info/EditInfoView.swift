@@ -11,6 +11,7 @@ import Combine
 
 struct EditInfoView: View {
     
+    let hapticGenerator = UINotificationFeedbackGenerator()
     @StateObject var viewModel: EditInfoViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
@@ -25,12 +26,15 @@ struct EditInfoView: View {
     @State private var showSuccess: Bool = false
     @State private var inProgress: Bool = false
     @State private var cancellables = Set<AnyCancellable>()
-    
-    // Additional State variables
     @State private var shake: Bool = false
     @State private var oldText: String = ""
     @State private var deleteAnimating: Bool = false
-    @State private var lottieAnimationID: UUID = UUID()
+    @State private var buttonIsVisible: Bool = true
+    @State private var showShareSheet: Bool = false
+
+    private var shouldShowLoading: Bool {
+        inProgress || showSuccess
+    }
     
     var body: some View {
         ZStack {
@@ -80,16 +84,6 @@ struct EditInfoView: View {
                 }
             }
         }
-//        .onChange(of: showSuccess) { _, show in
-//            if show {
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
-//                    showSuccess = false
-//                    //pineconeManager.refreshAfterEditing = true
-//
-//                    presentationMode.wrappedValue.dismiss()
-//                }
-//            }
-//        }
         .alert(item: $viewModel.activeAlert) { alertType in
             switch alertType {
             case .editConfirmation:
@@ -100,7 +94,10 @@ struct EditInfoView: View {
                         onEdit()
                     },
                     secondaryButton: .cancel {
-                        viewModel.activeAlert = nil
+                        withAnimation {
+                            viewModel.activeAlert = nil
+                            buttonIsVisible = true
+                        }
                     }
                 )
             case .deleteWarning:
@@ -112,7 +109,10 @@ struct EditInfoView: View {
                         deleteInfo()
                     },
                     secondaryButton: .cancel {
-                        self.viewModel.activeAlert = nil
+                        withAnimation {
+                            self.viewModel.activeAlert = nil
+                            buttonIsVisible = true
+                        }
                     }
                 )
             case .error:
@@ -123,6 +123,7 @@ struct EditInfoView: View {
                         withAnimation {
                             viewModel.occuredErrorDesc = ""
                             self.viewModel.activeAlert = nil
+                            buttonIsVisible = true
                         }
                     }
                 )
@@ -134,7 +135,15 @@ struct EditInfoView: View {
             HStack {
                 Image(systemName: "chevron.left").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
             }.padding(.top, isIPad() ? 15 : 0)
-        })
+        }, trailing: Button(action: {
+            showShareSheet.toggle()
+        }, label: {
+            Image(systemName: "square.and.arrow.up").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded)
+        }))
+        .sheet(isPresented: $showShareSheet) {
+            let item = viewModel.description
+            ShareSheet(items: [item])
+                    }
     }
     
     private func onEdit() {
@@ -168,24 +177,33 @@ struct EditInfoView: View {
             handleError(error)
         }
     }
-
     
+    @MainActor
     private func handleUpsertSuccess() {
+        withAnimation {
+            hapticGenerator.notificationOccurred(.success)
+            showSuccess = true
+            inProgress = false
         pineconeManager.resetAfterSuccessfulUpserting()
         pineconeManager.refreshNamespacesIDs()
-        inProgress = false
-        showSuccess = true
-//        lottieAnimationID = UUID()
-        openAiManager.clearManager()
-        pineconeManager.clearManager()
-        
-        apiCalls.incrementApiCallCount()
+           
+            openAiManager.clearManager()
+            pineconeManager.clearManager()
+            apiCalls.incrementApiCallCount()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+                showSuccess = false
+                buttonIsVisible = true
+                presentationMode.wrappedValue.dismiss()
+            }
+        }
     }
     
     private func handleError(_ error: Error) {
-        inProgress = false
-        viewModel.occuredErrorDesc = error.localizedDescription
-        viewModel.activeAlert = .error
+        withAnimation {
+            inProgress = false
+            viewModel.occuredErrorDesc = error.localizedDescription
+            viewModel.activeAlert = .error
+        }
     }
     
     private func deleteInfo() {
@@ -199,12 +217,18 @@ struct EditInfoView: View {
     }
     
     private func handleDeletionSuccess(idToDelete: String) {
-
+        
         pineconeManager.deleteVector(withId: idToDelete)
+        pineconeManager.resetAfterSuccessfulUpserting()
         pineconeManager.refreshNamespacesIDs()
-        inProgress = false
         showSuccess = true
-//        lottieAnimationID = UUID()
+        inProgress = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+            showSuccess = false
+            inProgress = false
+            buttonIsVisible = true
+        }
+        //        lottieAnimationID = UUID()
     }
     
     private func newInfo() -> some View {
@@ -230,71 +254,55 @@ struct EditInfoView: View {
                             .foregroundColor(Color.gray)
                     )
                     .padding(.bottom)
-                
-                Button(action:  {
-                    if shake { return }
-                    
-                    if viewModel.description.isEmpty || (oldText == viewModel.description) {
-                        withAnimation { shake = true }
-                        return
+                VStack {
+                    if buttonIsVisible {
+                        Button(action:  {
+                            if shake { return }
+                            
+                            if viewModel.description.isEmpty || (oldText == viewModel.description) {
+                                withAnimation { shake = true }
+                                return
+                            }
+                            withAnimation {
+                                hideKeyboard()
+                                self.viewModel.activeAlert = .editConfirmation
+                                buttonIsVisible.toggle()
+                            }
+                        }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
+                                    .fill(Color.customLightBlue)
+                                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                    .frame(height: Constants.buttonHeight)
+                                
+                                Text("Save").font(.title2).bold()
+                                    .fontDesign(.rounded)
+                                    .foregroundColor(Color.buttonText)
+                                    .accessibilityLabel("save")
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .frame(maxWidth: .infinity)
+                        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+                        .padding(.top, 12)
+                        .padding(.horizontal)
+                        .animation(.easeInOut, value: keyboardResponder.currentHeight)
+                        .id("SubmitButton")
+                        .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
                     }
-                    withAnimation {
-                        hideKeyboard()
-                        self.viewModel.activeAlert = .editConfirmation
-                    }
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: Constants.rectCornerRad)
-                            .fill(Color.customLightBlue)
-                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                            .frame(height: Constants.buttonHeight)
-                        
-                        Text("Save").font(.title2).bold()
-                            .foregroundColor(Color.buttonText)
-                            .accessibilityLabel("save")
-                    }
-                    .contentShape(Rectangle())
-                }
-                .frame(maxWidth: .infinity)
-                .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
-                .padding(.top, 12)
-                .padding(.horizontal)
-                .animation(.easeInOut, value: keyboardResponder.currentHeight)
-                .id("SubmitButton")
-                .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
-                
-//                VStack {
-                    if inProgress {
-                        LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8)
+               
+                    else if shouldShowLoading  && pineconeManager.pineconeError == nil {
+                        LoadingTransitionView(isUpserting: $inProgress, isSuccess: $showSuccess)
                             .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
-                            .animation(.easeInOut, value: inProgress)
-                            .transition(.blurReplace(.downUp))
+                            .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                    removal: .opacity))
                     }
-                    Group {
-                    if showSuccess {
-                            LottieRepresentable(filename: "Approved", loopMode: .playOnce)
-                                .frame(height: isIPad() ? 440 : 130)
-                                .padding(.top, 15)
-                                .id(lottieAnimationID) //TODO: Was restarting 2-3 times Check if now animates once bofore view goes back to Vault
-                                .animation(.easeInOut, value: showSuccess)
-                                .transition(.blurReplace(.downUp))
-                                .onAppear {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                                        withAnimation {
-                                            showSuccess = false
-                                            presentationMode.wrappedValue.dismiss()
-                                        }
-                                    }
-                                }
-                        }// to isolate the Lottie and not trigger multiple restarts
-                    }
-//                }
+                } .animation(.easeInOut(duration: 0.5), value: shouldShowLoading)
                 Spacer()
             }
             .padding(.horizontal, Constants.standardCardPadding)
             .padding(.top, 12)
         }
-//        .transition(.blurReplace(.downUp))
     }
     
 }
