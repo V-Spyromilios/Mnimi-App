@@ -348,6 +348,7 @@ struct QuestionView: View {
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
         .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+        .animation(.easeInOut, value: shake)
     }
     
     private var GoButton: some View {
@@ -370,6 +371,7 @@ struct QuestionView: View {
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
         .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+        .animation(.easeInOut, value: shake)
     }
     
     private func performClearTask() {

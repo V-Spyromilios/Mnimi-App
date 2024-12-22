@@ -108,6 +108,7 @@
 		E8FA7F0E2BC5BC320012EBF6 /* PromptLanguageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F032BC5BC320012EBF6 /* PromptLanguageView.swift */; };
 		E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F072BC5BC320012EBF6 /* Settings View.swift */; };
 		E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */; };
+		E8FE18F02D156CF900CA5ECD /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FE18EF2D156CF900CA5ECD /* ShareSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -228,6 +229,7 @@
 		E8FA7F072BC5BC320012EBF6 /* Settings View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Settings View.swift"; sourceTree = "<group>"; };
 		E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfosViewListCellView.swift; sourceTree = "<group>"; };
 		E8FA7F182BC5D3C60012EBF6 /* MyndVault.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyndVault.entitlements; sourceTree = "<group>"; };
+		E8FE18EF2D156CF900CA5ECD /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -317,6 +319,7 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8FE18EF2D156CF900CA5ECD /* ShareSheet.swift */,
 				E8B4C5772CDD69CA00813AC0 /* ImageView.swift */,
 				E878FA8C2CD3A87800CEA8EA /* OpenaiActor.swift */,
 				E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */,
@@ -661,6 +664,7 @@
 				E878FA8F2CD3A90F00CEA8EA /* OpenAIViewModel.swift in Sources */,
 				E82F45862BC2A80C00945312 /* SpeechRecognitionViewModel.swift in Sources */,
 				E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */,
+				E8FE18F02D156CF900CA5ECD /* ShareSheet.swift in Sources */,
 				E82F455A2BC2A72100945312 /* CircularProgressView.swift in Sources */,
 				E82F45742BC2A77E00945312 /* NotificationCellView.swift in Sources */,
 				E8BDF9C22CFC854E0026BAE2 /* RootView.swift in Sources */,

@@ -10,6 +10,8 @@ import CloudKit
 import Combine
 
 struct NewAddInfoView: View {
+    
+    let hapticGenerator = UINotificationFeedbackGenerator()
     @State private var newInfo: String = ""
     @State private var apiCallInProgress: Bool = false
     @State private var thrownError: String = ""
@@ -119,8 +121,6 @@ struct NewAddInfoView: View {
                                         .clipShape(RoundedRectangle(cornerRadius: 15))
                                         .offset(x: 5)
                                 }
-                                
-                                // Display selected image
                                 if let image = photoPicker.selectedImage {
                                     ZStack(alignment: .topTrailing) {
                                         Image(uiImage: image)
@@ -294,21 +294,7 @@ struct NewAddInfoView: View {
                         performClearTask()
                     }
                 }
-                
-                //        .background {
-                //            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                //                .opacity(0.4)
-                //                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                //                .ignoresSafeArea()
-                //        }
-                
             }
-            //        .background {
-            //            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-            //                .opacity(0.4)
-            //                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            //                .ignoresSafeArea()
-            //        }
         }
     }
 }
@@ -332,6 +318,7 @@ extension NewAddInfoView {
         }
         .frame(maxWidth: .infinity)
         .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+        .animation(.easeInOut, value: shake)
         .padding(.top, 12)
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
@@ -402,7 +389,7 @@ extension NewAddInfoView {
     }
     
     private func handleUpsertSuccess(uniqueID: String) {
-        
+        hapticGenerator.notificationOccurred(.success)
         debugLog("handleUpsertSuccess Called")
         
         if let image = photoPicker.selectedImage {

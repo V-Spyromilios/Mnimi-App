@@ -42,6 +42,10 @@ struct ErrorView: View {
                 Spacer()
             }
             .padding(.horizontal, 16)
+            .onAppear {
+                let haptic = UINotificationFeedbackGenerator()
+                haptic.notificationOccurred(.error)
+            }
         }
     }
 }
