@@ -8,7 +8,7 @@
 import UIKit
 import SwiftUI
 struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
+    let items: [String] //change to any for adding & sending images
     
     func makeUIViewController(context: Context) -> UIActivityViewController {
         let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
