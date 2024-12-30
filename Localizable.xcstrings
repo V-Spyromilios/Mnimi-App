@@ -1090,6 +1090,9 @@
         }
       }
     },
+    "Connect with me on LinkedIn" : {
+
+    },
     "Credit" : {
       "localizations" : {
         "de" : {
@@ -2629,6 +2632,9 @@
           }
         }
       }
+    },
+    "Natively built with SwiftUI" : {
+
     },
     "No Image Selected" : {
       "localizations" : {

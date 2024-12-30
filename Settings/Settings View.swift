@@ -65,10 +65,7 @@ struct SettingsView: View {
                             Spacer()
                             
                             Image(systemName: "chevron.right")
-                            
                                 .foregroundStyle(.blue)
-                            
-                            
                         }
                     } .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)

@@ -10,31 +10,35 @@ import SwiftUI
 struct AboutUsView: View {
     @State private var animate: Bool = false
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    let linkedInURL = URL(string: "https://www.linkedin.com/in/evangelos-spyromilios/")!
+    
     
     var body: some View {
         ScrollView {
-           
-                TypingTextView(fullText: "Hello World !", typingSpeed: 0.1, isTitle: true)
-                    .frame(maxWidth: .infinity)
-                    .padding()
+            HStack {
+                TypingTextView(fullText: "Hello World!", typingSpeed: 0.1, isTitle: true)
+//                    .frame(maxWidth: .infinity)
+                    .padding(.leading)
+//                SwiftLogo()
+            }.padding(.top)
             
             
             
-            LottieRepresentable(filename: "ManWithLaptop").frame(height: 200)
+            LottieRepresentable(filename: "ManWithLaptop").frame(height: 180)
             
             VStack {
-                
-            }.frame(height: 400)
-            
-            HStack {
-                Spacer()
-                madeWith()
+                Text(Constants.welcomeText)
+                    .font(.headline)
+//                    .font(.system(.callout))
+                    .fontWeight(.semibold)
+                    .fontDesign(.rounded)
                     .padding()
+                    .foregroundStyle(.primary)
+                    .dynamicTypeSize(.medium ... .xxLarge)
                 
-               
-            }.frame(maxWidth: .infinity)
-            
-            
+                LinkedInButton(url: linkedInURL)
+                builtWith().padding(.top)
+            }
                 .navigationBarBackButtonHidden(true)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -50,37 +54,67 @@ struct AboutUsView: View {
                 }
         }  .background {
             LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                .opacity(0.4)
+                .opacity(0.2)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
         }
-      
     }
-    
-    
 }
 
 #Preview {
-    AboutUsView()
+    NavigationView {
+            AboutUsView()
+        }
 }
 
+private func builtWith() -> some View {
+
+    Text("Natively built with SwiftUI")
+        .font(.footnote)
+        .fontWeight(.semibold)
+        .fontDesign(.rounded)
+        .foregroundStyle(.secondary)
+        .dynamicTypeSize(.medium ... .xxLarge)
+        .offset(y: 7)
+}
 
 @MainActor
-private func madeWith() -> some View {
+private func SwiftLogo() -> some View {
+
     HStack {
-       
-//        Text("Made with").font(.title3).fontDesign(.rounded)
-//            .offset(x: 85)
-        LottieRepresentable(filename: "Swift", loopMode: .loop, speed: 0.5)
-            
-            .frame(width: 80, height: 80)
-//        LottieRepresentable(filename: "")
-        
-        Image("Wolfsburg")
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: 40, height: 40)
-//            .offset(x: -70)
-        
-    }.padding(.horizontal)
+        LottieRepresentable(filename: "Swift", loopMode: .playOnce, speed: 0.3)
+            .frame(width: 70, height: 70)
+    }
+}
+
+struct LinkedInButton: View {
+    var url: URL
+
+    var body: some View {
+        Button(action: {
+            openLinkedInProfile()
+        }) {
+            HStack {
+                Image(systemName: "link.circle.fill")
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(.blue)
+                Text("Connect with me on LinkedIn")
+                    .font(.system(size: 16, weight: .semibold))
+                    .fontDesign(.rounded)
+                    .foregroundColor(.blue)
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.blue.opacity(0.1))
+            )
+        }
+    }
+
+    private func openLinkedInProfile() {
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
 }
