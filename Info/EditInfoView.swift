@@ -31,7 +31,8 @@ struct EditInfoView: View {
     @State private var deleteAnimating: Bool = false
     @State private var buttonIsVisible: Bool = true
     @State private var showShareSheet: Bool = false
-
+    @State private var shakeOffset: CGFloat = 0
+    
     private var shouldShowLoading: Bool {
         inProgress || showSuccess
     }
@@ -66,21 +67,25 @@ struct EditInfoView: View {
                 }
                 
                 Button(action: {
-                    deleteAnimating = true
-                    self.viewModel.activeAlert = .deleteWarning
+                    withAnimation(.easeInOut) {
+                        deleteAnimating = true
+                        self.viewModel.activeAlert = .deleteWarning }
                 }) {
-                    LottieRepresentable(filename: "deleteBin", loopMode: .playOnce, isPlaying: $deleteAnimating)
-                        .frame(width: 40, height: 50)
-                        .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                    Image(systemName: "trash")
+                        .resizable()
+                        .font(.title3).foregroundStyle(.red.opacity(0.7)).fontDesign(.rounded)
+                        .padding(.leading, 8)
                         .padding(.top, isIPad() ? 15 : 0)
                 }
+                .scaleEffect(deleteAnimating ? 1.1 : 1)
             }
         }
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
                 showNoInternet = true
                 if inProgress {
-                    inProgress = false
+                    withAnimation(.easeInOut) {
+                        inProgress = false }
                 }
             }
         }
@@ -94,7 +99,7 @@ struct EditInfoView: View {
                         onEdit()
                     },
                     secondaryButton: .cancel {
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             viewModel.activeAlert = nil
                             buttonIsVisible = true
                         }
@@ -109,9 +114,11 @@ struct EditInfoView: View {
                         deleteInfo()
                     },
                     secondaryButton: .cancel {
-                        withAnimation {
+                        withAnimation(.easeInOut) {
+                            deleteAnimating = false
                             self.viewModel.activeAlert = nil
                             buttonIsVisible = true
+                            
                         }
                     }
                 )
@@ -133,17 +140,19 @@ struct EditInfoView: View {
             presentationMode.wrappedValue.dismiss()
         }) {
             HStack {
-                Image(systemName: "chevron.left").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                Image(systemName: "chevron.left").font(.title3).foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
             }.padding(.top, isIPad() ? 15 : 0)
         }, trailing: Button(action: {
-            showShareSheet.toggle()
+            withAnimation(.easeInOut) {
+                showShareSheet.toggle() }
         }, label: {
-            Image(systemName: "square.and.arrow.up").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded)
+            Image(systemName: "square.and.arrow.up").font(.title3).foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded)
+                .scaleEffect(showShareSheet ? 1.1 : 1)
         }))
         .sheet(isPresented: $showShareSheet) {
             let item = viewModel.description
             ShareSheet(items: [item])
-                    }
+        }
     }
     
     private func onEdit() {
@@ -184,9 +193,9 @@ struct EditInfoView: View {
             hapticGenerator.notificationOccurred(.success)
             showSuccess = true
             inProgress = false
-        pineconeManager.resetAfterSuccessfulUpserting()
-        pineconeManager.refreshNamespacesIDs()
-           
+            pineconeManager.resetAfterSuccessfulUpserting()
+            pineconeManager.refreshNamespacesIDs()
+            
             openAiManager.clearManager()
             pineconeManager.clearManager()
             apiCalls.incrementApiCallCount()
@@ -269,28 +278,42 @@ struct EditInfoView: View {
                                 buttonIsVisible.toggle()
                             }
                         }) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
-                                    .fill(Color.customLightBlue)
-                                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                    .frame(height: Constants.buttonHeight)
-                                
-                                Text("Save").font(.title2).bold()
-                                    .fontDesign(.rounded)
-                                    .foregroundColor(Color.buttonText)
-                                    .accessibilityLabel("save")
-                            }
-                            .contentShape(Rectangle())
+                            HStack(spacing: 12) {
+                            Image(systemName: "cloud")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 24)
+                                .foregroundColor(.blue)
+                            Text("Save")
+                                .font(.system(size: 18, weight: .bold))
+                                .fontDesign(.rounded)
+                                .foregroundColor(.blue)
+                                .accessibility(label: Text("Securely save this edited information to the cloud"))
+                                .accessibility(hint: Text("This will store your data securely."))
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: Constants.buttonHeight)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(
+                                           LinearGradient(
+                                               gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
+                                               startPoint: .top,
+                                               endPoint: .bottom
+                                           )
+                                       )
+                        )
                         }
                         .frame(maxWidth: .infinity)
-                        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+                        .modifier(ShakeEffect(animatableData: shakeOffset))
                         .padding(.top, 12)
                         .padding(.horizontal)
                         .animation(.easeInOut, value: keyboardResponder.currentHeight)
                         .id("SubmitButton")
                         .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
                     }
-               
+                    
                     else if shouldShowLoading  && pineconeManager.pineconeError == nil {
                         LoadingTransitionView(isUpserting: $inProgress, isSuccess: $showSuccess)
                             .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)

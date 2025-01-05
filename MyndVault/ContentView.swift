@@ -16,7 +16,6 @@ struct ContentView: View {
     
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
-    @EnvironmentObject var progressTracker: ProgressTracker
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject private var keyboardResponder: KeyboardResponder
     @EnvironmentObject var speechManager: SpeechRecognizerManager
@@ -40,7 +39,6 @@ struct ContentView: View {
                 NewAddInfoView().tag(1)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
-                    .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
                     .transition(.opacity)
@@ -48,7 +46,6 @@ struct ContentView: View {
                 QuestionView().tag(2)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
-                    .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
                     .transition(.opacity)
@@ -56,11 +53,9 @@ struct ContentView: View {
                 VaultView().tag(3)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
-                    .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
                     .transition(.opacity)
-                //                NotificationsView().tag(4)
             }
             .ignoresSafeArea(edges: .bottom)
             .overlay(
@@ -75,7 +70,6 @@ struct ContentView: View {
         }
         .onAppear {
             speechManager.checkSpeechAuthorizationStatus()
-//            checkIfNewSubscriber()
         }
         
         .onChange(of: networkManager.hasInternet) { _, hasInternet in

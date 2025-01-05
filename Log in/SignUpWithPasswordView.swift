@@ -17,6 +17,7 @@ struct SignUpWithPasswordView: View {
     @State private var alertMessage = ""
     @State private var hasSignedUp = false
     @State private var shake: Bool = false
+    @State private var shakeOffset: CGFloat = 0
 
     var body: some View {
         GeometryReader { geometry in
@@ -89,7 +90,7 @@ struct SignUpWithPasswordView: View {
                         
                     }
                     .frame(maxWidth: idealWidth(for: geometry.size.width))
-                    .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+                    .modifier(ShakeEffect(animatableData: shakeOffset))
                     .padding(.top, 12)
                     .padding(.horizontal)
                     .padding()

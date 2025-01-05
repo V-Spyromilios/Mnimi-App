@@ -12,7 +12,6 @@ struct MainView: View {
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
-    @EnvironmentObject var progressTracker: ProgressTracker
 //    @EnvironmentObject var notificationsManager: NotificationViewModel
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
@@ -27,18 +26,13 @@ struct MainView: View {
                     ContentView()
                         .environmentObject(openAiManager)
                         .environmentObject(pineconeManager)
-                        .environmentObject(progressTracker)
-//                        .environmentObject(notificationsManager)
                         .environmentObject(cloudKitViewModel)
                         .environmentObject(keyboardResponder)
                         .environmentObject(apiCallsViewModel)
                         .environmentObject(language)
                         .environmentObject(speechManager)
                 }
-                
-//                else if cloudKitViewModel.isLoading {
-//                    Text("Signing in with iCloud...").font(.title3).fontWeight(.semibold)
-//                }
+
                 else if cloudKitViewModel.CKErrorDesc != "" {
                     
                     let errorDesc = cloudKitViewModel.CKErrorDesc
