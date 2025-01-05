@@ -15,7 +15,6 @@ struct FaceIDView: View {
     @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pinecone: PineconeViewModel
-    @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var language: LanguageSettings
     @EnvironmentObject var speechManager: SpeechRecognizerManager
     @State private var showError = false
@@ -43,7 +42,6 @@ struct FaceIDView: View {
         //                MainView()
         //                    .environmentObject(openAiManager)
         //                    .environmentObject(pinecone)
-        //                    .environmentObject(progressTracker)
         //                    .environmentObject(keyboardResponder)
         //                    .environmentObject(language)
         //                    .environmentObject(speechManager)
@@ -249,6 +247,7 @@ struct UsernamePasswordLoginView: View {
     @State private var alertPasswordMessage = ""
     @State private var showPasswordError = false
     @State private var shake: Bool = false
+    @State private var shakeOffset: CGFloat = 0
     
     @FocusState private var isUsernameFieldFocused: Bool
     @FocusState private var isPasswordFieldFocused: Bool
@@ -259,7 +258,7 @@ struct UsernamePasswordLoginView: View {
                 .opacity(0.4)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
-            
+
             VStack {
                 
                 TypingTextView(fullText: "FaceID/ TouchID failed.\nPlease provide Username and\nPassword instead")
@@ -302,7 +301,7 @@ struct UsernamePasswordLoginView: View {
                 .padding(.horizontal)
                 .animation(.easeInOut, value: keyboardResponder.currentHeight)
                 .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
-                .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+                .modifier(ShakeEffect(animatableData: shakeOffset))
                 Spacer()
                 
             }// -VStack
@@ -329,8 +328,15 @@ struct UsernamePasswordLoginView: View {
         }
         .onChange(of: shake) { _, newValue in
             if newValue {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    shake = false
+                withAnimation(.easeInOut(duration: 0.3)) { // Start shake animation
+                    shakeOffset = 1
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { // Matches animation duration
+                    shake = false // Reset shake toggle
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        shakeOffset = 0 // Reset shake offset
+                    }
                 }
             }
         }

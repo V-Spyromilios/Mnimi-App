@@ -770,6 +770,9 @@
         }
       }
     },
+    "Ask Question" : {
+
+    },
     "Authentication Failed" : {
       "localizations" : {
         "de" : {
@@ -899,6 +902,7 @@
       }
     },
     "Clear and reset" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1089,6 +1093,9 @@
           }
         }
       }
+    },
+    "connect with me on LinkedIn" : {
+
     },
     "Connect with me on LinkedIn" : {
 
@@ -3468,6 +3475,9 @@
         }
       }
     },
+    "reset the question and reply" : {
+
+    },
     "Retry" : {
       "localizations" : {
         "de" : {
@@ -3787,6 +3797,12 @@
           }
         }
       }
+    },
+    "Securely save this edited information to the cloud" : {
+
+    },
+    "Securely save this information to the cloud" : {
+
     },
     "selected Language: %@" : {
       "localizations" : {
@@ -4241,6 +4257,7 @@
       }
     },
     "Stop" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4431,6 +4448,15 @@
           }
         }
       }
+    },
+    "This will query the database and return a reply" : {
+
+    },
+    "This will reset your question and reply text fields" : {
+
+    },
+    "This will store your data securely." : {
+
     },
     "Toggle" : {
 

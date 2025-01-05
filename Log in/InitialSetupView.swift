@@ -12,7 +12,6 @@ struct InitialSetupView: View {
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @EnvironmentObject var language: LanguageSettings
     @EnvironmentObject var speechManager: SpeechRecognizerManager
-    @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pinecone: PineconeViewModel
     
@@ -33,6 +32,7 @@ struct InitialSetupView: View {
     @FocusState private var isUsernameFieldFocused: Bool
     @FocusState private var isPasswordFieldFocused: Bool
     @FocusState private var isRepairPasswordFieldFocused: Bool
+    @State private var shakeOffset: CGFloat = 0
     
     
     var body: some View {
@@ -92,7 +92,7 @@ struct InitialSetupView: View {
                             
                         }
                         .frame(maxWidth: idealWidth(for: geometry.size.width))
-                        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+                        .modifier(ShakeEffect(animatableData: shakeOffset))
                         .padding(.top, 12)
                         .padding(.horizontal)
                         .padding(.horizontal)
@@ -129,7 +129,6 @@ struct InitialSetupView: View {
                 //                        .environmentObject(<#T##object: ObservableObject##ObservableObject#>)
                     .environmentObject(openAiManager)
                     .environmentObject(pinecone)
-                    .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                     .environmentObject(language)
                     .environmentObject(speechManager)

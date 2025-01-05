@@ -14,7 +14,6 @@ struct RootView: View {
        @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
        @EnvironmentObject var openAiManager: OpenAIViewModel
        @EnvironmentObject var pineconeViewModel: PineconeViewModel
-       @EnvironmentObject var progressTracker: ProgressTracker
        @EnvironmentObject var keyboardResponder: KeyboardResponder
        @EnvironmentObject var languageSettings: LanguageSettings
        @EnvironmentObject var speechManager: SpeechRecognizerManager
@@ -28,7 +27,6 @@ struct RootView: View {
                         .environmentObject(authManager)
                         .environmentObject(openAiManager)
                         .environmentObject(pineconeViewModel)
-                        .environmentObject(progressTracker)
                         .environmentObject(keyboardResponder)
                         .environmentObject(languageSettings)
                         .environmentObject(speechManager)
@@ -41,7 +39,6 @@ struct RootView: View {
                         .environmentObject(authManager)
                         .environmentObject(openAiManager)
                         .environmentObject(pineconeViewModel)
-                        .environmentObject(progressTracker)
                         .environmentObject(keyboardResponder)
                         .environmentObject(languageSettings)
                         .environmentObject(speechManager)

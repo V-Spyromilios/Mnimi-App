@@ -34,7 +34,7 @@ class OpenAIViewModel: ObservableObject {
             questionEmbeddingsCompleted = false
             stringResponseOnQuestion = ""
             openAIError = nil
-            ProgressTracker.shared.reset()
+            
     }
     
 //    @MainActor
@@ -150,13 +150,8 @@ class OpenAIViewModel: ObservableObject {
     
     
     func requestEmbeddings(for text: String, isQuestion: Bool) async throws {
-        ProgressTracker.shared.setProgress(to: 0.0)
 
         do {
-            // Update progress
-            ProgressTracker.shared.setProgress(to: 0.12)
-
-            // Perform network call
 #if DEBUG
             print("requestEmbeddings do {")
 #endif
@@ -165,9 +160,7 @@ class OpenAIViewModel: ObservableObject {
             print("embeddingsResponse: \(embeddingsResponse.data.first.debugDescription)")
 #endif
             let embeddingsData = embeddingsResponse.data.flatMap { $0.embedding }
-
-            // Update progress
-            ProgressTracker.shared.setProgress(to: isQuestion ? 0.25 : 0.6)
+           
 
             // Update properties
             if isQuestion {
@@ -180,27 +173,17 @@ class OpenAIViewModel: ObservableObject {
             print("requestEmbeddings after updating properties {")
 #endif
             }
-
-            // Finish progress
-            ProgressTracker.shared.setProgress(to: isQuestion ? 0.25 : 0.6)
 #if DEBUG
             print("requestEmbeddings before catch {")
 #endif
         } catch {
-            // Reset progress on error
-            ProgressTracker.shared.reset()
-            // Throw the error to be handled by the caller
             throw error
         }
     }
 
     func getGptResponse(queryMatches: [String], question: String) async {
-        ProgressTracker.shared.setProgress(to: 0.75)
 
         do {
-            // Update progress
-            ProgressTracker.shared.setProgress(to: 0.80)
-
             // Access `languageSettings` on the main actor
             let selectedLanguage = self.languageSettings.selectedLanguage
 
@@ -210,20 +193,10 @@ class OpenAIViewModel: ObservableObject {
                 question: question,
                 selectedLanguage: selectedLanguage
             )
-
-            // Update progress
-            ProgressTracker.shared.setProgress(to: 0.88)
-            ProgressTracker.shared.setProgress(to: 0.99)
-
-            // Update UI-related properties on the main actor
             self.stringResponseOnQuestion = response
 
-            // Finish progress
-            ProgressTracker.shared.setProgress(to: 1.0)
         } catch {
             self.openAIError = .gptResponseFailed(error)
-            // Reset progress on error
-            ProgressTracker.shared.reset()
         }
     }
 }

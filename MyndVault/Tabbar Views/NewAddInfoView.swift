@@ -25,10 +25,10 @@ struct NewAddInfoView: View {
     @State private var showNoInternet: Bool = false
     @State private var showLang: Bool = false
     @State private var showSuccess: Bool = false
+    @State private var shakeOffset: CGFloat = 0
     
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
-    @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var cloudKit: CloudKitViewModel
     @StateObject private var photoPicker = ImagePickerViewModel()
@@ -73,7 +73,7 @@ struct NewAddInfoView: View {
 //                                }
 //#endif
                         }
-                        .padding(.horizontal, Constants.standardCardPadding)
+//                        .padding(.horizontal, Constants.standardCardPadding)
                         .font(.callout)
                         .padding(.top, 12)
                         .padding(.bottom, 8)
@@ -237,7 +237,7 @@ struct NewAddInfoView: View {
                 .onChange(of: shake) { _, newValue in
                     if newValue {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 shake = false
                             }
                         }
@@ -303,21 +303,37 @@ struct NewAddInfoView: View {
 
 extension NewAddInfoView {
     private var SaveButton: some View {
+        
         Button(action: addNewInfoAction) {
-            ZStack {
-                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
-                    .fill(Color.customLightBlue)
-                    .frame(height: Constants.buttonHeight)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                Text("Save").font(.title2).bold()
+            HStack(spacing: 12) {
+                Image(systemName: "cloud")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 24)
+                    .foregroundColor(.blue)
+                Text("Save")
+                    .font(.system(size: 18, weight: .bold))
                     .fontDesign(.rounded)
-                    .foregroundColor(Color.buttonText)
-                    .accessibilityLabel("save")
+                    .foregroundColor(.blue)
+                    .accessibility(label: Text("Securely save this information to the cloud"))
+                    .accessibility(hint: Text("This will store your data securely."))
             }
-            .contentShape(Rectangle())
+            .padding()
+            .frame(maxWidth: .infinity)
+            .frame(height: Constants.buttonHeight)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(
+                               LinearGradient(
+                                   gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
+                                   startPoint: .top,
+                                   endPoint: .bottom
+                               )
+                           )
+            )
         }
-        .frame(maxWidth: .infinity)
-        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
+       
+        .modifier(ShakeEffect(animatableData: shakeOffset))
         .animation(.easeInOut, value: shake)
         .padding(.top, 12)
         .padding(.horizontal)
@@ -327,7 +343,6 @@ extension NewAddInfoView {
     
     private func performClearTask() {
         withAnimation {
-            progressTracker.reset()
             self.thrownError = ""
             openAiManager.clearManager()
             pineconeManager.clearManager()
@@ -339,14 +354,13 @@ extension NewAddInfoView {
     private func addNewInfoAction() {
         if shake || isLoading { return }
         if newInfo.count < 5 {
-            withAnimation { shake = true }
+            withAnimation(.easeInOut) { shake = true }
             return
         }
         isLoading = true
         hideKeyboard()
         self.saveButtonIsVisible = false
         self.apiCallInProgress = true
-        progressTracker.reset()
         if pineconeManager.upsertSuccessful {
             pineconeManager.upsertSuccessful.toggle()
         }
@@ -424,7 +438,6 @@ struct NewAddInfoView_Previews: PreviewProvider {
     static var previews: some View {
 
         let responder = KeyboardResponder()
-        let progress = ProgressTracker.shared
         let networkManager = NetworkManager()
         let cloudKit = CloudKitViewModel.shared
         let apiCalls = ApiCallViewModel()
@@ -439,7 +452,6 @@ struct NewAddInfoView_Previews: PreviewProvider {
         NewAddInfoView()
             .environmentObject(pineconeViewModel)
             .environmentObject(openAIViewModel)
-            .environmentObject(progress)
             .environmentObject(responder)
             .environmentObject(networkManager)
             .environmentObject(cloudKit)

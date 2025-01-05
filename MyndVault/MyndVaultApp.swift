@@ -39,7 +39,6 @@ struct MyndVaultApp: App {
     @StateObject private var openAiManager: OpenAIViewModel
     
     @StateObject var cloudKitViewModel: CloudKitViewModel = .shared
-    @StateObject var progressTracker = ProgressTracker.shared
     @StateObject private var languageSettings = LanguageSettings.shared
     
     @StateObject var speechManager = SpeechRecognizerManager()
@@ -77,7 +76,6 @@ struct MyndVaultApp: App {
                     .environmentObject(apiCallsViewModel)
                     .environmentObject(keyboardResponder)
                     .environmentObject(authManager)
-                    .environmentObject(progressTracker)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeViewModel)
                     .environmentObject(languageSettings)
@@ -92,7 +90,6 @@ struct MyndVaultApp: App {
                     .environmentObject(authManager)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeViewModel)
-                    .environmentObject(progressTracker)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
                     .environmentObject(speechManager)

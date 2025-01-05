@@ -12,7 +12,6 @@ struct QuestionView: View {
     
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
-    @EnvironmentObject var progressTracker: ProgressTracker
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var cloudKitManager: CloudKitViewModel
     @Environment(\.colorScheme) var colorScheme
@@ -34,6 +33,7 @@ struct QuestionView: View {
     @State private var showLang: Bool = false
     @State private var showError: Bool = false
     @State private var clearButtonIsVisible: Bool = false
+    @State private var shakeOffset: CGFloat = 0.0
     
     private var shouldShowGoButton: Bool {
         goButtonIsVisible &&
@@ -43,8 +43,6 @@ struct QuestionView: View {
     
     private var shouldShowProgressView: Bool {
         !goButtonIsVisible &&
-        progressTracker.progress < 0.99 &&
-        progressTracker.progress > 0.1 &&
         thrownError.isEmpty &&
         pineconeManager.pineconeError == nil
     }
@@ -219,9 +217,29 @@ struct QuestionView: View {
                     }
                 }
                 .onChange(of: shake) { _, newValue in
-                    if newValue {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            shake = false
+                    guard newValue else { return } // Ensure animation starts only when shake is true
+                    
+                    // Step 1: Start the animation (Move to the right)
+                    withAnimation(.easeInOut(duration: 0.1)) {
+                        shakeOffset = 10 // Move 10 points to the right
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { // After first step
+                        // Step 2: Move to the left
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            shakeOffset = -10 // Move 10 points to the left
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { // After second step
+                            // Step 3: Reset to center
+                            withAnimation(.easeInOut(duration: 0.1)) {
+                                shakeOffset = 0 // Back to the original position
+                            }
+                            
+                            // Step 4: Reset shake toggle after animation completes
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                shake = false // Allow future animations
+                            }
                         }
                     }
                 }
@@ -313,65 +331,95 @@ struct QuestionView: View {
         }
     }
     
-    @ViewBuilder
-    private var ProgressViewContent: some View {
-
-        LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8)
-            .frame(height: isIPad() ? 440 : 300)
-    }
-    //...more function below
+//    @ViewBuilder
+//    private var ProgressViewContent: some View {
+//
+//        LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8)
+//            .frame(height: isIPad() ? 440 : 300)
+//    }
+//    //...more function below
 
     
     private func handleQuestionEmbeddingsCompleted() {
-        progressTracker.setProgress(to: 0.35)
         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
         apiCalls.incrementApiCallCount()
     }
     
     private var ClearButton: some View {
         Button(action: performClearTask) {
-            ZStack {
-                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
-                    .fill(Color.customLightBlue)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                    .frame(height: Constants.buttonHeight)
-                
-                Text("OK").font(.title2).bold()
+            
+            HStack(spacing: 12) {
+                Image(systemName: "arrow.uturn.backward")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 24)
+                    .foregroundColor(.blue)
+                Text("OK")
+                    .font(.system(size: 18, weight: .bold))
                     .fontDesign(.rounded)
-                    .foregroundColor(Color.buttonText)
-                    .accessibilityLabel("Clear and reset")
+                    .foregroundColor(.blue)
+                    .accessibility(label: Text("reset the question and reply"))
+                    .accessibility(hint: Text("This will reset your question and reply text fields"))
             }
-            .contentShape(Rectangle())
+            .padding()
+            .frame(maxWidth: .infinity)
+            .frame(height: Constants.buttonHeight)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(
+                               LinearGradient(
+                                   gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
+                                   startPoint: .top,
+                                   endPoint: .bottom
+                               )
+                           )
+            )
+            
         }
         .padding(.top, 12)
         .padding(.bottom, 12)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
-        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
-        .animation(.easeInOut, value: shake)
+        .modifier(ShakeEffect(animatableData: shakeOffset))
+//        .animation(.easeInOut, value: shake)
     }
     
     private var GoButton: some View {
         Button(action: performTask) {
-            ZStack {
-                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
-                    .fill(Color.customLightBlue)
-                    .frame(height: Constants.buttonHeight)
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                Text("Go").font(.title2).bold()
-                    .fontDesign(.rounded)
-                    .foregroundColor(Color.buttonText)
-                    .accessibilityLabel("Go")
-            }
-            .contentShape(Rectangle())
             
+            HStack(spacing: 12) {
+                Image(systemName: "paperplane")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 24)
+                    .foregroundColor(.blue)
+                Text("Go")
+                    .font(.system(size: 18, weight: .bold))
+                    .fontDesign(.rounded)
+                    .foregroundColor(.blue)
+                    .accessibility(label: Text("Ask Question"))
+                    .accessibility(hint: Text("This will query the database and return a reply"))
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .frame(height: Constants.buttonHeight)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            )
         }
         .padding(.top, 12)
         .padding(.horizontal)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
-        .modifier(ShakeEffect(animatableData: shake ? 1 : 0))
-        .animation(.easeInOut, value: shake)
+        .modifier(ShakeEffect(animatableData: shakeOffset))
+//        .animation(.easeInOut, value: shake)
     }
     
     private func performClearTask() {
@@ -381,7 +429,6 @@ struct QuestionView: View {
             self.thrownError = ""
             fetchedImages = []
             self.goButtonIsVisible = true
-            progressTracker.reset()
             if isLoading { isLoading = false }
         }
         openAiManager.clearManager()
@@ -395,14 +442,13 @@ struct QuestionView: View {
         guard !shake && !isLoading else { return }
         
         if question.count < 8 {
-            withAnimation(.easeOut) { shake = true }
+            shake = true
             return
         }
         withAnimation(.easeOut) {
             goButtonIsVisible = false
             hideKeyboard()
             isLoading = true
-            progressTracker.reset()
         }
         Task {
             do {
@@ -461,11 +507,9 @@ struct QuestionView_Previews: PreviewProvider {
         
         let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
         let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-        let progressTracker = ProgressTracker()
         
         QuestionView()
             .environmentObject(openAIViewModel)
             .environmentObject(pineconeViewModel)
-            .environmentObject(progressTracker)
     }
 }
