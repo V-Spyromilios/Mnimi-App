@@ -433,5 +433,53 @@ actor PineconeActor {
 //            }.resume()
 //        }
 //    }
+    
+    
+    func fetchVectorByID(_ id: String) async throws -> Vector {
+        let maxAttempts = 3
+        var attempts = 0
+        var lastError: Error?
+
+        while attempts < maxAttempts {
+            do {
+                guard let namespace = await ckViewModel.fetchedNamespaceDict.first?.value.namespace else {
+                    throw AppCKError.UnableToGetNameSpace
+                }
+
+                guard let apiKey = ApiConfiguration.pineconeKey else {
+                    throw AppNetworkError.apiKeyNotFound
+                }
+
+                guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/fetch?ids=\(id)&namespace=\(namespace)") else {
+                    throw AppNetworkError.unknownError("Invalid URL")
+                }
+
+                var request = URLRequest(url: url)
+                request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
+                request.httpMethod = "GET"
+                request.addValue("2024-10", forHTTPHeaderField: "X-Pinecone-API-Version")
+
+                let (data, _) = try await URLSession.shared.data(for: request)
+                let decodedResponse = try JSONDecoder().decode(PineconeFetchResponseFromID.self, from: data)
+
+                guard let vector = decodedResponse.vectors[id] else {
+                    throw AppNetworkError.unknownError("Vector not found")
+                }
+
+                return vector
+            } catch {
+                attempts += 1
+                lastError = error
+
+                if attempts < maxAttempts {
+                    // Optional delay before retrying
+                    try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+                }
+            }
+        }
+
+        // If all attempts fail, throw the last encountered error
+        throw lastError ?? AppNetworkError.unknownError("Failed to fetch vector after \(maxAttempts) attempts.")
+    }
 
 }

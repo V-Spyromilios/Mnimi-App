@@ -62,7 +62,7 @@ done:
     
     static let entitlementID: String = "manager"
     
-    static let welcomeText: String = "Welcome to MyndVault!\n\nThis app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. MyndVault was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention. If you’re a fellow coder or just curious about how this app works, feel free to connect— I’d love to share ideas and stories.\nLet’s build something meaningful together!"
+    static let welcomeText: String = "Welcome to MyndVault!\n\nThis app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. MyndVault was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention. No ads, no notifications, no personal data collection. Just a simple, elegant interface that empowers you to remember the important staff.\n\nIf you’re a fellow coder or just curious about how this app works, feel free to connect— I’d love to share ideas and stories.\nLet’s build something meaningful together!"
 }
 
 
@@ -138,10 +138,6 @@ final class KeyboardResponder: ObservableObject {
             .store(in: &cancellables)
     }
     
-    //    deinit {
-    //        NotificationCenter.default.removeObserver(self)
-    //    } NO need Combine handles observer
-    
     @objc func keyboardWillShow(notification: Notification) {
         if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardHeight = keyboardFrame.cgRectValue.height
@@ -157,7 +153,6 @@ final class KeyboardResponder: ObservableObject {
         self.keyboardVisible = false
     }
 }
-
 
 // MARK: from ISO8601 to displayed date and time. I use ISO8601 to convert Date() to string for pinecone's timestamp:String.
 
@@ -204,22 +199,22 @@ struct BlurView: UIViewRepresentable {
 }
 
 
-final class ShakeEffect: GeometryEffect {
-    private let amount: CGFloat //max movement(displacement)
-    private let shakesPerUnit: CGFloat // complete back and forth per animation
-    var animatableData: CGFloat
-    
-    init(amount: CGFloat = 5, shakesPerUnit: CGFloat = 2, animatableData: CGFloat) {
-        self.amount = amount
-        self.shakesPerUnit = shakesPerUnit
-        self.animatableData = animatableData
-    }
-    
-    func effectValue(size: CGSize) -> ProjectionTransform {
-        let translation = amount * sin(animatableData * .pi * shakesPerUnit)
-        return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
-    }
-}
+//final class ShakeEffect: GeometryEffect {
+//    private let amount: CGFloat //max movement(displacement)
+//    private let shakesPerUnit: CGFloat // complete back and forth per animation
+//    var animatableData: CGFloat
+//    
+//    init(amount: CGFloat = 5, shakesPerUnit: CGFloat = 2, animatableData: CGFloat) {
+//        self.amount = amount
+//        self.shakesPerUnit = shakesPerUnit
+//        self.animatableData = animatableData
+//    }
+//    
+//    func effectValue(size: CGSize) -> ProjectionTransform {
+//        let translation = amount * sin(animatableData * .pi * shakesPerUnit)
+//        return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
+//    }
+//}
 
 
 struct NeumorphicStyle: ViewModifier {
@@ -312,45 +307,6 @@ struct FloatingLabelTextField: View {
     }
 }
 
-//@MainActor
-//struct CustomDatePicker: View {
-//    @Binding var selectedDate: Date
-//    @State private var showingDatePicker = false
-//
-//    var body: some View {
-//        VStack {
-//            Button(action: {
-//                withAnimation {
-//                    showingDatePicker.toggle() }
-//            }) {
-//
-//                    Text("\(selectedDate, formatter: dateFormatter)")
-//                    .font(.title2)
-//                    .fontDesign(.rounded)
-//                    .fontWeight(.medium)
-//                    .foregroundStyle(.secondary)
-//                    .padding(.bottom, 8)
-//            }
-//
-//            .background(RoundedRectangle(cornerRadius: 10).fill(Color.clear))
-//            .shadow(radius: 4)
-//
-//            if showingDatePicker {
-//                DatePicker(
-//                    "",
-//                    selection: $selectedDate,
-//                    displayedComponents: [.date, .hourAndMinute]
-//                )
-//                .datePickerStyle(GraphicalDatePickerStyle())
-//                .labelsHidden()
-//
-//                .padding(.bottom, 12)
-//               // .shadow(radius: 5)
-//
-//            }
-//        }.frame(maxHeight: 500)
-//    }
-
 extension View {
     @ViewBuilder
     func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
@@ -378,28 +334,3 @@ func debugLog(_ message: String) {
     print(message)
 #endif
 }
-
-//enum RepeatInterval: String, CaseIterable, Identifiable {
-//    case none = "None"
-//    case daily = "Daily"
-//    case weekly = "Weekly"
-//    case weekdays = "Weekdays"
-//    case weekends = "Weekends"
-//
-//    var id: String { self.rawValue }
-//
-//    var description: LocalizedStringKey {
-//            switch self {
-//            case .none:
-//                return LocalizedStringKey("Never")
-//            case .daily:
-//                return LocalizedStringKey("Daily")
-//            case .weekly:
-//                return LocalizedStringKey("Weekly")
-//            case .weekdays:
-//                return LocalizedStringKey("Weekdays")
-//            case .weekends:
-//                return LocalizedStringKey("Weekends")
-//            }
-//        }
-//}

@@ -19,9 +19,8 @@ final class RCViewModel: ObservableObject, Sendable {
         didSet {
             // Check the current subscription status
             let newSubscriptionStatus = customerInfo?.entitlements[Constants.entitlementID]?.isActive == true
-#if DEBUG
-            print("customerInfo didSet: \(String(describing: newSubscriptionStatus))")
-            #endif
+
+            debugLog("customerInfo didSet: \(String(describing: newSubscriptionStatus))")
             
             // Update the isActiveSubscription and ensure view updates
             if isActiveSubscription != newSubscriptionStatus {

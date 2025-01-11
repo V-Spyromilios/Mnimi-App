@@ -16,17 +16,14 @@ struct NewAddInfoView: View {
     @State private var apiCallInProgress: Bool = false
     @State private var thrownError: String = ""
     @State private var showError: Bool = false
-    
     @State private var saveButtonIsVisible: Bool = true
     @State private var showSettings: Bool = false
-    
     @State private var isLoading: Bool = false // used just for the button
-    @State private var shake: Bool = false
     @State private var showNoInternet: Bool = false
     @State private var showLang: Bool = false
     @State private var showSuccess: Bool = false
-    @State private var shakeOffset: CGFloat = 0
-    
+    @State private var isTextFieldEmpty: Bool = true
+
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var keyboardResponder: KeyboardResponder
@@ -36,6 +33,7 @@ struct NewAddInfoView: View {
     @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var apiCalls: ApiCallViewModel
     @EnvironmentObject var languageSettings: LanguageSettings
+    @FocusState private var isFocused: Bool
     
     @State private var cancellables = Set<AnyCancellable>()
     
@@ -63,7 +61,6 @@ struct NewAddInfoView: View {
                                                             removal: .opacity))
                             }
                             Spacer()
-                            
 //#if DEBUG
 //                            Text("Upsert Successful: \(pineconeManager.upsertSuccessful ? "Yes" : "No")")
 //                                .foregroundColor(pineconeManager.upsertSuccessful ? .green : .red)
@@ -73,7 +70,6 @@ struct NewAddInfoView: View {
 //                                }
 //#endif
                         }
-//                        .padding(.horizontal, Constants.standardCardPadding)
                         .font(.callout)
                         .padding(.top, 12)
                         .padding(.bottom, 8)
@@ -89,17 +85,25 @@ struct NewAddInfoView: View {
 //                                    view.frame(maxWidth: idealWidth(for: geometry.size.width))
 //                                }
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                .shadow(color: isFocused ? Color.blue.opacity(0.8) : Color.blue.opacity(0.5),
+                                        radius: isFocused ? 1 : 4,
+                                        x: isFocused ? 6 : 4,
+                                        y: isFocused ? 6 : 4) // Enhanced shadow on focus
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 10.0)
-                                        .stroke(lineWidth: 1)
-                                        .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                        .foregroundColor(Color.gray)
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(isFocused ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
                                 )
+                                .onTapGesture {
+                                    isFocused = true
+                                }
+                                .focused($isFocused)
                                 .padding(.bottom)
+                                .onChange(of: newInfo) { _, newValue in
+                                    isTextFieldEmpty = newValue.count < 8
+                                }
                         }
                         
-                        // Photo Picker Button
+                        // photo Picker Button
                         Button(action: {
                             photoPicker.presentPicker()
                         }) {
@@ -160,12 +164,13 @@ struct NewAddInfoView: View {
                         .padding()
                         .background(colorScheme == .light ? Color.cardBackground : Color.black)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                        .shadow(color: photoPicker.selectedImage == nil ? Color.blue.opacity(0.3) : Color.blue.opacity(0.5),
+                                radius: photoPicker.selectedImage == nil ? 2 : 4,
+                                x: photoPicker.selectedImage == nil ? 3 : 4,
+                                y: photoPicker.selectedImage == nil ? 3 : 4) // Enhanced shadow on focus
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(Color.gray)
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isFocused ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
                         )
                         .padding(.bottom)
                         ZStack {
@@ -234,15 +239,6 @@ struct NewAddInfoView: View {
                         }
                     }
                 }
-                .onChange(of: shake) { _, newValue in
-                    if newValue {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            withAnimation(.easeInOut) {
-                                shake = false
-                            }
-                        }
-                    }
-                }
                 .onChange(of: languageSettings.selectedLanguage) {
                     withAnimation {
                         showLang = true
@@ -270,14 +266,14 @@ struct NewAddInfoView: View {
                             apiCallInProgress = false
                             showSuccess = true
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+                        pineconeManager.refreshNamespacesIDs()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
                             saveButtonIsVisible = true
                             showSuccess = false
                             isLoading = false
-                            
+                            hapticGenerator.notificationOccurred(.success)
                         }
                     }
-                    
                 }
                 .alert(isPresented: $showNoInternet) {
                     Alert(
@@ -303,41 +299,13 @@ struct NewAddInfoView: View {
 
 extension NewAddInfoView {
     private var SaveButton: some View {
-        
-        Button(action: addNewInfoAction) {
-            HStack(spacing: 12) {
-                Image(systemName: "cloud")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 24)
-                    .foregroundColor(.blue)
-                Text("Save")
-                    .font(.system(size: 18, weight: .bold))
-                    .fontDesign(.rounded)
-                    .foregroundColor(.blue)
-                    .accessibility(label: Text("Securely save this information to the cloud"))
-                    .accessibility(hint: Text("This will store your data securely."))
-            }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .frame(height: Constants.buttonHeight)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(
-                               LinearGradient(
-                                   gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
-                                   startPoint: .top,
-                                   endPoint: .bottom
-                               )
-                           )
-            )
-        }
-       
-        .modifier(ShakeEffect(animatableData: shakeOffset))
-        .animation(.easeInOut, value: shake)
+
+        CoolButton(title: "Save", systemImage: "cloud.circle.fill", action: addNewInfoAction)
         .padding(.top, 12)
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
+        .opacity(isTextFieldEmpty ? 0.5 : 1.0)
+        .disabled(isTextFieldEmpty)
     }
     
     
@@ -352,11 +320,8 @@ extension NewAddInfoView {
     }
     
     private func addNewInfoAction() {
-        if shake || isLoading { return }
-        if newInfo.count < 5 {
-            withAnimation(.easeInOut) { shake = true }
-            return
-        }
+
+        if isLoading { return }
         isLoading = true
         hideKeyboard()
         self.saveButtonIsVisible = false
@@ -403,7 +368,6 @@ extension NewAddInfoView {
     }
     
     private func handleUpsertSuccess(uniqueID: String) {
-        hapticGenerator.notificationOccurred(.success)
         debugLog("handleUpsertSuccess Called")
         
         if let image = photoPicker.selectedImage {
@@ -419,6 +383,7 @@ extension NewAddInfoView {
         }
         
         cancellables.removeAll()
+
     }
     
     private func handleError(_ error: Error) {

@@ -74,7 +74,7 @@ struct FaceIDView: View {
             }
         }
         .statusBar(hidden: true)
-        .sheet(isPresented: $showPasswordAuth) {
+        .fullScreenCover(isPresented: $showPasswordAuth) {
             UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
                 .environmentObject(keyboardResponder)
         }
@@ -246,8 +246,6 @@ struct UsernamePasswordLoginView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var alertPasswordMessage = ""
     @State private var showPasswordError = false
-    @State private var shake: Bool = false
-    @State private var shakeOffset: CGFloat = 0
     
     @FocusState private var isUsernameFieldFocused: Bool
     @FocusState private var isPasswordFieldFocused: Bool
@@ -275,33 +273,35 @@ struct UsernamePasswordLoginView: View {
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                     .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                 
-                Button(action: {
-                    if shake { return }
-                    
-                    if password.isEmpty {
-                        withAnimation { shake = true }
-                        return
-                    }
+                CoolButton(title: "Login", systemImage: "door.sliding.right.hand.open") {
+                    if password.isEmpty { return }
                     authenticateWithPassword()
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.customTiel)
-                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                            .frame(height: Constants.buttonHeight)
-                        
-                        Text("Login").font(.title2).bold()
-                            .foregroundColor(Color.buttonText)
-                            .accessibilityLabel("Login")
-                    }
-                    .contentShape(Rectangle())
                 }
+//                Button(action: {
+//                    if password.isEmpty { return }
+//                    authenticateWithPassword()
+//                }) {
+//                    ZStack {
+//                        RoundedRectangle(cornerRadius: 10)
+//                            .fill(Color.customTiel)
+//                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+//                            .frame(height: Constants.buttonHeight)
+//                        
+//                        Text("Login").font(.title2).bold()
+//                            .foregroundColor(Color.buttonText)
+//                            .accessibilityLabel("Login")
+//                    }
+//                    .contentShape(Rectangle())
+//                }
                 .frame(maxWidth: .infinity)
                 .padding(.top, 12)
                 .padding(.horizontal)
                 .animation(.easeInOut, value: keyboardResponder.currentHeight)
                 .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
-                .modifier(ShakeEffect(animatableData: shakeOffset))
+                .opacity(password.isEmpty ? 0.5 : 1.0)
+                .disabled(password.isEmpty)
+                .accessibility(label: Text("Login"))
+                .accessibility(hint: Text("Login to MyndVault app with the provided username and password."))
                 Spacer()
                 
             }// -VStack
@@ -325,20 +325,6 @@ struct UsernamePasswordLoginView: View {
                 message: Text(""),
                 dismissButton: .cancel(Text("OK"), action: { showPasswordAuth = true })
             )
-        }
-        .onChange(of: shake) { _, newValue in
-            if newValue {
-                withAnimation(.easeInOut(duration: 0.3)) { // Start shake animation
-                    shakeOffset = 1
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { // Matches animation duration
-                    shake = false // Reset shake toggle
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        shakeOffset = 0 // Reset shake offset
-                    }
-                }
-            }
         }
         
     }

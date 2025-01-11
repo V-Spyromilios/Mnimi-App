@@ -19,7 +19,6 @@
 		E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */ = {isa = PBXBuildFile; fileRef = E82F454B2BC2A6D100945312 /* OpenAIKey.plist */; };
 		E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */; };
 		E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45552BC2A72100945312 /* OpenAIManager.swift */; };
-		E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45562BC2A72100945312 /* PineconeManager.swift */; };
 		E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */; };
 		E82F456D2BC2A77E00945312 /* ApiConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45602BC2A77E00945312 /* ApiConfiguration.swift */; };
 		E82F456E2BC2A77E00945312 /* Codables.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45612BC2A77E00945312 /* Codables.swift */; };
@@ -86,6 +85,8 @@
 		E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */; };
 		E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */; };
 		E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */; };
+		E8E4A68C2D2F22F8002A122B /* CoolButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E4A68B2D2F22F8002A122B /* CoolButton.swift */; };
+		E8E4A68E2D32CFD3002A122B /* AccountDeletedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E4A68D2D32CFD3002A122B /* AccountDeletedView.swift */; };
 		E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */; };
 		E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* VaultView.swift */; };
 		E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */; };
@@ -121,7 +122,6 @@
 		E82F454B2BC2A6D100945312 /* OpenAIKey.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = OpenAIKey.plist; sourceTree = "<group>"; };
 		E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitViewModel.swift; sourceTree = "<group>"; };
 		E82F45552BC2A72100945312 /* OpenAIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenAIManager.swift; sourceTree = "<group>"; };
-		E82F45562BC2A72100945312 /* PineconeManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PineconeManager.swift; sourceTree = "<group>"; };
 		E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognizerManager.swift; sourceTree = "<group>"; };
 		E82F45602BC2A77E00945312 /* ApiConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiConfiguration.swift; sourceTree = "<group>"; };
 		E82F45612BC2A77E00945312 /* Codables.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Codables.swift; sourceTree = "<group>"; };
@@ -190,6 +190,8 @@
 		E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionView.swift; sourceTree = "<group>"; };
 		E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAddInfoView.swift; sourceTree = "<group>"; };
 		E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManager.swift; sourceTree = "<group>"; };
+		E8E4A68B2D2F22F8002A122B /* CoolButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolButton.swift; sourceTree = "<group>"; };
+		E8E4A68D2D32CFD3002A122B /* AccountDeletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletedView.swift; sourceTree = "<group>"; };
 		E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditInfoView.swift; sourceTree = "<group>"; };
 		E8FA7F012BC5BC320012EBF6 /* VaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
@@ -227,7 +229,6 @@
 			children = (
 				E82F45802BC2A80C00945312 /* NetworkViewModel.swift */,
 				E82F45552BC2A72100945312 /* OpenAIManager.swift */,
-				E82F45562BC2A72100945312 /* PineconeManager.swift */,
 				E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */,
 				E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */,
 			);
@@ -278,6 +279,8 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8E4A68D2D32CFD3002A122B /* AccountDeletedView.swift */,
+				E8E4A68B2D2F22F8002A122B /* CoolButton.swift */,
 				E8FE18EF2D156CF900CA5ECD /* ShareSheet.swift */,
 				E8B4C5772CDD69CA00813AC0 /* ImageView.swift */,
 				E878FA8C2CD3A87800CEA8EA /* OpenaiActor.swift */,
@@ -542,6 +545,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E87605B92C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift in Sources */,
+				E8E4A68C2D2F22F8002A122B /* CoolButton.swift in Sources */,
 				E878FA8D2CD3A87800CEA8EA /* OpenaiActor.swift in Sources */,
 				E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */,
 				E82F456E2BC2A77E00945312 /* Codables.swift in Sources */,
@@ -573,9 +577,9 @@
 				E817A4292C54F8DB00A0172A /* ApiCallViewModel.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
 				E8002B512C4C442400FD814D /* Test.swift in Sources */,
+				E8E4A68E2D32CFD3002A122B /* AccountDeletedView.swift in Sources */,
 				E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */,
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,
-				E82F455E2BC2A72100945312 /* PineconeManager.swift in Sources */,
 				E81C6ECB2C724DAD000DC3C7 /* CustomPayWall.swift in Sources */,
 				E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */,
 				E817A4272C54F7E300A0172A /* ApiCallsView.swift in Sources */,

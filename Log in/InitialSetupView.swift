@@ -22,7 +22,6 @@ struct InitialSetupView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var setupComplete = false
-    @State private var shake = false
     @State private var isEditingUsername: Bool = false
     @State private var isEditingPassword: Bool = false
     @State private var isEditingPasswordRepait: Bool = false
@@ -32,15 +31,12 @@ struct InitialSetupView: View {
     @FocusState private var isUsernameFieldFocused: Bool
     @FocusState private var isPasswordFieldFocused: Bool
     @FocusState private var isRepairPasswordFieldFocused: Bool
-    @State private var shakeOffset: CGFloat = 0
-    
     
     var body: some View {
         
         GeometryReader { geometry in
             
             ZStack {
-                
                 LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -55,7 +51,6 @@ struct InitialSetupView: View {
                         TypingTextView(fullText: "Please provide Username\nand Password to be used if FaceID is not available.", isTitle: false)
                             .shadow(radius: 1)
                             .frame(height: 60)
-                        
                         
                         FloatingLabelTextField(text: $username, title: "Username", isSecure: false, onSubmit: {
                             isPasswordFieldFocused = true
@@ -74,29 +69,13 @@ struct InitialSetupView: View {
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
                         
-                        Button(action: {
-                            completeSetup()
-                        }
-                        ) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: Constants.rectCornerRad)
-                                    .fill(Color.customLightBlue)
-                                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                    .frame(height: Constants.buttonHeight)
-                                
-                                Text("Save").font(.title2).bold()
-                                    .foregroundColor(Color.buttonText)
-                                    .accessibilityLabel("save")
-                            }
-                            .contentShape(Rectangle())
-                            
-                        }
-                        .frame(maxWidth: idealWidth(for: geometry.size.width))
-                        .modifier(ShakeEffect(animatableData: shakeOffset))
-                        .padding(.top, 12)
-                        .padding(.horizontal)
-                        .padding(.horizontal)
-                        .animation(.easeInOut, value: keyboardResponder.currentHeight)
+                        CoolButton(title: "Save", systemImage: "lock", action: completeSetup)
+                            .frame(maxWidth: idealWidth(for: geometry.size.width))
+                            .padding(.top, 12)
+                            .padding(.horizontal)
+                            .padding(.horizontal)
+                            .animation(.easeInOut, value: keyboardResponder.currentHeight)
+                            .disabled(!username.isEmpty && !password.isEmpty && password == confirmPassword)
                         Spacer()
                     }.frame(maxWidth: .infinity)
                         .toolbar {
@@ -111,22 +90,13 @@ struct InitialSetupView: View {
                             }
                         }
                 }
-                
             }
             
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Setup Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
-            .onChange(of: shake) { _, newValue in
-                if newValue {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        shake = false
-                    }
-                }
-            }
             .fullScreenCover(isPresented: $setupComplete) {
                 FaceIDView()
-                //                        .environmentObject(<#T##object: ObservableObject##ObservableObject#>)
                     .environmentObject(openAiManager)
                     .environmentObject(pinecone)
                     .environmentObject(keyboardResponder)
@@ -134,18 +104,14 @@ struct InitialSetupView: View {
                     .environmentObject(speechManager)
             }
         }
-        
-        
     }
     
     private func completeSetup() {
         
-        if shake { return }
-        
         guard !username.isEmpty && !password.isEmpty && password == confirmPassword else {
-            withAnimation { shake = true }
+            
             alertMessage = "Please make sure all fields are filled and passwords match."
-            showAlert = true
+            withAnimation { showAlert = true }
             return
         }
         
@@ -159,5 +125,20 @@ struct InitialSetupView: View {
 
 
 #Preview {
+    let ckViewModel = CloudKitViewModel.shared
+    let pineconeActor = PineconeActor(cloudKitViewModel: ckViewModel)
+    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: ckViewModel)
+
+    let openAIActor = OpenAIActor()
+    let openAiManager = OpenAIViewModel(openAIActor: openAIActor)
+
     InitialSetupView()
+        .environmentObject(CloudKitViewModel())
+        .environmentObject(LanguageSettings.shared)
+        .environmentObject(LanguageSettings.shared)
+        .environmentObject(SpeechRecognizerManager())
+        .environmentObject(openAiManager)
+        .environmentObject(pineconeViewModel)
+        .environmentObject(KeyboardResponder())
+        .environmentObject(AuthenticationManager())
 }
