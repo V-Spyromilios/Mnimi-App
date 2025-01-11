@@ -527,19 +527,65 @@ actor CloudKitViewModel: ObservableObject, Sendable {
     
     
     // Function to delete a record from iCloud using CloudKit's modifyRecords method NOT FOR IMAGES
-    func deleteRecordFromICloud(recordID: CKRecord.ID, from database: CKDatabase) async throws {
+//    func deleteRecordFromICloud(recordID: CKRecord.ID, from database: CKDatabase) async {
+//        let maxAttempts = 3
+//        var attempts = 0
+//        var lastError: Error?
+//
+//        while attempts < maxAttempts {
+//            do {
+//                // Call modifyRecords with empty saving array and the record ID in deleting array
+//                let result = try await database.modifyRecords(
+//                    saving: [], // No records to save, just deleting
+//                    deleting: [recordID], // Record ID to delete
+//                    savePolicy: .ifServerRecordUnchanged, // Save policy; does not affect delete
+//                    atomically: true // Operation fails entirely if any error occurs
+//                )
+//                
+//                // Check the deletion result for the specific record ID
+//                if let deleteResult = result.deleteResults[recordID] {
+//                    switch deleteResult {
+//                    case .success:
+//                        debugLog("Successfully deleted record with ID: \(recordID.recordName)")
+//                        return // Deletion succeeded, exit function
+//                    case .failure(let error):
+//                        debugLog("Failed to delete record: \(error.localizedDescription)")
+//                        throw error // Throw the specific error to handle it further up
+//                    }
+//                } else {
+//                    debugLog("Record ID \(recordID.recordName) not found in delete results.")
+//                }
+//                
+//            } catch {
+//                // Handle any errors from the modifyRecords call
+//                debugLog("Attempt \(attempts + 1) failed to delete record from iCloud: \(error.localizedDescription)")
+//                lastError = error
+//                attempts += 1
+//                if attempts < maxAttempts {
+//                    // Optional delay before retrying
+//                    try? await Task.sleep(nanoseconds: 300_000_000) // 0.5 seconds
+//                } else {
+//                    // Max attempts reached, rethrow the last error
+//                    throw lastError!
+//                }
+//            }
+//        }
+//        // If all attempts fail, throw the last encountered error
+//        throw lastError ?? NSError(domain: "UnknownError", code: -1, userInfo: nil)
+//    }
+    
+    func deleteRecordFromICloud(recordID: CKRecord.ID, from database: CKDatabase) async {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
 
         while attempts < maxAttempts {
             do {
-                // Call modifyRecords with empty saving array and the record ID in deleting array
                 let result = try await database.modifyRecords(
                     saving: [], // No records to save, just deleting
-                    deleting: [recordID], // Record ID to delete
-                    savePolicy: .ifServerRecordUnchanged, // Save policy; does not affect delete
-                    atomically: true // Operation fails entirely if any error occurs
+                    deleting: [recordID],
+                    savePolicy: .ifServerRecordUnchanged,
+                    atomically: true
                 )
                 
                 // Check the deletion result for the specific record ID
@@ -547,34 +593,42 @@ actor CloudKitViewModel: ObservableObject, Sendable {
                     switch deleteResult {
                     case .success:
                         debugLog("Successfully deleted record with ID: \(recordID.recordName)")
-                        return // Deletion succeeded, exit function
+                        return
                     case .failure(let error):
                         debugLog("Failed to delete record: \(error.localizedDescription)")
-                        throw error // Throw the specific error to handle it further up
+                        lastError = error
                     }
                 } else {
                     debugLog("Record ID \(recordID.recordName) not found in delete results.")
+                    lastError = NSError(domain: "DeleteRecord", code: -1, userInfo: [
+                        NSLocalizedDescriptionKey: "Record not found in modifyRecords results."
+                    ])
                 }
                 
             } catch {
-                // Handle any errors from the modifyRecords call
-                debugLog("Attempt \(attempts + 1) failed to delete record from iCloud: \(error.localizedDescription)")
+                // If modifyRecords itself threw, record it and retry
+                debugLog("Attempt \(attempts + 1) failed: \(error.localizedDescription)")
                 lastError = error
-                attempts += 1
-                if attempts < maxAttempts {
-                    // Optional delay before retrying
-                    try await Task.sleep(nanoseconds: 300_000_000) // 0.5 seconds
-                } else {
-                    // Max attempts reached, rethrow the last error
-                    throw lastError!
-                }
+            }
+            
+            attempts += 1
+            if attempts < maxAttempts {
+                // Optional delay before retrying
+                try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
             }
         }
-        // If all attempts fail, throw the last encountered error
-        throw lastError ?? NSError(domain: "UnknownError", code: -1, userInfo: nil)
+        
+        // If we get here, all attempts failed. Assign the final error to a property, etc.
+        await MainActor.run {
+            if let ckError = lastError as? CKError {
+                // If you have a custom CKErrorDesc, e.g.:
+                self.CKErrorDesc = ckError.customErrorDescription
+            } else {
+                self.CKErrorDesc = lastError?.localizedDescription
+                    ?? "Unknown error while deleting record."
+            }
+        }
     }
-    
-    
     // Function to delete records with specified IDs (ALL IMAGES)
     func deleteRecords(withIDs recordIDs: [CKRecord.ID], from database: CKDatabase) async throws {
         guard !recordIDs.isEmpty else { return }
@@ -610,7 +664,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         }
     }
     
-    func deleteAllImageItems() async throws {
+    func deleteAllImageItems() async {
         let container = CKContainer.default()
         let privateDatabase = container.privateCloudDatabase
         let query = CKQuery(recordType: "ImageItem", predicate: NSPredicate(value: true))
@@ -632,7 +686,13 @@ actor CloudKitViewModel: ObservableObject, Sendable {
             
         } catch {
             debugLog("Error deleting items from iCloud: \(error.localizedDescription)")
-            throw error
+            await MainActor.run {
+                if let ckError = error as? CKError {
+                    self.CKErrorDesc = ckError.customErrorDescription
+                } else {
+                    self.CKErrorDesc = error.localizedDescription
+                }
+            }
         }
     }
     

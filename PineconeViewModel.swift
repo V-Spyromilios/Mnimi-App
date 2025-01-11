@@ -53,19 +53,15 @@ extension PineconeError: Hashable {
 class PineconeViewModel: ObservableObject {
     
     @Published var pineconeError: PineconeError?
-    @Published var indexInfo: String?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
     @Published var vectorDeleted: Bool = false
     @Published var accountDeleted: Bool = false
     @Published var pineconeIDResponse: PineconeIDResponse?
     @Published var pineconeIDs: [String] = []
-    @Published var pineconeFetchedResponseFromID: PineconeFetchResponseFromID?
     @Published var pineconeFetchedVectors: [Vector] = []
-    @Published var refreshAfterEditing: Bool = false
-    @Published var isDataSorted: Bool = false
     @Published var upsertSuccessful: Bool = false
     
-    private let pineconeActor: PineconeActor
+    let pineconeActor: PineconeActor
     private let CKviewModel: CloudKitViewModel
     var cancellables = Set<AnyCancellable>()
     
@@ -86,11 +82,6 @@ class PineconeViewModel: ObservableObject {
         self.cancellables.insert(cancellable)
     }
     
-    func resetAfterSuccessfulUpserting() {
-        self.isDataSorted = false
-        self.refreshAfterEditing = true
-    }
-    
     func clearManager() {
         self.pineconeError = nil
         self.pineconeQueryResponse = nil
@@ -98,63 +89,30 @@ class PineconeViewModel: ObservableObject {
     }
     
     func deleteVector(withId id: String) {
+        print("deleteVector called")
         self.pineconeFetchedVectors.removeAll { $0.id == id }
     }
-    
-    // MARK: - Methods to Update Properties
     
     func updateUpsertSuccessful(_ success: Bool) {
         self.upsertSuccessful = success
     }
     
-//    func updateVectorDeleted(_ deleted: Bool) {
-//        self.vectorDeleted = deleted
-//    }
-//    
-//    func updatePineconeIDResponse(_ response: PineconeIDResponse) {
-//        self.pineconeIDResponse = response
-//    }
-//    
-//    func appendPineconeIDs(_ ids: [String]) {
-//        self.pineconeIDs.append(contentsOf: ids)
-//    }
-//    
-//    func updatePineconeFetchedVectors(_ vectors: [Vector]) {
-//        self.pineconeFetchedVectors = vectors
-//    }
-//    
-//    func setIsDataSorted(_ sorted: Bool) {
-//        self.isDataSorted = sorted
-//    }
-//    
-//    func setRefreshAfterEditing(_ refresh: Bool) {
-//        self.refreshAfterEditing = refresh
-//    }
-//    
-//    func updateAccountDeleted(_ deleted: Bool) {
-//        self.accountDeleted = deleted
-//    }
-//    
-//    func updatePineconeQueryResponse(_ response: PineconeQueryResponse) {
-//        self.pineconeQueryResponse = response
-//    }
-//    
-//    func removeAllPinconeIDs() {
-//        self.pineconeIDs.removeAll()
-//    }
-    
+
     //MARK: - Methods for the Views
     func refreshNamespacesIDs() {
         Task {
             do {
                 let vectors = try await pineconeActor.refreshNamespacesIDs()
-                self.pineconeFetchedVectors = vectors
+                DispatchQueue.main.async {
+                    self.pineconeFetchedVectors = vectors
+                }
             } catch {
                 self.pineconeError = .refreshFailed(error)
             }
         }
     }
     
+    @MainActor
     func upsertData(id: String, vector: [Float], metadata: [String: Any]) {
 #if DEBUG
         print("upsertData called")
@@ -170,34 +128,37 @@ class PineconeViewModel: ObservableObject {
                 print("upsertSuccess: \(self.upsertSuccessful)")
 #endif
             } catch {
-                self.pineconeError = .upsertFailed(error)
+                await MainActor.run {
+                    self.pineconeError = .upsertFailed(error)
+                }
             }
         }
     }
     
-    func deleteVectorFromPinecone(id: String) {
-        Task {
+    func deleteVectorFromPinecone(id: String) async {
+        debugLog("deleteVectorFromPinecone CALLED") //NO task here the EditInfoView.deleteInfo has spawn Task!
             do {
                 try await pineconeActor.deleteVectorFromPinecone(id: id)
-                self.vectorDeleted = true
+                await MainActor.run {
+                    self.vectorDeleted = true
+                }
             } catch {
                 self.pineconeError = .deleteFailed(error)
             }
-        }
+        
     }
     
-    func deleteAllVectorsInNamespace() {
-        Task {
+    func deleteAllVectorsInNamespace() async {
+
             do {
                 try await pineconeActor.deleteAllVectorsInNamespace()
                 self.accountDeleted = true
-                self.refreshAfterEditing = true
                 self.pineconeFetchedVectors = []
                 self.pineconeIDs = []
             } catch {
                 self.pineconeError = .deleteFailed(error)
             }
-        }
+        
     }
     
     func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) {

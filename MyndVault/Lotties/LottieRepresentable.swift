@@ -27,7 +27,7 @@ struct LottieRepresentable: UIViewRepresentable {
         self.contentMode = contentMode
     }
     
-   
+    @MainActor
     func makeUIView(context: Context) -> UIView {
 
         let view = UIView(frame: .zero)
@@ -51,6 +51,7 @@ struct LottieRepresentable: UIViewRepresentable {
         return view
     }
     
+    @MainActor
     func updateUIView(_ uiView: UIView, context: Context) {
            if isPlaying {
                context.coordinator.playAnimation()
@@ -65,7 +66,8 @@ struct LottieRepresentable: UIViewRepresentable {
               self.parent = parent
           }
 
-        @MainActor func playAnimation() {
+        @MainActor
+        func playAnimation() {
               animationView?.play { [weak self] _ in
                   self?.parent.isPlaying = false
               }
@@ -98,6 +100,7 @@ struct LottieRepresentableNavigation: UIViewRepresentable {
         self.contentMode = contentMode
     }
 
+    @MainActor
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: .zero)
         animationView.animation = LottieAnimation.named(filename)
@@ -118,6 +121,7 @@ struct LottieRepresentableNavigation: UIViewRepresentable {
         return view
     }
 
+    @MainActor
     func updateUIView(_ uiView: UIView, context: Context) {
         if isPlaying && !animationView.isAnimationPlaying {
             animationView.play { _ in

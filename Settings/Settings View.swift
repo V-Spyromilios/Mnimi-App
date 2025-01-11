@@ -25,6 +25,7 @@ struct SettingsView: View {
     @State private var showError: Bool = false
     @State private var isKeychainDeleted: Bool = false
     @State private var showDeleteAll: Bool = false
+    @State private var showAccountDeleted: Bool = false
     enum AccountButton {
         case idle, hidden
     }
@@ -239,6 +240,9 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea()
             }
+            .fullScreenCover(isPresented: $showAccountDeleted) {
+                AccountDeletedView()
+            }
             
             .navigationBarTitleView {
                 HStack {
@@ -274,6 +278,18 @@ struct SettingsView: View {
                     let haptic = UINotificationFeedbackGenerator()
                     haptic.notificationOccurred(.warning)
                 }
+            }
+        }
+        .onChange(of: pineconeManager.pineconeError) { _, newValue in
+            if let pineconeError = newValue {
+                self.errorString = pineconeError.localizedDescription
+                self.showError = true
+            }
+        }
+        .onChange(of: cloudKit.CKErrorDesc) { _, newValue in
+            if !newValue.isEmpty {
+                self.errorString = newValue
+                self.showError = true
             }
         }
         .statusBar(hidden: true)
@@ -319,46 +335,15 @@ struct SettingsView: View {
     //MARK: DeleteAll
     private func deleteAll() {
         Task {
-            do {
-                deleteNamespaceFromICloud()
-                pineconeManager.deleteAllVectorsInNamespace()
-                try await cloudKit.deleteAllImageItems()
-                removeUserDefaults()
-                deleteKeyChain()
-                checkPineconeError()
-                
-            } catch let error as AppCKError {
-                
-                await MainActor.run {
-                    withAnimation {
-                        self.errorString = error.errorDescription
-                        self.showError = true
-                    }
-                }
-            } catch let error as AppNetworkError {
-                
-                await MainActor.run {
-                    withAnimation {
-                        self.errorString = error.errorDescription
-                        self.showError = true
-                    }
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorString = error.localizedDescription
-                    self.showError = true
-                }
-            }
+            await deleteNamespaceFromICloud()
+            await pineconeManager.deleteAllVectorsInNamespace()
+            await cloudKit.deleteAllImageItems()
+            removeUserDefaults()
+            deleteKeyChain()
+            deleteButton = .idle
         }
         deleteButton = .idle
-    }
-
-    private func  checkPineconeError() {
-        if let error = pineconeManager.pineconeError {
-            errorString = error.localizedDescription
-            showError = true
-            
-        }
+        showAccountDeleted = true
     }
     
     private func checkOpeningSubscriptions() {
@@ -381,14 +366,6 @@ struct SettingsView: View {
     
     
     //TODO: Proper error handling!
-    //    private func deleteKeyChain() {
-    //        if let username = KeychainManager.standard.readUsername(),
-    //           KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username) {
-    //            print("Successfully deleted keychain for username: \(username)")
-    //        } else {
-    //            print("deleteKeyChain::Failed to delete keychain.")
-    //        }
-    //    }
     
     func deleteKeyChain() {
         
@@ -418,20 +395,25 @@ struct SettingsView: View {
         }
     }
     
-    private func deleteNamespaceFromICloud() {
+    private func deleteNamespaceFromICloud() async {
 
-        Task {
-            do {
+//            do {
                 let container = CKContainer.default()
                 let privateDatabase = container.privateCloudDatabase
-                let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete")
+                guard let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete") else {
+                    self.errorString = "Could not retrieve recordID from keychain."
+                    self.showError.toggle()
+                    return
+                }
                 debugLog("Before Deleting: \(String(describing: recordIDDelete))")
                 
-                try await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete!, from: privateDatabase)
-            } catch {
-                debugLog("Error deleting record: \(error.localizedDescription)")
-            }
-        }
+                await cloudKit.deleteRecordFromICloud(recordID: recordIDDelete, from: privateDatabase)
+//            } catch {
+//                debugLog("Error deleting record: \(error.localizedDescription)")
+//                self.errorString = "Unable to Delete record from iCloud."
+//                self.showError = true
+//            }
+        
     }
     ///Delete all vectors in a Namespace from Pinecone also deletes the namespace itself. Here we delete the namespace from CloudKit
     //    private func deleteNamespace() async {

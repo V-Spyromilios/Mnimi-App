@@ -14,12 +14,13 @@ struct AboutUsView: View {
     
     var body: some View {
         ScrollView {
-            HStack {
-                TypingTextView(fullText: "Hello World!", typingSpeed: 0.1, isTitle: true)
-                    .padding(.leading)
-            }.padding(.top)
             
-            LottieRepresentable(filename: "ManWithLaptop").frame(height: 180)
+                TypingTextView(fullText: "Hello World !", typingSpeed: 0.1, isTitle: true)
+                    .padding(.top, 30)
+           
+            
+            LottieRepresentable(filename: "ManWithLaptop", loopMode: .playOnce)
+                .frame(height: 140)
             
             VStack {
                 Text(Constants.welcomeText)
@@ -30,8 +31,8 @@ struct AboutUsView: View {
                     .foregroundStyle(.primary)
                     .dynamicTypeSize(.medium ... .xxLarge)
                 
-                LinkedInButton(url: linkedInURL)
-                builtWith().padding(.top)
+                CoolButton(title: "Connect with me on LinkedIn", systemImage: "link.circle.fill", action: openLinkedInProfile)
+                builtWith().padding(.top, 8)
             }
             .navigationBarBackButtonHidden(true)
             .toolbar {
@@ -53,69 +54,37 @@ struct AboutUsView: View {
                 .ignoresSafeArea()
         }
     }
+    
+    
+    private func builtWith() -> some View {
+        
+        Text("Natively built with SwiftUI")
+            .font(.footnote)
+            .fontWeight(.semibold)
+            .fontDesign(.rounded)
+            .foregroundStyle(.secondary)
+            .dynamicTypeSize(.medium ... .xxLarge)
+//            .offset(y: 7)
+    }
+    
+    @MainActor
+    private func SwiftLogo() -> some View {
+        
+        HStack {
+            LottieRepresentable(filename: "Swift", loopMode: .playOnce, speed: 0.3)
+                .frame(width: 70, height: 70)
+        }
+    }
+    
+    private func openLinkedInProfile() {
+        if UIApplication.shared.canOpenURL(linkedInURL) {
+            UIApplication.shared.open(linkedInURL, options: [:], completionHandler: nil)
+        }
+    }
 }
 
 #Preview {
     NavigationView {
         AboutUsView()
-    }
-}
-
-private func builtWith() -> some View {
-    
-    Text("Natively built with SwiftUI")
-        .font(.footnote)
-        .fontWeight(.semibold)
-        .fontDesign(.rounded)
-        .foregroundStyle(.secondary)
-        .dynamicTypeSize(.medium ... .xxLarge)
-        .offset(y: 7)
-}
-
-@MainActor
-private func SwiftLogo() -> some View {
-    
-    HStack {
-        LottieRepresentable(filename: "Swift", loopMode: .playOnce, speed: 0.3)
-            .frame(width: 70, height: 70)
-    }
-}
-
-struct LinkedInButton: View {
-    var url: URL
-    
-    var body: some View {
-        Button(action: {
-            openLinkedInProfile()
-        }) {
-            HStack(spacing: 8) {
-                Image(systemName: "link.circle.fill")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(.blue)
-                Text("Connect with me on LinkedIn")
-                    .font(.system(size: 16, weight: .semibold))
-                    .fontDesign(.rounded)
-                    .foregroundColor(.blue)
-                    .accessibilityLabel("connect with me on LinkedIn")
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(
-                               LinearGradient(
-                                   gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
-                                   startPoint: .top,
-                                   endPoint: .bottom
-                               )
-                           )
-            )
-        }
-    }
-    
-    private func openLinkedInProfile() {
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
     }
 }

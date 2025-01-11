@@ -24,16 +24,15 @@ struct QuestionView: View {
     @State private var goButtonIsVisible: Bool = true
     @State private var selectedImageIndex: Int? = nil
     @State private var showNoInternet = false
-    
     @State private var showFullImage: Bool = false
     @State private var showSettings: Bool = false
     @State private var fetchedImages: [UIImage] = []
     @State private var isLoading: Bool = false
-    @State private var shake: Bool = false
     @State private var showLang: Bool = false
     @State private var showError: Bool = false
     @State private var clearButtonIsVisible: Bool = false
-    @State private var shakeOffset: CGFloat = 0.0
+    @State private var isTextFieldEmpty: Bool = true
+    @FocusState private var isFocused: Bool
     
     private var shouldShowGoButton: Bool {
         goButtonIsVisible &&
@@ -57,7 +56,7 @@ struct QuestionView: View {
                 LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .ignoresSafeArea()
-                
+
                 ScrollView {
                     
                     HStack {
@@ -70,7 +69,7 @@ struct QuestionView: View {
                                 .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
                                                         removal: .opacity))
                                 .animation(.easeInOut(duration: 0.5), value: showLang)
-                        }
+                        }//TODO: Add the text should not be empty or smth
                         Spacer()
                     }
                     .font(.callout)
@@ -84,13 +83,27 @@ struct QuestionView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: Constants.textEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                    //                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                    //                        .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 4, y: 4)
+                    ////                        .shadow(color: Color.white.opacity(0.8), radius: 1, x: -4, y: -4)
+                    //                        .overlay(
+                    //                            RoundedRectangle(cornerRadius: 10.0)
+                    //                                .stroke(lineWidth: 1)
+                    //                                .opacity(colorScheme == .light ? 0.3 : 0.7)
+                    //                                .foregroundColor(Color.gray)
+                    //                        )
+                        .shadow(color: isFocused ? Color.blue.opacity(0.8) : Color.blue.opacity(0.5),
+                                radius: isFocused ? 1 : 4,
+                                x: isFocused ? 6 : 4,
+                                y: isFocused ? 6 : 4) // Enhanced shadow on focus
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .stroke(lineWidth: 1)
-                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                .foregroundColor(Color.gray)
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isFocused ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
                         )
+                        .onTapGesture {
+                            isFocused = true
+                        }
+                        .focused($isFocused)
                         .padding(.bottom)
                         .padding(.horizontal, Constants.standardCardPadding)
                         .onAppear {
@@ -102,6 +115,9 @@ struct QuestionView: View {
                                     }
                                 }
                             }
+                        }
+                        .onChange(of: question) { _, newValue in
+                            isTextFieldEmpty = newValue.count < 8
                         }
                     VStack {
                         ZStack {
@@ -214,33 +230,6 @@ struct QuestionView: View {
                 .onChange(of: openAiManager.questionEmbeddingsCompleted) { _, newValue in
                     if newValue {
                         handleQuestionEmbeddingsCompleted()
-                    }
-                }
-                .onChange(of: shake) { _, newValue in
-                    guard newValue else { return } // Ensure animation starts only when shake is true
-                    
-                    // Step 1: Start the animation (Move to the right)
-                    withAnimation(.easeInOut(duration: 0.1)) {
-                        shakeOffset = 10 // Move 10 points to the right
-                    }
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { // After first step
-                        // Step 2: Move to the left
-                        withAnimation(.easeInOut(duration: 0.1)) {
-                            shakeOffset = -10 // Move 10 points to the left
-                        }
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { // After second step
-                            // Step 3: Reset to center
-                            withAnimation(.easeInOut(duration: 0.1)) {
-                                shakeOffset = 0 // Back to the original position
-                            }
-                            
-                            // Step 4: Reset shake toggle after animation completes
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                shake = false // Allow future animations
-                            }
-                        }
                     }
                 }
                 .navigationBarTitleView {
@@ -380,46 +369,47 @@ struct QuestionView: View {
         .padding(.bottom, 12)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
-        .modifier(ShakeEffect(animatableData: shakeOffset))
-//        .animation(.easeInOut, value: shake)
     }
     
     private var GoButton: some View {
-        Button(action: performTask) {
-            
-            HStack(spacing: 12) {
-                Image(systemName: "paperplane")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 24)
-                    .foregroundColor(.blue)
-                Text("Go")
-                    .font(.system(size: 18, weight: .bold))
-                    .fontDesign(.rounded)
-                    .foregroundColor(.blue)
-                    .accessibility(label: Text("Ask Question"))
-                    .accessibility(hint: Text("This will query the database and return a reply"))
-            }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .frame(height: Constants.buttonHeight)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            )
-        }
+//        Button(action: performTask) {
+//            
+//            HStack(spacing: 12) {
+//                Image(systemName: "paperplane")
+//                    .resizable()
+//                    .aspectRatio(contentMode: .fit)
+//                    .frame(height: 24)
+//                    .foregroundColor(.blue)
+//                Text("Go")
+//                    .font(.system(size: 18, weight: .bold))
+//                    .fontDesign(.rounded)
+//                    .foregroundColor(.blue)
+//                    .accessibility(label: Text("Ask Question"))
+//                    .accessibility(hint: Text("This will query the database and return a reply"))
+//            }
+//            .padding()
+//            .frame(maxWidth: .infinity)
+//            .frame(height: Constants.buttonHeight)
+//            .background(
+//                RoundedRectangle(cornerRadius: 10)
+//                    .fill(
+//                        LinearGradient(
+//                            gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
+//                            startPoint: .top,
+//                            endPoint: .bottom
+//                        )
+//                    )
+//            )
+//        }
+        CoolButton(title: "Go", systemImage: "paperplane.circle.fill", action: performTask)
         .padding(.top, 12)
         .padding(.horizontal)
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
-        .modifier(ShakeEffect(animatableData: shakeOffset))
-//        .animation(.easeInOut, value: shake)
+        .opacity(isTextFieldEmpty ? 0.5 : 1.0)
+        .disabled(isTextFieldEmpty)
+        .accessibility(label: Text("Ask Question"))
+        .accessibility(hint: Text("This will query the database and return a reply"))
     }
     
     private func performClearTask() {
@@ -439,10 +429,9 @@ struct QuestionView: View {
     
     private func performTask() {
         
-        guard !shake && !isLoading else { return }
+        guard !isLoading else { return }
         
         if question.count < 8 {
-            shake = true
             return
         }
         withAnimation(.easeOut) {
@@ -504,12 +493,15 @@ struct QuestionView_Previews: PreviewProvider {
         let cloudKit = CloudKitViewModel.shared
         let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
         let openAIActor = OpenAIActor()
-        
+        let languageSettings = LanguageSettings.shared
         let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
         let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-        
+        let networkManager = NetworkManager()
         QuestionView()
             .environmentObject(openAIViewModel)
             .environmentObject(pineconeViewModel)
+            .environmentObject(KeyboardResponder())
+            .environmentObject(languageSettings)
+            .environmentObject(networkManager)
     }
 }

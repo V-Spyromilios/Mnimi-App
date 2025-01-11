@@ -52,5 +52,5 @@ struct InfosViewListCellView: View {
 }
 
 #Preview {
-    InfosViewListCellView(data: Vector(id: "2034-1", metadata: ["description": "Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon, Charlie likes Pokemon,", "timestamp": "2024-04-28T14:28:00Z"]))
+    InfosViewListCellView(data: Vector(id: "2034-1", metadata: ["description": "Charlie likes Pokemon, Charlie likes Pokemon,", "timestamp": "2024-04-28T14:28:00Z"]))
 }

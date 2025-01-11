@@ -26,12 +26,11 @@ struct EditInfoView: View {
     @State private var showSuccess: Bool = false
     @State private var inProgress: Bool = false
     @State private var cancellables = Set<AnyCancellable>()
-    @State private var shake: Bool = false
-    @State private var oldText: String = ""
     @State private var deleteAnimating: Bool = false
     @State private var buttonIsVisible: Bool = true
     @State private var showShareSheet: Bool = false
-    @State private var shakeOffset: CGFloat = 0
+    @State private var isTextFieldEmpty: Bool = false
+    @FocusState private var isFocused: Bool
     
     private var shouldShowLoading: Bool {
         inProgress || showSuccess
@@ -110,7 +109,8 @@ struct EditInfoView: View {
                     title: Text("Delete Info?"),
                     message: Text("Are you sure you want to delete this info?"),
                     primaryButton: .destructive(Text("OK")) {
-                        inProgress = true
+                        withAnimation {
+                            inProgress = true }
                         deleteInfo()
                     },
                     secondaryButton: .cancel {
@@ -158,28 +158,21 @@ struct EditInfoView: View {
     private func onEdit() {
         Task {
             await upsertEditedInfo()
-            apiCalls.incrementApiCallCount()
-            openAiManager.clearManager()
-            pineconeManager.clearManager()
         }
     }
     
     @MainActor
     private func upsertEditedInfo() async {
+
         inProgress = true
-        
         let metadata = toDictionary(desc: self.viewModel.description)
         do {
             try await openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
-            
             if !openAiManager.embeddings.isEmpty {
                 pineconeManager.upsertData(id: self.viewModel.id, vector: openAiManager.embeddings, metadata: metadata)
-                
-                handleUpsertSuccess()
             } else {
-                // Handle the case where embeddings are empty
                 inProgress = false
-                viewModel.occuredErrorDesc = "Embeddings are empty."
+                viewModel.occuredErrorDesc = "Error creating Embeddings."
                 viewModel.activeAlert = .error
             }
         } catch {
@@ -189,24 +182,25 @@ struct EditInfoView: View {
     
     @MainActor
     private func handleUpsertSuccess() {
+
         withAnimation {
-            hapticGenerator.notificationOccurred(.success)
             showSuccess = true
             inProgress = false
-            pineconeManager.resetAfterSuccessfulUpserting()
-            pineconeManager.refreshNamespacesIDs()
-            
-            openAiManager.clearManager()
-            pineconeManager.clearManager()
-            apiCalls.incrementApiCallCount()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+            hapticGenerator.notificationOccurred(.success)
+        }
+        openAiManager.clearManager()
+        pineconeManager.clearManager()
+        apiCalls.incrementApiCallCount()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+            withAnimation {
                 showSuccess = false
                 buttonIsVisible = true
                 presentationMode.wrappedValue.dismiss()
             }
         }
     }
-    
+
     private func handleError(_ error: Error) {
         withAnimation {
             inProgress = false
@@ -215,29 +209,36 @@ struct EditInfoView: View {
         }
     }
     
+    @MainActor
     private func deleteInfo() {
+
         Task {
-            inProgress = true
             let idToDelete = viewModel.id
-            
-            pineconeManager.deleteVectorFromPinecone(id: idToDelete)
-            handleDeletionSuccess(idToDelete: idToDelete)
+            await pineconeManager.deleteVectorFromPinecone(id: idToDelete)
+            if pineconeManager.vectorDeleted {
+                print("Deleted vector \(idToDelete)")
+                await MainActor.run {
+                    pineconeManager.deleteVector(withId: idToDelete)
+                    handleDeletionSuccess(idToDelete: idToDelete)
+                }
+            }
         }
     }
-    
+    @MainActor
     private func handleDeletionSuccess(idToDelete: String) {
-        
-        pineconeManager.deleteVector(withId: idToDelete)
-        pineconeManager.resetAfterSuccessfulUpserting()
-        pineconeManager.refreshNamespacesIDs()
-        showSuccess = true
-        inProgress = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
-            showSuccess = false
+        debugLog("handleDeletionSuccess CALLED")
+        withAnimation {
+            showSuccess = true
             inProgress = false
-            buttonIsVisible = true
         }
-        //        lottieAnimationID = UUID()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+            withAnimation {
+                showSuccess = false
+                buttonIsVisible = true
+                presentationMode.wrappedValue.dismiss()
+            }
+        }
     }
     
     private func newInfo() -> some View {
@@ -255,63 +256,57 @@ struct EditInfoView: View {
                     .multilineTextAlignment(.leading)
                     .frame(height: Constants.textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+//                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: 10.0)
+//                            .stroke(lineWidth: 1)
+//                            .opacity(colorScheme == .light ? 0.3 : 0.7)
+//                            .foregroundColor(Color.gray)
+//                    )
+                    .shadow(color: isFocused ? Color.blue.opacity(0.5) : Color.blue.opacity(0.4),
+                            radius: isFocused ? 3 : 2,
+                            x: isFocused ? 4 : 2,
+                            y: isFocused ? 4 : 2) // Enhanced shadow on focus
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10.0)
-                            .stroke(lineWidth: 1)
-                            .opacity(colorScheme == .light ? 0.3 : 0.7)
-                            .foregroundColor(Color.gray)
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(isFocused ? Color.blue.opacity(0.5) : Color.gray.opacity(0.5), lineWidth: 1)
                     )
+                    .onTapGesture {
+                        isFocused = true
+                    }
+                    .focused($isFocused)
                     .padding(.bottom)
+                    .onChange(of: viewModel.description) { _, newValue in
+                        self.isTextFieldEmpty = newValue.isEmpty
+                    }
+                    .onChange(of: pineconeManager.upsertSuccessful) { _, success in
+                        if success {
+                            DispatchQueue.main.async {
+                                pineconeManager.refreshNamespacesIDs()
+                                handleUpsertSuccess()
+                            }
+                        }
+                    }
                 VStack {
                     if buttonIsVisible {
-                        Button(action:  {
-                            if shake { return }
+                        
+                        CoolButton(title: "Save", systemImage: "cloud") {
+                            if isTextFieldEmpty || inProgress { return }
                             
-                            if viewModel.description.isEmpty || (oldText == viewModel.description) {
-                                withAnimation { shake = true }
-                                return
-                            }
                             withAnimation {
                                 hideKeyboard()
                                 self.viewModel.activeAlert = .editConfirmation
                                 buttonIsVisible.toggle()
                             }
-                        }) {
-                            HStack(spacing: 12) {
-                            Image(systemName: "cloud")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(height: 24)
-                                .foregroundColor(.blue)
-                            Text("Save")
-                                .font(.system(size: 18, weight: .bold))
-                                .fontDesign(.rounded)
-                                .foregroundColor(.blue)
-                                .accessibility(label: Text("Securely save this edited information to the cloud"))
-                                .accessibility(hint: Text("This will store your data securely."))
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: Constants.buttonHeight)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(
-                                           LinearGradient(
-                                               gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
-                                               startPoint: .top,
-                                               endPoint: .bottom
-                                           )
-                                       )
-                        )
                         }
                         .frame(maxWidth: .infinity)
-                        .modifier(ShakeEffect(animatableData: shakeOffset))
                         .padding(.top, 12)
                         .padding(.horizontal)
                         .animation(.easeInOut, value: keyboardResponder.currentHeight)
                         .id("SubmitButton")
                         .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
+                        .opacity(isTextFieldEmpty ? 0.5 : 1.0)
+                        .disabled(isTextFieldEmpty)
                     }
                     
                     else if shouldShowLoading  && pineconeManager.pineconeError == nil {
