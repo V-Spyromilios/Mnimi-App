@@ -37,13 +37,13 @@ struct QuestionView: View {
     private var shouldShowGoButton: Bool {
         goButtonIsVisible &&
         openAiManager.stringResponseOnQuestion.isEmpty &&
-        pineconeManager.pineconeError == nil
+        pineconeManager.pineconeErrorFromQ == nil
     }
     
     private var shouldShowProgressView: Bool {
         !goButtonIsVisible &&
         thrownError.isEmpty &&
-        pineconeManager.pineconeError == nil &&
+        pineconeManager.pineconeErrorFromQ == nil &&
         isLoading
     }
     private var hasResponse: Bool {
@@ -264,11 +264,6 @@ struct QuestionView: View {
                         }
                     }
                 }
-//                .onDisappear {
-//                    if thrownError != "" || pineconeManager.pineconeError != nil {
-//                        performClearTask()
-//                    }
-//                }
             }
         }
     }

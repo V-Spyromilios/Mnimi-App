@@ -34,6 +34,10 @@ enum PineconeError: Error, Identifiable {
     }
 }
 
+enum senderView {
+    case editInfo, newInfo
+}
+
 
 // MARK: - Equatable
 extension PineconeError: Equatable {
@@ -52,7 +56,9 @@ extension PineconeError: Hashable {
 @MainActor
 class PineconeViewModel: ObservableObject {
     
-    @Published var pineconeError: PineconeError?
+//    @Published var pineconeError: PineconeError?
+    @Published var pineconeErrorFromEdit: PineconeError?
+    @Published var pineconeErrorFromAdd: PineconeError?
     @Published var pineconeErrorFromQ: PineconeError?
     @Published var pineconeErrorOnDel: PineconeError?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
@@ -85,7 +91,8 @@ class PineconeViewModel: ObservableObject {
     }
     
     func clearManager() {
-        self.pineconeError = nil
+        self.pineconeErrorFromAdd = nil
+        self.pineconeErrorFromEdit = nil
         self.pineconeErrorFromQ = nil
         self.pineconeQueryResponse = nil
         self.upsertSuccessful = false
@@ -113,17 +120,19 @@ class PineconeViewModel: ObservableObject {
                 // For the new user or deleted all info to avoid show the ErrorView
                 DispatchQueue.main.async {
                     self.pineconeFetchedVectors = []
-                    self.pineconeError = nil
+                    self.pineconeErrorFromQ = nil
+                    self.pineconeErrorFromEdit = nil
+                    self.pineconeErrorFromAdd = nil
                 }
             } catch {
-                self.pineconeError = .refreshFailed(error)
+                self.pineconeErrorFromAdd = .refreshFailed(error)
                 print(error)
             }
         }
     }
     
     @MainActor
-    func upsertData(id: String, vector: [Float], metadata: [String: Any]) {
+    func upsertData(id: String, vector: [Float], metadata: [String: Any], from sender: senderView) {
 #if DEBUG
         print("upsertData called")
 #endif
@@ -131,6 +140,10 @@ class PineconeViewModel: ObservableObject {
             do {
                 try await pineconeActor.upsertDataToPinecone(id: id, vector: vector, metadata: metadata)
                 await MainActor.run {
+                    if sender == .editInfo {
+                        self.upsertSuccessful = true
+                        
+                    } //TODO: Seperate also the successful ??
                     self.upsertSuccessful = true
                     
                 }
@@ -139,7 +152,13 @@ class PineconeViewModel: ObservableObject {
                 await MainActor.run {
                     print("Error: \(error)")
                     self.upsertSuccessful = false
-                    self.pineconeError = .upsertFailed(error)
+                    if sender == .editInfo {
+                        self.pineconeErrorFromEdit = .upsertFailed(error)
+                    }
+                    else if sender == .newInfo {
+                        self.pineconeErrorFromAdd = .upsertFailed(error)
+                    }
+//                    self.pineconeError = .upsertFailed(error)
                 }
             }
         }

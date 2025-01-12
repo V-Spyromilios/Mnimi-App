@@ -51,7 +51,7 @@
     //                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             }
                             
-                            else if !vectorsAreLoading && !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeError == nil {
+                            else if !vectorsAreLoading && !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil { //TODO: SOS need one Error for this view, error like failed to fetch !
                                 ForEach(Array(filteredVectors.enumerated()), id: \.element.id) { index, data in
                                     NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
                                         InfosViewListCellView(data: data)
@@ -61,7 +61,7 @@
                                     }
                                 }
                             }
-                            else if  pineconeVm.pineconeFetchedVectors.isEmpty && !vectorsAreLoading && pineconeVm.pineconeError == nil {
+                            else if  pineconeVm.pineconeFetchedVectors.isEmpty && !vectorsAreLoading && pineconeVm.pineconeErrorFromEdit == nil {
                                 VStack {
                                     LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
                                     TypingTextView(fullText: "No Info has been saved. Add whatever you want to remember!")
@@ -70,9 +70,9 @@
                                 }
                                 .transition(.opacity)
                             }
-                            else if pineconeVm.pineconeError != nil && !vectorsAreLoading {
-                                ErrorView(thrownError: pineconeVm.pineconeError!.localizedDescription) {
-                                    pineconeVm.pineconeError = nil
+                            else if pineconeVm.pineconeErrorFromEdit != nil && !vectorsAreLoading {
+                                ErrorView(thrownError: pineconeVm.pineconeErrorFromEdit!.localizedDescription) {
+                                    pineconeVm.pineconeErrorFromEdit = nil
                                 }
                                 .transition(.opacity)
                             }
@@ -129,7 +129,7 @@
                     }
                 }
             }
-            .onReceive(pineconeVm.$pineconeError) { error in
+            .onReceive(pineconeVm.$pineconeErrorFromEdit) { error in
                 if error != nil {
                     withAnimation {
                         self.vectorsAreLoading = false
