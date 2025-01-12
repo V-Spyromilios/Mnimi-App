@@ -7,6 +7,7 @@
 
 import SwiftUI
 import LocalAuthentication
+import CloudKit
 
 struct FaceIDView: View {
 
@@ -24,11 +25,10 @@ struct FaceIDView: View {
     @State private var showPasswordAuth = false
     @State private var username = ""
     @State private var password = ""
-    @State private var showMainView = false
     @State private var authAttempts: Int = 0
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
-    @State private var shouldShowMainView = false
+    @State private var showAccountDeleted: Bool = false
     
     enum BiometricType {
         case none
@@ -83,10 +83,12 @@ struct FaceIDView: View {
                 .environmentObject(authManager)
                 .environmentObject(cloudKitViewModel)
         }
+        .fullScreenCover(isPresented: $showAccountDeleted) {
+            AccountDeletedView()
+        }
         .onAppear {
             detectBiometricType()
             authenticate()
-            checkAuthenticationStatus()
         }
         .alert(isPresented: $showNoInternet) {
             Alert(
@@ -119,13 +121,12 @@ struct FaceIDView: View {
             )
         }
     }
+    
     private func detectBiometricType() {
         let context = LAContext()
         var error: NSError?
-        
-        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            debugLog("Thread -detectBiometricType-: \(Thread.isMainThread ? "Main" : "Background")")
 
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
             let biometryType = context.biometryType
             DispatchQueue.main.async {
                 switch biometryType {
@@ -140,21 +141,7 @@ struct FaceIDView: View {
         } else {
             DispatchQueue.main.async {
                 biometricType = .none
-            }
-        }
-    }
-    
-    private func checkAuthenticationStatus() {
-
-        if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn {
-            shouldShowMainView = true
-
-            debugLog("Calling checkAuthenticationStatus OK !")
-        } else {
-           debugLog("Calling checkAuthenticationStatus again...")
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                checkAuthenticationStatus()
+                showPasswordAuth = true
             }
         }
     }
@@ -205,7 +192,7 @@ struct FaceIDView: View {
         case .authenticationFailed:
             errorMessage = "There was a problem verifying your identity."
         case .userCancel:
-            isPresented = false
+            showPasswordAuth = true
             return
 //            errorMessage = "You canceled the authentication."
         case .userFallback:
@@ -216,11 +203,11 @@ struct FaceIDView: View {
         case .passcodeNotSet:
             errorMessage = "Passcode is not set on the device."
         case .biometryNotAvailable:
-            errorMessage = "Biometric authentication is not available on this device."
+            showPasswordAuth = true
         case .biometryNotEnrolled:
-            errorMessage = "No biometric identities are enrolled."
+            showPasswordAuth = true
         case .biometryLockout:
-            errorMessage = "Biometric authentication is locked out."
+            attemptDeviceOwnerAuthentication()
         default:
             errorMessage = "An unknown error occurred."
         }
@@ -232,7 +219,86 @@ struct FaceIDView: View {
             showErrorAlert = true
         }
     }
+    private func attemptDeviceOwnerAuthentication() {
+        let context = LAContext()
+        let reason = "FaceID/ ToucID are locked. Please authenticate using your device passcode.\n Wrong passcode will delete your account."
+        
+        context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, error in
+            DispatchQueue.main.async {
+                if success {
+                    authManager.login()
+                    UserDefaults.standard.set(false, forKey: "isFirstLaunch")
+                    cloudKitViewModel.isFirstLaunch = false
+                    isPresented = false
+                    self.errorMessage = ""
+                    self.showErrorAlert = false
+                }
+                 else {
+//                   DeleteAccount()
+                }
+            }
+        }
+    }
+    private func deleteAccount() {
+        Task {
+            await deleteNamespaceFromICloud()
+            await pinecone.deleteAllVectorsInNamespace()
+            await cloudKitViewModel.deleteAllImageItems()
+            removeUserDefaults()
+            deleteKeyChain()
+        }
+        showAccountDeleted = true
+    }
     
+    private func deleteNamespaceFromICloud() async {
+
+                let container = CKContainer.default()
+                let privateDatabase = container.privateCloudDatabase
+                guard let recordIDDelete = KeychainManager.standard.readRecordID(account: "recordIDDelete") else {
+//                    self.errorString = "Could not retrieve recordID from keychain."
+//                    self.showError.toggle()
+                    return
+                }
+                debugLog("Before Deleting: \(String(describing: recordIDDelete))")
+                await cloudKitViewModel.deleteRecordFromICloud(recordID: recordIDDelete, from: privateDatabase)
+        
+    }
+    
+    func deleteKeyChain() {
+        
+        var keychainDeleteRetryCount = 0
+        let keychainDeletemaxRetries = 3
+        
+        guard let username = KeychainManager.standard.readUsername() else {
+            debugLog("deleteKeyChain::No username found in keychain.")
+//            isKeychainDeleted = false
+            return
+        }
+        
+        let success = KeychainManager.standard.delete(service: "dev.chillvibes.MyndVault", account: username)
+        
+        if success {
+            debugLog("Successfully deleted keychain for username: \(username)")
+//            isKeychainDeleted = true
+        } else {
+            debugLog("deleteKeyChain::Failed to delete keychain.")
+//            isKeychainDeleted = false
+            
+            if keychainDeleteRetryCount < keychainDeletemaxRetries {
+                keychainDeleteRetryCount += 1
+                debugLog("Retrying deletion... Attempt \(keychainDeleteRetryCount)")
+                deleteKeyChain()
+            }
+        }
+    }
+    
+    private func removeUserDefaults() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "isFirstLaunch")
+        defaults.removeObject(forKey: "monthlyApiCalls")
+        defaults.removeObject(forKey: "selectedPromptLanguage")
+        defaults.removeObject(forKey: "APITokenUsage")
+    }
 }
 
 struct UsernamePasswordLoginView: View {
@@ -314,23 +380,47 @@ struct UsernamePasswordLoginView: View {
         
     }
     
+//    private func authenticateWithPassword() {
+//        guard let savedUsername     = KeychainManager.standard.readUsername(),
+//              let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: savedUsername),
+//              let savedPassword     = String(data: savedPasswordData, encoding: .utf8) else {
+//            alertPasswordMessage   = "Invalid username."
+//            showPasswordAuth = false
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                showPasswordError = true
+//            }
+//            return
+//        }
+//        if savedPassword != password {
+//            alertPasswordMessage = "Invalid password."
+//            showPasswordAuth = false
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                showPasswordError = true
+//            }
+//            return
+//        }
+//        
+//        authManager.login()
+//        self.password = ""
+//        self.username = ""
+//        showPasswordAuth = false
+//        UserDefaults.standard.set(false, forKey: "isFirstLaunch")
+//        cloudKitViewModel.isFirstLaunch = false
+//        showFaceID = false
+//    }
+    
     private func authenticateWithPassword() {
-        guard let savedUsername     = KeychainManager.standard.readUsername(),
+        guard let savedUsername = KeychainManager.standard.readUsername(),
               let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: savedUsername),
-              let savedPassword     = String(data: savedPasswordData, encoding: .utf8) else {
-            alertPasswordMessage   = "Invalid username."
-            showPasswordAuth = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                showPasswordError = true
-            }
+              let savedPassword = String(data: savedPasswordData, encoding: .utf8) else {
+            alertPasswordMessage = "Invalid username or password."
+            showPasswordError = true
             return
         }
+        
         if savedPassword != password {
             alertPasswordMessage = "Invalid password."
-            showPasswordAuth = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                showPasswordError = true
-            }
+            showPasswordError = true
             return
         }
         

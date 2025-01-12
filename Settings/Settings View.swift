@@ -280,7 +280,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .onChange(of: pineconeManager.pineconeError) { _, newValue in
+        .onChange(of: pineconeManager.pineconeErrorOnDel) { _, newValue in
             if let pineconeError = newValue {
                 self.errorString = pineconeError.localizedDescription
                 self.showError = true
@@ -445,7 +445,7 @@ struct SettingsView: View {
         defaults.removeObject(forKey: "selectedPromptLanguage")
         defaults.removeObject(forKey: "APITokenUsage")
     }
-    
+
 }
 
 #Preview {

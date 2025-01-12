@@ -2651,6 +2651,7 @@
 
     },
     "No Image Selected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

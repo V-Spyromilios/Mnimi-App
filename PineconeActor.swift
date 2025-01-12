@@ -140,7 +140,6 @@ actor PineconeActor {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
-
         while attempts < maxAttempts {
             do {
                 #if DEBUG

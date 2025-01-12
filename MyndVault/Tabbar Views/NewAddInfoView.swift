@@ -255,7 +255,14 @@ struct NewAddInfoView: View {
                     }
                 }
                 .onChange(of: thrownError) {
-                    showError.toggle()
+                    if !pineconeManager.accountDeleted {
+                        if thrownError != "" {
+                            showError = true
+                        }
+                        else {
+                            showError = false
+                        }
+                    }
                 }
                 
                 .onChange(of: pineconeManager.upsertSuccessful) { _, isSuccesful in
@@ -265,13 +272,21 @@ struct NewAddInfoView: View {
                             photoPicker.selectedImage = nil
                             apiCallInProgress = false
                             showSuccess = true
+                            pineconeManager.refreshNamespacesIDs()
                         }
-                        pineconeManager.refreshNamespacesIDs()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
                             saveButtonIsVisible = true
                             showSuccess = false
                             isLoading = false
                             hapticGenerator.notificationOccurred(.success)
+                        }
+                    }
+                }
+                .onChange(of: pineconeManager.pineconeError) { _, error in
+                    if pineconeManager.accountDeleted != true {
+                        if let error = error {
+                            self.thrownError = error.localizedDescription
+                            
                         }
                     }
                 }

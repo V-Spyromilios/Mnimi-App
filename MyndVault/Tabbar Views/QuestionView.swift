@@ -43,11 +43,27 @@ struct QuestionView: View {
     private var shouldShowProgressView: Bool {
         !goButtonIsVisible &&
         thrownError.isEmpty &&
-        pineconeManager.pineconeError == nil
+        pineconeManager.pineconeError == nil &&
+        isLoading
     }
     private var hasResponse: Bool {
         !openAiManager.stringResponseOnQuestion.isEmpty
     }
+    
+    enum ActiveModal: Identifiable {
+        case error(String)
+        case settings
+        case fullImage(UIImage)
+        
+        var id: String {
+                switch self {
+                case .error(let message):  return "error_\(message)"
+                case .settings:            return "settings"
+                case .fullImage:        return "fullImage"
+                }
+            }
+    }
+    @State private var activeModal: ActiveModal?
     
     var body: some View {
         NavigationStack {
@@ -83,15 +99,6 @@ struct QuestionView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: Constants.textEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                    //                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                    //                        .shadow(color: Color.blue.opacity(0.5), radius: 4, x: 4, y: 4)
-                    ////                        .shadow(color: Color.white.opacity(0.8), radius: 1, x: -4, y: -4)
-                    //                        .overlay(
-                    //                            RoundedRectangle(cornerRadius: 10.0)
-                    //                                .stroke(lineWidth: 1)
-                    //                                .opacity(colorScheme == .light ? 0.3 : 0.7)
-                    //                                .foregroundColor(Color.gray)
-                    //                        )
                         .shadow(color: isFocused ? Color.blue.opacity(0.8) : Color.blue.opacity(0.5),
                                 radius: isFocused ? 1 : 4,
                                 x: isFocused ? 6 : 4,
@@ -180,20 +187,23 @@ struct QuestionView: View {
                         }
                     }
                 }
-                .fullScreenCover(isPresented: $showFullImage) {
-                    if let selectedImageIndex = self.selectedImageIndex {
-                        FullScreenImage(show: $showFullImage, image: fetchedImages[selectedImageIndex])
-                    } else {
-                        Text("No Image Selected").bold()
-                    }
-                }
-                .sheet(isPresented: $showError) {
-                    ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
+                .sheet(item: $activeModal) { activeItem in
+                    switch activeItem {
+                    case .error(let message):
+                        ErrorView(thrownError: message) {
+                            activeModal = nil
+                            performClearTask()
+                        }
                         .presentationDetents([.fraction(0.4)])
                         .presentationDragIndicator(.hidden)
                         .presentationBackground(Color.clear)
+                    case .settings:
+                        SettingsView(showSettings: $showSettings)
+                    case .fullImage(let image):
+                        FullScreenImage(show: $showFullImage, image: image)
+                    }
                 }
-                .onChange(of: selectedImageIndex) { oldValue, newValue in
+                .onChange(of: selectedImageIndex) { _, newValue in
                     if newValue == nil {
                         showFullImage = false
                     }
@@ -204,20 +214,18 @@ struct QuestionView: View {
                         showLang = false
                     }
                 }
-                .onChange(of: thrownError) {
-                    showError.toggle()
-                }
                 .onChange(of: openAiManager.openAIError) { _, newValue in
                     if let error = newValue {
                         self.isLoading = false
-                        self.thrownError = error.localizedDescription
+                        activeModal = .error(error.localizedDescription)
                     }
                 }
-                .onChange(of: pineconeManager.pineconeError) { _, newValue in
+                .onChange(of: pineconeManager.pineconeErrorFromQ) { _, newValue in
                     if let error = newValue {
                         self.isLoading = false
-                        self.thrownError = error.localizedDescription
+                        activeModal = .error(error.localizedDescription)
                     }
+                    
                 }
                 .onChange(of: openAiManager.stringResponseOnQuestion) { _, newValue in
                     isLoading = false
@@ -245,9 +253,9 @@ struct QuestionView: View {
                         dismissButton: .cancel(Text("OK"))
                     )
                 }
-                .fullScreenCover(isPresented: $showSettings) {
-                    SettingsView(showSettings: $showSettings)
-                }
+//                .fullScreenCover(isPresented: $showSettings) {
+//                    SettingsView(showSettings: $showSettings)
+//                }
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
                     if !hasInternet {
                         showNoInternet = true
@@ -256,11 +264,11 @@ struct QuestionView: View {
                         }
                     }
                 }
-                .onDisappear {
-                    if thrownError != "" || pineconeManager.pineconeError != nil {
-                        performClearTask()
-                    }
-                }
+//                .onDisappear {
+//                    if thrownError != "" || pineconeManager.pineconeError != nil {
+//                        performClearTask()
+//                    }
+//                }
             }
         }
     }
@@ -319,15 +327,6 @@ struct QuestionView: View {
             }
         }
     }
-    
-//    @ViewBuilder
-//    private var ProgressViewContent: some View {
-//
-//        LottieRepresentable(filename: "Ai Cloud", loopMode: .loop, speed: 0.8)
-//            .frame(height: isIPad() ? 440 : 300)
-//    }
-//    //...more function below
-
     
     private func handleQuestionEmbeddingsCompleted() {
         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
