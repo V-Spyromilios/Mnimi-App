@@ -75,7 +75,8 @@ struct InitialSetupView: View {
                             .padding(.horizontal)
                             .padding(.horizontal)
                             .animation(.easeInOut, value: keyboardResponder.currentHeight)
-                            .disabled(!username.isEmpty && !password.isEmpty && password == confirmPassword)
+                            .opacity(username.isEmpty || password.isEmpty || password != confirmPassword ? 0.5 : 1.0)
+                            .disabled(username.isEmpty || password.isEmpty || password != confirmPassword)
                         Spacer()
                     }.frame(maxWidth: .infinity)
                         .toolbar {

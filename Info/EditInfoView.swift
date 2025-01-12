@@ -287,6 +287,14 @@ struct EditInfoView: View {
                             }
                         }
                     }
+                    .onChange(of: pineconeManager.pineconeErrorOnDel) { _, error in
+                        if let error = error {
+                            DispatchQueue.main.async {
+                                viewModel.occuredErrorDesc = error.localizedDescription
+                                self.viewModel.activeAlert = .error
+                            }
+                        }
+                    }
                 VStack {
                     if buttonIsVisible {
                         

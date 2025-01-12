@@ -53,6 +53,8 @@ extension PineconeError: Hashable {
 class PineconeViewModel: ObservableObject {
     
     @Published var pineconeError: PineconeError?
+    @Published var pineconeErrorFromQ: PineconeError?
+    @Published var pineconeErrorOnDel: PineconeError?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
     @Published var vectorDeleted: Bool = false
     @Published var accountDeleted: Bool = false
@@ -84,6 +86,7 @@ class PineconeViewModel: ObservableObject {
     
     func clearManager() {
         self.pineconeError = nil
+        self.pineconeErrorFromQ = nil
         self.pineconeQueryResponse = nil
         self.upsertSuccessful = false
     }
@@ -131,11 +134,11 @@ class PineconeViewModel: ObservableObject {
                     self.upsertSuccessful = true
                     
                 }
-#if DEBUG
-                print("upsertSuccess: \(self.upsertSuccessful)")
-#endif
+                debugLog("upsertSuccess: \(self.upsertSuccessful)")
             } catch {
                 await MainActor.run {
+                    print("Error: \(error)")
+                    self.upsertSuccessful = false
                     self.pineconeError = .upsertFailed(error)
                 }
             }
@@ -150,7 +153,8 @@ class PineconeViewModel: ObservableObject {
                     self.vectorDeleted = true
                 }
             } catch {
-                self.pineconeError = .deleteFailed(error)
+//                self.pineconeError = .deleteFailed(error)
+                self.pineconeErrorOnDel = .deleteFailed(error)
             }
         
     }
@@ -163,10 +167,11 @@ class PineconeViewModel: ObservableObject {
                 self.pineconeFetchedVectors = []
                 self.pineconeIDs = []
             } catch {
-                self.pineconeError = .deleteFailed(error)
+                self.pineconeErrorOnDel = .deleteFailed(error)
             }
         
     }
+  
     
     func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) {
         Task {
@@ -174,7 +179,7 @@ class PineconeViewModel: ObservableObject {
                 let response = try await pineconeActor.queryPinecone(vector: vector, topK: topK, includeValues: includeValues)
                 self.pineconeQueryResponse = response
             } catch {
-                self.pineconeError = .queryFailed(error)
+                self.pineconeErrorFromQ = .queryFailed(error)
             }
         }
     }
