@@ -281,8 +281,8 @@ struct SettingsView: View {
             }
         }
         .onChange(of: pineconeManager.pineconeErrorOnDel) { _, newValue in
-            if let pineconeError = newValue {
-                self.errorString = pineconeError.localizedDescription
+            if let pineconeErrorOnDel = newValue {
+                self.errorString = pineconeErrorOnDel.localizedDescription
                 self.showError = true
             }
         }

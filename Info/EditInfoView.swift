@@ -169,7 +169,7 @@ struct EditInfoView: View {
         do {
             try await openAiManager.requestEmbeddings(for: self.viewModel.description, isQuestion: false)
             if !openAiManager.embeddings.isEmpty {
-                pineconeManager.upsertData(id: self.viewModel.id, vector: openAiManager.embeddings, metadata: metadata)
+                pineconeManager.upsertData(id: self.viewModel.id, vector: openAiManager.embeddings, metadata: metadata, from: .editInfo)
             } else {
                 inProgress = false
                 viewModel.occuredErrorDesc = "Error creating Embeddings."
@@ -317,7 +317,7 @@ struct EditInfoView: View {
                         .disabled(isTextFieldEmpty)
                     }
                     
-                    else if shouldShowLoading  && pineconeManager.pineconeError == nil {
+                    else if shouldShowLoading  && pineconeManager.pineconeErrorFromEdit == nil {
                         LoadingTransitionView(isUpserting: $inProgress, isSuccess: $showSuccess)
                             .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
                             .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),

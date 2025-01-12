@@ -174,11 +174,11 @@ struct NewAddInfoView: View {
                         )
                         .padding(.bottom)
                         ZStack {
-                            if saveButtonIsVisible && pineconeManager.pineconeError == nil {
+                            if saveButtonIsVisible && pineconeManager.pineconeErrorFromAdd == nil {
                                 SaveButton
                                     .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
                                                             removal: .opacity))
-                            } else if pineconeManager.pineconeError == nil && shouldShowLoading {
+                            } else if pineconeManager.pineconeErrorFromAdd == nil && shouldShowLoading {
                                 LoadingTransitionView(isUpserting: $apiCallInProgress, isSuccess: $showSuccess)
                                     .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
                                     .padding()
@@ -282,7 +282,7 @@ struct NewAddInfoView: View {
                         }
                     }
                 }
-                .onChange(of: pineconeManager.pineconeError) { _, error in
+                .onChange(of: pineconeManager.pineconeErrorFromAdd) { _, error in
                     if pineconeManager.accountDeleted != true {
                         if let error = error {
                             self.thrownError = error.localizedDescription
@@ -301,7 +301,7 @@ struct NewAddInfoView: View {
                     SettingsView(showSettings: $showSettings)
                 }
                 .onDisappear {
-                    if !thrownError.isEmpty || pineconeManager.pineconeError != nil {
+                    if !thrownError.isEmpty || pineconeManager.pineconeErrorFromAdd != nil {
                         performClearTask()
                     }
                 }
@@ -378,7 +378,7 @@ extension NewAddInfoView {
         let uniqueID = UUID().uuidString
         
         
-        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata)
+        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .newInfo)
         handleUpsertSuccess(uniqueID: uniqueID)
     }
     
