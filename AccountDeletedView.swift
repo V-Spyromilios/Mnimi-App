@@ -9,10 +9,11 @@ import SwiftUI
 
 struct AccountDeletedView: View {
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var pineconeVm: PineconeViewModel
     
     var body: some View {
+
         ZStack {
-           
             Color.secondary.opacity(0.4).ignoresSafeArea()
             
         VStack(spacing: 24)
@@ -36,12 +37,14 @@ struct AccountDeletedView: View {
                         UIApplication.shared.open(url)
                         
                     }
-                        .padding(.top, 20)
-                        
+                    .padding(.top, 20)
                 }
-                
             }
             .padding()
+            .onAppear {
+                UserDefaults.standard.set(false, forKey: "accountDeleted")
+                pineconeVm.accountDeleted = false
+            }
         }
     }
 }

@@ -106,8 +106,15 @@ class PineconeViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.pineconeFetchedVectors = vectors
                 }
+            } catch DecodingError.keyNotFound(let key, _) where key.stringValue == "usage" || key.stringValue == "vectors" {
+                // For the new user or deleted all info to avoid show the ErrorView
+                DispatchQueue.main.async {
+                    self.pineconeFetchedVectors = []
+                    self.pineconeError = nil
+                }
             } catch {
                 self.pineconeError = .refreshFailed(error)
+                print(error)
             }
         }
     }

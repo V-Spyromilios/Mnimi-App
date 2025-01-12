@@ -36,24 +36,10 @@
         var body: some View {
             GeometryReader { geometry in
                 NavigationStack {
-                    
                     ScrollView {
-                        
                         LazyVStack {
-                            
-                            if pineconeVm.accountDeleted {
-                                VStack {
-                                    HStack(alignment: .center) {
-                                        Spacer()
-                                        TypingTextView(fullText: "Account Deleted.", isTitle: true)
-                                        Spacer()
-                                    }
-                                    LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
-                                        .padding(.horizontal)
-                                }
-                                .transition(.opacity)
-                            }
-                            else if vectorsAreLoading {
+ 
+                            if vectorsAreLoading {
                                LoadingDotsView()
                                     .if(isIPad()) { loadingDots in
                                         loadingDots.padding(.top, 40)
@@ -72,11 +58,9 @@
                                             .padding(.horizontal, Constants.standardCardPadding)
                                             .padding(.vertical)
                                             .transition(.opacity)
-    //                                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                                     }
                                 }
                             }
-                            
                             else if  pineconeVm.pineconeFetchedVectors.isEmpty && !vectorsAreLoading && pineconeVm.pineconeError == nil {
                                 VStack {
                                     LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
@@ -85,22 +69,17 @@
                                         .padding(.horizontal)
                                 }
                                 .transition(.opacity)
-    //                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             }
-                            
-                            else if pineconeVm.pineconeError != nil && !pineconeVm.accountDeleted {
+                            else if pineconeVm.pineconeError != nil && !vectorsAreLoading {
                                 ErrorView(thrownError: pineconeVm.pineconeError!.localizedDescription) {
                                     pineconeVm.pineconeError = nil
                                 }
                                 .transition(.opacity)
-    //                            .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             }
                         }
                         .searchable(text: $searchText) //Do not move outside of the Scroll. makes top padding when return from EditView
                     }
-    //                .padding(.top, 12)
                     .refreshable {
-                        if pineconeVm.accountDeleted { return }
                         withAnimation {
                             vectorsAreLoading = true
                             pineconeVm.refreshNamespacesIDs()
@@ -173,12 +152,7 @@
             }
             
         }
-        
-    //    private func clearSelectedInfo() {
-    //        self.selectedInfo = nil
-    //    }
-        
-        
+
         private func fetchPineconeEntries() {
             if pineconeVm.accountDeleted { return }
 
@@ -199,7 +173,6 @@
     }
 
     struct VaultView_Previews: PreviewProvider {
-        
         
         static var previews: some View {
             VaultView()

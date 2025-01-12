@@ -12,7 +12,6 @@ struct MainView: View {
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
-//    @EnvironmentObject var notificationsManager: NotificationViewModel
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
     @EnvironmentObject var language: LanguageSettings

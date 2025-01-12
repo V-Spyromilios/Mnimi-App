@@ -9,15 +9,16 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var authManager: AuthenticationManager
-       @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
-       @EnvironmentObject var networkManager: NetworkManager
-       @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
-       @EnvironmentObject var openAiManager: OpenAIViewModel
-       @EnvironmentObject var pineconeViewModel: PineconeViewModel
-       @EnvironmentObject var keyboardResponder: KeyboardResponder
-       @EnvironmentObject var languageSettings: LanguageSettings
-       @EnvironmentObject var speechManager: SpeechRecognizerManager
-
+    @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
+    @EnvironmentObject var networkManager: NetworkManager
+    @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
+    @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var pineconeViewModel: PineconeViewModel
+    @EnvironmentObject var keyboardResponder: KeyboardResponder
+    @EnvironmentObject var languageSettings: LanguageSettings
+    @EnvironmentObject var speechManager: SpeechRecognizerManager
+    @State var showFaceIDView: Bool  = true
+    
     var body: some View {
         if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn {
                     MainView()
@@ -31,8 +32,8 @@ struct RootView: View {
                         .environmentObject(languageSettings)
                         .environmentObject(speechManager)
                         .transition(.opacity)
-                } else if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
-                    FaceIDView()
+        } else if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty && showFaceIDView {
+                    FaceIDView(isPresented: $showFaceIDView)
                         .environmentObject(cloudKitViewModel)
                         .environmentObject(networkManager)
                         .environmentObject(apiCallsViewModel)

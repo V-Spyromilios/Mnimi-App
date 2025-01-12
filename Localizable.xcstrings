@@ -2518,6 +2518,7 @@
       }
     },
     "Mynd Vault" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
