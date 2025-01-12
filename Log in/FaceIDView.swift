@@ -9,6 +9,8 @@ import SwiftUI
 import LocalAuthentication
 
 struct FaceIDView: View {
+
+    @Binding var isPresented: Bool
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
@@ -60,32 +62,32 @@ struct FaceIDView: View {
                 LottieRepresentable(filename: "Image Recognition", loopMode: .loop).padding()
                     .frame(height: 400)
                     .padding(.top)
-                
-                //                        Button {
-                //                            print("Thread -Button-: \(Thread.isMainThread ? "Main" : "Background")")
-                //                            self.authenticate()
-                //                        } label: {
-                //                            Image(systemName: biometricType == .faceID ? "faceid" : biometricType == .touchID ? "touchid" : "questionmark.circle")
-                //                                .resizable()
-                //                                .frame(width: 100, height: 100)
-                //                                .foregroundStyle(Color.cardBackground).shadow(radius: 4, x: -3, y: -3)
-                //                        }
+
                 Spacer()
             }
+            Button {
+                authenticate()
+            } label: {
+                Image(systemName: "faceid")
+                    .resizable()
+                    .frame(width: 100, height: 100)
+                    .foregroundStyle(Color.white).shadow(radius: 4, x: -3, y: -3)
+            }
+
+            
         }
         .statusBar(hidden: true)
         .fullScreenCover(isPresented: $showPasswordAuth) {
-            UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password)
+            UsernamePasswordLoginView(showPasswordAuth: $showPasswordAuth, username: $username, password: $password, showFaceID: $isPresented)
                 .environmentObject(keyboardResponder)
+                .environmentObject(authManager)
+                .environmentObject(cloudKitViewModel)
         }
-        //            }
         .onAppear {
             detectBiometricType()
             authenticate()
             checkAuthenticationStatus()
         }
-        
-        
         .alert(isPresented: $showNoInternet) {
             Alert(
                 title: Text("You are not connected to the Internet"),
@@ -99,14 +101,12 @@ struct FaceIDView: View {
             }
         }
         .onChange(of: authManager.isAuthenticated) {
-#if DEBUG
-            print("isAuthenticated: \(authManager.isAuthenticated)")
-#endif
+
+            debugLog("isAuthenticated: \(authManager.isAuthenticated)")
+
         }
         .onChange(of: cloudKitViewModel.userIsSignedIn) { _, newValue in
-#if DEBUG
-            print("cloudKitViewModel.userIsSignedIn changed to \(newValue)")
-            #endif
+            debugLog("cloudKitViewModel.userIsSignedIn changed to \(newValue)")
         }
         .alert(isPresented: $showErrorAlert) {
             Alert(
@@ -124,9 +124,8 @@ struct FaceIDView: View {
         var error: NSError?
         
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-#if DEBUG
-            print("Thread -detectBiometricType-: \(Thread.isMainThread ? "Main" : "Background")")
-#endif
+            debugLog("Thread -detectBiometricType-: \(Thread.isMainThread ? "Main" : "Background")")
+
             let biometryType = context.biometryType
             DispatchQueue.main.async {
                 switch biometryType {
@@ -146,16 +145,14 @@ struct FaceIDView: View {
     }
     
     private func checkAuthenticationStatus() {
+
         if authManager.isAuthenticated && cloudKitViewModel.userIsSignedIn {
             shouldShowMainView = true
-#if DEBUG
-            print("Calling checkAuthenticationStatus OK !")
-#endif
+
+            debugLog("Calling checkAuthenticationStatus OK !")
         } else {
-            // Retry after a short delay
-#if DEBUG
-            print("Calling checkAuthenticationStatus again...")
-#endif
+           debugLog("Calling checkAuthenticationStatus again...")
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 checkAuthenticationStatus()
             }
@@ -175,14 +172,14 @@ struct FaceIDView: View {
                     DispatchQueue.main.async {
                         if success {
                             authManager.login()
-#if DEBUG
-                            print("Authentication succeeded, calling authManager.login()")
-#endif
+                            UserDefaults.standard.set(false, forKey: "isFirstLaunch")
+                            cloudKitViewModel.isFirstLaunch = false
+                            isPresented = false
+                            debugLog("Authentication succeeded, calling authManager.login()")
                         } else {
                             handleAuthenticationError(error: authenticationError)
-#if DEBUG
-                            print("Authentication failed, calling handleAuthenticationError()")
-#endif
+
+                            debugLog("Authentication failed, calling handleAuthenticationError()")
                         }
                     }
                 }
@@ -208,7 +205,9 @@ struct FaceIDView: View {
         case .authenticationFailed:
             errorMessage = "There was a problem verifying your identity."
         case .userCancel:
-            errorMessage = "You canceled the authentication."
+            isPresented = false
+            return
+//            errorMessage = "You canceled the authentication."
         case .userFallback:
             showPasswordAuth = true
             return
@@ -240,9 +239,11 @@ struct UsernamePasswordLoginView: View {
     @Binding var showPasswordAuth: Bool
     @Binding var username: String
     @Binding var password: String
+    @Binding var showFaceID: Bool
     
     @EnvironmentObject var keyboardResponder: KeyboardResponder
     @EnvironmentObject var authManager: AuthenticationManager
+    @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
     @Environment(\.colorScheme) var colorScheme
     @State private var alertPasswordMessage = ""
     @State private var showPasswordError = false
@@ -277,22 +278,6 @@ struct UsernamePasswordLoginView: View {
                     if password.isEmpty { return }
                     authenticateWithPassword()
                 }
-//                Button(action: {
-//                    if password.isEmpty { return }
-//                    authenticateWithPassword()
-//                }) {
-//                    ZStack {
-//                        RoundedRectangle(cornerRadius: 10)
-//                            .fill(Color.customTiel)
-//                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-//                            .frame(height: Constants.buttonHeight)
-//                        
-//                        Text("Login").font(.title2).bold()
-//                            .foregroundColor(Color.buttonText)
-//                            .accessibilityLabel("Login")
-//                    }
-//                    .contentShape(Rectangle())
-//                }
                 .frame(maxWidth: .infinity)
                 .padding(.top, 12)
                 .padding(.horizontal)
@@ -353,6 +338,9 @@ struct UsernamePasswordLoginView: View {
         self.password = ""
         self.username = ""
         showPasswordAuth = false
+        UserDefaults.standard.set(false, forKey: "isFirstLaunch")
+        cloudKitViewModel.isFirstLaunch = false
+        showFaceID = false
     }
 }
 //struct FaceIDView_Previews: PreviewProvider {
@@ -375,7 +363,7 @@ struct UsernamePasswordLoginView_Previews: PreviewProvider {
         UsernamePasswordLoginView(
             showPasswordAuth: $showPasswordAuth,
             username: $username,
-            password: $password
+            password: $password, showFaceID: .constant(false)
         )
         .environmentObject(AuthenticationManager())
         .environmentObject(KeyboardResponder())

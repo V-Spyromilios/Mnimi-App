@@ -186,21 +186,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
             return true
         }
     }
-    
-    //       private static func userDefaultsKeyExists(_ key: String) -> Bool {
-    //           return UserDefaults.standard.object(forKey: key) != nil
-    //       }
-    
-//    private func handleAccountChange() throws {
-//        Task {
-//            do {
-//                try await getiCloudStatus()
-//            }
-//            catch {
-//                throw error
-//            }
-//        }
-//    }
+
     
     func clearCloudKit() {
         DispatchQueue.main.async {

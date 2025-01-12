@@ -19,7 +19,7 @@ struct ErrorView: View {
             VStack {
                 Spacer()
                 VStack {
-                    LottieRepresentable(filename: "alertWarning", loopMode: .loop).frame(height: 80)
+                    LottieRepresentable(filename: "alertWarning", loopMode: .playOnce).frame(height: 80)
                     
                     TypingTextView(fullText: thrownError + (extraMessage != nil ? "\n" + extraMessage! : ""))
                         .shadow(radius: 1)

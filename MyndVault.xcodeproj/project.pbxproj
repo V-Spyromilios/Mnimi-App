@@ -73,7 +73,6 @@
 		E8B4D50A2BF8CE8000F2A174 /* SignUpWithPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */; };
 		E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */; };
 		E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */; };
-		E8B4D5102BF8F17400F2A174 /* LoggedOutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */; };
 		E8BDF9C22CFC854E0026BAE2 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BDF9C12CFC854E0026BAE2 /* RootView.swift */; };
 		E8BDF9C42CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8BDF9C32CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf */; };
 		E8C7E2982C4D460C009760F2 /* Delete.json in Resources */ = {isa = PBXBuildFile; fileRef = E8C7E2972C4D460C009760F2 /* Delete.json */; };
@@ -177,7 +176,6 @@
 		E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpWithPasswordView.swift; sourceTree = "<group>"; };
 		E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSetupView.swift; sourceTree = "<group>"; };
 		E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
-		E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedOutView.swift; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8BDF9C12CFC854E0026BAE2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		E8BDF9C32CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact-Display-Regular.otf"; sourceTree = "<group>"; };
@@ -394,7 +392,6 @@
 				E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */,
 				E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */,
 				E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */,
-				E8B4D50F2BF8F17400F2A174 /* LoggedOutView.swift */,
 				E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */,
 				E8CFEAFB2C3D5CF1005A2630 /* SF-Mono-Semibold.otf */,
 				E8CFEAFD2C3D5D52005A2630 /* NewYork.ttf */,
@@ -559,7 +556,6 @@
 				E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */,
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,
-				E8B4D5102BF8F17400F2A174 /* LoggedOutView.swift in Sources */,
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
 				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,

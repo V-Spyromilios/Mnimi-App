@@ -96,7 +96,7 @@ struct InitialSetupView: View {
                 Alert(title: Text("Setup Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
             .fullScreenCover(isPresented: $setupComplete) {
-                FaceIDView()
+                FaceIDView(isPresented: $setupComplete)
                     .environmentObject(openAiManager)
                     .environmentObject(pinecone)
                     .environmentObject(keyboardResponder)
