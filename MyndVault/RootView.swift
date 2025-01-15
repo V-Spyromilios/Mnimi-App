@@ -43,7 +43,7 @@ struct RootView: View {
                         .environmentObject(keyboardResponder)
                         .environmentObject(languageSettings)
                         .environmentObject(speechManager)
-                        .statusBar(hidden: true)
+                        
                         .transition(.opacity)
                 } else if cloudKitViewModel.isLoading {
                     LoadingDotsView(text: "Signing in with iCloud")
@@ -79,7 +79,6 @@ struct RootView: View {
                     .italic()
             }
             .foregroundStyle(.gray)
-            .statusBarHidden()
         }
 }
 

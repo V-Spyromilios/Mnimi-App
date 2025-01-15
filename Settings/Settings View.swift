@@ -292,7 +292,7 @@ struct SettingsView: View {
                 self.showError = true
             }
         }
-        .statusBar(hidden: true)
+//        .statusBar(hidden: true)
     }
     
     private func cancelDelete() {

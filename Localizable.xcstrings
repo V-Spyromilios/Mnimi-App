@@ -321,71 +321,6 @@
         }
       }
     },
-    "%lld%%" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "lld%%"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld %%"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "lld%%"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld%%"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "lld%%"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "lld%%"
-          }
-        }
-      }
-    },
     "About" : {
       "localizations" : {
         "de" : {
@@ -515,7 +450,68 @@
       }
     },
     "Account Deleted" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto gelöscht"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ο λογαριασμός διαγράφηκε"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta eliminada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte supprimé"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " החשבון נמחק"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account eliminato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントが削除されました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정이 삭제되었습니다"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conta excluída"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账户已删除"
+          }
+        }
+      }
     },
     "Add New Info" : {
       "localizations" : {
@@ -582,7 +578,68 @@
       }
     },
     "All of your data has been removed.\nWe really value your thoughts—please share any feedback about your experience with MyndVault." : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Ihre Daten wurden entfernt. Wir schätzen Ihr Feedback sehr – bitte teilen Sie uns Ihre Erfahrungen mit MyndVault mit."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όλα τα δεδομένα σας έχουν διαγραφεί. Εκτιμούμε πολύ τις απόψεις σας — παρακαλούμε να μοιραστείτε οποιαδήποτε σχόλια για την εμπειρία σας με το MyndVault."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos tus datos han sido eliminados. Valoramos mucho tus opiniones—por favor, comparte cualquier comentario sobre tu experiencia con MyndVault."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toutes vos données ont été supprimées. Nous accordons beaucoup d’importance à vos avis — n’hésitez pas à partager vos retours sur votre expérience avec MyndVault."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "כל המידע שלך הוסר. אנו מעריכים מאוד את דעתך—אנא שתף משוב על החוויה שלך עם MyndVault."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i tuoi dati sono stati rimossi. Apprezziamo molto i tuoi pensieri—condividi eventuali feedback sulla tua esperienza con MyndVault."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのデータが削除されました。ご意見を大切にしていますので、MyndVaultのご利用経験についてフィードバックをお寄せください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 데이터가 삭제되었습니다. 귀하의 의견은 매우 소중합니다—MyndVault 사용 경험에 대한 피드백을 공유해주세요."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos os seus dados foram removidos. Valorizamos muito seus pensamentos—por favor, compartilhe qualquer feedback sobre sua experiência com o MyndVault."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有数据已被删除。我们非常重视您的想法——请分享您对 MyndVault 使用体验的反馈。"
+          }
+        }
+      }
     },
     "Are you sure you want to delete this info?" : {
       "localizations" : {
@@ -777,7 +834,68 @@
       }
     },
     "Ask Question" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stellen Sie eine Frage"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κάντε μια ερώτηση"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haz una pregunta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posez une question"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "שאל כל שאלה"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fai una domanda"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "質問をどうぞ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "질문하세요"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faça uma pergunta"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提问"
+          }
+        }
+      }
     },
     "Authentication Failed" : {
       "localizations" : {
@@ -907,71 +1025,6 @@
         }
       }
     },
-    "Clear and reset" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Löschen und zurücksetzen"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Καθαρισμός και επαναφορά"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Borrar y restablecer"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Effacer et réinitialiser"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "נקה ואפס"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancella e reimposta"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "クリアしてリセット"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "지우고 재설정"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limpar e redefinir"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清除并重置"
-          }
-        }
-      }
-    },
     "Close Settings" : {
       "localizations" : {
         "de" : {
@@ -1032,71 +1085,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "关闭设置"
-          }
-        }
-      }
-    },
-    "Confirm Password" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passwort bestätigen"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Επιβεβαίωση κωδικού"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirmar contraseña"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirmer le mot de passe"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "אשר סיסמה"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Conferma password"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "パスワードを確認"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "비밀번호 확인"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirmar senha"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "确认密码"
           }
         }
       }
@@ -1808,7 +1796,7 @@
       }
     },
     "Go" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1820,6 +1808,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Αποστολή!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go"
           }
         },
         "es" : {
@@ -2323,7 +2317,68 @@
       }
     },
     "Login to MyndVault app with the provided username and password." : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Melden Sie sich mit dem bereitgestellten Benutzernamen und Passwort bei der MyndVault-App an."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Συνδεθείτε στο MyndVault με το παρεχόμενο όνομα χρήστη και κωδικό πρόσβασης."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inicia sesión en la aplicación MyndVault con el nombre de usuario y la contraseña proporcionados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用提供的用户名和密码登录 MyndVault 应用。"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "התחבר לאפליקציית MyndVault עם שם המשתמש והסיסמה שסופקו."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accedi all’app MyndVault con il nome utente e la password forniti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提供されたユーザー名とパスワードで MyndVault アプリにログインしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제공된 사용자 이름과 비밀번호로 MyndVault 앱에 로그인하세요."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " Faça login no aplicativo MyndVault com o nome de usuário e a senha fornecidos."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用提供的用户名和密码登录 MyndVault 应用。"
+          }
+        }
+      }
     },
     "Login with iCloud" : {
       "localizations" : {
@@ -2517,138 +2572,69 @@
         }
       }
     },
-    "Mynd Vault" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        }
-      }
-    },
-    "Mynd Vault 🗃️" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault 🗃️"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mynd Vault"
-          }
-        }
-      }
-    },
     "Natively built with SwiftUI" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nativ entwickelt mit SwiftUI"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Γραμμένο με SwiftUI"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desarrollado nativamente con SwiftUI"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Développé nativement avec SwiftUI"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "נכתב באופן מקומי באמצעות SwiftUI"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sviluppato nativamente con SwiftUI"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SwiftUI を使用してネイティブに開発"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SwiftUI로 네이티브로 개발"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desenvolvido nativamente com SwiftUI"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 SwiftUI 原生开发"
+          }
+        }
+      }
     },
     "No Image Selected" : {
       "extractionState" : "stale",
@@ -3485,7 +3471,68 @@
       }
     },
     "reset the question and reply" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frage und Antwort löschen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Καθαρισμός ερώτησης και απάντησης"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar la pregunta y la respuesta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer la question et la réponse"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "מחק את השאלה והתשובה"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancella la domanda e la risposta"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "質問と返信をクリア"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "질문 및 응답 삭제"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpar a pergunta e a resposta"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除问题和回复"
+          }
+        }
+      }
     },
     "Retry" : {
       "localizations" : {
@@ -3547,136 +3594,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重试"
-          }
-        }
-      }
-    },
-    "save" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Speichern"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "αποθήκευση"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "guardar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "sauvegarder"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "שמור"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "salva"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "저장"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "salvar"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存"
-          }
-        }
-      }
-    },
-    "Save" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Speichern"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Αποθήκευση"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guardar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sauvegarder"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "שמור"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salva"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "저장"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salvar"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存"
           }
         }
       }
@@ -3874,6 +3791,7 @@
       }
     },
     "settings" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4066,7 +3984,68 @@
       }
     },
     "Show/Hide" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzeigen/Verbergen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εμφάνιση/Απόκρυψη"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar/Ocultar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher/Masquer"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "הצג/הסתר"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra/Nascondi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra/Nascondi"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "표시/숨기기"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar/Ocultar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示/隐藏"
+          }
+        }
+      }
     },
     "Sign Up Error" : {
       "extractionState" : "stale",
@@ -4393,6 +4372,7 @@
       }
     },
     "Tap image to dismiss" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4457,13 +4437,196 @@
       }
     },
     "This will query the database and return a reply" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dies wird die Datenbank durchsuchen und eine Antwort zurückgeben"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αυτό θα κάνει έρευνα στη βάση δεδομένων και θα επιστρέψει μια απάντηση"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto realizará una consulta en la base de datos y devolverá una respuesta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cela effectuera une recherche dans la base de données et renverra une réponse"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "פעולה זו תבצע חיפוש במסד הנתונים ותחזיר תשובה"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa operazione effettuerà una ricerca nel database e restituirà una risposta"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "データベースを検索して結果を返します"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "데이터베이스를 검색하고 응답을 반환합니다"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isso fará uma consulta no banco de dados e retornará uma resposta"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这将查询数据库并返回结果"
+          }
+        }
+      }
     },
     "This will reset your question and reply text fields" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dies wird Ihre Frage- und Antwort-Textfelder zurücksetzen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αυτό θα επαναφέρει τα πεδία κειμένου της ερώτησης και της απάντησης"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto restablecerá los campos de texto de la pregunta y la respuesta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cela réinitialisera vos champs de texte pour la question et la réponse"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "פעולה זו תאפס את שדות הטקסט של השאלה והתשובה שלך"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo reimposterà i campi di testo per la domanda e la risposta"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "質問と返信のテキストフィールドをリセットします"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "질문 및 응답 텍스트 필드를 재설정합니다"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isso redefinirá os campos de texto da pergunta e da resposta"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这将重置您的问题和回复文本字段"
+          }
+        }
+      }
     },
     "Toggle" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Umschalten"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εναλλαγή"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basculer"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "החלף"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alterna"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切り替え"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전환"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切换"
+          }
+        }
+      }
     },
     "Use AI to Remember everything anytime" : {
       "localizations" : {
@@ -4654,6 +4817,71 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "保险库"
+          }
+        }
+      }
+    },
+    "Welcome to MyndVault!\\n\\nThis app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. MyndVault was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention. No ads, no notifications, no personal data collection. Just a simple, elegant interface that empowers you to remember the important staff.\\n\\nIf you’re a fellow coder or just curious about how this app works, feel free to connect— I’d love to share ideas and stories.\\nLet’s build something meaningful together!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen bei MyndVault!\nDiese App ist mehr als nur ein Projekt – sie ist ein Spiegelbild meiner Reise. Spät im Leben in die Softwareentwicklung einzusteigen, war nicht einfach, aber es wurde durch den Wunsch motiviert, sinnvolle, ablenkungsfreie Werkzeuge in einer Welt voller digitalem Lärm zu schaffen. MyndVault wurde mit dem Gedanken an digitalen Minimalismus entwickelt, um Ihnen zu helfen, Ihre Gedanken mühelos zu speichern und abzurufen, ohne Ihre Aufmerksamkeit zu stehlen. Keine Werbung, keine Benachrichtigungen, keine Erfassung persönlicher Daten. Nur eine einfache, elegante Benutzeroberfläche, die Ihnen hilft, sich an das Wichtige zu erinnern.\n\nWenn Sie selbst Entwickler sind oder einfach nur neugierig, wie diese App funktioniert, zögern Sie nicht, sich zu melden – ich würde gerne Ideen und Geschichten austauschen.\nLassen Sie uns gemeinsam etwas Sinnvolles schaffen!"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Καλώς ήρθατε στο MyndVault!\nΑυτή η εφαρμογή είναι κάτι περισσότερο από project—είναι μια αντανάκλαση της προσωπικής μου διαδρομής. Το να στραφώ στον προγραμματισμό σε μεγαλύτερη ηλικία δεν ήταν εύκολο, αλλά ήταν μια απόφαση που προέκυψε από την επιθυμία να δημιουργήσω ουσιαστικά εργαλεία χωρίς περισπασμούς σε έναν κόσμο γεμάτο ψηφιακό θόρυβο. Το MyndVault σχεδιάστηκε με γνώμονα τον ψηφιακό μινιμαλισμό, για να σας βοηθήσει να αποθηκεύετε και να ανακτάτε τις σκέψεις σας χωρίς προσπάθεια και χωρίς να σας αποσπά την προσοχή. Χωρίς διαφημίσεις, χωρίς ειδοποιήσεις, χωρίς συλλογή προσωπικών δεδομένων. Μια απλή και κομψή διεπαφή που σας βοηθά να θυμάστε τα σημαντικά πράγματα.\n\nΑν είστε κι εσείς προγραμματιστής ή απλά περίεργοι για το πώς λειτουργεί αυτή η εφαρμογή, μη διστάσετε να επικοινωνήσετε—θα χαρώ να μοιραστούμε ιδέες και ιστορίες.\nΑς δημιουργήσουμε κάτι ουσιαστικό μαζί!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Bienvenido a MyndVault!\nEsta aplicación es más que un simple proyecto: es un reflejo de mi viaje personal. Pasar al desarrollo de software más adelante en la vida no fue fácil, pero fue impulsado por el deseo de crear herramientas significativas y libres de distracciones en un mundo lleno de ruido digital. MyndVault fue diseñado con el minimalismo digital en mente, para ayudarte a almacenar y recuperar tus pensamientos sin esfuerzo y sin robar tu atención. Sin anuncios, sin notificaciones, sin recopilación de datos personales. Solo una interfaz simple y elegante que te ayuda a recordar lo importante.\n\nSi eres un programador o simplemente tienes curiosidad por saber cómo funciona esta aplicación, no dudes en ponerte en contacto—me encantaría compartir ideas e historias.\n¡Construyamos algo significativo juntos!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bienvenue sur MyndVault !\nCette application est bien plus qu’un simple projet : c’est le reflet de mon parcours personnel. Me reconvertir dans le développement logiciel tard dans ma vie n’a pas été facile, mais cela a été motivé par le désir de créer des outils utiles et sans distraction dans un monde saturé de bruit numérique. MyndVault a été conçu avec le minimalisme numérique en tête, pour vous aider à stocker et récupérer vos pensées facilement, sans détourner votre attention. Pas de publicités, pas de notifications, pas de collecte de données personnelles. Juste une interface simple et élégante qui vous aide à vous rappeler l’essentiel.\n\nSi vous êtes développeur ou simplement curieux de savoir comment fonctionne cette application, n’hésitez pas à me contacter—j’aimerais partager des idées et des histoires.\nConstruisons quelque chose de significatif ensemble !"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\nברוכים הבאים ל-MyndVault!\nהאפליקציה הזו היא הרבה יותר מפרויקט בלבד—היא שיקוף של המסע האישי שלי. המעבר לפיתוח תוכנה בשלב מאוחר בחיי לא היה פשוט, אבל הוא נבע מרצון ליצור כלים משמעותיים וחסרי הסחות דעת בעולם מלא רעש דיגיטלי. MyndVault נבנתה עם עקרונות המינימליזם הדיגיטלי, כדי לעזור לכם לשמור ולשלוף את המחשבות שלכם בקלות, בלי להסיח את דעתכם. ללא פרסומות, ללא התראות, ללא איסוף נתונים אישיים. רק ממשק פשוט ואלגנטי שמעצים אתכם לזכור את הדברים החשובים.\n\nאם אתם מפתחים או פשוט סקרנים איך האפליקציה הזו עובדת, אשמח שתיצרו קשר—אשמח לשתף רעיונות וסיפורים.\nבואו ניצור משהו משמעותי יחד!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benvenuto su MyndVault!\nQuesta app è molto più di un semplice progetto—è il riflesso del mio percorso. Passare allo sviluppo software in una fase avanzata della mia vita non è stato facile, ma è stato guidato dal desiderio di creare strumenti significativi e privi di distrazioni in un mondo pieno di rumore digitale. MyndVault è stata progettata pensando al minimalismo digitale, per aiutarti a memorizzare e recuperare i tuoi pensieri senza sforzo, senza rubare la tua attenzione. Niente pubblicità, niente notifiche, niente raccolta di dati personali. Solo un’interfaccia semplice ed elegante che ti aiuta a ricordare ciò che è importante.\n\nSe sei uno sviluppatore o semplicemente curioso di sapere come funziona questa app, non esitare a contattarmi—mi piacerebbe condividere idee e storie.\nCreiamo qualcosa di significativo insieme!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MyndVaultへようこそ！\nこのアプリは単なるプロジェクトではありません。それは私自身の旅の反映です。人生の後半でソフトウェア開発に転向するのは簡単ではありませんでしたが、デジタルノイズの多い世界で意味のある、気を散らさないツールを作りたいという願望から始まりました。MyndVaultはデジタルミニマリズムを念頭に設計されており、あなたの考えを簡単に保存し、取り出せるようにします。広告も通知も個人データの収集もありません。ただシンプルで洗練されたインターフェースが、重要なことを覚える力を与えてくれます。\n\nもしあなたが開発者であったり、このアプリがどのように動作するかに興味があるなら、ぜひつながりましょう—アイデアやストーリーを共有したいと思います。\n一緒に何か意味のあるものを作りましょう！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MyndVault에 오신 것을 환영합니다!\n이 앱은 단순한 프로젝트가 아닙니다—제 여정을 반영한 결과물입니다. 인생 후반부에 소프트웨어 개발로 전환하는 것은 쉽지 않았지만, 디지털 소음 속에서 의미 있고 집중을 방해하지 않는 도구를 만들고자 하는 열망에 의해 이루어졌습니다. MyndVault는 디지털 미니멀리즘을 염두에 두고 설계되어, 주의를 빼앗지 않고 생각을 손쉽게 저장하고 검색할 수 있도록 도와줍니다. 광고도, 알림도, 개인 데이터 수집도 없습니다. 단순하고 세련된 인터페이스만이 중요한 것을 기억하도록 도와줍니다.\n\n개발자이거나 이 앱이 어떻게 작동하는지 궁금하시다면 언제든지 연결하세요—아이디어와 이야기를 나누고 싶습니다.\n함께 의미 있는 무언가를 만들어 봅시다!"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bem-vindo ao MyndVault!\nEste aplicativo é mais do que apenas um projeto—é um reflexo da minha jornada. Migrar para o desenvolvimento de software mais tarde na vida não foi fácil, mas foi impulsionado pelo desejo de criar ferramentas significativas e sem distrações em um mundo cheio de ruído digital. O MyndVault foi projetado com o minimalismo digital em mente, para ajudá-lo a armazenar e recuperar seus pensamentos sem esforço, sem roubar sua atenção. Sem anúncios, sem notificações, sem coleta de dados pessoais. Apenas uma interface simples e elegante que permite lembrar o que é importante.\n\nSe você é um programador ou está apenas curioso sobre como este aplicativo funciona, entre em contato—eu adoraria compartilhar ideias e histórias.\nVamos construir algo significativo juntos!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "欢迎使用 MyndVault！\n这款应用不仅仅是一个项目——它是我个人旅程的体现。后来才转入软件开发并不容易，但这是由一个愿望驱动的：在数字噪声的世界中创造有意义的、无干扰的工具。MyndVault 以数字极简主义为理念，旨在帮助您轻松存储和检索您的想法，而不会分散您的注意力。没有广告，没有通知，没有个人数据收集。只有一个简单而优雅的界面，助您记住重要的事情。\n\n如果您是同行开发者，或者对这个应用的工作原理感到好奇，请随时联系——我很乐意分享想法和故事。\n让我们一起构建有意义的事物吧!"
           }
         }
       }

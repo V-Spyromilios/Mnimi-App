@@ -33,6 +33,7 @@ class OpenAIViewModel: ObservableObject {
             embeddingsCompleted = false
             questionEmbeddingsCompleted = false
             stringResponseOnQuestion = ""
+       
             openAIError = nil
             
     }
@@ -150,7 +151,7 @@ class OpenAIViewModel: ObservableObject {
     
     
     func requestEmbeddings(for text: String, isQuestion: Bool) async throws {
-
+        throw AppNetworkError.unknownError("DEBUG")
         do {
 #if DEBUG
             print("requestEmbeddings do {")
@@ -181,7 +182,7 @@ class OpenAIViewModel: ObservableObject {
         }
     }
 
-    func getGptResponse(queryMatches: [String], question: String) async {
+    func getGptResponse(queryMatches: [Match], question: String) async {
 
         do {
             // Access `languageSettings` on the main actor
