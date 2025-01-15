@@ -53,11 +53,11 @@ struct QuestionView: View {
         case fullImage(UIImage)
         
         var id: String {
-                switch self {
-                case .error(let message):  return "error_\(message)"
-                case .fullImage:        return "fullImage"
-                }
+            switch self {
+            case .error(let message): return "error_\(message)"
+            case .fullImage: return "fullImage"
             }
+        }
     }
     @State private var activeModal: ActiveModal?
     
@@ -68,7 +68,7 @@ struct QuestionView: View {
                 LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
                     .opacity(0.4)
                     .ignoresSafeArea()
-
+                
                 ScrollView {
                     
                     HStack {
@@ -129,13 +129,13 @@ struct QuestionView: View {
                                     .padding(.bottom)
                                     .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
                                                             removal: .opacity))
-    
+                                
                             } else if shouldShowProgressView {
                                 LoadingTransitionView(isUpserting: $isLoading, isSuccess: .constant(false))
                                     .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
                                     .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
                                                             removal: .opacity))
-                                   
+                                
                             }
                         }
                         .animation(.easeInOut(duration: 0.5), value: shouldShowProgressView)
@@ -170,17 +170,6 @@ struct QuestionView: View {
                             }
                             .padding(.top, isIPad() ? 15: 0)
                         }
-                        
-//                        Button {
-//                            showSettings.toggle()
-//                        } label: {
-//                            Image(systemName: "gear")
-//                                .frame(width: 45, height: 45)
-//                                .padding(.bottom, 5)
-//                                .padding(.top, isIPad() ? 15: 0)
-//                                .opacity(0.8)
-//                                .accessibilityLabel("settings")
-//                        }
                     }
                 }
                 .sheet(item: $activeModal) { activeItem in
@@ -341,12 +330,12 @@ struct QuestionView: View {
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(
-                               LinearGradient(
-                                   gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
-                                   startPoint: .top,
-                                   endPoint: .bottom
-                               )
-                           )
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
             )
             
         }
@@ -357,16 +346,16 @@ struct QuestionView: View {
     }
     
     private var GoButton: some View {
-
+        
         CoolButton(title: "Go", systemImage: "paperplane.circle.fill", action: performTask)
-        .padding(.top, 12)
-        .padding(.horizontal)
-        .padding(.horizontal)
-        .frame(maxWidth: .infinity)
-        .opacity(isTextFieldEmpty ? 0.5 : 1.0)
-        .disabled(isTextFieldEmpty)
-        .accessibility(label: Text("Ask Question"))
-        .accessibility(hint: Text("This will query the database and return a reply"))
+            .padding(.top, 12)
+            .padding(.horizontal)
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity)
+            .opacity(isTextFieldEmpty ? 0.5 : 1.0)
+            .disabled(isTextFieldEmpty)
+            .accessibility(label: Text("Ask Question"))
+            .accessibility(hint: Text("This will query the database and return a reply"))
     }
     
     private func performClearTask() {
@@ -391,7 +380,7 @@ struct QuestionView: View {
         if question.count < 8 {
             return
         }
-        withAnimation(.easeOut) {
+        withAnimation(.easeInOut) {
             goButtonIsVisible = false
             hideKeyboard()
             isLoading = true
@@ -401,20 +390,19 @@ struct QuestionView: View {
                 try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
             }
             catch {
-                handleError(error)
+                await handleError(error)
             }
         }
-        
         apiCalls.incrementApiCallCount()
     }
     
-    private func handleError(_ error: Error) {
-
+    private func handleError(_ error: Error) async {
+        
         debugLog("handleError called from QuestionView with error: \(error)")
-        withAnimation {
+        withAnimation(.easeInOut) {
             isLoading = false
         }
-
+        
         Task {
             await MainActor.run {
                 if let networkError = error as? AppNetworkError {
