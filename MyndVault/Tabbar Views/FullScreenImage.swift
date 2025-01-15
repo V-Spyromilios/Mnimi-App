@@ -21,15 +21,3 @@ struct FullScreenImage: View {
                 .ignoresSafeArea()
     }
 }
-
-//struct FullScreenImage_Previews: PreviewProvider {
-//   static let imageSample = UIImage(named: "Wolfsburg")
-//
-//    static var previews: some View {
-//
-//        if let imageSample = imageSample {
-//            FullScreenImage(activeModal: .none, show: .constant(true), image: imageSample)
-//        }
-//    }
-//}
-
