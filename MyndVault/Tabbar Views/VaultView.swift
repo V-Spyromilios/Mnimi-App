@@ -103,9 +103,7 @@
                         .padding(.bottom)
                     }
                 }
-                
             }
-            
             .onAppear {
                 if pineconeVm.pineconeFetchedVectors.isEmpty && !pineconeVm.accountDeleted {
                     withAnimation {
@@ -113,7 +111,6 @@
                     }
                     fetchPineconeEntries()
                 }
-                
             }
             .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
                 withAnimation {
@@ -150,7 +147,6 @@
                     }
                 }
             }
-            
         }
 
         private func fetchPineconeEntries() {
@@ -169,7 +165,6 @@
 //                pineconeVm.deleteVectorFromPinecone(id: id)
 //            }
 //        }
-        
     }
 
     struct VaultView_Previews: PreviewProvider {

@@ -148,6 +148,7 @@ struct FaceIDView: View {
     
     
     private func authenticate() {
+
         DispatchQueue.global(qos: .userInitiated).async {
             let context = LAContext()
             var error: NSError?
@@ -182,6 +183,7 @@ struct FaceIDView: View {
     }
     
     private func handleAuthenticationError(error: Error?) {
+
         guard let laError = error as? LAError else {
             errorMessage = "An unknown error occurred."
             showErrorAlert = true
@@ -220,6 +222,7 @@ struct FaceIDView: View {
         }
     }
     private func attemptDeviceOwnerAuthentication() {
+
         let context = LAContext()
         let reason = "FaceID/ ToucID are locked. Please authenticate using your device passcode.\n Wrong passcode will delete your account."
         
@@ -240,6 +243,7 @@ struct FaceIDView: View {
         }
     }
     private func deleteAccount() {
+
         Task {
             await deleteNamespaceFromICloud()
             await pinecone.deleteAllVectorsInNamespace()
@@ -293,6 +297,7 @@ struct FaceIDView: View {
     }
     
     private func removeUserDefaults() {
+
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "isFirstLaunch")
         defaults.removeObject(forKey: "monthlyApiCalls")
@@ -302,6 +307,7 @@ struct FaceIDView: View {
 }
 
 struct UsernamePasswordLoginView: View {
+
     @Binding var showPasswordAuth: Bool
     @Binding var username: String
     @Binding var password: String
@@ -410,6 +416,7 @@ struct UsernamePasswordLoginView: View {
 //    }
     
     private func authenticateWithPassword() {
+
         guard let savedUsername = KeychainManager.standard.readUsername(),
               let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: savedUsername),
               let savedPassword = String(data: savedPasswordData, encoding: .utf8) else {

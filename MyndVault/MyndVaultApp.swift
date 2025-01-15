@@ -80,7 +80,7 @@ struct MyndVaultApp: App {
                     .environmentObject(pineconeViewModel)
                     .environmentObject(languageSettings)
                     .environmentObject(speechManager)
-                    .statusBar(hidden: true)
+                   
             }
             else {
                 RootView()
@@ -93,7 +93,6 @@ struct MyndVaultApp: App {
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
                     .environmentObject(speechManager)
-                    .statusBar(hidden: true)
                     .transition(.opacity)
             }
         }
@@ -122,6 +121,5 @@ struct MyndVaultApp: App {
             Text("iCloud Error").font(.title).bold().padding(.vertical)
             Text("\(error).\nPlease check your iCloud status and restart the Mynd Vault app").font(.title3).italic()
         }.foregroundStyle(.gray)
-            .statusBarHidden()
     }
 }

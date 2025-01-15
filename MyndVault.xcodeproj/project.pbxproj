@@ -70,7 +70,6 @@
 		E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */; };
 		E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5052BF8C1FA00F2A174 /* MainView.swift */; };
 		E8B4D5082BF8CD7F00F2A174 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5072BF8CD7F00F2A174 /* KeychainManager.swift */; };
-		E8B4D50A2BF8CE8000F2A174 /* SignUpWithPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */; };
 		E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */; };
 		E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */; };
 		E8BDF9C22CFC854E0026BAE2 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BDF9C12CFC854E0026BAE2 /* RootView.swift */; };
@@ -173,7 +172,6 @@
 		E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceIDView.swift; sourceTree = "<group>"; };
 		E8B4D5052BF8C1FA00F2A174 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		E8B4D5072BF8CD7F00F2A174 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
-		E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpWithPasswordView.swift; sourceTree = "<group>"; };
 		E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialSetupView.swift; sourceTree = "<group>"; };
 		E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -389,7 +387,6 @@
 				E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */,
 				E8B4D5052BF8C1FA00F2A174 /* MainView.swift */,
 				E8B4D5072BF8CD7F00F2A174 /* KeychainManager.swift */,
-				E8B4D5092BF8CE8000F2A174 /* SignUpWithPasswordView.swift */,
 				E8B4D50B2BF8D37100F2A174 /* InitialSetupView.swift */,
 				E8B4D50D2BF8EBE000F2A174 /* AuthenticationManager.swift */,
 				E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */,
@@ -604,7 +601,6 @@
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,
-				E8B4D50A2BF8CE8000F2A174 /* SignUpWithPasswordView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

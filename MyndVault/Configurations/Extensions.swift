@@ -61,8 +61,6 @@ done:
     static let showLangDuration: CGFloat = 2.5
     
     static let entitlementID: String = "manager"
-    
-    static let welcomeText: String = "Welcome to MyndVault!\n\nThis app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. MyndVault was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention. No ads, no notifications, no personal data collection. Just a simple, elegant interface that empowers you to remember the important staff.\n\nIf you’re a fellow coder or just curious about how this app works, feel free to connect— I’d love to share ideas and stories.\nLet’s build something meaningful together!"
 }
 
 

@@ -10,8 +10,7 @@ import SwiftUI
 struct ImageView: View {
     let index: Int
     let image: UIImage
-    @Binding var selectedImageIndex: Int?
-    @Binding var showFullImage: Bool
+    @Binding var activeModal: QuestionView.ActiveModal?
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
@@ -25,8 +24,9 @@ struct ImageView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            self.selectedImageIndex = index
-            withAnimation(.easeOut) { showFullImage = true }
+            withAnimation(.easeInOut) {
+                activeModal = .fullImage(image)
+            }
         }
     }
 }

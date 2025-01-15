@@ -24,8 +24,6 @@ struct QuestionView: View {
     @State private var goButtonIsVisible: Bool = true
     @State private var selectedImageIndex: Int? = nil
     @State private var showNoInternet = false
-    @State private var showFullImage: Bool = false
-    @State private var showSettings: Bool = false
     @State private var fetchedImages: [UIImage] = []
     @State private var isLoading: Bool = false
     @State private var showLang: Bool = false
@@ -52,13 +50,11 @@ struct QuestionView: View {
     
     enum ActiveModal: Identifiable {
         case error(String)
-        case settings
         case fullImage(UIImage)
         
         var id: String {
                 switch self {
                 case .error(let message):  return "error_\(message)"
-                case .settings:            return "settings"
                 case .fullImage:        return "fullImage"
                 }
             }
@@ -175,16 +171,16 @@ struct QuestionView: View {
                             .padding(.top, isIPad() ? 15: 0)
                         }
                         
-                        Button {
-                            showSettings.toggle()
-                        } label: {
-                            Image(systemName: "gear")
-                                .frame(width: 45, height: 45)
-                                .padding(.bottom, 5)
-                                .padding(.top, isIPad() ? 15: 0)
-                                .opacity(0.8)
-                                .accessibilityLabel("settings")
-                        }
+//                        Button {
+//                            showSettings.toggle()
+//                        } label: {
+//                            Image(systemName: "gear")
+//                                .frame(width: 45, height: 45)
+//                                .padding(.bottom, 5)
+//                                .padding(.top, isIPad() ? 15: 0)
+//                                .opacity(0.8)
+//                                .accessibilityLabel("settings")
+//                        }
                     }
                 }
                 .sheet(item: $activeModal) { activeItem in
@@ -197,15 +193,14 @@ struct QuestionView: View {
                         .presentationDetents([.fraction(0.4)])
                         .presentationDragIndicator(.hidden)
                         .presentationBackground(Color.clear)
-                    case .settings:
-                        SettingsView(showSettings: $showSettings)
                     case .fullImage(let image):
-                        FullScreenImage(show: $showFullImage, image: image)
-                    }
-                }
-                .onChange(of: selectedImageIndex) { _, newValue in
-                    if newValue == nil {
-                        showFullImage = false
+                        FullScreenImage(image: image)
+                            .presentationDragIndicator(.hidden)
+                            .presentationBackground(Color.clear)
+                            .onTapGesture {
+                                activeModal = nil
+                            }
+                            .statusBarHidden()
                     }
                 }
                 .onChange(of: languageSettings.selectedLanguage) { _, newValue in
@@ -253,9 +248,6 @@ struct QuestionView: View {
                         dismissButton: .cancel(Text("OK"))
                     )
                 }
-//                .fullScreenCover(isPresented: $showSettings) {
-//                    SettingsView(showSettings: $showSettings)
-//                }
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
                     if !hasInternet {
                         showNoInternet = true
@@ -316,8 +308,7 @@ struct QuestionView: View {
                 ImageView(
                     index: index,
                     image: fetchedImages[index],
-                    selectedImageIndex: $selectedImageIndex,
-                    showFullImage: $showFullImage
+                    activeModal: $activeModal
                 )
             }
         }
@@ -366,35 +357,7 @@ struct QuestionView: View {
     }
     
     private var GoButton: some View {
-//        Button(action: performTask) {
-//            
-//            HStack(spacing: 12) {
-//                Image(systemName: "paperplane")
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fit)
-//                    .frame(height: 24)
-//                    .foregroundColor(.blue)
-//                Text("Go")
-//                    .font(.system(size: 18, weight: .bold))
-//                    .fontDesign(.rounded)
-//                    .foregroundColor(.blue)
-//                    .accessibility(label: Text("Ask Question"))
-//                    .accessibility(hint: Text("This will query the database and return a reply"))
-//            }
-//            .padding()
-//            .frame(maxWidth: .infinity)
-//            .frame(height: Constants.buttonHeight)
-//            .background(
-//                RoundedRectangle(cornerRadius: 10)
-//                    .fill(
-//                        LinearGradient(
-//                            gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)]),
-//                            startPoint: .top,
-//                            endPoint: .bottom
-//                        )
-//                    )
-//            )
-//        }
+
         CoolButton(title: "Go", systemImage: "paperplane.circle.fill", action: performTask)
         .padding(.top, 12)
         .padding(.horizontal)
@@ -436,11 +399,39 @@ struct QuestionView: View {
         Task {
             do {
                 try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
-            } catch {
-                debugLog("\(error)")
+            }
+            catch {
+                handleError(error)
             }
         }
+        
         apiCalls.incrementApiCallCount()
+    }
+    
+    private func handleError(_ error: Error) {
+
+        debugLog("handleError called from QuestionView with error: \(error)")
+        withAnimation {
+            isLoading = false
+        }
+
+        Task {
+            await MainActor.run {
+                if let networkError = error as? AppNetworkError {
+                    self.thrownError = networkError.errorDescription
+                    activeModal = .error(thrownError)
+                } else if let ckError = error as? AppCKError {
+                    self.thrownError = ckError.errorDescription
+                    activeModal = .error(thrownError)
+                } else if let cloudKitError = error as? CKError {
+                    self.thrownError = cloudKitError.customErrorDescription
+                    activeModal = .error(thrownError)
+                } else {
+                    self.thrownError = error.localizedDescription
+                    activeModal = .error(thrownError)
+                }
+            }
+        }
     }
     
     private func handlePineconeResponse(_ pineconeResponse: PineconeQueryResponse) {
@@ -475,7 +466,7 @@ struct QuestionView: View {
             }
         }
         Task {
-            await openAiManager.getGptResponse(queryMatches: pineconeResponse.getMatchesDescription(), question: question)
+            await openAiManager.getGptResponse(queryMatches: pineconeResponse.matches, question: question)
         }
         apiCalls.incrementApiCallCount()
     }

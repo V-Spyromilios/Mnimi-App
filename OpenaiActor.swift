@@ -52,7 +52,7 @@ extension OpenAIError: Hashable {
 
 
 actor OpenAIActor {
-
+    
     private let apiKey: String?
     
     // MARK: - Initializer
@@ -67,83 +67,85 @@ actor OpenAIActor {
     
     // Fetch Embeddings
     func fetchEmbeddings(for inputText: String) async throws -> EmbeddingsResponse {
-        let maxAttempts = 3
-        var attempts = 0
-        var lastError: Error?
+
+            let maxAttempts = 3
+            var attempts = 0
+            var lastError: Error?
 #if DEBUG
-        print("Fetching Embeddings for: \(inputText)")
+            print("Fetching Embeddings for: \(inputText)")
 #endif
-        while attempts < maxAttempts {
-            do {
-                guard let url = URL(string: "https://api.openai.com/v1/embeddings"),
-                      let apiKey = self.apiKey else {
-                    throw AppNetworkError.invalidOpenAiURL
-                }
-                
-                var request = URLRequest(url: url)
-                request.httpMethod = "POST"
-                request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                
-                let requestBody: [String: Any] = [
-                    "input": inputText,
-                    "model": "text-embedding-3-large",
-                ]
-                
-                let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-                request.httpBody = jsonData
+            while attempts < maxAttempts {
+                do {
+                    guard let url = URL(string: "https://api.openai.com/v1/embeddings"),
+                          let apiKey = self.apiKey else {
+                        throw AppNetworkError.invalidOpenAiURL
+                    }
+                    
+                    var request = URLRequest(url: url)
+                    request.httpMethod = "POST"
+                    request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                    
+                    let requestBody: [String: Any] = [
+                        "input": inputText,
+                        "model": "text-embedding-3-large",
+                    ]
+                    
+                    let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+                    request.httpBody = jsonData
 #if DEBUG
-                print("Fetching Embeddings jsonData")
+                    print("Fetching Embeddings jsonData")
 #endif
-                
-                let (data, response) = try await URLSession.shared.data(for: request)
-                
+                    
+                    let (data, response) = try await URLSession.shared.data(for: request)
+                    
 #if DEBUG
-                print("Fetching Embeddings URLSession")
+                    print("Fetching Embeddings URLSession")
 #endif
-                
-                let httpresponse = response as? HTTPURLResponse
-                let code = httpresponse?.statusCode
-                
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    
+                    let httpresponse = response as? HTTPURLResponse
+                    let code = httpresponse?.statusCode
+                    
+                    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
 #if DEBUG
-                    print("http Response Code \(String(describing: code))!!")
+                        print("http Response Code \(String(describing: code))!!")
 #endif
-                    throw AppNetworkError.invalidResponse
-                }
+                        throw AppNetworkError.invalidResponse
+                    }
 #if DEBUG
-                print("Fetching Embeddings Before decoder")
+                    print("Fetching Embeddings Before decoder")
 #endif
-                
-                let decoder = JSONDecoder()
+                    
+                    let decoder = JSONDecoder()
 #if DEBUG
-                print("Fetching Embeddings Will decode")
+                    print("Fetching Embeddings Will decode")
 #endif
-                let embeddingsResponse = try decoder.decode(EmbeddingsResponse.self, from: data)
-                
-                // Update token usage
-                updateTokenUsage(api: APIs.openAI, tokensUsed: embeddingsResponse.usage.totalTokens, read: false)
-                
-                return embeddingsResponse
-            } catch {
-                lastError = error
-                attempts += 1
-                if attempts < maxAttempts {
-                    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
+                    let embeddingsResponse = try decoder.decode(EmbeddingsResponse.self, from: data)
+                    
+                    // Update token usage
+                    updateTokenUsage(api: APIs.openAI, tokensUsed: embeddingsResponse.usage.totalTokens, read: false)
+                    
+                    return embeddingsResponse
+                } catch {
+                    lastError = error
+                    attempts += 1
+                    if attempts < maxAttempts {
+                        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
+                    }
                 }
             }
-        }
 #if DEBUG
-        let error = lastError as? AppNetworkError
-        let msg = error?.errorDescription
-        print("Fetching Embeddings last Error: \(String(describing: msg))")
+            let error = lastError as? AppNetworkError
+            let msg = error?.errorDescription
+            print("Fetching Embeddings last Error: \(String(describing: msg))")
 #endif
+            
+            throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during embeddings fetch.")
         
-        throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during embeddings fetch.")
     }
     
     // Get GPT Response
-    func getGptResponse(vectorResponses: [String], question: String, selectedLanguage: LanguageCode) async throws -> String {
+    func getGptResponse(vectorResponses: [Match], question: String, selectedLanguage: LanguageCode) async throws -> String {
         let maxAttempts = 2
         var attempts = 0
         var lastError: Error?
@@ -155,11 +157,11 @@ actor OpenAIActor {
                     throw AppNetworkError.invalidOpenAiURL
                 }
                 
-                let prompt = getGptPrompt(vectorResponses: vectorResponses, question: question, selectedLanguage: selectedLanguage)
+                let prompt = getGptPrompt(matches: vectorResponses, question: question, selectedLanguage: selectedLanguage)
                 
                 let requestBody: [String: Any] = [
                     "model": "gpt-4o",
-                    "temperature": 0,
+                    "temperature": 0.2,
                     "messages": [["role": "system", "content": prompt]]
                 ]
                 
@@ -198,8 +200,7 @@ actor OpenAIActor {
         throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during GPT response fetch.")
     }
     
-    // Get GPT Prompt
-    private func getGptPrompt(vectorResponses: [String], question: String, selectedLanguage: LanguageCode) -> String {
+    private func getGptPrompt(matches: [Match], question: String, selectedLanguage: LanguageCode) -> String {
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.timeZone = TimeZone.current
         isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -209,187 +210,227 @@ actor OpenAIActor {
         dateFormatter.dateFormat = "EEEE, MMMM d, yyyy"
         let readableDateString = dateFormatter.string(from: Date())
         
-        let firstVector = vectorResponses.indices.contains(0) ? vectorResponses[0] : ""
-        let secondVector = vectorResponses.indices.contains(1) ? vectorResponses[1] : ""
+        // Format matches for the prompt
+        let formattedMatches = matches.map { match in
+            """
+            - Score: \(match.score) (higher values indicate greater relevance)
+            - Description: \(match.metadata?["description"] ?? "N/A")
+            - Timestamp: \(match.metadata?["timestamp"] ?? "N/A")
+            """
+        }
         
+        let formattedMatchesString = formattedMatches.joined(separator: "\n\n")
         switch selectedLanguage {
         case .english:
             return """
-            You are an AI assistant, and you have been asked to provide a concise reply to the user's question. Below is the user's question and one or two pieces of information retrieved by the user's vector database. Note that these pieces of information are the ones with the highest similarity score but may be irrelevant to the user's question:
-            
-            - User's Question: \(question).
-            - Relevant Information 1: \(firstVector).
-            - Relevant Information 2: \(secondVector).
-            
-            Using the user's question, and if relevant the information provided, generate a comprehensive, informative, and concise reply that addresses the user's inquiry. Evaluate the relevance of the retrieved information:
-            - If the retrieved information is relevant, integrate it into your response to provide a helpful response.
-            - If the retrieved information is not relevant at all, use your general knowledge to provide a helpful response, and suggest that the user provide additional information to the app for more accurate answers in the future.
-            - Always give priority to the relevant information provided by the user to craft an accurate reply.
-            
-            If relevant for your reply, today is \(readableDateString), and the current time in ISO8601 format is \(isoDateString). Do not return full dates and times unless necessary.
-            
-            The response should be clear, engaging, and concise.
-            """
-        case .spanish:
-            return """
-                Eres un asistente de IA y se te ha pedido que proporciones información concisa sobre un tema específico. A continuación, se presenta la pregunta del usuario y una o dos piezas de información recuperadas por la base de datos vectorial. Ten en cuenta que estas piezas de información son las que tienen la puntuación de similitud más alta, pero pueden no ser relevantes para la pregunta del usuario:
-                
-                                       - Pregunta del usuario: \(question).
-                                       - Información relevante 1: \(firstVector).
-                                       - Información relevante 2: \(secondVector).
-                
-                Usando la pregunta del usuario y, si es relevante, la información proporcionada, genera una respuesta completa, informativa y concisa que responda a la consulta del usuario. Evalúa la relevancia de la información recuperada:
-                                   - Si la información recuperada es relevante, intégrala en tu respuesta para proporcionar una respuesta útil.
-                                   - Si la información recuperada no es relevante o parece ambigua, usa tu conocimiento general para proporcionar una respuesta útil, y resalta cualquier incertidumbre y sugiere que el usuario proporcione información adicional a la aplicación para obtener respuestas más precisas en el futuro.
-                
-                Si es relevante para tu respuesta, hoy es \(readableDateString), y la hora actual en formato ISO8601 es \(isoDateString). No devuelvas fechas y horas completas a menos que sea necesario.
-                
-                La respuesta debe ser clara, atractiva y concisa.
-                """
-        case .french:
-            return """
-                Vous êtes un assistant IA et on vous a demandé de fournir des informations concises sur un sujet spécifique. Voici la question de l'utilisateur et une ou deux pièces d'informations récupérées par la base de données vectorielle. Notez que ces informations sont celles avec le score de similarité le plus élevé, mais peuvent ne pas être pertinentes pour la question de l'utilisateur :
-                
-                                       - Question de l'utilisateur : \(question).
-                                       - Information pertinente 1 : \(firstVector).
-                                       - Information pertinente 2 : \(secondVector).
-                
-                En utilisant la question de l'utilisateur et, si elle est pertinente, les informations fournies, générez une réponse complète, informative et concise qui réponde à la demande de l'utilisateur. Évaluez la pertinence des informations récupérées :
-                                   - Si les informations récupérées sont pertinentes, intégrez-les à votre réponse pour fournir une réponse utile.
-                                   - Si les informations récupérées ne sont pas pertinentes ou semblent ambiguës, utilisez vos connaissances générales pour fournir une réponse utile, mettez en évidence toute incertitude et suggérez à l'utilisateur de fournir des informations supplémentaires à l'application pour obtenir des réponses plus précises à l'avenir.
-                
-                Si cela est pertinent pour votre réponse, aujourd'hui est le \(readableDateString), et l'heure actuelle au format ISO8601 est \(isoDateString). Ne renvoyez pas de dates et heures complètes sauf si nécessaire.
-                
-                La réponse doit être claire, engageante et concise.
-                """
+    You are an AI assistant tasked with answering the user's question based on information retrieved from a vector database. Below is the user's question and two pieces of information retrieved as the most relevant matches based on embedding similarity. Note that these matches may not necessarily be directly relevant to the user's question.
+    
+    - User's Question: \(question)
+    
+    - Relevant Information:
+    \(formattedMatchesString)
+    
+    Your task:
+    1. Evaluate the relevance of the provided information to the user's question.
+       - If the information is relevant, integrate it into your response to create a helpful and accurate reply.
+       - If the information is not relevant, rely on your general knowledge to answer the question effectively, and suggest that the user provide additional or more specific data to improve future responses.
+    2. Always aim to provide a response that is clear, concise, and helpful to the user.
+    
+    Additional Context:
+    - If relevant for your reply, today is \(readableDateString), and the current ISO8601 time is \(isoDateString).
+    - The response should avoid unnecessary details and focus on addressing the user's query.
+    """
         case .german:
             return """
-                Sie sind ein KI-Assistent und wurden gebeten, prägnante Informationen zu einem bestimmten Thema bereitzustellen. Unten finden Sie die Frage des Nutzers und ein oder zwei Informationen, die von der Vektordatenbank abgerufen wurden. Beachten Sie, dass diese Informationen die höchste Ähnlichkeitsbewertung haben, aber möglicherweise nicht relevant für die Frage des Nutzers sind:
-                
-                                       - Frage des Nutzers: \(question).
-                                       - Relevante Information 1: \(firstVector).
-                                       - Relevante Information 2: \(secondVector).
-                
-                Verwenden Sie die Frage des Nutzers und, falls relevant, die bereitgestellten Informationen, um eine umfassende, informative und prägnante Antwort zu generieren, die die Anfrage des Nutzers beantwortet. Bewerten Sie die Relevanz der abgerufenen Informationen:
-                                   - Wenn die abgerufenen Informationen relevant sind, integrieren Sie sie in Ihre Antwort, um eine hilfreiche Antwort zu geben.
-                                   - Wenn die abgerufenen Informationen nicht relevant oder unklar sind, verwenden Sie Ihr Allgemeinwissen, um eine hilfreiche Antwort zu geben, und heben Sie eventuelle Unklarheiten hervor und schlagen Sie vor, dass der Nutzer der App zusätzliche Informationen bereitstellt, um in Zukunft genauere Antworten zu erhalten.
-                
-                Wenn es für Ihre Antwort relevant ist, ist heute der \(readableDateString), und die aktuelle Zeit im ISO8601-Format ist \(isoDateString). Geben Sie vollständige Daten und Zeiten nur dann zurück, wenn dies erforderlich ist.
-                
-                Die Antwort sollte klar, ansprechend und prägnant sein.
-                """
+    Sie sind ein KI-Assistent, der damit beauftragt ist, die Frage des Nutzers basierend auf Informationen aus einer Vektordatenbank zu beantworten. Unten finden Sie die Frage des Nutzers und zwei Informationen, die auf Grundlage der Ähnlichkeit der Embeddings als am relevantesten angesehen wurden. Beachten Sie, dass diese Informationen möglicherweise nicht direkt mit der Frage des Nutzers zusammenhängen.
+    
+    - Frage des Nutzers: \(question)
+    
+    - Relevante Informationen:
+    \(formattedMatchesString)
+    
+    Ihre Aufgabe:
+    1. Bewerten Sie die Relevanz der bereitgestellten Informationen in Bezug auf die Frage des Nutzers.
+       - Wenn die Informationen relevant sind, integrieren Sie sie in Ihre Antwort, um eine hilfreiche und genaue Antwort zu erstellen.
+       - Wenn die Informationen nicht relevant sind, nutzen Sie Ihr Allgemeinwissen, um die Frage effektiv zu beantworten, und schlagen Sie dem Nutzer vor, zusätzliche oder spezifischere Daten bereitzustellen, um zukünftige Antworten zu verbessern.
+    2. Stellen Sie sicher, dass Ihre Antwort klar, prägnant und hilfreich für den Nutzer ist.
+    
+    Zusätzlicher Kontext:
+    - Wenn es für Ihre Antwort relevant ist: Heute ist der \(readableDateString), und die aktuelle Zeit im ISO8601-Format lautet \(isoDateString).
+    - Die Antwort sollte unnötige Details vermeiden und sich auf die Frage des Nutzers konzentrieren.
+    """
+        case .spanish:
+            return """
+    Eres un asistente de IA encargado de responder a la pregunta del usuario basándote en información recuperada de una base de datos vectorial. A continuación, se muestra la pregunta del usuario y dos piezas de información consideradas como las más relevantes según la similitud de los embeddings. Ten en cuenta que esta información puede no estar directamente relacionada con la pregunta del usuario.
+
+    - Pregunta del usuario: \(question)
+
+    - Información relevante:
+    \(formattedMatchesString)
+
+    Tu tarea:
+    1. Evalúa la relevancia de la información proporcionada con respecto a la pregunta del usuario.
+       - Si la información es relevante, intégrala en tu respuesta para crear una respuesta útil y precisa.
+       - Si la información no es relevante, utiliza tus conocimientos generales para responder de manera efectiva y sugiere al usuario proporcionar datos adicionales o más específicos para mejorar las respuestas futuras.
+    2. Siempre busca proporcionar una respuesta clara, concisa y útil para el usuario.
+
+    Contexto adicional:
+    - Si es relevante para tu respuesta, hoy es \(readableDateString) y la hora actual en formato ISO8601 es \(isoDateString).
+    - La respuesta debe evitar detalles innecesarios y centrarse en abordar la pregunta del usuario.        
+    """
+        case .french:
+            return """
+    Vous êtes un assistant IA chargé de répondre à la question de l'utilisateur en vous basant sur les informations récupérées depuis une base de données vectorielle. Ci-dessous se trouvent la question de l'utilisateur et deux informations considérées comme les plus pertinentes sur la base de leur similarité d'embedding. Notez que ces informations peuvent ne pas être directement liées à la question de l'utilisateur.
+    
+    - Question de l'utilisateur : \(question)
+    
+    - Informations pertinentes :
+    \(formattedMatchesString)
+    
+    Votre tâche :
+    1. Évaluez la pertinence des informations fournies par rapport à la question de l'utilisateur.
+       - Si les informations sont pertinentes, intégrez-les dans votre réponse pour créer une réponse utile et précise.
+       - Si les informations ne sont pas pertinentes, basez-vous sur vos connaissances générales pour répondre efficacement à la question et suggérez à l'utilisateur de fournir des données supplémentaires ou plus spécifiques pour améliorer les réponses futures.
+    2. Cherchez toujours à fournir une réponse claire, concise et utile à l'utilisateur.
+    
+    Contexte supplémentaire :
+    - Si cela est pertinent pour votre réponse, aujourd'hui nous sommes le \(readableDateString), et l'heure actuelle au format ISO8601 est \(isoDateString).
+    - La réponse doit éviter les détails inutiles et se concentrer sur la question de l'utilisateur.
+    """
         case .greek:
             return """
-              Είστε ένας βοηθός τεχνητής νοημοσύνης και σας ζητήθηκε να παρέχετε συνοπτικές πληροφορίες για ένα συγκεκριμένο θέμα. Παρακάτω είναι η ερώτηση του χρήστη και ένα ή δύο κομμάτια πληροφοριών που ανακτήθηκαν από τη βάση δεδομένων. Σημειώστε ότι αυτά τα κομμάτια πληροφοριών είναι αυτά με την υψηλότερη βαθμολογία ομοιότητας, αλλά μπορεί να είναι άσχετα με την ερώτηση του χρήστη:
-
-                                     - Ερώτηση του χρήστη: \(question).
-                                     - Σχετική Πληροφορία 1: \(firstVector).
-                                     - Σχετική Πληροφορία 2: \(secondVector).
-
-              Χρησιμοποιώντας την ερώτηση του χρήστη και, αν είναι σχετικό, τις παρεχόμενες πληροφορίες, δημιουργήστε μια ολοκληρωμένη, ενημερωτική και συνοπτική απάντηση που να απαντά στην ερώτηση του χρήστη. Αξιολογήστε τη σχετικότητα των ανακτηθέντων πληροφοριών:
-                                 - Αν οι ανακτηθείσες πληροφορίες είναι σχετικές, ενσωματώστε τις στην απάντησή σας για να δώσετε μια χρήσιμη απάντηση.
-                                 - Αν οι ανακτηθείσες πληροφορίες δεν είναι σχετικές ή φαίνονται ασαφείς, χρησιμοποιήστε τις γενικές σας γνώσεις για να δώσετε μια χρήσιμη απάντηση, τονίστε τυχόν αβεβαιότητες και προτείνετε στον χρήστη να παρέχει πρόσθετες πληροφορίες στην εφαρμογή για πιο ακριβείς απαντήσεις στο μέλλον.
-
-              Αν είναι σχετικό για την απάντησή σας, σήμερα είναι \(readableDateString), και η τρέχουσα ώρα σε μορφή ISO8601 είναι \(isoDateString). Μην επιστρέφετε πλήρεις ημερομηνίες και ώρες εκτός αν είναι απαραίτητο.
-              Η απάντηση θα πρέπει να είναι σαφής, ελκυστική και συνοπτική.
-"""
-        case .korean:
-            return """
-            당신은 AI 어시스턴트이며, 특정 주제에 대한 간결한 정보를 제공해달라는 요청을 받았습니다. 아래는 사용자의 질문과 벡터 데이터베이스에서 검색된 한두 가지 정보입니다. 이 정보들은 가장 높은 유사도 점수를 가진 정보이지만, 사용자의 질문과는 무관할 수도 있습니다:
-            
-                                   - 사용자의 질문: \(question).
-                                   - 관련 정보 1: \(firstVector).
-                                   - 관련 정보 2: \(secondVector).
-            
-            사용자의 질문과 제공된 정보가 관련이 있는 경우, 사용자의 문의를 해결할 수 있는 포괄적이고, 유익하며, 간결한 답변을 생성하세요. 검색된 정보의 관련성을 평가하세요:
-                               - 검색된 정보가 관련이 있다면, 이를 응답에 통합하여 유용한 답변을 제공하세요.
-                               - 검색된 정보가 관련이 없거나 모호하다면, 일반 지식을 사용하여 유용한 답변을 제공하고, 불확실성을 강조하고 사용자가 더 정확한 답변을 얻기 위해 앱에 추가 정보를 제공하도록 제안하세요.
-            
-            답변에 관련이 있다면, 오늘 날짜는 \(readableDateString), 현재 시간은 ISO8601 형식으로 \(isoDateString)입니다. 필요하지 않은 경우, 전체 날짜와 시간을 반환하지 마세요.
-            
-            답변은 명확하고, 흥미롭고, 간결해야 합니다.
-            """
-        case .japanese:
-            return """
-            あなたはAIアシスタントであり、特定のトピックに関する簡潔な情報を提供するように求められています。以下はユーザーの質問とベクトルデータベースから取得された1つまたは2つの情報です。これらの情報は最も高い類似度スコアを持っていますが、ユーザーの質問に関連しない場合があります:
-            
-                                   - ユーザーの質問: \(question).
-                                   - 関連情報1: \(firstVector).
-                                   - 関連情報2: \(secondVector).
-            
-            ユーザーの質問と提供された情報が関連している場合、それを使用してユーザーの問い合わせに対応する包括的で有益かつ簡潔な回答を生成してください。取得された情報の関連性を評価してください:
-                               - 取得された情報が関連している場合、それを回答に統合して有用な回答を提供してください。
-                               - 取得された情報が関連していない場合や曖昧な場合は、一般知識を使用して有用な回答を提供し、不確実な点を強調して、将来より正確な回答を得るためにユーザーがアプリに追加情報を提供するよう提案してください。
-            
-            回答に関連がある場合、今日は\(readableDateString)であり、現在のISO8601形式の時刻は\(isoDateString)です。必要でない限り、完全な日付や時刻を返さないでください。
-            
-            回答は明確で、魅力的で、簡潔である必要があります。
-            """
-        case .chineseSimplified:
-            return """
-您是一名AI助手，您被要求提供有关特定主题的简明信息。以下是用户的问题和从向量数据库中检索到的一两条信息。请注意，这些信息是相似度得分最高的，但可能与用户的问题无关：
-
-                       - 用户的问题: \(question)。
-                       - 相关信息1: \(firstVector)。
-                       - 相关信息2: \(secondVector)。
-
-根据用户的问题，以及提供的信息（如果相关），生成一个全面、信息丰富且简洁的回复，以回答用户的询问。评估检索到的信息的相关性：
-                   - 如果检索到的信息是相关的，请将其整合到您的回复中，以提供有帮助的回答。
-                   - 如果检索到的信息不相关或显得模糊，请使用您的一般知识提供有帮助的回答，并突出任何不确定性，建议用户提供更多信息，以便将来获得更准确的答案。
-
-如果对您的回复有帮助，今天是\(readableDateString)，当前时间是ISO8601格式的\(isoDateString)。除非必要，否则不要返回完整的日期和时间。
-
-回复应当清晰、吸引人且简洁。
-"""
-        case .portuguese:
-            return """
-            Você é um assistente de IA e foi solicitado a fornecer informações concisas sobre um tópico específico. Abaixo está a pergunta do usuário e uma ou duas peças de informação recuperadas pelo banco de dados vetorial. Note que essas informações são as que possuem a maior pontuação de similaridade, mas podem ser irrelevantes para a pergunta do usuário:
-            
-                                   - Pergunta do usuário: \(question).
-                                   - Informação relevante 1: \(firstVector).
-                                   - Informação relevante 2: \(secondVector).
-            
-            Usando a pergunta do usuário e, se relevante, as informações fornecidas, gere uma resposta abrangente, informativa e concisa que responda à consulta do usuário. Avalie a relevância das informações recuperadas:
-                               - Se as informações recuperadas forem relevantes, integre-as à sua resposta para fornecer uma resposta útil.
-                               - Se as informações recuperadas não forem relevantes ou parecerem ambíguas, use seu conhecimento geral para fornecer uma resposta útil, destaque quaisquer incertezas e sugira que o usuário forneça informações adicionais ao aplicativo para obter respostas mais precisas no futuro.
-            
-            Se for relevante para sua resposta, hoje é \(readableDateString), e a hora atual no formato ISO8601 é \(isoDateString). Não retorne datas e horários completos, a menos que seja necessário.
-            
-            A resposta deve ser clara, envolvente e concisa.
-            """
-        case .italian:
-            return """
-            Sei un assistente AI e ti è stato chiesto di fornire informazioni concise su un argomento specifico. Di seguito è riportata la domanda dell'utente e uno o due pezzi di informazioni recuperati dal database vettoriale. Nota che questi pezzi di informazioni sono quelli con il punteggio di somiglianza più alto, ma potrebbero essere irrilevanti per la domanda dell'utente:
-            
-            - Domanda dell'utente: \(question).
-            - Informazione rilevante 1: \(firstVector).
-            - Informazione rilevante 2: \(secondVector).
-            
-            Usando la domanda dell'utente, e se rilevanti le informazioni fornite, genera una risposta completa, informativa e concisa che affronti la domanda dell'utente. Valuta la rilevanza delle informazioni recuperate:
-            - Se le informazioni recuperate sono rilevanti, integrale nella tua risposta per fornire una risposta utile.
-            - Se le informazioni recuperate non sono rilevanti o sembrano ambigue, usa le tue conoscenze generali per fornire una risposta utile, evidenzia eventuali incertezze e suggerisci all'utente di fornire ulteriori informazioni all'app per risposte più accurate in futuro.
-            
-            Se rilevante per la tua risposta, oggi è \(readableDateString), e l'ora attuale nel formato ISO8601 è \(isoDateString). Non restituire date e orari completi a meno che non sia necessario.
-            
-            La risposta deve essere chiara, coinvolgente e concisa.
-            """
+    Είστε ένας βοηθός τεχνητής νοημοσύνης με αποστολή να απαντήσετε στην ερώτηση του χρήστη βασιζόμενοι σε πληροφορίες που ανακτήθηκαν από μια βάση δεδομένων διανυσμάτων. Παρακάτω βρίσκονται η ερώτηση του χρήστη και δύο πληροφορίες που θεωρούνται οι πιο σχετικές βάσει της ομοιότητας ενσωμάτωσης. Σημειώστε ότι αυτές οι πληροφορίες ενδέχεται να μην είναι απαραίτητα άμεσα σχετικές με την ερώτηση του χρήστη.
+    
+    - Ερώτηση του χρήστη: \(question)
+    
+    - Σχετικές πληροφορίες:
+    \(formattedMatchesString)
+    
+    Η αποστολή σας:
+    1. Αξιολογήστε τη συνάφεια των παρεχόμενων πληροφοριών σε σχέση με την ερώτηση του χρήστη.
+       - Εάν οι πληροφορίες είναι σχετικές, ενσωματώστε τις στην απάντησή σας για να δημιουργήσετε μια χρήσιμη και ακριβή απάντηση.
+       - Εάν οι πληροφορίες δεν είναι σχετικές, βασιστείτε στις γενικές σας γνώσεις για να απαντήσετε αποτελεσματικά και προτείνετε στον χρήστη να παρέχει περισσότερα ή πιο συγκεκριμένα δεδομένα για τη βελτίωση των μελλοντικών απαντήσεων.
+    2. Στοχεύστε πάντα στο να παρέχετε μια απάντηση που είναι σαφής, συνοπτική και χρήσιμη για τον χρήστη.
+    
+    Επιπλέον Πλαίσιο:
+    - Εάν είναι σχετικό για την απάντησή σας, σήμερα είναι \(readableDateString), και η τρέχουσα ώρα σε μορφή ISO8601 είναι \(isoDateString).
+    - Η απάντηση θα πρέπει να αποφεύγει περιττές λεπτομέρειες και να επικεντρώνεται στην ερώτηση του χρήστη.
+    """
         case .hebrew:
             return """
-אתה עוזר בינה מלאכותית, והתבקשת לספק תשובה תמציתית לשאלת המשתמש. להלן שאלת המשתמש וחתיכה אחת או שתיים של מידע שנשלפו ממאגר הווקטורים של המשתמש. שים לב שחתיכות המידע הללו הן בעלות ציון הדמיון הגבוה ביותר אך עשויות להיות לא רלוונטיות לשאלת המשתמש:
-    •    שאלת המשתמש: (question).
-    •    מידע רלוונטי 1: (firstVector).
-    •    מידע רלוונטי 2: (secondVector).
+    אתה עוזר בינה מלאכותית שתפקידו לענות על שאלת המשתמש בהתבסס על מידע שנאסף ממאגר וקטורים. להלן השאלה של המשתמש ושתי פיסות מידע שנבחרו כהכי רלוונטיות על בסיס דמיון של וקטורים. שים לב שהמידע הזה לא בהכרח רלוונטי באופן ישיר לשאלת המשתמש.
+    
+    - שאלת המשתמש: \(question)
+    
+    - מידע רלוונטי:
+    \(formattedMatchesString)
+    
+    המשימה שלך:
+    1. הערך את מידת הרלוונטיות של המידע שניתן ביחס לשאלת המשתמש.
+       - אם המידע רלוונטי, שילב אותו בתשובתך כדי ליצור מענה מועיל ומדויק.
+       - אם המידע לא רלוונטי, הסתמך על הידע הכללי שלך כדי לענות ביעילות והצע למשתמש לספק מידע נוסף או מדויק יותר כדי לשפר את התשובות העתידיות.
+    2. שאף תמיד לספק תשובה ברורה, קצרה ומועילה למשתמש.
+    
+    הקשר נוסף:
+    - אם רלוונטי לתשובתך, היום הוא \(readableDateString), והשעה הנוכחית בפורמט ISO8601 היא \(isoDateString).
+    - התשובה צריכה להימנע מפרטים מיותרים ולהתמקד בשאלת המשתמש.
+    """
+        case .italian:
+            return """
+    Sei un assistente AI incaricato di rispondere alla domanda dell'utente basandoti su informazioni recuperate da un database vettoriale. Di seguito trovi la domanda dell'utente e due informazioni considerate le più rilevanti in base alla somiglianza degli embeddings. Nota che queste informazioni potrebbero non essere direttamente rilevanti alla domanda dell'utente.
+    
+    - Domanda dell'utente: \(question)
+    
+    - Informazioni rilevanti:
+    \(formattedMatchesString)
+    
+    Il tuo compito:
+    1. Valuta la rilevanza delle informazioni fornite rispetto alla domanda dell'utente.
+       - Se le informazioni sono rilevanti, integrale nella tua risposta per fornire una risposta utile e precisa.
+       - Se le informazioni non sono rilevanti, basati sulle tue conoscenze generali per rispondere in modo efficace e suggerisci all'utente di fornire dati aggiuntivi o più specifici per migliorare le risposte future.
+    2. Cerca sempre di fornire una risposta chiara, concisa e utile per l'utente.
+    
+    Contesto aggiuntivo:
+    - Se rilevante per la tua risposta, oggi è \(readableDateString), e l'orario attuale in formato ISO8601 è \(isoDateString).
+    - La risposta dovrebbe evitare dettagli inutili e concentrarsi sulla domanda dell'utente.
+    """
+        case .japanese:
+            return """
+    あなたはAIアシスタントとして、ベクトルデータベースから取得した情報をもとにユーザーの質問に回答する役割を担っています。以下は、ユーザーの質問と、埋め込み類似性に基づいて最も関連性が高いとされる2つの情報です。ただし、これらの情報がユーザーの質問に直接関連しているとは限りません。
+    
+    - ユーザーの質問: \(question)
+    
+    - 関連情報:
+    \(formattedMatchesString)
+    
+    あなたのタスク:
+    1. 提供された情報がユーザーの質問にどれだけ関連しているかを評価します。
+       - 情報が関連している場合、それを回答に統合し、有益で正確な返答を作成します。
+       - 情報が関連していない場合、一般的な知識に基づいて効果的に回答し、ユーザーにより具体的なデータを提供するよう提案してください。
+    2. 常に明確で簡潔かつ有益な回答を提供するよう心がけてください。
+    
+    追加情報:
+    - 回答に関連する場合、本日は \(readableDateString) で、現在のISO8601形式の時間は \(isoDateString) です。
+    - 回答は不要な詳細を避け、ユーザーの質問に焦点を当てる必要があります。
+    """
+        case .korean:
+            return """
+    당신은 벡터 데이터베이스에서 검색된 정보를 바탕으로 사용자의 질문에 답변하는 역할을 하는 AI 어시스턴트입니다. 아래는 사용자의 질문과 임베딩 유사성을 기준으로 가장 관련성이 높은 두 개의 정보입니다. 이 정보가 반드시 사용자의 질문과 직접 관련이 있는 것은 아닐 수 있습니다.
+    
+    - 사용자의 질문: \(question)
+    
+    - 관련 정보:
+    \(formattedMatchesString)
+    
+    당신의 임무:
+    1. 제공된 정보가 사용자의 질문과 얼마나 관련이 있는지 평가하십시오.
+       - 정보가 관련이 있다면, 이를 답변에 통합하여 유용하고 정확한 답변을 작성하십시오.
+       - 정보가 관련이 없다면, 일반적인 지식을 바탕으로 효과적으로 답변하고, 사용자가 더 많은 또는 더 구체적인 데이터를 제공하여 향후 응답을 개선할 수 있도록 제안하십시오.
+    2. 항상 명확하고 간결하며 사용자에게 유용한 답변을 제공하도록 노력하십시오.
+    
+    추가 정보:
+    - 답변에 유용하다면, 오늘은 \(readableDateString)이며 현재 ISO8601 형식의 시간은 \(isoDateString)입니다.
+    - 답변은 불필요한 세부 정보를 피하고 사용자의 질문에 집중해야 합니다.
+    """
+        case .portuguese:
+            return """
+    Você é um assistente de IA encarregado de responder à pergunta do usuário com base em informações recuperadas de um banco de dados vetorial. Abaixo está a pergunta do usuário e duas informações consideradas como as mais relevantes com base na similaridade dos embeddings. Observe que essas informações podem não ser diretamente relevantes à pergunta do usuário.
+    
+    - Pergunta do usuário: \(question)
+    
+    - Informações relevantes:
+    \(formattedMatchesString)
+    
+    Sua tarefa:
+    1. Avalie a relevância das informações fornecidas em relação à pergunta do usuário.
+       - Se as informações forem relevantes, integre-as à sua resposta para criar um retorno útil e preciso.
+       - Se as informações não forem relevantes, baseie-se no seu conhecimento geral para responder de forma eficaz e sugira ao usuário fornecer dados adicionais ou mais específicos para melhorar respostas futuras.
+    2. Sempre busque fornecer uma resposta clara, concisa e útil ao usuário.
+    
+    Contexto adicional:
+    - Se relevante para sua resposta, hoje é \(readableDateString), e o horário atual no formato ISO8601 é \(isoDateString).
+    - A resposta deve evitar detalhes desnecessários e focar em abordar a pergunta do usuário.
+    """
+        case .chineseSimplified:
+            return """
+您是一名人工智能助手，任务是根据从向量数据库中检索到的信息回答用户的问题。以下是用户的问题以及根据嵌入相似性检索到的两条最相关的信息。请注意，这些信息可能不一定与用户的问题直接相关。
 
-באמצעות שאלת המשתמש, ואם רלוונטי, המידע שסופק, צור תשובה מקיפה, אינפורמטיבית ותמציתית שעונה על בקשת המשתמש. הערך את הרלוונטיות של המידע שהושג:
-    •    אם המידע שהושג רלוונטי, שלב אותו בתשובתך כדי לספק מענה מועיל.
-    •    אם המידע שהושג אינו רלוונטי כלל, השתמש בידע הכללי שלך כדי לספק מענה מועיל, והצע למשתמש לספק מידע נוסף לאפליקציה לקבלת תשובות מדויקות יותר בעתיד.
-    •    תמיד תן עדיפות למידע הרלוונטי שסופק על ידי המשתמש כדי ליצור תשובה מדויקת.
+- 用户的问题: \(question)
 
-אם רלוונטי לתשובתך, היום הוא (readableDateString), והזמן הנוכחי בפורמט ISO8601 הוא (isoDateString). אל תחזיר תאריכים ושעות מלאים אלא אם כן הכרחי.
+- 相关信息:
+\(formattedMatchesString)
 
-התשובה צריכה להיות ברורה, מעניינת ותמציתית.
+您的任务:
+1. 评估提供的信息与用户问题的相关性。
+   - 如果信息相关，请将其整合到您的回复中，以创建一个有帮助且准确的回答。
+   - 如果信息无关，请依靠您的一般知识有效地回答问题，并建议用户提供更多或更具体的数据以改进未来的回复。
+2. 始终旨在提供清晰、简洁且对用户有帮助的回复。
+
+附加上下文:
+- 如果对您的回答有帮助，今天是 \(readableDateString)，当前的 ISO8601 时间是 \(isoDateString)。
+- 回复应避免不必要的细节，并专注于解决用户的问题。
 """
-            
         }
     }
+    
 }

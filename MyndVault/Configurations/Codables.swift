@@ -12,9 +12,7 @@ struct TranscriptionResponse: Codable {
     
     let response: String
     
-    
     enum CodingKeys: String, CodingKey {
-        
         case response = "text"
     }
     
@@ -128,13 +126,13 @@ struct MetadataResponse: Codable {
         self.time = try container.decodeIfPresent(String.self, forKey: .time)
     }
     
-    func toDictionary() -> [String: String] {
-            return [
-                "type": type,
-                "description": description,
-                "relevantFor": relevantFor
-            ]
-        }
+//    func toDictionary() -> [String: String] {
+//            return [
+//                "type": type,
+//                "description": description,
+//                "relevantFor": relevantFor
+//            ]
+//        }
 }
 
 
@@ -199,28 +197,30 @@ struct PineconeQueryResponse: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case matches, usage
     }
-    
+}
 //    init(from decoder: Decoder) throws {
 //        let container = try decoder.container(keyedBy: CodingKeys.self)
 //        self.matches = try container.decode([Match].self, forKey: .matches)
 //        self.usage = try container.decode(PineconeSingleUsage.self, forKey: .usage)
 //    }
     
-    func getMatchesDescription() -> [String] {
-            var descriptions: [String] = []
+//    func getMatchesDescription() -> [String] {
+//            var descriptions: [String] = []
+//
+//            for match in matches {
+//                debugLog("Matches : \(String(describing: match.metadata))")
+//                debugLog("Match id : \(match.id)")
+//                if let description = match.metadata?["description"] { // Extract the "description" value from each match's metadata
+//                    descriptions.append(description)
+//                }
+//                if let timestamp = match.metadata?["timestamp"] {
+//                    descriptions.append(timestamp)
+//                } else { print("No timestamp found for match: \(match.id)") }
+//            }
+//
+//            return descriptions
+//        }
 
-            for match in matches {
-                debugLog("Matches : \(String(describing: match.metadata))")
-                debugLog("Match id : \(match.id)")
-                if let description = match.metadata?["description"] { // Extract the "description" value from each match's metadata
-                    descriptions.append(description)
-                }
-            }
-
-            return descriptions
-        }
-
-}
 
 struct Match: Codable, Equatable {
     let id: String
@@ -306,9 +306,7 @@ struct PineconeFetchResponseFromID: Codable {
     enum CodingKeys: String, CodingKey {
         case vectors
     }
-    
-    
- 
+
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.vectors = try container.decode([String: Vector].self, forKey: .vectors)
@@ -328,7 +326,6 @@ struct Vector: Codable, Hashable, Identifiable {
             self.id = id
             self.metadata = metadata
         }
-
 
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
