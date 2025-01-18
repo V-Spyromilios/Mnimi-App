@@ -338,7 +338,7 @@ extension NewAddInfoView {
 
         //less than 8 chars -> Show message and return
         if isTextFieldEmpty {
-            self.thrownError = "Please enter at least 8 characters."
+            self.thrownError = String(localized: "8charsErrorMessage.")
             return
         }
         if isLoading { return }
