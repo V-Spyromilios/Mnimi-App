@@ -58,7 +58,7 @@ done:
     
     static let standardCardPadding: CGFloat = 16
     
-    static let showLangDuration: CGFloat = 2.5
+    static let showLangDuration: CGFloat = 4.5
     
     static let entitlementID: String = "manager"
 }

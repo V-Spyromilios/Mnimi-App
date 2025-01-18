@@ -18,17 +18,15 @@ struct QuestionView: View {
     @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var apiCalls: ApiCallViewModel
     @EnvironmentObject var languageSettings: LanguageSettings
-    
+
     @State private var question: String = ""
     @State private var thrownError: String = ""
     @State private var goButtonIsVisible: Bool = true
-    @State private var selectedImageIndex: Int? = nil
     @State private var showNoInternet = false
     @State private var fetchedImages: [UIImage] = []
     @State private var isLoading: Bool = false
     @State private var showLang: Bool = false
     @State private var showError: Bool = false
-    @State private var clearButtonIsVisible: Bool = false
     @State private var isTextFieldEmpty: Bool = true
     @FocusState private var isFocused: Bool
     
@@ -95,13 +93,13 @@ struct QuestionView: View {
                         .multilineTextAlignment(.leading)
                         .frame(height: Constants.textEditorHeight)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: isFocused ? Color.blue.opacity(0.8) : Color.blue.opacity(0.5),
-                                radius: isFocused ? 1 : 4,
-                                x: isFocused ? 6 : 4,
-                                y: isFocused ? 6 : 4) // Enhanced shadow on focus
+                        .shadow(color: isFocused ? Color.blue.opacity(0.5) : Color.blue.opacity(0.4),
+                                radius: isFocused ? 3 : 2,
+                                x: isFocused ? 4 : 2,
+                                y: isFocused ? 4 : 2)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(isFocused ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
+                                .stroke(isFocused ? Color.blue.opacity(0.5) : Color.gray.opacity(0.5), lineWidth: 1)
                         )
                         .onTapGesture {
                             isFocused = true
@@ -176,8 +174,8 @@ struct QuestionView: View {
                     switch activeItem {
                     case .error(let message):
                         ErrorView(thrownError: message) {
-                            activeModal = nil
                             performClearTask()
+                            activeModal = nil
                         }
                         .presentationDetents([.fraction(0.4)])
                         .presentationDragIndicator(.hidden)
@@ -353,7 +351,7 @@ struct QuestionView: View {
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
             .opacity(isTextFieldEmpty ? 0.5 : 1.0)
-            .disabled(isTextFieldEmpty)
+//            .disabled(isTextFieldEmpty)
             .accessibility(label: Text("Ask Question"))
             .accessibility(hint: Text("This will query the database and return a reply"))
     }
@@ -363,6 +361,7 @@ struct QuestionView: View {
         withAnimation(.easeInOut(duration: 0.4)) {
             self.question = ""
             self.thrownError = ""
+            activeModal = .none
             fetchedImages = []
             self.goButtonIsVisible = true
             if isLoading { isLoading = false }
@@ -376,10 +375,13 @@ struct QuestionView: View {
     private func performTask() {
         
         guard !isLoading else { return }
-        
-        if question.count < 8 {
+
+        if isTextFieldEmpty {
+            self.thrownError = "Please enter at least 8 characters."
+            activeModal = .error(thrownError)
             return
         }
+
         withAnimation(.easeInOut) {
             goButtonIsVisible = false
             hideKeyboard()
@@ -435,20 +437,24 @@ struct QuestionView: View {
                 } catch let error as AppNetworkError {
                     await MainActor.run {
                         self.thrownError = error.errorDescription
+                        self.activeModal = .error(thrownError)
                     }
                 } catch let error as AppCKError {
                     await MainActor.run {
                         self.thrownError = error.errorDescription
+                        self.activeModal = .error(thrownError)
                     }
                 }
                 catch let error as CKError {
                     await MainActor.run {
                         self.thrownError = error.customErrorDescription
+                        self.activeModal = .error(thrownError)
                     }
                 }
                 catch {
                     await MainActor.run {
                         self.thrownError = error.localizedDescription
+                        self.activeModal = .error(thrownError)
                     }
                 }
             }

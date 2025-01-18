@@ -11,13 +11,12 @@ struct AboutUsView: View {
     @State private var animate: Bool = false
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     let linkedInURL: URL = URL(string: "https://www.linkedin.com/in/evangelos-spyromilios/")!
-    let buttonString: String = "Connect with me on LinkedIn"
-    let welcomeText: String = "Welcome to MyndVault!\n\nThis app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. MyndVault was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention. No ads, no notifications, no personal data collection. Just a simple, elegant interface that empowers you to remember the important staff.\n\nIf you’re a fellow coder or just curious about how this app works, feel free to connect— I’d love to share ideas and stories.\nLet’s build something meaningful together!"
+
     
     var body: some View {
         ScrollView {
             
-                TypingTextView(fullText: "Hello World !", typingSpeed: 0.1, isTitle: true)
+                TypingTextView(fullText: "Hello World!", typingSpeed: 0.1, isTitle: true)
                     .padding(.top, 30)
            
             
@@ -25,7 +24,7 @@ struct AboutUsView: View {
                 .frame(height: 140)
             
             VStack {
-                Text(welcomeText)
+                Text("Welcome to MyndVault!\n\nThis app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. MyndVault was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention. No ads, no notifications, no personal data collection. Just a simple, elegant interface that empowers you to remember the important staff.\n\nIf you’re a fellow coder or just curious about how this app works, feel free to connect— I’d love to share ideas and stories.\nLet’s build something meaningful together!")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .fontDesign(.rounded)
@@ -33,7 +32,7 @@ struct AboutUsView: View {
                     .foregroundStyle(.primary)
                     .dynamicTypeSize(.medium ... .xxLarge)
                 
-                CoolButton(title: buttonString, systemImage: "link.circle.fill", action: openLinkedInProfile)
+                CoolButton(title: String(localized: "ConnectWithMeOnLinkedIn"), systemImage: "link.circle.fill", action: openLinkedInProfile)
                 builtWith().padding(.top, 8)
             }
             .navigationBarBackButtonHidden(true)
