@@ -125,7 +125,7 @@ struct EditInfoView: View {
             case .error:
                 return Alert(
                     title: Text("Oops"),
-                    message: Text("\(viewModel.occuredErrorDesc)\nPlease try again later"),
+                    message: Text(viewModel.occuredErrorDesc),
                     dismissButton: .default(Text("OK")) {
                         withAnimation {
                             viewModel.occuredErrorDesc = ""
@@ -266,7 +266,7 @@ struct EditInfoView: View {
                     .shadow(color: isFocused ? Color.blue.opacity(0.5) : Color.blue.opacity(0.4),
                             radius: isFocused ? 3 : 2,
                             x: isFocused ? 4 : 2,
-                            y: isFocused ? 4 : 2) // Enhanced shadow on focus
+                            y: isFocused ? 4 : 2) // identical to EditInfo, NewAddInfo, Question!
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .stroke(isFocused ? Color.blue.opacity(0.5) : Color.gray.opacity(0.5), lineWidth: 1)
@@ -277,7 +277,8 @@ struct EditInfoView: View {
                     .focused($isFocused)
                     .padding(.bottom)
                     .onChange(of: viewModel.description) { _, newValue in
-                        self.isTextFieldEmpty = newValue.isEmpty
+//                        self.isTextFieldEmpty = newValue.isEmpty
+                        self.isTextFieldEmpty = newValue.count < 8
                     }
                     .onChange(of: pineconeManager.upsertSuccessful) { _, success in
                         if success {
@@ -299,7 +300,13 @@ struct EditInfoView: View {
                     if buttonIsVisible {
                         
                         CoolButton(title: "Save", systemImage: "cloud") {
-                            if isTextFieldEmpty || inProgress { return }
+                            if inProgress { return }
+                            
+                            if isTextFieldEmpty {
+                                viewModel.occuredErrorDesc = "Please save at least 8 characters"
+                                self.viewModel.activeAlert = .error
+                                return
+                            }
                             
                             withAnimation {
                                 hideKeyboard()
@@ -314,7 +321,7 @@ struct EditInfoView: View {
                         .id("SubmitButton")
                         .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
                         .opacity(isTextFieldEmpty ? 0.5 : 1.0)
-                        .disabled(isTextFieldEmpty)
+//                        .disabled(isTextFieldEmpty)
                     }
                     
                     else if shouldShowLoading  && pineconeManager.pineconeErrorFromEdit == nil {

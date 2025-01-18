@@ -85,13 +85,13 @@ struct NewAddInfoView: View {
 //                                    view.frame(maxWidth: idealWidth(for: geometry.size.width))
 //                                }
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .shadow(color: isFocused ? Color.blue.opacity(0.8) : Color.blue.opacity(0.5),
-                                        radius: isFocused ? 1 : 4,
-                                        x: isFocused ? 6 : 4,
-                                        y: isFocused ? 6 : 4) // Enhanced shadow on focus
+                                .shadow(color: isFocused ? Color.blue.opacity(0.5) : Color.blue.opacity(0.4),
+                                        radius: isFocused ? 3 : 2,
+                                        x: isFocused ? 4 : 2,
+                                        y: isFocused ? 4 : 2)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(isFocused ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
+                                        .stroke(isFocused ? Color.blue.opacity(0.5) : Color.gray.opacity(0.5), lineWidth: 1)
                                 )
                                 .onTapGesture {
                                     isFocused = true
@@ -254,9 +254,9 @@ struct NewAddInfoView: View {
                         showNoInternet = true
                     }
                 }
-                .onChange(of: thrownError) {
+                .onChange(of: thrownError) { _, newValue in
                     if !pineconeManager.accountDeleted {
-                        if thrownError != "" {
+                        if newValue != "" {
                             showError = true
                         }
                         else {
@@ -320,7 +320,7 @@ extension NewAddInfoView {
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
         .opacity(isTextFieldEmpty ? 0.5 : 1.0)
-        .disabled(isTextFieldEmpty)
+//        .disabled(isTextFieldEmpty)
     }
     
     
@@ -336,6 +336,11 @@ extension NewAddInfoView {
     
     private func addNewInfoAction() {
 
+        //less than 8 chars -> Show message and return
+        if isTextFieldEmpty {
+            self.thrownError = "Please enter at least 8 characters."
+            return
+        }
         if isLoading { return }
         isLoading = true
         hideKeyboard()

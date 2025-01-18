@@ -151,7 +151,7 @@ class OpenAIViewModel: ObservableObject {
     
     
     func requestEmbeddings(for text: String, isQuestion: Bool) async throws {
-        throw AppNetworkError.unknownError("DEBUG")
+//        throw AppNetworkError.unknownError("DEBUG")
         do {
 #if DEBUG
             print("requestEmbeddings do {")

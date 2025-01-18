@@ -130,6 +130,7 @@
       }
     },
     "%@\nPlease try again later" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1085,6 +1086,76 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "关闭设置"
+          }
+        }
+      }
+    },
+    "ConnectWithMeOnLinkedIn" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbinden Sie sich mit mir auf LinkedIn"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Συνδεθείτε μαζί μου στο LinkedIn"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect with me on LinkedIn"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conéctate conmigo en LinkedIn"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connectez-vous avec moi sur LinkedIn"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "התחבר איתי בלינקדאין"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connettiti con me su LinkedIn"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LinkedInで私とつながりましょう"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LinkedIn에서 저와 연결하세요"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conecte-se comigo no LinkedIn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 LinkedIn 上与我联系"
           }
         }
       }
@@ -2583,7 +2654,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Γραμμένο με SwiftUI"
+            "value" : "Εφαρμογή γραμμένη με SwiftUI"
           }
         },
         "es" : {
@@ -2904,7 +2975,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Έτοιμο"
+            "value" : "Εντάξει"
           }
         },
         "es" : {
@@ -2968,7 +3039,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ώπα λίγο! "
+            "value" : "Ωπ, Λάθος!"
           }
         },
         "es" : {
@@ -4817,6 +4888,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "保险库"
+          }
+        }
+      }
+    },
+    "Welcome to MyndVault!\n\nThis app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. MyndVault was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention. No ads, no notifications, no personal data collection. Just a simple, elegant interface that empowers you to remember the important staff.\n\nIf you’re a fellow coder or just curious about how this app works, feel free to connect— I’d love to share ideas and stories.\nLet’s build something meaningful together!" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen bei MyndVault!\nDiese App ist mehr als nur ein Projekt – sie ist ein Spiegelbild meiner Reise. Spät im Leben in die Softwareentwicklung einzusteigen, war nicht einfach, aber es wurde durch den Wunsch motiviert, sinnvolle, ablenkungsfreie Werkzeuge in einer Welt voller digitalem Lärm zu schaffen. MyndVault wurde mit dem Gedanken an digitalen Minimalismus entwickelt, um Ihnen zu helfen, Ihre Gedanken mühelos zu speichern und abzurufen, ohne Ihre Aufmerksamkeit zu stehlen. Keine Werbung, keine Benachrichtigungen, keine Erfassung persönlicher Daten. Nur eine einfache, elegante Benutzeroberfläche, die Ihnen hilft, sich an das Wichtige zu erinnern.\n\nWenn Sie selbst Entwickler sind oder einfach nur neugierig, wie diese App funktioniert, zögern Sie nicht, sich zu melden – ich würde gerne Ideen und Geschichten austauschen.\nLassen Sie uns gemeinsam etwas Sinnvolles schaffen!"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Καλώς ήρθατε στο MyndVault!\nΑυτή η εφαρμογή είναι κάτι περισσότερο από project—είναι μια αντανάκλαση της προσωπικής μου διαδρομής. Το να στραφώ στον προγραμματισμό σε μεγαλύτερη ηλικία δεν ήταν εύκολο, αλλά ήταν μια απόφαση που προέκυψε από την επιθυμία να δημιουργήσω ουσιαστικά εργαλεία χωρίς περισπασμούς σε έναν κόσμο γεμάτο ψηφιακό θόρυβο. Το MyndVault σχεδιάστηκε με γνώμονα τον ψηφιακό μινιμαλισμό, για να σας βοηθήσει να αποθηκεύετε και να ανακτάτε τις σκέψεις σας χωρίς προσπάθεια και χωρίς να σας αποσπά την προσοχή. Χωρίς διαφημίσεις, χωρίς ειδοποιήσεις, χωρίς συλλογή προσωπικών δεδομένων. Μια απλή και κομψή διεπαφή που σας βοηθά να θυμάστε τα σημαντικά πράγματα.\n\nΑν είστε κι εσείς προγραμματιστής ή απλά περίεργοι για το πώς λειτουργεί αυτή η εφαρμογή, μη διστάσετε να επικοινωνήσετε—θα χαρώ να μοιραστούμε ιδέες και ιστορίες.\nΑς δημιουργήσουμε κάτι ουσιαστικό μαζί!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Bienvenido a MyndVault!\nEsta aplicación es más que un simple proyecto: es un reflejo de mi viaje personal. Pasar al desarrollo de software más adelante en la vida no fue fácil, pero fue impulsado por el deseo de crear herramientas significativas y libres de distracciones en un mundo lleno de ruido digital. MyndVault fue diseñado con el minimalismo digital en mente, para ayudarte a almacenar y recuperar tus pensamientos sin esfuerzo y sin robar tu atención. Sin anuncios, sin notificaciones, sin recopilación de datos personales. Solo una interfaz simple y elegante que te ayuda a recordar lo importante.\n\nSi eres un programador o simplemente tienes curiosidad por saber cómo funciona esta aplicación, no dudes en ponerte en contacto—me encantaría compartir ideas e historias.\n¡Construyamos algo significativo juntos!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bienvenue sur MyndVault !\nCette application est bien plus qu’un simple projet : c’est le reflet de mon parcours personnel. Me reconvertir dans le développement logiciel tard dans ma vie n’a pas été facile, mais cela a été motivé par le désir de créer des outils utiles et sans distraction dans un monde saturé de bruit numérique. MyndVault a été conçu avec le minimalisme numérique en tête, pour vous aider à stocker et récupérer vos pensées facilement, sans détourner votre attention. Pas de publicités, pas de notifications, pas de collecte de données personnelles. Juste une interface simple et élégante qui vous aide à vous rappeler l’essentiel.\n\nSi vous êtes développeur ou simplement curieux de savoir comment fonctionne cette application, n’hésitez pas à me contacter—j’aimerais partager des idées et des histoires.\nConstruisons quelque chose de significatif ensemble !"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\nברוכים הבאים ל-MyndVault!\nהאפליקציה הזו היא הרבה יותר מפרויקט בלבד—היא שיקוף של המסע האישי שלי. המעבר לפיתוח תוכנה בשלב מאוחר בחיי לא היה פשוט, אבל הוא נבע מרצון ליצור כלים משמעותיים וחסרי הסחות דעת בעולם מלא רעש דיגיטלי. MyndVault נבנתה עם עקרונות המינימליזם הדיגיטלי, כדי לעזור לכם לשמור ולשלוף את המחשבות שלכם בקלות, בלי להסיח את דעתכם. ללא פרסומות, ללא התראות, ללא איסוף נתונים אישיים. רק ממשק פשוט ואלגנטי שמעצים אתכם לזכור את הדברים החשובים.\n\nאם אתם מפתחים או פשוט סקרנים איך האפליקציה הזו עובדת, אשמח שתיצרו קשר—אשמח לשתף רעיונות וסיפורים.\nבואו ניצור משהו משמעותי יחד!"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benvenuto su MyndVault!\nQuesta app è molto più di un semplice progetto—è il riflesso del mio percorso. Passare allo sviluppo software in una fase avanzata della mia vita non è stato facile, ma è stato guidato dal desiderio di creare strumenti significativi e privi di distrazioni in un mondo pieno di rumore digitale. MyndVault è stata progettata pensando al minimalismo digitale, per aiutarti a memorizzare e recuperare i tuoi pensieri senza sforzo, senza rubare la tua attenzione. Niente pubblicità, niente notifiche, niente raccolta di dati personali. Solo un’interfaccia semplice ed elegante che ti aiuta a ricordare ciò che è importante.\n\nSe sei uno sviluppatore o semplicemente curioso di sapere come funziona questa app, non esitare a contattarmi—mi piacerebbe condividere idee e storie.\nCreiamo qualcosa di significativo insieme!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MyndVaultへようこそ！\nこのアプリは単なるプロジェクトではありません。それは私自身の旅の反映です。人生の後半でソフトウェア開発に転向するのは簡単ではありませんでしたが、デジタルノイズの多い世界で意味のある、気を散らさないツールを作りたいという願望から始まりました。MyndVaultはデジタルミニマリズムを念頭に設計されており、あなたの考えを簡単に保存し、取り出せるようにします。広告も通知も個人データの収集もありません。ただシンプルで洗練されたインターフェースが、重要なことを覚える力を与えてくれます。\n\nもしあなたが開発者であったり、このアプリがどのように動作するかに興味があるなら、ぜひつながりましょう—アイデアやストーリーを共有したいと思います。\n一緒に何か意味のあるものを作りましょう！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MyndVault에 오신 것을 환영합니다!\n이 앱은 단순한 프로젝트가 아닙니다—제 여정을 반영한 결과물입니다. 인생 후반부에 소프트웨어 개발로 전환하는 것은 쉽지 않았지만, 디지털 소음 속에서 의미 있고 집중을 방해하지 않는 도구를 만들고자 하는 열망에 의해 이루어졌습니다. MyndVault는 디지털 미니멀리즘을 염두에 두고 설계되어, 주의를 빼앗지 않고 생각을 손쉽게 저장하고 검색할 수 있도록 도와줍니다. 광고도, 알림도, 개인 데이터 수집도 없습니다. 단순하고 세련된 인터페이스만이 중요한 것을 기억하도록 도와줍니다.\n\n개발자이거나 이 앱이 어떻게 작동하는지 궁금하시다면 언제든지 연결하세요—아이디어와 이야기를 나누고 싶습니다.\n함께 의미 있는 무언가를 만들어 봅시다!"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bem-vindo ao MyndVault!\nEste aplicativo é mais do que apenas um projeto—é um reflexo da minha jornada. Migrar para o desenvolvimento de software mais tarde na vida não foi fácil, mas foi impulsionado pelo desejo de criar ferramentas significativas e sem distrações em um mundo cheio de ruído digital. O MyndVault foi projetado com o minimalismo digital em mente, para ajudá-lo a armazenar e recuperar seus pensamentos sem esforço, sem roubar sua atenção. Sem anúncios, sem notificações, sem coleta de dados pessoais. Apenas uma interface simples e elegante que permite lembrar o que é importante.\n\nSe você é um programador ou está apenas curioso sobre como este aplicativo funciona, entre em contato—eu adoraria compartilhar ideias e histórias.\nVamos construir algo significativo juntos!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "欢迎使用 MyndVault！\n这款应用不仅仅是一个项目——它是我个人旅程的体现。后来才转入软件开发并不容易，但这是由一个愿望驱动的：在数字噪声的世界中创造有意义的、无干扰的工具。MyndVault 以数字极简主义为理念，旨在帮助您轻松存储和检索您的想法，而不会分散您的注意力。没有广告，没有通知，没有个人数据收集。只有一个简单而优雅的界面，助您记住重要的事情。\n\n如果您是同行开发者，或者对这个应用的工作原理感到好奇，请随时联系——我很乐意分享想法和故事。\n让我们一起构建有意义的事物吧!"
           }
         }
       }
