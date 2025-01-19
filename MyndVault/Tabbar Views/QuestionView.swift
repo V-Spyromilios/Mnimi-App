@@ -224,7 +224,9 @@ struct QuestionView: View {
                 }
                 .navigationBarTitleView {
                     HStack {
-                        Text("Ask me").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                        Text("Ask me").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
+                            .minimumScaleFactor(0.8)
+                            .lineLimit(2)
                         LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
                     }.padding(.top, isIPad() ? 15: 0)
                 }
@@ -345,7 +347,7 @@ struct QuestionView: View {
     
     private var GoButton: some View {
         
-        CoolButton(title: "Go", systemImage: "paperplane.circle.fill", action: performTask)
+        CoolButton(title: String(localized: "goButtonTitle"), systemImage: "paperplane.circle.fill", action: performTask)
             .padding(.top, 12)
             .padding(.horizontal)
             .padding(.horizontal)
@@ -482,5 +484,6 @@ struct QuestionView_Previews: PreviewProvider {
             .environmentObject(KeyboardResponder())
             .environmentObject(languageSettings)
             .environmentObject(networkManager)
+            .environment(\.locale, Locale(identifier: "he"))
     }
 }

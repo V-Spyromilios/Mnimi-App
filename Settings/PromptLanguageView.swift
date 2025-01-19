@@ -62,7 +62,9 @@ struct PromptLanguageView: View {
                     HStack {
                         Image(systemName: "chevron.left")
                         Text("Settings")
-                    }.font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                    }.font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(2)
                 }
             }
         }
