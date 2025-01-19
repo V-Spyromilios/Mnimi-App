@@ -299,7 +299,7 @@ struct EditInfoView: View {
                 VStack {
                     if buttonIsVisible {
                         
-                        CoolButton(title: "Save", systemImage: "cloud") {
+                        CoolButton(title: String(localized: "goButtonTitle"), systemImage: "cloud") {
                             if inProgress { return }
                             
                             if isTextFieldEmpty {
@@ -307,7 +307,6 @@ struct EditInfoView: View {
                                 self.viewModel.activeAlert = .error
                                 return
                             }
-                            
                             withAnimation {
                                 hideKeyboard()
                                 self.viewModel.activeAlert = .editConfirmation

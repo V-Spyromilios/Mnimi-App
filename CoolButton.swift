@@ -23,10 +23,12 @@ struct CoolButton: View {
                     .foregroundColor(.blue)
                 Text(title)
                     .font(.system(size: 18, weight: .bold))
+                    .minimumScaleFactor(0.8)
                     .fontDesign(.rounded)
                     .foregroundColor(.blue)
             }
-            .padding()
+            .padding(.top)
+            .padding(.bottom)
             .padding(.horizontal, 24)
             .frame(height: Constants.buttonHeight)
             .background(

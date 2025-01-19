@@ -213,18 +213,27 @@ struct NewAddInfoView: View {
                     }
                     .navigationBarTitleView {
                         HStack {
-                            Text("Add New Info").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                            Text("Add New Info").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
+                                .minimumScaleFactor(0.8)
+                                .lineLimit(2)
+                           
                             LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
-                        }.padding(.top, isIPad() ? 15 : 0)
+                            
+                            Spacer()
+                        }
+                       
                     }
                 }
                 .toolbar {
+                    
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         if keyboardResponder.currentHeight > 0 {
-                            Button {
-                                hideKeyboard()
-                            } label: {
-                                HideKeyboardLabel()
+                            withAnimation(.easeInOut) {
+                                Button {
+                                    hideKeyboard()
+                                } label: {
+                                    HideKeyboardLabel()
+                                }.padding(.trailing, 10)
                             }
                         }
                         Button {
@@ -233,6 +242,7 @@ struct NewAddInfoView: View {
                             Image(systemName: "gear")
                                 .frame(width: 45, height: 45)
                                 .padding(.bottom, 5)
+                                .padding(.trailing, 5)
                                 .padding(.top, isIPad() ? 15 : 0)
                                 .opacity(0.8)
                                 .accessibilityLabel("Settings")
@@ -315,7 +325,7 @@ struct NewAddInfoView: View {
 extension NewAddInfoView {
     private var SaveButton: some View {
 
-        CoolButton(title: "Save", systemImage: "cloud.circle.fill", action: addNewInfoAction)
+        CoolButton(title: String(localized: "saveButtonTitle"), systemImage: "cloud.circle.fill", action: addNewInfoAction)
         .padding(.top, 12)
         .padding(.horizontal)
         .animation(.easeInOut, value: keyboardResponder.currentHeight)
@@ -442,5 +452,7 @@ struct NewAddInfoView_Previews: PreviewProvider {
             .environmentObject(cloudKit)
             .environmentObject(apiCalls)
             .environmentObject(languageSettings)
+//            .environment(\.locale, Locale(identifier: "zh-Hans"))
+            .environment(\.locale, Locale(identifier: "pt"))
     }
 }

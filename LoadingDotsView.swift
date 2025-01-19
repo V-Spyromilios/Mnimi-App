@@ -16,15 +16,15 @@ struct LoadingDotsView: View {
 
     var body: some View {
         HStack(spacing: 5) {
-            Text(text ?? "Loading")
+            Text(String(localized: "loadingDotsViewText"))
                 .font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded)
             
             HStack(spacing: 5) {
                 ForEach(0..<3) { index in
                     Circle()
-                        .frame(width: 8, height: 8)
-                        .foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded)
-                        .opacity(currentDot == index ? 1.0 : 0.5)
+                        .frame(width: 7, height: 7)
+                        .foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded)
+                        .opacity(currentDot == index ? 1.0 : 0.6)
                 }
             }.offset(y: 3)
             .onAppear {

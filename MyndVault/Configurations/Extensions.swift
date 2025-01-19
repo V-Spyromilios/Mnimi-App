@@ -130,8 +130,10 @@ final class KeyboardResponder: ObservableObject {
         NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
-                self?.currentHeight = 0
-                self?.keyboardVisible = false
+                withAnimation(.easeInOut) {
+                    self?.currentHeight = 0
+                    self?.keyboardVisible = false
+                }
             }
             .store(in: &cancellables)
     }
@@ -147,8 +149,10 @@ final class KeyboardResponder: ObservableObject {
     
     @objc func keyboardWillHide(notification: Notification) {
         // no ' DispatchQueue.main.async {' as class marked @MainActor
-        self.currentHeight = 0
-        self.keyboardVisible = false
+        withAnimation(.easeInOut) {
+            self.currentHeight = 0
+            self.keyboardVisible = false
+        }
     }
 }
 

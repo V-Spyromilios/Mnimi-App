@@ -78,23 +78,23 @@ struct SettingsView: View {
                     
                     
                     //MARK: Credit
-                    HStack {
-                        NavigationLink(destination: ApiCallsView()) {
-                            Text("Credit").foregroundStyle(colorScheme == .light ? .black : .white)
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                            
-                                .foregroundStyle(.blue)
-                            
-                            
-                        }
-                    } .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background( Color.primaryBackground)
-                        .cornerRadius(10)
-                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
-                        .contentShape(Rectangle())
+//                    HStack {
+//                        NavigationLink(destination: ApiCallsView()) {
+//                            Text("Credit").foregroundStyle(colorScheme == .light ? .black : .white)
+//                            Spacer()
+//                            
+//                            Image(systemName: "chevron.right")
+//                            
+//                                .foregroundStyle(.blue)
+//                            
+//                            
+//                        }
+//                    } .padding()
+//                        .frame(maxWidth: .infinity, alignment: .leading)
+//                        .background( Color.primaryBackground)
+//                        .cornerRadius(10)
+//                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+//                        .contentShape(Rectangle())
                     
                     //MARK: Open App Settings
                     if canShowAppSettings {
@@ -246,7 +246,9 @@ struct SettingsView: View {
             
             .navigationBarTitleView {
                 HStack {
-                    Text("Settings").font(.title2).bold().foregroundStyle(.blue.opacity(0.7)).fontDesign(.rounded).padding(.trailing, 6)
+                    Text("Settings").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded)
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(2)
                 }
             }
             .toolbar {

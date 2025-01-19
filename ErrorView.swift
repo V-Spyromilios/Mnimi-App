@@ -12,6 +12,7 @@ struct ErrorView: View {
     var thrownError: String
     var extraMessage: String?
     @Environment(\.colorScheme) var colorScheme
+    let haptic = UINotificationFeedbackGenerator()
     var dismissAction: () -> Void
     
     var body: some View {
@@ -33,7 +34,7 @@ struct ErrorView: View {
                             .padding()
                             
                             .background(Color.yellow)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                             .cornerRadius(10)
                     }.padding(.bottom)
                 }
@@ -43,7 +44,6 @@ struct ErrorView: View {
             }
             .padding(.horizontal, 16)
             .onAppear {
-                let haptic = UINotificationFeedbackGenerator()
                 haptic.notificationOccurred(.error)
             }
         }

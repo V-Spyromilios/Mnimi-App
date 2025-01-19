@@ -259,6 +259,7 @@
       }
     },
     "%lld API Calls" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -328,67 +329,137 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bitte füge mindestens 8 Zeichen hinzu"
+            "value" : "Bitte speichern Sie mindestens 8 Zeichen"
           }
         },
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Παρακαλώ προσθέστε τουλάχιστον 8 χαρακτήρες"
+            "value" : "Παρακαλώ αποθηκεύστε τουλάχιστον 8 χαρακτήρες"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Please add at least 8 characters"
+            "value" : "Please save at least 8 characters"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Por favor, añade al menos 8 caracteres"
+            "value" : "Por favor, guarde al menos 8 caracteres"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Veuillez ajouter au moins 8 caractères"
+            "value" : "Veuillez enregistrer au moins 8 caractères"
           }
         },
         "he" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "אנא הוסף לפחות 8 תווים"
+            "value" : "נא לשמור לפחות 8 תווים"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Per favore, aggiungi almeno 8 caratteri"
+            "value" : "Si prega di salvare almeno 8 caratteri"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "少なくとも8文字を追加してください"
+            "value" : "少なくとも8文字を保存してください。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "최소 8자를 추가하세요"
+            "value" : "최소 8자를 저장하세요"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Por favor, adicione pelo menos 8 caracteres"
+            "value" : "Por favor, salve pelo menos 8 caracteres"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请至少添加 8 个字符"
+            "value" : "请至少保存8个字符。"
+          }
+        }
+      }
+    },
+    "8charsErrorMessage." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte speichern Sie mindestens 8 Zeichen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Παρακαλώ αποθηκεύστε τουλάχιστον 8 χαρακτήρες"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please save at least 8 characters"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por favor, guarde al menos 8 caracteres"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veuillez enregistrer au moins 8 caractères"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "נא לשמור לפחות 8 תווים"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si prega di salvare almeno 8 caratteri"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "少なくとも8文字を保存してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최소 8자를 저장하세요"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por favor, salve pelo menos 8 caracteres"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请至少保存8个字符。"
           }
         }
       }
@@ -1232,6 +1303,7 @@
       }
     },
     "Credit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1949,7 +2021,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Αποστολή!"
+            "value" : "Αποστολή"
           }
         },
         "en" : {
@@ -1985,7 +2057,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "行く"
+            "value" : " 実行"
           }
         },
         "ko" : {
@@ -2003,7 +2075,77 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "前往"
+            "value" : "去"
+          }
+        }
+      }
+    },
+    "goButtonTitle" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αποστολή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vamos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aller"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "קדימה"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " 実行"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이동"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ir"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "去"
           }
         }
       }
@@ -2147,7 +2289,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "πληροφορίες"
+            "value" : "πληροφορία"
           }
         },
         "es" : {
@@ -2344,6 +2486,12 @@
             "value" : "Φόρτωση"
           }
         },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2389,6 +2537,76 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
+            "value" : "加载中"
+          }
+        }
+      }
+    },
+    "loadingDotsViewText" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Laden"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Φόρτωση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Cargando"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Chargement"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "טוען"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Caricamento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "読み込み中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "로딩 중"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Carregando"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
             "value" : "加载中"
           }
         }
@@ -3800,6 +4018,76 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "保存信息？"
+          }
+        }
+      }
+    },
+    "saveButtonTitle" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Speichern"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Αποθήκευση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Guardar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Enregistrer"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "שמור"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Salva"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "保存"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "저장"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Salvar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "保存"
           }
         }
       }
