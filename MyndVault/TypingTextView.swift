@@ -66,7 +66,6 @@ struct LoadingTransitionView: View {
     var body: some View {
         if #available(iOS 16.0, *) {
             VStack {
-                
                 if isUpserting {
                     Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90.circle")
                         .foregroundStyle(Color.customLightBlue, .blue)
@@ -81,7 +80,6 @@ struct LoadingTransitionView: View {
                         .foregroundColor(Color.customLightBlue)
                 }
             }
-            
         } else { //older than ios16
             VStack {
                 if isUpserting {

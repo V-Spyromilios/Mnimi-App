@@ -58,9 +58,7 @@ actor OpenAIActor {
     // MARK: - Initializer
     init() {
         self.apiKey = ApiConfiguration.openAIKey
-#if DEBUG
-        print("OpenAI Actor Initialized with apiKey: \(String(describing: apiKey))")
-#endif
+        debugLog("OpenAI Actor Initialized with apiKey: \(String(describing: apiKey))")
     }
     
     // MARK: - Methods

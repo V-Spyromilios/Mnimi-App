@@ -230,7 +230,8 @@ struct NewAddInfoView: View {
                         if keyboardResponder.currentHeight > 0 {
                             withAnimation(.easeInOut) {
                                 Button {
-                                    hideKeyboard()
+                                    isFocused = false
+                                    //hideKeyboard()
                                 } label: {
                                     HideKeyboardLabel()
                                 }.padding(.trailing, 10)
@@ -282,6 +283,7 @@ struct NewAddInfoView: View {
                             photoPicker.selectedImage = nil
                             apiCallInProgress = false
                             showSuccess = true
+                           
                             pineconeManager.refreshNamespacesIDs()
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {

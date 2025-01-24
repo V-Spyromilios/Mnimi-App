@@ -192,7 +192,8 @@
             "value" : "%@。\\n请稍后再试"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "%@.\nPlease check your iCloud status and restart the Mynd Vault app" : {
       "localizations" : {
@@ -321,7 +322,8 @@
             "value" : "lld次API调用"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "8charsErrorMessage" : {
       "extractionState" : "manual",
@@ -1298,71 +1300,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 LinkedIn 上与我联系"
-          }
-        }
-      }
-    },
-    "Credit" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guthaben"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Χρήση πίστωσης"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Crédito"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Crédit"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "אשראי"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Credito"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "クレジット"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "크레딧"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Crédito"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "信用"
           }
         }
       }
@@ -2606,7 +2543,7 @@
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "加载中"
           }
         }
@@ -3059,7 +2996,8 @@
             "value" : "未选择图片"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "No Internet Connection" : {
       "localizations" : {
@@ -4540,7 +4478,8 @@
             "value" : "注册错误"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "Sign-up with Password" : {
       "extractionState" : "stale",
@@ -4605,7 +4544,8 @@
             "value" : "用密码注册"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "Signing in with iCloud..." : {
       "extractionState" : "stale",
@@ -4670,7 +4610,8 @@
             "value" : "正在用iCloud登录..."
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "Stop" : {
       "extractionState" : "stale",
@@ -4864,7 +4805,8 @@
             "value" : "点击图片以关闭"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "This will query the database and return a reply" : {
       "localizations" : {

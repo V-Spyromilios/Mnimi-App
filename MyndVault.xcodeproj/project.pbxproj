@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E8002B512C4C442400FD814D /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8002B502C4C442400FD814D /* Test.swift */; };
 		E8002B5E2C4C702700FD814D /* Gradient Background.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B5A2C4C702700FD814D /* Gradient Background.json */; };
 		E8002B652C4C951D00FD814D /* robotForQuestion.json in Resources */ = {isa = PBXBuildFile; fileRef = E8002B642C4C951D00FD814D /* robotForQuestion.json */; };
 		E813C76D2BECF51900E3088D /* CountdownTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E813C76C2BECF51900E3088D /* CountdownTimer.swift */; };
@@ -107,7 +106,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		E8002B502C4C442400FD814D /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		E8002B5A2C4C702700FD814D /* Gradient Background.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Gradient Background.json"; sourceTree = "<group>"; };
 		E8002B642C4C951D00FD814D /* robotForQuestion.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = robotForQuestion.json; sourceTree = "<group>"; };
 		E813C76C2BECF51900E3088D /* CountdownTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimer.swift; sourceTree = "<group>"; };
@@ -262,7 +260,6 @@
 			children = (
 				E8FA7F012BC5BC320012EBF6 /* VaultView.swift */,
 				E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */,
-				E8002B502C4C442400FD814D /* Test.swift */,
 				E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */,
 				E838498F2C3471B200C7E390 /* FullScreenImage.swift */,
 				E82F456B2BC2A77E00945312 /* NotificationsView.swift */,
@@ -565,7 +562,6 @@
 				E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */,
 				E817A4292C54F8DB00A0172A /* ApiCallViewModel.swift in Sources */,
 				E82F45702BC2A77E00945312 /* Extensions.swift in Sources */,
-				E8002B512C4C442400FD814D /* Test.swift in Sources */,
 				E8E4A68E2D32CFD3002A122B /* AccountDeletedView.swift in Sources */,
 				E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */,
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,
