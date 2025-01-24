@@ -244,7 +244,7 @@ struct FloatingLabelTextField: View {
     let isSecure: Bool
     var onSubmit: (() -> Void)? = nil
     @FocusState.Binding var isFocused: Bool
-    @State private var isPasswordVisible: Bool = false // State to toggle visibility
+    @State private var isPasswordVisible: Bool = false
     
     var body: some View {
         ZStack(alignment: .leading) {

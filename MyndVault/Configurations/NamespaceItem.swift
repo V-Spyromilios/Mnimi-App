@@ -13,7 +13,7 @@ struct NamespaceItem {
     let namespace: String
 }
 
-// Representation of NamespaceItem in terms of required (for saving) 'record'
+//representation of NamespaceItem in terms of required record
 extension NamespaceItem {
     var record: CKRecord {
         let record = CKRecord(recordType: "NamespaceItem", recordID: recordID)

@@ -17,6 +17,7 @@ struct CoolButton: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: systemImage)
+                    .renderingMode(.template)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(height: 24)
@@ -43,14 +44,13 @@ struct CoolButton: View {
                     .shadow(color: isEnabled ? Color.blue.opacity(0.5) : Color.blue.opacity(0.3),
                             radius: isEnabled ? 3 : 1,
                             x: isEnabled ? 4 : 2, y: isEnabled ? 4 : 2)
-//                    .shadow(color: Color.white.opacity(0.8), radius: 4, x: -4, y: -4)
             )
         }
     }
 }
 
 #Preview {
-    CoolButton(title: "Save", systemImage: "cloud.circle.fill") {
+    CoolButton(title: "Save", systemImage: "cloud.fill") {
         print("Button pressed - Preview")
     }
     .frame(width: 160)

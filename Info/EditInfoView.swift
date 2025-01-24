@@ -256,13 +256,6 @@ struct EditInfoView: View {
                     .multilineTextAlignment(.leading)
                     .frame(height: Constants.textEditorHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-//                    .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 10.0)
-//                            .stroke(lineWidth: 1)
-//                            .opacity(colorScheme == .light ? 0.3 : 0.7)
-//                            .foregroundColor(Color.gray)
-//                    )
                     .shadow(color: isFocused ? Color.blue.opacity(0.5) : Color.blue.opacity(0.4),
                             radius: isFocused ? 3 : 2,
                             x: isFocused ? 4 : 2,
@@ -303,7 +296,7 @@ struct EditInfoView: View {
                             if inProgress { return }
                             
                             if isTextFieldEmpty {
-                                viewModel.occuredErrorDesc = "Please save at least 8 characters"
+                                viewModel.occuredErrorDesc = String(localized: "8charsErrorMessage.")
                                 self.viewModel.activeAlert = .error
                                 return
                             }
@@ -320,7 +313,6 @@ struct EditInfoView: View {
                         .id("SubmitButton")
                         .padding(.bottom, keyboardResponder.currentHeight > 0 ? 15 : 0)
                         .opacity(isTextFieldEmpty ? 0.5 : 1.0)
-//                        .disabled(isTextFieldEmpty)
                     }
                     
                     else if shouldShowLoading  && pineconeManager.pineconeErrorFromEdit == nil {

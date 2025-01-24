@@ -379,7 +379,7 @@ struct QuestionView: View {
         guard !isLoading else { return }
 
         if isTextFieldEmpty {
-            self.thrownError = "Please enter at least 8 characters."
+            self.thrownError = String(localized: "8charsErrorMessage.")
             activeModal = .error(thrownError)
             return
         }
