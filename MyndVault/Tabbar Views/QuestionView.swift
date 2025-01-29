@@ -25,7 +25,7 @@ struct QuestionView: View {
     @State private var showNoInternet = false
     @State private var fetchedImages: [UIImage] = []
     @State private var isLoading: Bool = false
-    @State private var showLang: Bool = false
+//    @State private var showLang: Bool = false
     @State private var showError: Bool = false
     @State private var isTextFieldEmpty: Bool = true
     @FocusState private var isFocused: Bool
@@ -72,14 +72,14 @@ struct QuestionView: View {
                     HStack {
                         Image(systemName: "questionmark.bubble").bold()
                         Text("Question").bold()
-                        if showLang {
+//                        if showLang {
                             Text("\(languageSettings.selectedLanguage.displayName)")
                                 .foregroundStyle(.gray)
                                 .padding(.leading, 8)
                                 .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
                                                         removal: .opacity))
-                                .animation(.easeInOut(duration: 0.5), value: showLang)
-                        }//TODO: Add the text should not be empty or smth
+//                                .animation(.easeInOut(duration: 0.5), value: showLang)
+//                        }
                         Spacer()
                     }
                     .font(.callout)
@@ -107,16 +107,16 @@ struct QuestionView: View {
                         .focused($isFocused)
                         .padding(.bottom)
                         .padding(.horizontal, Constants.standardCardPadding)
-                        .onAppear {
-                            if !showLang {
-                                showLang.toggle()
-                                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-                                    withAnimation {
-                                        showLang.toggle()
-                                    }
-                                }
-                            }
-                        }
+//                        .onAppear {
+//                            if !showLang {
+//                                showLang.toggle()
+//                                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
+//                                    withAnimation {
+//                                        showLang.toggle()
+//                                    }
+//                                }
+//                            }
+//                        }
                         .onChange(of: question) { _, newValue in
                             isTextFieldEmpty = newValue.count < 8
                         }
@@ -141,19 +141,22 @@ struct QuestionView: View {
                         if hasResponse {
                             Group {
                                 ResponseView
-                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
-                                                            removal: .opacity))
-                                    .animation(.easeInOut(duration: 0.5), value: hasResponse)
+//                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+//                                                            removal: .opacity))
+//                                    .animation(.easeInOut(duration: 0.5), value: hasResponse)
                                 
                                 if self.thrownError == "" && hasResponse {
                                     ClearButton
                                         .padding(.horizontal)
                                         .padding(.bottom)
-                                        .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
-                                                                removal: .opacity))
-                                        .animation(.easeInOut(duration: 0.5), value: hasResponse)
+//                                        .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+//                                                                removal: .opacity))
+//                                        .animation(.easeInOut(duration: 0.5), value: hasResponse)
                                 }
                             }
+                            .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                    removal: .opacity))
+                            .animation(.easeInOut(duration: 0.5), value: hasResponse) //TODO: Check if transitions smoothly
                         }
                     }
                 }
@@ -190,12 +193,12 @@ struct QuestionView: View {
                             .statusBarHidden()
                     }
                 }
-                .onChange(of: languageSettings.selectedLanguage) { _, newValue in
-                    showLang = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-                        showLang = false
-                    }
-                }
+//                .onChange(of: languageSettings.selectedLanguage) { _, newValue in
+//                    showLang = true
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
+//                        showLang = false
+//                    }
+//                }
                 .onChange(of: openAiManager.openAIError) { _, newValue in
                     if let error = newValue {
                         self.isLoading = false
@@ -207,7 +210,6 @@ struct QuestionView: View {
                         self.isLoading = false
                         activeModal = .error(error.localizedDescription)
                     }
-                    
                 }
                 .onChange(of: openAiManager.stringResponseOnQuestion) { _, newValue in
                     isLoading = false
@@ -360,7 +362,7 @@ struct QuestionView: View {
     
     private func performClearTask() {
         
-        withAnimation(.easeInOut(duration: 0.4)) {
+        withAnimation(.easeInOut(duration: 0.3)) {
             self.question = ""
             self.thrownError = ""
             activeModal = .none

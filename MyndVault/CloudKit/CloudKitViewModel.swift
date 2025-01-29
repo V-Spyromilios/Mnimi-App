@@ -154,7 +154,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
     }
     
     private func setupCloudKitObservers() {
-        NotificationCenter.default.publisher(for: .CKAccountChanged)
+        NotificationCenter.default.publisher(for: .CKAccountChanged) //Check if user went to settings to login to icloud and returned
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 Task {
@@ -164,7 +164,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
             .store(in: &cancellables)
     }
     
-    private func startInitialTasks() {
+    func startInitialTasks() {
         Task {
             do {
                 try await getiCloudStatus()
@@ -192,22 +192,30 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         DispatchQueue.main.async {
             self.isLoading = false
             self.CKErrorDesc = ""
+            debugLog("cloudKit cleared")
         }
     }
     
     //MARK: startCloudKit
     func startCloudKit() {
+        debugLog("startCloudKit :: called")
         DispatchQueue.main.async {
             self.isLoading = true }
         Task {
             do {
                 let key = await fetchedNamespaceDict.keys.first
                 if key == nil {
+                    debugLog("startCloudkit will call the initializeCloudKitSetup()")
                     try await initializeCloudKitSetup()
+                    debugLog("startCloudKit :: returned from initializeCloudKitSetup")
                 } else {
                     _ = try? await fetchNamespaceItem(recordID: key!)
+                    debugLog("startCloudKit :: returned from  _ = try? await fetchNamespaceItem(recordID: key!)")
                 }
-                await MainActor.run { isLoading = false }
+                await MainActor.run {
+                    isLoading = false
+                    debugLog("startCloudKit :: isLoading set to true)")
+                }
             } catch {
                 await handleCKError(error)
                 await MainActor.run { isLoading = false }
@@ -216,6 +224,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
     }
     
     func fetchNameSpace() async throws {
+        debugLog("fetchNameSpace :: called")
         guard let db = db else { throw AppCKError.CKDatabaseNotInitialized }
         
         let maxRetryAttempts = 3
@@ -223,6 +232,7 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         var attempts = 0
         
         while attempts < maxRetryAttempts {
+            debugLog("fetchNameSpace :: attempt \(attempts)")
             do {
                 let query = CKQuery(recordType: "NamespaceItem", predicate: NSPredicate(value: true))
                 let rs = try await db.records(matching: query)
@@ -282,16 +292,20 @@ actor CloudKitViewModel: ObservableObject, Sendable {
         var attempts = 0
         
         while attempts < maxRetryAttempts {
+            debugLog("getIcloudStatus: Attempt \(attempts)")
             do {
                 let accountStatus = try await CKContainer.default().accountStatus()
+                debugLog("getIcloudStatus: \(accountStatus)")
                 await MainActor.run {
                     switch accountStatus {
                     case .available:
                         withAnimation(.easeInOut) {
                             self.userIsSignedIn = true
+                            debugLog("getIcloudStatus user is now singed in    ")
                         }
                         
                     default:
+                        debugLog("getIcloudStatus user is by default false")
                         self.userIsSignedIn = false
                     }
                 }
@@ -339,11 +353,14 @@ actor CloudKitViewModel: ObservableObject, Sendable {
     private func initializeCloudKitSetup() async throws {
         do {
             try await getiCloudStatus()
-            guard await userIsSignedIn else { throw AppCKError.iCloudAccountNotFound }
+            guard await userIsSignedIn else {
+                debugLog("userIsSignedIn: false from initializeCloudKitSetup()")
+                throw AppCKError.iCloudAccountNotFound }
             
             if let tempuserID = try? await getUserID() {
                 await MainActor.run {
                     self.userID = tempuserID
+                    debugLog("tempUserID: \(tempuserID.recordName)")
                 }
             }
             try await fetchNameSpace()

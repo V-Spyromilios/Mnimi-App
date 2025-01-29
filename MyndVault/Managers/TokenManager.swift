@@ -49,6 +49,7 @@ func updateTokenUsage(api: APIs, tokensUsed: Int, read:Bool) {
 }
 
 func printTokenUsage() {
+    #if DEBUG
     let userDefaults = UserDefaults.standard
     let decoder = PropertyListDecoder()
     
@@ -63,4 +64,6 @@ func printTokenUsage() {
     } else {
         print("Failed to retrieve token usage.")
     }
+    
+    #endif
 }
