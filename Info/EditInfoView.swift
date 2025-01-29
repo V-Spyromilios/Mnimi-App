@@ -216,7 +216,7 @@ struct EditInfoView: View {
             let idToDelete = viewModel.id
             await pineconeManager.deleteVectorFromPinecone(id: idToDelete)
             if pineconeManager.vectorDeleted {
-                print("Deleted vector \(idToDelete)")
+                debugLog("Deleted vector \(idToDelete)")
                 await MainActor.run {
                     pineconeManager.deleteVector(withId: idToDelete)
                     handleDeletionSuccess(idToDelete: idToDelete)

@@ -20,7 +20,7 @@ struct NewAddInfoView: View {
     @State private var showSettings: Bool = false
     @State private var isLoading: Bool = false // used just for the button
     @State private var showNoInternet: Bool = false
-    @State private var showLang: Bool = false
+//    @State private var showLang: Bool = false
     @State private var showSuccess: Bool = false
     @State private var isTextFieldEmpty: Bool = true
 
@@ -53,13 +53,13 @@ struct NewAddInfoView: View {
                         HStack {
                             Image(systemName: "plus.bubble").bold()
                             Text("info").bold()
-                            if showLang {
+//                            if showLang {
                                 Text("\(languageSettings.selectedLanguage.displayName)")
                                     .foregroundStyle(.gray)
 //                                    .padding(.leading, 8)
                                     .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
                                                             removal: .opacity))
-                            }
+//                            }
                             Spacer()
 //#if DEBUG
 //                            Text("Upsert Successful: \(pineconeManager.upsertSuccessful ? "Yes" : "No")")
@@ -194,16 +194,16 @@ struct NewAddInfoView: View {
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                     }
-                    .onAppear {
-                        if !showLang {
-                            showLang.toggle()
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-                            withAnimation {
-                                showLang.toggle()
-                            }
-                        }
-                    }
+//                    .onAppear {
+//                        if !showLang {
+//                            showLang.toggle()
+//                        }
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
+//                            withAnimation {
+//                                showLang.toggle()
+//                            }
+//                        }
+//                    }
                     .sheet(isPresented: $showError) {
                         ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
                             .presentationDetents([.fraction(0.4)])
@@ -250,16 +250,16 @@ struct NewAddInfoView: View {
                         }
                     }
                 }
-                .onChange(of: languageSettings.selectedLanguage) {
-                    withAnimation {
-                        showLang = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-                        withAnimation {
-                            showLang = false
-                        }
-                    }
-                }
+//                .onChange(of: languageSettings.selectedLanguage) {
+//                    withAnimation {
+//                        showLang = true
+//                    }
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
+//                        withAnimation {
+//                            showLang = false
+//                        }
+//                    }
+//                }
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
                     if !hasInternet {
                         showNoInternet = true
@@ -455,6 +455,6 @@ struct NewAddInfoView_Previews: PreviewProvider {
             .environmentObject(apiCalls)
             .environmentObject(languageSettings)
 //            .environment(\.locale, Locale(identifier: "zh-Hans"))
-            .environment(\.locale, Locale(identifier: "pt"))
+            .environment(\.locale, Locale(identifier: "gr"))
     }
 }

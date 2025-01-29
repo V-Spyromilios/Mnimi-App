@@ -332,22 +332,22 @@ struct UsernamePasswordLoginView: View {
 
             VStack {
                 
+                //TODO: all below mmust be localized...
                 TypingTextView(fullText: "FaceID/ TouchID failed.\nPlease provide Username and\nPassword instead")
                     .shadow(radius: 1)
                     .frame(height: 100)
                     .padding(.horizontal)
                 
-                FloatingLabelTextField(text: $username, title: "Username", isSecure: false, isFocused: $isUsernameFieldFocused)
+                FloatingLabelTextField(text: $username, title: "Username", isSecure: false, onSubmit: switchFocusToPass, isFocused: $isUsernameFieldFocused)
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                     .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                 
                 
-                FloatingLabelTextField(text: $password, title: "Password", isSecure: true, isFocused: $isPasswordFieldFocused)
+                FloatingLabelTextField(text: $password, title: "Password", isSecure: true, onSubmit: authenticateWithPassword, isFocused: $isPasswordFieldFocused)
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                     .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                 
                 CoolButton(title: "Login", systemImage: "door.sliding.right.hand.open") {
-                    if password.isEmpty { return }
                     authenticateWithPassword()
                 }
                 .frame(maxWidth: .infinity)
@@ -415,7 +415,14 @@ struct UsernamePasswordLoginView: View {
 //        showFaceID = false
 //    }
     
+    func switchFocusToPass() {
+        isUsernameFieldFocused = false
+        isPasswordFieldFocused = true
+    }
+    
     private func authenticateWithPassword() {
+        
+        if password.isEmpty { return }
 
         guard let savedUsername = KeychainManager.standard.readUsername(),
               let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: savedUsername),

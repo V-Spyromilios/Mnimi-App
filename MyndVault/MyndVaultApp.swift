@@ -103,7 +103,7 @@ struct MyndVaultApp: App {
 #if DEBUG
         Purchases.logLevel = .debug
 #else
-        Purchases.logLevel = .info
+        Purchases.logLevel = .verbose
 #endif
         if let catKey = ApiConfiguration.catKey {
             Purchases.configure(with: .init(withAPIKey: catKey)

@@ -126,7 +126,7 @@ class PineconeViewModel: ObservableObject {
                 }
             } catch {
                 self.pineconeErrorFromAdd = .refreshFailed(error)
-                print(error)
+                debugLog("from refreshNamespacesIDs: \(error) - \( error.localizedDescription)")
             }
         }
     }
@@ -150,7 +150,7 @@ class PineconeViewModel: ObservableObject {
                 debugLog("upsertSuccess: \(self.upsertSuccessful)")
             } catch {
                 await MainActor.run {
-                    print("Error: \(error)")
+                    debugLog("from upsertData() Error: \(error.localizedDescription)")
                     self.upsertSuccessful = false
                     if sender == .editInfo {
                         self.pineconeErrorFromEdit = .upsertFailed(error)

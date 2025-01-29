@@ -6,7 +6,7 @@ struct SplashScreen: View {
     
     @Binding var showSplash: Bool
     @State private var greenHeight: CGFloat = 0
-
+    
     @State private var loadingComplete: Bool = false
     @State private var codeLines: [String] = []
     @State private var currentLineIndex: Int = 0
@@ -21,21 +21,21 @@ struct SplashScreen: View {
         GeometryReader { geometry in
             
             ZStack {
-
+                
                 LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                        .opacity(0.4)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .ignoresSafeArea()
-
+                    .opacity(0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea()
+                
                 if showCode {
-                   
+                    
                     codeView(geometry: geometry)
                 }
             }
             .statusBar(hidden: true)
             .alert(isPresented: $showAlert) {
                 Alert(
-                    title: Text("iCloud"),
+                    title: Text("iCloud Error"),
                     message: Text(alertMessage),
                     primaryButton: .default(Text("Retry")) {
                         Task {
@@ -43,7 +43,7 @@ struct SplashScreen: View {
                             await cloudKit.startCloudKit()
                         }
                     },
-                    secondaryButton: .default(Text("Login with iCloud")) {
+                    secondaryButton: .default(Text("iCloud Account Settings")) {
                         openICloudSettings()
                     }
                 )
@@ -55,32 +55,32 @@ struct SplashScreen: View {
                 await cloudKit.startCloudKit()
             }
         }
-        .onChange(of: cloudKit.userIsSignedIn) { _, isSignedIn in
-                    if !isSignedIn {
-                        showAlert = true
-                        alertMessage = "Please sign in to iCloud to continue using the app."
-                    }
+        .onChange(of: cloudKit.userIsSignedIn) { _, newValue in
+            if newValue == true {
+                Task {
+                    await cloudKit.startCloudKit()
                 }
-
-        .onChange(of: loadingComplete) {
-            if loadingComplete {
+            } else {
+                showAlert = true
+                alertMessage = "Please sign in to iCloud to continue using the app."
+            }
+        }
+        .onChange(of: loadingComplete) { _, completed in
+            if completed {
                 withAnimation(.easeInOut(duration: 0.1)) {
                     showSplash.toggle()
                 }
             }
         }
         .onChange(of: cloudKit.CKErrorDesc) { _, error in
-            if error != "" { 
+            if error != "" {
                 self.alertMessage = error
                 self.showAlert = true }
         }
         .onChange(of: cloudKit.isLoading) { _, isLoading in
-            if !isLoading && cloudKit.CKErrorDesc == "" {
+            if !isLoading && cloudKit.CKErrorDesc.isEmpty && cloudKit.userIsSignedIn {
                 loadingComplete = true
             }
-//            else if cloudKit.CKErrorDesc != "" {
-//                
-//            }
         }
     }
     
@@ -114,8 +114,8 @@ struct SplashScreen: View {
         }
         .frame(width: geometry.size.width, alignment: .trailing).padding(.bottom, 12)
     }
-
-
+    
+    
     private func startCodeAnimation() {
         let lines = Constants.assemblyCode.split(separator: "\n").map { String($0) }
         
@@ -132,12 +132,10 @@ struct SplashScreen: View {
                 }
             }
     }
-    
-    
-
 }
-    #Preview {
-        SplashScreen(showSplash: .constant(true))
-            .environmentObject(CloudKitViewModel())
-    }
+
+#Preview {
+    SplashScreen(showSplash: .constant(true))
+        .environmentObject(CloudKitViewModel())
+}
 
