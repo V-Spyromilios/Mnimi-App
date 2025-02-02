@@ -398,66 +398,66 @@
         }
       }
     },
-    "Access the world's most advanced AI" : {
+    "Access the world's most advanced and secure AI" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Greifen Sie auf die fortschrittlichste KI der Welt zu"
+            "value" : "Greifen Sie auf die fortschrittlichste und sicherste KI der Welt zu"
           }
         },
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Χρησιμοποιείστε την πιο προηγμένη Τεχνητή Νοημοσύνη στον κόσμο"
+            "value" : "Αποκτήστε πρόσβαση στην πιο προηγμένη και ασφαλή AI στον κόσμο"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Accede a la IA más avanzada del mundo"
+            "value" : "Accede a la IA más avanzada y segura del mundo"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Accédez à l’IA la plus avancée au monde"
+            "value" : "Accédez à l’IA la plus avancée et sécurisée au monde"
           }
         },
         "he" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "גש ל-AI המתקדם ביותר בעולם"
+            "value" : "גש ל-AI המתקדם והמאובטח ביותר בעולם"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Accedi all’IA più avanzata al mondo"
+            "value" : "Accedi all’IA più avanzata e sicura al mondo"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "世界で最も高度なAIにアクセスする"
+            "value" : "世界で最も高度で安全なAIにアクセス"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "세계에서 가장 발전된 AI에 접근하세요"
+            "value" : "세계에서 가장 발전되고 안전한 AI에 액세스하세요"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Acesse a IA mais avançada do mundo"
+            "value" : "Acesse a IA mais avançada e segura do mundo"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "获取全球最先进的人工智能"
+            "value" : "访问全球最先进且安全的AI"
           }
         }
       }
@@ -1956,7 +1956,68 @@
       }
     },
     "iCloud Account Settings" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-Kontoeinstellungen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ρυθμίσεις λογαριασμού iCloud"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración de cuenta de iCloud"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " Paramètres du compte iCloud"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " הגדרות חשבון iCloud"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " Impostazioni dell’account iCloud"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudアカウント設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 계정 설정"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurações da conta do iCloud"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 账户设置"
+          }
+        }
+      }
     },
     "iCloud Error" : {
       "localizations" : {
@@ -2219,13 +2280,13 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Laden"
           }
         },
         "el" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Φόρτωση"
           }
         },
@@ -2237,43 +2298,43 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Cargando"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Chargement"
           }
         },
         "he" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "טוען"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Caricamento"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "読み込み中"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "로딩 중"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Carregando"
           }
         },
@@ -3441,13 +3502,13 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Speichern"
           }
         },
         "el" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Αποθήκευση"
           }
         },
@@ -3459,49 +3520,49 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Guardar"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Enregistrer"
           }
         },
         "he" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "שמור"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Salva"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "保存"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "저장"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Salvar"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "保存"
           }
         }
