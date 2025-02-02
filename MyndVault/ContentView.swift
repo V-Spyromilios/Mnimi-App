@@ -70,6 +70,10 @@ struct ContentView: View {
         }
         .onAppear {
             speechManager.checkSpeechAuthorizationStatus()
+            debugLog("isActiveSubscription onAppear of ContentView: \(RCviewModel.isActiveSubscription)")
+               if !RCviewModel.isActiveSubscription {
+                   showPayWall = true
+               }
         }
         
         .onChange(of: networkManager.hasInternet) { _, hasInternet in

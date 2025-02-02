@@ -21,7 +21,7 @@ struct CustomPayWall: View {
                     LottieRepresentable(filename: "Woman_vault")
                     .frame(height: 250)
                     .ignoresSafeArea()
-                    benefits()
+                 benefits().padding(.all)
             }
         }
         .paywallFooter(condensed: true)
@@ -49,7 +49,7 @@ private func benefits() -> some View {
         HStack(spacing: 12) {
             Image(systemName: "lightbulb.fill").resizable().frame(width: 20, height: 25).foregroundStyle(.customLightPurple)
             
-           Text("Access the world's most advanced AI").fontDesign(.monospaced).bold()
+           Text("Access the world's most advanced and secure AI").fontDesign(.monospaced).bold()
             Spacer()
         }.padding(.bottom, 12)
         
@@ -62,4 +62,9 @@ private func benefits() -> some View {
 
         
     }.padding(.horizontal)
+}
+
+#Preview {
+    CustomPayWall()
+        .environment(\.locale, Locale(identifier: "de"))
 }
