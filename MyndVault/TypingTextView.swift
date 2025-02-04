@@ -19,13 +19,15 @@ struct TypingTextView: View {
     @State private var timerCancellable: AnyCancellable?
     
     var body: some View {
-        HStack {
+        VStack(alignment: .leading) {
             Text(displayedText)
-                .font(Font.custom(isTitle ? "SF Compact Display" : "SF Mono Semibold", size: isTitle ? 29 : 16))
+                .font(Font.custom(isTitle ? "SF Compact Display" : "SF Mono Semibold", size: dynamicFontSize()))
                 .fontDesign(isTitle ? .rounded : .monospaced)
                 .foregroundStyle(isTitle ? Color.customTiel : .primary)
                 .multilineTextAlignment(.leading)
                 .padding(.horizontal)
+                .lineLimit(nil) // Ensure text can wrap
+                .fixedSize(horizontal: false, vertical: true) // Allows it to expand vertically
                 .onAppear {
                     if !hasTyped {
                         startTyping()
@@ -50,6 +52,11 @@ struct TypingTextView: View {
                     hasTyped = true
                 }
             }
+    }
+    
+    func dynamicFontSize() -> CGFloat {
+        let screenWidth = UIScreen.main.bounds.width
+        return isTitle ? (screenWidth < 375 ? 24 : 29) : (screenWidth < 375 ? 14 : 16)
     }
 }
 
