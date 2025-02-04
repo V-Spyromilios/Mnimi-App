@@ -89,15 +89,15 @@ struct ContentView: View {
             }
         }
         .onChange(of: RCviewModel.isActiveSubscription) { wasActive, isActive in
+            let previous = wasActive
+            
             if isActive {
-                debugLog("is Now Active Subscription: \(isActive) and was \(wasActive)")
+                debugLog("is Now Active Subscription: \(isActive) and was \(previous)")
                 withAnimation(.easeInOut(duration: 0.5)) { showPayWall = false }
-            }
-            else {
-                debugLog("Now is Not Active Subscription: \(isActive), and was: \(wasActive)")
+            } else {
+                debugLog("Now is Not Active Subscription: \(isActive), and was: \(previous)")
                 withAnimation(.easeInOut(duration: 0.5)) { showPayWall = true }
             }
-            
         }
         .alert(isPresented: $showNetworkError) {
             Alert(
@@ -107,7 +107,7 @@ struct ContentView: View {
             )
         }
         .fullScreenCover(isPresented: $showPayWall) {
-            CustomPayWall()
+            PaywallView(displayCloseButton: false)
         }
     }
     

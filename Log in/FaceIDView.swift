@@ -331,19 +331,19 @@ struct UsernamePasswordLoginView: View {
                 .ignoresSafeArea()
 
             VStack {
-                
+
                 //TODO: all below mmust be localized...
-                TypingTextView(fullText: "FaceID/ TouchID failed.\nPlease provide Username and\nPassword instead")
+                TypingTextView(fullText: String(localized: "faceIDView_please_provide_username"))
                     .shadow(radius: 1)
                     .frame(height: 100)
                     .padding(.horizontal)
                 
-                FloatingLabelTextField(text: $username, title: "Username", isSecure: false, onSubmit: switchFocusToPass, isFocused: $isUsernameFieldFocused)
+                FloatingLabelTextField(text: $username, title: String(localized: "username"), isSecure: false, onSubmit: switchFocusToPass, isFocused: $isUsernameFieldFocused)
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                     .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                 
                 
-                FloatingLabelTextField(text: $password, title: "Password", isSecure: true, onSubmit: authenticateWithPassword, isFocused: $isPasswordFieldFocused)
+                FloatingLabelTextField(text: $password, title: String(localized: "password"), isSecure: true, onSubmit: authenticateWithPassword, isFocused: $isPasswordFieldFocused)
                     .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                     .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                 
@@ -427,13 +427,13 @@ struct UsernamePasswordLoginView: View {
         guard let savedUsername = KeychainManager.standard.readUsername(),
               let savedPasswordData = KeychainManager.standard.read(service: "dev.chillvibes.MyndVault", account: savedUsername),
               let savedPassword = String(data: savedPasswordData, encoding: .utf8) else {
-            alertPasswordMessage = "Invalid username or password."
+            alertPasswordMessage = String(localized: "invalid_username_or_password.")
             showPasswordError = true
             return
         }
         
         if savedPassword != password {
-            alertPasswordMessage = "Invalid password."
+            alertPasswordMessage = String(localized: "invalid_password")
             showPasswordError = true
             return
         }

@@ -163,6 +163,28 @@ struct SettingsView: View {
                         .contentShape(Rectangle())
                     }
                     
+                    
+                    //MARK: Terms of Use
+                    Button(action: {
+                        eula()
+                    }) {
+                        HStack {
+                            Text("Terms of Use")
+                                .foregroundColor(colorScheme == .light ? .black : .white)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.blue)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.primaryBackground)
+                        .cornerRadius(10)
+                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
+                        .contentShape(Rectangle())
+                    }
+                    
                     //MARK: Open Support request
                     Button(action: {
                         openSupportRequest()
@@ -308,6 +330,12 @@ struct SettingsView: View {
     
     private func openPrivacyPolicy() {
         if let url = URL(string: "https://polydactyl-drain-3f7.notion.site/MyndVault-Privacy-Policy-3ddf94bced6c4481b1753cac12844f1c?pvs=4") {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    private func eula() {
+        if let url = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/") {
             UIApplication.shared.open(url)
         }
     }

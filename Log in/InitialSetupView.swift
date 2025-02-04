@@ -44,27 +44,27 @@ struct InitialSetupView: View {
                 
                 VStack {
                     ScrollView {
-                        
+
                         LottieRepresentable(filename: "Woman_vault")
                             .frame(height: 220)
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                        TypingTextView(fullText: "Please provide Username\nand Password to be used if FaceID is not available.", isTitle: false)
+                        TypingTextView(fullText: String(localized: "please_provide_username"), isTitle: false)
                             .shadow(radius: 1)
                             .frame(height: 60)
                         
-                        FloatingLabelTextField(text: $username, title: "Username", isSecure: false, onSubmit: {
+                        FloatingLabelTextField(text: $username, title: String(localized:"username"), isSecure: false, onSubmit: {
                             isPasswordFieldFocused = true
                         }, isFocused: $isUsernameFieldFocused)
                         .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                         .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
-                        FloatingLabelTextField(text: $password, title: "Password", isSecure: true, onSubmit: {
+                        FloatingLabelTextField(text: $password, title: String(localized:"password"), isSecure: true, onSubmit: {
                             isRepairPasswordFieldFocused = true
                         }, isFocused: $isPasswordFieldFocused)
                         .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                         .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
-                        FloatingLabelTextField(text: $confirmPassword, title: "Repeat Password", isSecure: true, onSubmit : { completeSetup() }, isFocused: $isRepairPasswordFieldFocused )
+                        FloatingLabelTextField(text: $confirmPassword, title: String(localized: "repeat_password"), isSecure: true, onSubmit : { completeSetup() }, isFocused: $isRepairPasswordFieldFocused )
                             .modifier(NeumorphicStyle(cornerRadius: 10, color: Color.clear))
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                         
