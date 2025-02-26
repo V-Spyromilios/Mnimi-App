@@ -71,56 +71,50 @@ struct LoadingTransitionView: View {
     @Binding var isSuccess: Bool
     
     var body: some View {
-        if #available(iOS 16.0, *) {
-            VStack {
-                if isUpserting {
+        VStack {
+            if isUpserting {
+                if #available(iOS 18.0, *) {
+                 
                     Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90.circle")
                         .foregroundStyle(Color.customLightBlue, .blue)
                         .symbolEffect(.rotate, options: .speed(2).repeating)
                         .font(.system(size: 90))
-                    
+                } else {
+                   
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .rotationEffect(.degrees(isUpserting ? 360 : 0))
+                        .animation(
+                            Animation.linear(duration: 0.8)
+                                .repeatForever(autoreverses: true),
+                            value: isUpserting
+                        )
+                        .font(.system(size: 90))
+                        .foregroundColor(Color.customLightBlue)
                 }
-                else if isSuccess {
+            } else if isSuccess {
+                if #available(iOS 18.0, *) {
                     Image(systemName: "checkmark.circle.fill")
                         .symbolEffect(.bounce, options: .nonRepeating)
                         .font(.system(size: 90))
                         .foregroundColor(Color.customLightBlue)
-                }
-            }
-        } else { //older than ios16
-            VStack {
-                if isUpserting {
-                    VStack {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .rotationEffect(isUpserting ? .degrees(360) : .degrees(0))
-                            .animation(
-                                Animation.linear(duration: 0.8).repeatForever(autoreverses: false),
-                                value: isUpserting
-                            )
-                            .font(.system(size: 90))
-                            .foregroundColor(.blue)
-                        
-                    }
-                }
-                else if isSuccess {
+                } else {
                     Image(systemName: "checkmark.circle.fill")
-                        .scaleEffect(isUpserting ? 1.0 : 1.2)
+                        .scaleEffect(isSuccess ? 1.2 : 1.0)
                         .animation(
-                            Animation.easeInOut(duration: 0.6).repeatCount(3, autoreverses: true),
-                            value: !isUpserting
+                            Animation.easeInOut(duration: 0.6)
+                                .repeatCount(3, autoreverses: true),
+                            value: isSuccess
                         )
                         .font(.system(size: 90))
-                        .foregroundColor(.green)
-                    
+                        .foregroundColor(Color.customLightBlue)
                 }
-                
             }
         }
     }
-    
 }
 #Preview {
     PreviewWrapper()
+
 }
 
 struct PreviewWrapper: View {
@@ -136,6 +130,11 @@ struct PreviewWrapper: View {
                 .ignoresSafeArea()
             
             VStack {
+                if #available(iOS 18, *) {
+                    Text("ios 18").font(.title).bold().padding()
+                } else if #available(iOS 17, *) {
+                    Text("ios 17").font(.title).bold().padding()
+                }
                 Button(action: {
                     withAnimation {
                         shouldShown.toggle()
@@ -165,7 +164,7 @@ struct PreviewWrapper: View {
     }
     
     private func toggle() {
-        isSuccess.toggle()
-        isUpserting.toggle()
+        isSuccess = true
+        isUpserting = false
     }
 }
