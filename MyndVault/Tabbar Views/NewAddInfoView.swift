@@ -194,6 +194,7 @@ struct NewAddInfoView: View {
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                     }
+
 //                    .onAppear {
 //                        if !showLang {
 //                            showLang.toggle()
@@ -223,7 +224,13 @@ struct NewAddInfoView: View {
                         }
                        
                     }
+                   
                 }
+                .overlay(
+                    RecordButton(),
+                           alignment: .bottomTrailing
+                      
+                )
                 .toolbar {
                     
                     ToolbarItemGroup(placement: .topBarTrailing) {
@@ -260,6 +267,7 @@ struct NewAddInfoView: View {
 //                        }
 //                    }
 //                }
+                
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
                     if !hasInternet {
                         showNoInternet = true
@@ -319,12 +327,51 @@ struct NewAddInfoView: View {
                 }
             }
         }
+
     }
 }
 
 // MARK: - Subviews and Helper Functions
 
 extension NewAddInfoView {
+    
+    struct RecordButton: View {
+        // Called when the user first *begins* pressing
+        var onPressBegan: () -> Void
+        // Called when the user *ends* the press
+        var onPressEnded: () -> Void
+        
+        @GestureState private var isPressing = false
+        
+        var body: some View {
+            let longPress = LongPressGesture(minimumDuration: 0.0) // or a fraction of a second
+                .updating($isPressing) { currentValue, state, _ in
+                    // This gets called continuously while the press is held
+                    if state == false && currentValue == true {
+                        // We just began pressing
+                        onPressBegan()
+                    }
+                    // Update our local gesture state
+                    state = currentValue
+                }
+                .onEnded { _ in
+                    // This is called when the user lifts their finger
+                    onPressEnded()
+                }
+            
+            return Image(systemName: "mic.circle")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 35, height: 35)
+                // For nice UI feedback while pressing:
+                .scaleEffect(isPressing ? 1.2 : 1.0)
+                .animation(.easeInOut, value: isPressing)
+                // Attach our custom gesture
+                .gesture(longPress)
+        }
+    }
+    
+    
     private var SaveButton: some View {
 
         CoolButton(title: String(localized: "saveButtonTitle"), systemImage: "cloud.circle.fill", action: addNewInfoAction)
