@@ -23,6 +23,8 @@ struct NewAddInfoView: View {
 //    @State private var showLang: Bool = false
     @State private var showSuccess: Bool = false
     @State private var isTextFieldEmpty: Bool = true
+    @State var recordingURL: URL?
+    @State private var showSettingsAlert = false
 
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
@@ -43,32 +45,34 @@ struct NewAddInfoView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
+            GeometryReader { geometry in
                 
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                    .opacity(0.4)
-                    .ignoresSafeArea()
-                ScrollView {
-                    VStack {
-                        HStack {
+                ZStack {
+                    
+                    LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+                        .opacity(0.4)
+                        .ignoresSafeArea()
+                    ScrollView {
+                        VStack {
+                            HStack {
                             Image(systemName: "plus.bubble").bold()
                             Text("info").bold()
-//                            if showLang {
-                                Text("\(languageSettings.selectedLanguage.displayName)")
-                                    .foregroundStyle(.gray)
-//                                    .padding(.leading, 8)
-                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
-                                                            removal: .opacity))
-//                            }
+                            //                            if showLang {
+                            Text("\(languageSettings.selectedLanguage.displayName)")
+                                .foregroundStyle(.gray)
+                            //                                    .padding(.leading, 8)
+                                .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                        removal: .opacity))
+                            //                            }
                             Spacer()
-//#if DEBUG
-//                            Text("Upsert Successful: \(pineconeManager.upsertSuccessful ? "Yes" : "No")")
-//                                .foregroundColor(pineconeManager.upsertSuccessful ? .green : .red)
-//                                .padding()
-//                                .onTapGesture {
-//                                    pineconeManager.upsertSuccessful.toggle()
-//                                }
-//#endif
+                            //#if DEBUG
+                            //                            Text("Upsert Successful: \(pineconeManager.upsertSuccessful ? "Yes" : "No")")
+                            //                                .foregroundColor(pineconeManager.upsertSuccessful ? .green : .red)
+                            //                                .padding()
+                            //                                .onTapGesture {
+                            //                                    pineconeManager.upsertSuccessful.toggle()
+                            //                                }
+                            //#endif
                         }
                         .font(.callout)
                         .padding(.top, 12)
@@ -81,9 +85,9 @@ struct NewAddInfoView: View {
                                 .font(.title2)
                                 .multilineTextAlignment(.leading)
                                 .frame(height: Constants.textEditorHeight)
-//                                .if(UIDevice.current.userInterfaceIdiom != .pad) { view in
-//                                    view.frame(maxWidth: idealWidth(for: geometry.size.width))
-//                                }
+                            //                                .if(UIDevice.current.userInterfaceIdiom != .pad) { view in
+                            //                                    view.frame(maxWidth: idealWidth(for: geometry.size.width))
+                            //                                }
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .shadow(color: isFocused ? Color.blue.opacity(0.5) : Color.blue.opacity(0.4),
                                         radius: isFocused ? 3 : 2,
@@ -187,24 +191,14 @@ struct NewAddInfoView: View {
                             }
                         }
                         .animation(.easeInOut(duration: 0.5), value: shouldShowLoading)
+                      
                         Spacer()
-                    }
+                    } //End of Vstack
                     .padding(.horizontal, Constants.standardCardPadding)
                     
                     .sheet(isPresented: $photoPicker.isPickerPresented) {
                         PHPickerViewControllerRepresentable(viewModel: photoPicker)
                     }
-
-//                    .onAppear {
-//                        if !showLang {
-//                            showLang.toggle()
-//                        }
-//                        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-//                            withAnimation {
-//                                showLang.toggle()
-//                            }
-//                        }
-//                    }
                     .sheet(isPresented: $showError) {
                         ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
                             .presentationDetents([.fraction(0.4)])
@@ -212,25 +206,53 @@ struct NewAddInfoView: View {
                             .presentationBackground(Color.clear)
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                     }
+                    .alert("Microphone Access Denied", isPresented: $showSettingsAlert) {
+                        Button("Cancel", role: .cancel) { }
+                        Button("Open Settings") {
+                            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(settingsURL)
+                            }
+                        }
+                    } message: {
+                        Text("Please enable microphone access in Settings to record audio.")
+                    }
                     .navigationBarTitleView {
                         HStack {
                             Text("Add New Info").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
                                 .minimumScaleFactor(0.8)
                                 .lineLimit(2)
-                           
+                            
                             LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
                             
                             Spacer()
                         }
-                       
+                        
                     }
-                   
+                    
                 }
-                .overlay(
-                    RecordButton(),
-                           alignment: .bottomTrailing
-                      
-                )
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        RecordButton(
+                            onPressBegan: { print("🎤 Recording started!") },
+                            onPressEnded: { print("🛑 Recording ended!") },
+                            onConfirmRecording: { url in
+                                guard FileManager.default.fileExists(atPath: url.path) else {
+                                    print("⚠️ Recording file does not exist at \(url)")
+                                    return
+                                }
+                                self.recordingURL = url
+                            },
+                            showAlert: $showSettingsAlert
+                        )
+//                        .padding()
+//                        .background(Circle().fill(Color.blue).shadow(radius: 5))
+//                        .padding(.trailing, 20)
+                        .padding(.bottom, geometry.safeAreaInsets.bottom)
+                        .padding(.trailing, Constants.standardCardPadding * 2)
+                    }
+                }
                 .toolbar {
                     
                     ToolbarItemGroup(placement: .topBarTrailing) {
@@ -257,16 +279,16 @@ struct NewAddInfoView: View {
                         }
                     }
                 }
-//                .onChange(of: languageSettings.selectedLanguage) {
-//                    withAnimation {
-//                        showLang = true
-//                    }
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-//                        withAnimation {
-//                            showLang = false
-//                        }
-//                    }
-//                }
+                //                .onChange(of: languageSettings.selectedLanguage) {
+                //                    withAnimation {
+                //                        showLang = true
+                //                    }
+                //                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
+                //                        withAnimation {
+                //                            showLang = false
+                //                        }
+                //                    }
+                //                }
                 
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
                     if !hasInternet {
@@ -283,6 +305,11 @@ struct NewAddInfoView: View {
                         }
                     }
                 }
+                .onChange(of: recordingURL) { _, url in
+                    if url != nil {
+                        //TODO: call openAI whisper
+                    }
+                }
                 
                 .onChange(of: pineconeManager.upsertSuccessful) { _, isSuccesful in
                     if isSuccesful {
@@ -291,7 +318,7 @@ struct NewAddInfoView: View {
                             photoPicker.selectedImage = nil
                             apiCallInProgress = false
                             showSuccess = true
-                           
+                            
                             pineconeManager.refreshNamespacesIDs()
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
@@ -326,51 +353,27 @@ struct NewAddInfoView: View {
                     }
                 }
             }
+            //            .overlay(alignment: .bottomTrailing) {
+            //                RecordButton(
+            //                    onPressBegan: {
+            //                        print("🎤 Recording started!")
+            //                    },
+            //                    onPressEnded: {
+            //                        print("🛑 Recording ended!")
+            //                    }
+            //                )
+            ////                .padding(.trailing, 16)
+            ////                .padding(.bottom, 30)
+            //            }
         }
-
+        }
+        
     }
 }
 
 // MARK: - Subviews and Helper Functions
 
 extension NewAddInfoView {
-    
-    struct RecordButton: View {
-        // Called when the user first *begins* pressing
-        var onPressBegan: () -> Void
-        // Called when the user *ends* the press
-        var onPressEnded: () -> Void
-        
-        @GestureState private var isPressing = false
-        
-        var body: some View {
-            let longPress = LongPressGesture(minimumDuration: 0.0) // or a fraction of a second
-                .updating($isPressing) { currentValue, state, _ in
-                    // This gets called continuously while the press is held
-                    if state == false && currentValue == true {
-                        // We just began pressing
-                        onPressBegan()
-                    }
-                    // Update our local gesture state
-                    state = currentValue
-                }
-                .onEnded { _ in
-                    // This is called when the user lifts their finger
-                    onPressEnded()
-                }
-            
-            return Image(systemName: "mic.circle")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 35, height: 35)
-                // For nice UI feedback while pressing:
-                .scaleEffect(isPressing ? 1.2 : 1.0)
-                .animation(.easeInOut, value: isPressing)
-                // Attach our custom gesture
-                .gesture(longPress)
-        }
-    }
-    
     
     private var SaveButton: some View {
 
@@ -382,7 +385,7 @@ extension NewAddInfoView {
 //        .disabled(isTextFieldEmpty)
     }
     
-    
+
     private func performClearTask() {
         withAnimation {
             self.thrownError = ""

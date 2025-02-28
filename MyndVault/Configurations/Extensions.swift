@@ -205,13 +205,13 @@ struct BlurView: UIViewRepresentable {
 //    private let amount: CGFloat //max movement(displacement)
 //    private let shakesPerUnit: CGFloat // complete back and forth per animation
 //    var animatableData: CGFloat
-//    
+//
 //    init(amount: CGFloat = 5, shakesPerUnit: CGFloat = 2, animatableData: CGFloat) {
 //        self.amount = amount
 //        self.shakesPerUnit = shakesPerUnit
 //        self.animatableData = animatableData
 //    }
-//    
+//
 //    func effectValue(size: CGSize) -> ProjectionTransform {
 //        let translation = amount * sin(animatableData * .pi * shakesPerUnit)
 //        return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
@@ -233,6 +233,199 @@ struct NeumorphicStyle: ViewModifier {
                     .shadow(color: Color.white.opacity(0.7), radius: 10, x: -5, y: -5)
             )
     }
+}
+
+
+@MainActor
+struct RecordButton: View {
+    var onPressBegan: () -> Void
+    var onPressEnded: () -> Void
+    var onConfirmRecording: (_: URL) -> Void
+    
+    @State private var showSettingsAlert = false
+    @State private var audioRecorder = AudioRecorder()
+    @State private var isRecording = false
+    @State private var showPopup = false
+    @State private var countdownTime = 15
+    @State private var timer: Timer?
+    @State var recordingURL: URL?
+    @Binding var showAlert: Bool
+    
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            // Reserve space for pop-up, even when it's hidden
+            if showPopup {
+                recordingPopup
+                    .transition(.opacity.combined(with: .scale)) // ✅ Consistent transition
+            } else {
+                Color.clear // ✅ Invisible placeholder to prevent shifting
+                    .frame(width: 120, height: 100)
+            }
+
+            recordButton
+        }
+        .animation(.spring(), value: showPopup) // ✅ Apply animation globally
+    }
+    
+    private var recordingPopup: some View {
+        VStack {
+            Text("\(countdownTime) sec")
+                .font(.body)
+                .fontDesign(.rounded)
+                .bold()
+                .contentTransition(.numericText())
+                .padding(.top, 8)
+            
+            HStack(spacing: 10) {
+                Button(action: confirmRecording) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .resizable()
+                        .frame(width: 35, height: 35)
+                        .foregroundColor(.green)
+                }
+                Button(action: cancelRecording) {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .frame(width: 35, height: 35)
+                        .foregroundColor(.red)
+                }
+            }
+            .padding(.bottom, 8)
+        }
+        .frame(width: 120, height: 100)
+        .background(.ultraThinMaterial.opacity(0.7))
+        .cornerRadius(10)
+        .shadow(radius: 10)
+        .offset(x: -110, y: -10)
+        .transition(.scale.combined(with: .opacity)) // ✅ Consistent animation for both appearing and disappearing
+                .animation(.spring(), value: showPopup)
+    }
+    
+    private var recordButton: some View {
+        Image(systemName: "mic.circle.fill")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 50, height: 50)
+            .foregroundColor(.blue)
+            .scaleEffect(isRecording ? 1.2 : 1.0, anchor: .bottom) // ✅ Scaling from the bottom prevents jumping
+            .animation(.easeInOut, value: isRecording)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.blue.opacity(0.2), Color.blue.opacity(0.3), Color.blue.opacity(0.4)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 75, height: 75)
+            )
+            .scaleEffect(isRecording ? 1.1 : 1.0)
+            .animation(.easeInOut, value: isRecording)
+            .gesture(recordGesture)
+    }
+    
+    private var recordGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { _ in
+                Task {
+                    guard !isRecording else { return } // ✅ Prevent multiple triggers
+                    
+                    let permissionGranted = await audioRecorder.requestPermission()
+                    if permissionGranted {
+                        deletePreviousRecording()
+                        showPopup = true
+                        try? await audioRecorder.startRecording()
+                        startCountdown()
+                        isRecording = true  // ✅ Ensure recording state is updated
+                        onPressBegan()
+                    } else {
+                        DispatchQueue.main.async {
+                            showSettingsAlert = true
+                        }
+                    }
+                }
+            }
+            .onEnded { _ in
+                stopRecording()
+            }
+    }
+    
+    private func confirmRecording() {
+        if let recordedFile = audioRecorder.stopRecording() {
+            print("✅ Recording confirmed: \(recordedFile)")
+            onConfirmRecording(recordedFile)
+            
+        } else {
+            print("❌ No recorded file found")
+        }
+        showPopup = false
+        resetState()
+    }
+    
+    private func cancelRecording() {
+            print("❌ Audio discarded.")
+            if let url = recordingURL {
+                try? FileManager.default.removeItem(at: url) // ✅ Delete the recorded file
+            }
+            recordingURL = nil
+        
+            showPopup = false
+            resetState()
+        }
+    
+    private func resetState() {
+        withAnimation {
+            isRecording = false }
+        timer?.invalidate()
+        timer = nil
+        countdownTime = 15
+    }
+    
+    private func deletePreviousRecording() {
+        if let url = recordingURL {
+            try? FileManager.default.removeItem(at: url) // ✅ Delete previous recording
+            print("🗑 Deleted previous recording: \(url)")
+        }
+        recordingURL = nil // ✅ Reset the stored URL
+    }
+    
+    private func startCountdown() {
+        withAnimation {
+            countdownTime = 15 }
+            timer?.invalidate()
+            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                DispatchQueue.main.async {
+                    
+                    if countdownTime > 0 {
+                        withAnimation {
+                            countdownTime -= 1 }
+                    } else {
+                        timer?.invalidate()
+                        withAnimation {
+                            timer = nil
+                            countdownTime = 0 }
+                    }
+                }
+            }
+        }
+    
+    private func stopRecording() {
+            timer?.invalidate()
+            timer = nil
+            if audioRecorder.isRecording {
+                let recordedFile = audioRecorder.stopRecording()
+                DispatchQueue.main.async {
+                    recordingURL = recordedFile
+                    print("⏳ Recording ended after \(15 - countdownTime) seconds")
+                    withAnimation {
+                        isRecording = false
+                        countdownTime = countdownTime
+                    }
+                    onPressEnded()
+                }
+            }
+        }
 }
 
 @MainActor
