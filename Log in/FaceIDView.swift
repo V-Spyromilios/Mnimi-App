@@ -336,6 +336,7 @@ struct UsernamePasswordLoginView: View {
                 TypingTextView(fullText: String(localized: "faceIDView_please_provide_username"))
                     .shadow(radius: 1)
                     .frame(height: 100)
+                    .padding(.top, 13)
                     .padding(.horizontal)
                 
                 FloatingLabelTextField(text: $username, title: String(localized: "username"), isSecure: false, onSubmit: switchFocusToPass, isFocused: $isUsernameFieldFocused)

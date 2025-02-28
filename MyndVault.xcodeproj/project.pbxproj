@@ -47,6 +47,8 @@
 		E85055092C42CF2A00FBACC4 /* Image Recognition.json in Resources */ = {isa = PBXBuildFile; fileRef = E85055082C42CF2A00FBACC4 /* Image Recognition.json */; };
 		E850550B2C42D42300FBACC4 /* Ai Cloud.json in Resources */ = {isa = PBXBuildFile; fileRef = E850550A2C42D42300FBACC4 /* Ai Cloud.json */; };
 		E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */; };
+		E85EE47B2D6F69DF00737A97 /* testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85EE47A2D6F69DF00737A97 /* testing.swift */; };
+		E85EE47D2D6F7BE100737A97 /* AudioRecordingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */; };
 		E86734AB2D2ADDA900CF4BEA /* UploadingFile.json in Resources */ = {isa = PBXBuildFile; fileRef = E86734AA2D2ADDA900CF4BEA /* UploadingFile.json */; };
 		E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */; };
 		E87605B72C7A18AD002A13E5 /* RCViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87605B62C7A18AD002A13E5 /* RCViewModel.swift */; };
@@ -146,6 +148,8 @@
 		E85055082C42CF2A00FBACC4 /* Image Recognition.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Image Recognition.json"; sourceTree = "<group>"; };
 		E850550A2C42D42300FBACC4 /* Ai Cloud.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Ai Cloud.json"; sourceTree = "<group>"; };
 		E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboardLabel.swift; sourceTree = "<group>"; };
+		E85EE47A2D6F69DF00737A97 /* testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testing.swift; sourceTree = "<group>"; };
+		E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingManager.swift; sourceTree = "<group>"; };
 		E86734AA2D2ADDA900CF4BEA /* UploadingFile.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UploadingFile.json; sourceTree = "<group>"; };
 		E86BE7632C5684550030C81B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewModel.swift; sourceTree = "<group>"; };
@@ -223,6 +227,7 @@
 				E82F45552BC2A72100945312 /* OpenAIManager.swift */,
 				E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */,
 				E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */,
+				E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -260,6 +265,7 @@
 			children = (
 				E8FA7F012BC5BC320012EBF6 /* VaultView.swift */,
 				E8E1D3C92BE0F646000FCFBC /* NewAddInfoView.swift */,
+				E85EE47A2D6F69DF00737A97 /* testing.swift */,
 				E8E1D3C72BDA5A4A000FCFBC /* QuestionView.swift */,
 				E838498F2C3471B200C7E390 /* FullScreenImage.swift */,
 				E82F456B2BC2A77E00945312 /* NotificationsView.swift */,
@@ -546,6 +552,7 @@
 				E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */,
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,
+				E85EE47D2D6F7BE100737A97 /* AudioRecordingManager.swift in Sources */,
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
 				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
@@ -558,6 +565,7 @@
 				E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */,
 				E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */,
 				E878743E2C677E4C001299D9 /* AboutUsView.swift in Sources */,
+				E85EE47B2D6F69DF00737A97 /* testing.swift in Sources */,
 				E82F45722BC2A77E00945312 /* NamespaceItem.swift in Sources */,
 				E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */,
 				E817A4292C54F8DB00A0172A /* ApiCallViewModel.swift in Sources */,

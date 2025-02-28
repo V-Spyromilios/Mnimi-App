@@ -193,6 +193,9 @@
         }
       }
     },
+    "%lld sec" : {
+
+    },
     "8charsErrorMessage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2357,6 +2360,12 @@
         }
       }
     },
+    "ios 17" : {
+
+    },
+    "ios 18" : {
+
+    },
     "Key" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2748,6 +2757,9 @@
         }
       }
     },
+    "Microphone Access Denied" : {
+
+    },
     "Month Ahead" : {
       "localizations" : {
         "de" : {
@@ -3132,6 +3144,9 @@
         }
       }
     },
+    "Open Settings" : {
+
+    },
     "password" : {
       "localizations" : {
         "de" : {
@@ -3329,6 +3344,9 @@
           }
         }
       }
+    },
+    "Please enable microphone access in Settings to record audio." : {
+
     },
     "please_provide_username" : {
       "localizations" : {
@@ -4960,6 +4978,9 @@
           }
         }
       }
+    },
+    "Yolo " : {
+
     },
     "You are not connected to the Internet" : {
       "localizations" : {
