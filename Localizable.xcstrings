@@ -196,6 +196,9 @@
     "%lld sec" : {
 
     },
+    "⚠️ No event available" : {
+
+    },
     "8charsErrorMessage" : {
       "extractionState" : "manual",
       "localizations" : {

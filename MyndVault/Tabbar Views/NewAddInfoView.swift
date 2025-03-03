@@ -306,8 +306,15 @@ struct NewAddInfoView: View {
                     }
                 }
                 .onChange(of: recordingURL) { _, url in
-                    if url != nil {
-                        //TODO: call openAI whisper
+                    guard let url = url else { return }
+                    Task {
+                        await openAiManager.processAudio(fileURL: url)
+                    }
+                }
+                .onChange(of: openAiManager.transcription) { _, transcription in
+                    if !transcription.isEmpty {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            newInfo = transcription }
                     }
                 }
                 
