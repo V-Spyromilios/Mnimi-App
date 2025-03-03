@@ -75,8 +75,13 @@ class AudioRecorder {
         
         recorder.stop()
         isRecording = false
-        print("🛑 Recording stopped at: \(audioURL?.absoluteString ?? "Unknown URL")")
-        
+
+        guard let audioURL = audioURL else {
+            print("❌ No valid recording URL found")
+            return nil
+        }
+
+        print("🛑 Recording stopped at: \(audioURL)")
         return audioURL
     }
 }

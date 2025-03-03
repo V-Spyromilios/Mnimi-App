@@ -92,6 +92,7 @@
 		E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F072BC5BC320012EBF6 /* Settings View.swift */; };
 		E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */; };
 		E8FE18F02D156CF900CA5ECD /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FE18EF2D156CF900CA5ECD /* ShareSheet.swift */; };
+		E8FFCD3A2D732DA20067B57F /* EventEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FFCD392D732DA20067B57F /* EventEditView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -196,6 +197,7 @@
 		E8FA7F162BC5C8F30012EBF6 /* InfosViewListCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfosViewListCellView.swift; sourceTree = "<group>"; };
 		E8FA7F182BC5D3C60012EBF6 /* MyndVault.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyndVault.entitlements; sourceTree = "<group>"; };
 		E8FE18EF2D156CF900CA5ECD /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		E8FFCD392D732DA20067B57F /* EventEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEditView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -228,6 +230,7 @@
 				E82F45572BC2A72100945312 /* SpeechRecognizerManager.swift */,
 				E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */,
 				E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */,
+				E8FFCD392D732DA20067B57F /* EventEditView.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -555,6 +558,7 @@
 				E85EE47D2D6F7BE100737A97 /* AudioRecordingManager.swift in Sources */,
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
 				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
+				E8FFCD3A2D732DA20067B57F /* EventEditView.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
 				E877FA2D2C4A9FB6002FBFFC /* TypingTextView.swift in Sources */,
 				E878FA892CCD169900CEA8EA /* PineconeViewModel.swift in Sources */,

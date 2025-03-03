@@ -261,7 +261,7 @@ struct RecordButton: View {
                 Color.clear // ✅ Invisible placeholder to prevent shifting
                     .frame(width: 120, height: 100)
             }
-
+            
             recordButton
         }
         .animation(.spring(), value: showPopup) // ✅ Apply animation globally
@@ -298,7 +298,7 @@ struct RecordButton: View {
         .shadow(radius: 10)
         .offset(x: -110, y: -10)
         .transition(.scale.combined(with: .opacity)) // ✅ Consistent animation for both appearing and disappearing
-                .animation(.spring(), value: showPopup)
+        .animation(.spring(), value: showPopup)
     }
     
     private var recordButton: some View {
@@ -337,7 +337,7 @@ struct RecordButton: View {
                         showPopup = true
                         try? await audioRecorder.startRecording()
                         startCountdown()
-                        isRecording = true  // ✅ Ensure recording state is updated
+                        isRecording = true
                         onPressBegan()
                     } else {
                         DispatchQueue.main.async {
@@ -347,32 +347,35 @@ struct RecordButton: View {
                 }
             }
             .onEnded { _ in
+                guard isRecording else { return } // ✅ Ensure recording is active before stopping
                 stopRecording()
             }
     }
     
     private func confirmRecording() {
-        if let recordedFile = audioRecorder.stopRecording() {
-            print("✅ Recording confirmed: \(recordedFile)")
-            onConfirmRecording(recordedFile)
-            
-        } else {
-            print("❌ No recorded file found")
+        
+        guard let recordedFile = recordingURL else { // ✅ Use stored URL instead of stopping again
+            debugLog("❌ No recorded file found")
+            return
         }
+        debugLog("✅ Recording confirmed: \(recordedFile)")
+        onConfirmRecording(recordedFile)
+        
         showPopup = false
         resetState()
     }
     
     private func cancelRecording() {
-            print("❌ Audio discarded.")
-            if let url = recordingURL {
-                try? FileManager.default.removeItem(at: url) // ✅ Delete the recorded file
-            }
-            recordingURL = nil
         
-            showPopup = false
-            resetState()
+        debugLog("❌ Audio discarded.")
+        if let url = recordingURL {
+            try? FileManager.default.removeItem(at: url) // ✅ Delete the recorded file
         }
+        recordingURL = nil
+        
+        showPopup = false
+        resetState()
+    }
     
     private func resetState() {
         withAnimation {
@@ -385,7 +388,7 @@ struct RecordButton: View {
     private func deletePreviousRecording() {
         if let url = recordingURL {
             try? FileManager.default.removeItem(at: url) // ✅ Delete previous recording
-            print("🗑 Deleted previous recording: \(url)")
+            debugLog("🗑 Deleted previous recording: \(url)")
         }
         recordingURL = nil // ✅ Reset the stored URL
     }
@@ -393,39 +396,50 @@ struct RecordButton: View {
     private func startCountdown() {
         withAnimation {
             countdownTime = 15 }
-            timer?.invalidate()
-            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                DispatchQueue.main.async {
-                    
-                    if countdownTime > 0 {
-                        withAnimation {
-                            countdownTime -= 1 }
-                    } else {
-                        timer?.invalidate()
-                        withAnimation {
-                            timer = nil
-                            countdownTime = 0 }
-                    }
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            DispatchQueue.main.async {
+                
+                if countdownTime > 0 {
+                    withAnimation {
+                        countdownTime -= 1 }
+                } else {
+                    timer?.invalidate()
+                    withAnimation {
+                        timer = nil
+                        countdownTime = 0 }
                 }
             }
         }
+    }
     
     private func stopRecording() {
-            timer?.invalidate()
-            timer = nil
-            if audioRecorder.isRecording {
-                let recordedFile = audioRecorder.stopRecording()
-                DispatchQueue.main.async {
-                    recordingURL = recordedFile
-                    print("⏳ Recording ended after \(15 - countdownTime) seconds")
-                    withAnimation {
-                        isRecording = false
-                        countdownTime = countdownTime
-                    }
-                    onPressEnded()
+        timer?.invalidate()
+        timer = nil
+        
+        guard isRecording else {
+            print("⚠️ stopRecording() called, but no active recording.")
+            return
+        }
+        
+        if audioRecorder.isRecording {
+            let recordedFile = audioRecorder.stopRecording()
+            
+            DispatchQueue.main.async {
+                if let recordedFile = recordedFile {
+                    self.recordingURL = recordedFile // ✅ Store recording URL properly
+                    print("⏳ Recording ended, file saved: \(recordedFile)")
+                } else {
+                    print("❌ stopRecording() failed to retrieve a valid file URL")
                 }
+                withAnimation {
+                    isRecording = false
+                    countdownTime = countdownTime
+                }
+                onPressEnded()
             }
         }
+    }
 }
 
 @MainActor

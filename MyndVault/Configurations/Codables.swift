@@ -7,6 +7,11 @@
 
 import Foundation
 
+//MARK: audio to text
+struct WhisperResponse: Codable {
+    let text: String
+}
+
 //MARK: TRANSRIPT RESPONSE
 struct TranscriptionResponse: Codable {
     
@@ -19,6 +24,20 @@ struct TranscriptionResponse: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.response = try container.decode(String.self, forKey: .response)
+    }
+}
+
+//MARK: RESPONSE FROM ANALYIZNG TRANSCRIPT
+struct IntentClassificationResponse: Codable {
+    let type: String // "is_question", "is_reminder", or "is_calendar"
+    let query: String? // If type == "is_question"
+    let task: String? // If type == "is_reminder"
+    let datetime: String? // If type == "is_reminder" or "is_calendar"
+    let title: String? // If type == "is_calendar"
+    let location: String? // If type == "is_calendar"
+
+    enum CodingKeys: String, CodingKey {
+        case type, query, task, datetime, title, location
     }
 }
 

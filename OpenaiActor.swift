@@ -13,14 +13,17 @@ enum OpenAIError: Error, Identifiable {
     
     case embeddingsFailed(Error)
     case gptResponseFailed(Error)
+    case transriptionFailed(Error)
     case unknown(Error)
     
     var localizedDescription: String {
         switch self {
         case .embeddingsFailed(let error):
-            return "Embeddings Request Failed: \(error.localizedDescription)"
+            return "Embeddings Request Error: \(error.localizedDescription)"
         case .gptResponseFailed(let error):
             return "GPT Response Failed: \(error.localizedDescription)"
+        case .transriptionFailed(let error):
+            return "Audio Transcription Error: \(error.localizedDescription)"
         case .unknown(let error):
             return "An unknown error occurred: \(error.localizedDescription)"
         }
@@ -33,10 +36,16 @@ extension OpenAIError: Equatable {
         switch (lhs, rhs) {
         case (.embeddingsFailed(let lhsError), .embeddingsFailed(let rhsError)):
             return lhsError.localizedDescription == rhsError.localizedDescription
+            
         case (.gptResponseFailed(let lhsError), .gptResponseFailed(let rhsError)):
             return lhsError.localizedDescription == rhsError.localizedDescription
+            
+            case (.transriptionFailed(let lhsError), .transriptionFailed(let rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+            
         case (.unknown(let lhsError), .unknown(let rhsError)):
             return lhsError.localizedDescription == rhsError.localizedDescription
+            
         default:
             return false
         }
@@ -63,86 +72,160 @@ actor OpenAIActor {
     
     // MARK: - Methods
     
-    // Fetch Embeddings
-    func fetchEmbeddings(for inputText: String) async throws -> EmbeddingsResponse {
-
-            let maxAttempts = 3
-            var attempts = 0
-            var lastError: Error?
-#if DEBUG
-            print("Fetching Embeddings for: \(inputText)")
-#endif
-            while attempts < maxAttempts {
-                do {
-                    guard let url = URL(string: "https://api.openai.com/v1/embeddings"),
-                          let apiKey = self.apiKey else {
-                        throw AppNetworkError.invalidOpenAiURL
-                    }
-                    
-                    var request = URLRequest(url: url)
-                    request.httpMethod = "POST"
-                    request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-                    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                    
-                    let requestBody: [String: Any] = [
-                        "input": inputText,
-                        "model": "text-embedding-3-large",
-                    ]
-                    
-                    let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
-                    request.httpBody = jsonData
-#if DEBUG
-                    print("Fetching Embeddings jsonData")
-#endif
-                    
-                    let (data, response) = try await URLSession.shared.data(for: request)
-                    
-#if DEBUG
-                    print("Fetching Embeddings URLSession")
-#endif
-                    
-                    let httpresponse = response as? HTTPURLResponse
-                    let code = httpresponse?.statusCode
-                    
-                    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-#if DEBUG
-                        print("http Response Code \(String(describing: code))!!")
-#endif
-                        throw AppNetworkError.invalidResponse
-                    }
-#if DEBUG
-                    print("Fetching Embeddings Before decoder")
-#endif
-                    
-                    let decoder = JSONDecoder()
-#if DEBUG
-                    print("Fetching Embeddings Will decode")
-#endif
-                    let embeddingsResponse = try decoder.decode(EmbeddingsResponse.self, from: data)
-                    
-                    // Update token usage
-                    updateTokenUsage(api: APIs.openAI, tokensUsed: embeddingsResponse.usage.totalTokens, read: false)
-                    
-                    return embeddingsResponse
-                } catch {
-                    lastError = error
-                    attempts += 1
-                    if attempts < maxAttempts {
-                        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
-                    }
+    /// Calls OpenAI Whisper API with retry mechanism
+    func transcribeAudio(fileURL: URL, selectedLanguage: String) async throws -> WhisperResponse {
+        let maxAttempts = 3
+        var attempts = 0
+        var lastError: Error?
+        guard let apiKey = self.apiKey else {
+            throw AppNetworkError.apiKeyNotFound
+        }
+        
+        while attempts < maxAttempts {
+            do {
+                guard let url = URL(string: "https://api.openai.com/v1/audio/transcriptions") else {
+                    throw AppNetworkError.invalidOpenAiURL
+                }
+                
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                
+                // ✅ Swift 6 Improvement: Use `let boundary = UUID().uuidString` inline
+                let boundary = UUID().uuidString
+                request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+                
+                let formData = try createMultipartFormData(fileURL: fileURL, boundary: boundary, selectedLanguage: selectedLanguage)
+                
+                // ✅ Swift 6: Improved structured concurrency (async let for request)
+                async let (data, response) = URLSession.shared.upload(for: request, from: formData)
+                
+                let (receivedData, receivedResponse) = try await (data, response)
+                
+                // ✅ Swift 6: Improved error handling with `.failure`
+                guard let httpResponse = receivedResponse as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    throw AppNetworkError.invalidResponse
+                }
+                
+                return try JSONDecoder().decode(WhisperResponse.self, from: receivedData)
+            } catch {
+                lastError = error
+                attempts += 1
+                if attempts < maxAttempts {
+                    try await Task.sleep(nanoseconds: 200_000_000) // 0.2s retry delay
                 }
             }
-#if DEBUG
-            let error = lastError as? AppNetworkError
-            let msg = error?.errorDescription
-            print("Fetching Embeddings last Error: \(String(describing: msg))")
-#endif
-            
-            throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during embeddings fetch.")
+        }
         
+        throw lastError ?? AppNetworkError.unknownError("Failed to transcribe audio.")
     }
     
-    // Get GPT Response
+    /// Creates a multipart/form-data body for the Whisper API request
+    private func createMultipartFormData(fileURL: URL, boundary: String, selectedLanguage: String) throws -> Data {
+        var body = Data()
+        
+        let boundaryPrefix = "--\(boundary)\r\n"
+        body.append(boundaryPrefix.data(using: .utf8)!)
+        
+        let fileData = try Data(contentsOf: fileURL)
+        let filename = fileURL.lastPathComponent
+        let mimeType = "audio/m4a" // Change if needed
+        
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+        body.append(fileData)
+        body.append("\r\n".data(using: .utf8)!)
+        
+        // Add model part
+        body.append(boundaryPrefix.data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"model\"\r\n\r\n".data(using: .utf8)!)
+        body.append("whisper-1\r\n".data(using: .utf8)!)
+        
+        body.append(boundaryPrefix.data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"language\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(selectedLanguage)\r\n".data(using: .utf8)!)
+        
+        // End boundary
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        return body
+    }
+    
+    // Fetch Embeddings
+    func fetchEmbeddings(for inputText: String) async throws -> EmbeddingsResponse {
+        
+        let maxAttempts = 3
+        var attempts = 0
+        var lastError: Error?
+        
+        debugLog("Fetching Embeddings for: \(inputText)")
+        
+        while attempts < maxAttempts {
+            do {
+                guard let url = URL(string: "https://api.openai.com/v1/embeddings"),
+                      let apiKey = self.apiKey else {
+                    throw AppNetworkError.invalidOpenAiURL
+                }
+                
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                
+                let requestBody: [String: Any] = [
+                    "input": inputText,
+                    "model": "text-embedding-3-large",
+                ]
+                
+                let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+                request.httpBody = jsonData
+                
+                debugLog("Fetching Embeddings jsonData")
+                
+                let (data, response) = try await URLSession.shared.data(for: request)
+                
+                debugLog("Fetching Embeddings URLSession")
+                
+                let httpresponse = response as? HTTPURLResponse
+                let code = httpresponse?.statusCode
+                
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    
+                    debugLog("http Response Code \(String(describing: code))!!")
+                    
+                    throw AppNetworkError.invalidResponse
+                }
+                debugLog("Fetching Embeddings Before decoder")
+                
+                
+                let decoder = JSONDecoder()
+                
+                debugLog("Fetching Embeddings Will decode")
+                
+                let embeddingsResponse = try decoder.decode(EmbeddingsResponse.self, from: data)
+                
+                // Update token usage
+                updateTokenUsage(api: APIs.openAI, tokensUsed: embeddingsResponse.usage.totalTokens, read: false)
+                
+                return embeddingsResponse
+            } catch {
+                lastError = error
+                attempts += 1
+                if attempts < maxAttempts {
+                    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
+                }
+            }
+        }
+#if DEBUG
+        let error = lastError as? AppNetworkError
+        let msg = error?.errorDescription
+        print("Fetching Embeddings last Error: \(String(describing: msg))")
+#endif
+        
+        throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during embeddings fetch.")
+    }
+    
+    /// Get GPT Response after question
     func getGptResponse(vectorResponses: [Match], question: String, selectedLanguage: LanguageCode) async throws -> String {
         let maxAttempts = 2
         var attempts = 0
@@ -260,18 +343,18 @@ actor OpenAIActor {
         case .spanish:
             return """
     Eres un asistente de IA encargado de responder a la pregunta del usuario basándote en información recuperada de una base de datos vectorial. A continuación, se muestra la pregunta del usuario y dos piezas de información consideradas como las más relevantes según la similitud de los embeddings. Ten en cuenta que esta información puede no estar directamente relacionada con la pregunta del usuario.
-
+    
     - Pregunta del usuario: \(question)
-
+    
     - Información relevante:
     \(formattedMatchesString)
-
+    
     Tu tarea:
     1. Evalúa la relevancia de la información proporcionada con respecto a la pregunta del usuario.
        - Si la información es relevante, intégrala en tu respuesta para crear una respuesta útil y precisa.
        - Si la información no es relevante, utiliza tus conocimientos generales para responder de manera efectiva y sugiere al usuario proporcionar datos adicionales o más específicos para mejorar las respuestas futuras.
     2. Siempre busca proporcionar una respuesta clara, concisa y útil para el usuario.
-
+    
     Contexto adicional:
     - Si es relevante para tu respuesta, hoy es \(readableDateString) y la hora actual en formato ISO8601 es \(isoDateString).
     - La respuesta debe evitar detalles innecesarios y centrarse en abordar la pregunta del usuario.        
@@ -431,4 +514,142 @@ actor OpenAIActor {
         }
     }
     
+    
+    
+    
+    ///Ask Gpt if the provided transcript is_question, is_reminder, is_calendar.
+    ///If is a question the getGprResponse() should be used to get the reply. if its calendar -> EventKit, if it should be add to calendar -> EKEvent
+    func analyzeTranscript(transcrpt: String, selectedLanguage: LanguageCode) async throws -> IntentClassificationResponse {
+        let maxAttempts = 2
+        var attempts = 0
+        var lastError: Error?
+        
+        while attempts < maxAttempts {
+            do {
+                guard let url = URL(string: "https://api.openai.com/v1/chat/completions"),
+                      let apiKey = self.apiKey else {
+                    throw AppNetworkError.invalidOpenAiURL
+                }
+                
+                let prompt = getGptPromptForTranscript(selectedLanguage: selectedLanguage)
+                
+                let requestBody: [String: Any] = [
+                    "model": "gpt-4o",
+                    "temperature": 0.1,
+                    "messages": [["role": "system", "content": prompt]]
+                ]
+                
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                
+                request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
+                
+                let (data, response) = try await URLSession.shared.data(for: request)
+                
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    throw AppNetworkError.invalidResponse
+                }
+                
+                let decoder = JSONDecoder()
+                let gptResponse = try decoder.decode(IntentClassificationResponse.self, from: data)
+                // ✅ Ensure response contains a valid intent type
+                guard !gptResponse.type.isEmpty else {
+                    throw AppNetworkError.unknownError("GPT response is empty or invalid.")
+                }
+                
+                // Update token usage
+                //                updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
+                
+                return gptResponse
+            } catch {
+                lastError = error
+                attempts += 1
+                if attempts < maxAttempts {
+                    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
+                }
+            }
+        }
+        
+        throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during GPT transcript type fetch.")
+    }
+    
+    
+    ///Get the actual prompt for asking the gpt to check the type of question user asked.
+    
+    private func getGptPromptForTranscript(selectedLanguage: LanguageCode) -> String {
+        
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.timeZone = TimeZone.current
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let isoDateString = isoFormatter.string(from: Date())
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE, MMMM d, yyyy"
+        let readableDateString = dateFormatter.string(from: Date())
+        
+        switch selectedLanguage {
+        case .english:
+            return """
+You are an AI assistant that classifies user intent based on transcribed voice input.
+Analyze the text and determine its purpose. The possible types are:
+- "is_question": The user is asking a general question.
+- "is_reminder": The user wants to create a reminder.
+- "is_calendar": The user wants to add an event to their calendar.
+
+### **Extract structured details for each type:**
+- If **"is_question"**, return the `"query"` field containing the user’s original question.
+- If **"is_reminder"**, return:
+    - `"task"`: A short description of the reminder.
+    - `"datetime"`: The due date/time in ISO 8601 format (e.g., `"2024-06-15T09:00:00Z"`).
+- If **"is_calendar"**, return:
+    - `"title"`: The event name.
+    - `"datetime"`: The event date/time in ISO 8601 format.
+    - `"location"`: The optional location (if mentioned, else null).
+
+### **⚠️ Important Formatting Rules:**
+1. **Always return a JSON object** that strictly follows this format:
+```json
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "string or null",
+  "task": "string or null",
+  "datetime": "ISO 8601 string or null",
+  "title": "string or null",
+  "location": "string or null"
+}
+"""
+        case .german:
+            return """
+"""
+        case .spanish:
+            return """
+"""
+        case .french:
+            return """
+"""
+        case .greek:
+            return """
+"""
+        case .hebrew:
+            return """
+"""
+        case .italian:
+            return """
+"""
+        case .japanese:
+            return """
+"""
+        case .korean:
+            return """
+"""
+        case .portuguese:
+            return """
+"""
+        case .chineseSimplified:
+            return """
+"""
+        }
+    }
 }
