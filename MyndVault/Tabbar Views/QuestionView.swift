@@ -32,6 +32,7 @@ struct QuestionView: View {
     @State private var showSettingsAlert: Bool = false
     @State private var recordingURL: URL?
     @FocusState private var isFocused: Bool
+    @State private var intentResponseIsRunning: Bool = false
     
     private var shouldShowGoButton: Bool {
         goButtonIsVisible &&
@@ -53,12 +54,14 @@ struct QuestionView: View {
         case error(String)
         case fullImage(UIImage)
         case calendar
+        case calendarPermission
         
         var id: String {
             switch self {
             case .error(let message): return "error_\(message)"
             case .fullImage: return "fullImage"
             case .calendar: return "calendar"
+            case .calendarPermission: return "calendarPermission"
             }
         }
     }
@@ -68,8 +71,7 @@ struct QuestionView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
-                
-                
+
                 ZStack {
                     
                     LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
@@ -79,8 +81,8 @@ struct QuestionView: View {
                     ScrollView {
                         
                         HStack {
-                            Image(systemName: "questionmark.bubble").bold()
-                            Text("Question").bold()
+                            Image(systemName: "bubble.left.and.text.bubble.right").bold()
+                            Text("Instruction").bold()
                             //                        if showLang {
                             Text("\(languageSettings.selectedLanguage.displayName)")
                                 .foregroundStyle(.gray)
@@ -116,16 +118,12 @@ struct QuestionView: View {
                             .focused($isFocused)
                             .padding(.bottom)
                             .padding(.horizontal, Constants.standardCardPadding)
-                        //                        .onAppear {
-                        //                            if !showLang {
-                        //                                showLang.toggle()
-                        //                                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-                        //                                    withAnimation {
-                        //                                        showLang.toggle()
-                        //                                    }
-                        //                                }
-                        //                            }
-                        //                        }
+                            .onAppear {
+                                openAiManager.checkCalendarPermission()
+                                Task {
+                                       await observeChanges()
+                                   }
+                            }
                             .onChange(of: question) { _, newValue in
                                 isTextFieldEmpty = newValue.count < 8
                             }
@@ -192,24 +190,46 @@ struct QuestionView: View {
                             .presentationDetents([.fraction(0.4)])
                             .presentationDragIndicator(.hidden)
                             .presentationBackground(Color.clear)
+
                         case .fullImage(let image):
                             FullScreenImage(image: image)
                                 .presentationDragIndicator(.hidden)
                                 .presentationBackground(Color.clear)
-                                .onTapGesture {
+                                .onTapGesture { activeModal = nil }
+                                .statusBarHidden()
+
+                        case .calendar:
+                            if let event = selectedEvent {
+                                EventEditView(eventStore: openAiManager.eventStore, event: event) {
                                     activeModal = nil
                                 }
-                                .statusBarHidden()
-                        case .calendar:
-                            Group {
-                                if let event = selectedEvent {
-                                    EventEditView(eventStore: openAiManager.eventStore, event: event) {
-                                        activeModal = nil
-                                    }
-                                } else {
-                                    Text("⚠️ No event available")
-                                }
+                            } else {
+                                Text("⚠️ No event available")
                             }
+
+                        case .calendarPermission:
+                            VStack(spacing: 16) {
+                                Text("❌ Calendar Access Denied")
+                                    .font(.title)
+                                    .foregroundColor(.red)
+
+                                Text("MyndVault needs access to your calendar to schedule events when you want to.")
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+
+                                Button("Open Settings") {
+                                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent)
+
+                                Button("Cancel") {
+                                    activeModal = nil
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                            .padding()
                         }
                     }
                     //                .onChange(of: languageSettings.selectedLanguage) { _, newValue in
@@ -218,7 +238,7 @@ struct QuestionView: View {
                     //                        showLang = false
                     //                    }
                     //                }
-                    .onChange(of: openAiManager.openAIError) { _, newValue in
+                    .onChange(of: openAiManager.gptResponseError) { _, newValue in
                         if let error = newValue {
                             self.isLoading = false
                             activeModal = .error(error.localizedDescription)
@@ -230,20 +250,25 @@ struct QuestionView: View {
                             activeModal = .error(error.localizedDescription)
                         }
                     }
-                    .onChange(of: openAiManager.calendarEvent) { _, newEvent in
-                        if newEvent != nil {
-                            self.selectedEvent = newEvent
-                            self.activeModal = .calendar
-                        }
-                    }
                     .onChange(of: recordingURL) { _, url in
                         guard let url = url else { return }
+                        
                         Task {
-                            await openAiManager.processAudio(fileURL: url)
+                            await openAiManager.processAudio(fileURL: url, fromQuestion: true)
+                        }
+                    }
+                    .onChange(of: openAiManager.transcriptionForQuestion) {_, transcript in
+                        if !transcript.isEmpty {
+                            Task {
+                                await openAiManager.getTranscriptAnalysis(transcrpit: transcript)
+                            }
                         }
                     }
                     .onChange(of: openAiManager.stringResponseOnQuestion) { _, newValue in
-                        isLoading = false
+                        if !newValue.isEmpty {
+                            isLoading = false
+                            intentResponseIsRunning = false
+                        }
                     }
                     .onChange(of: pineconeManager.pineconeQueryResponse) { _, newValue in
                         if let pineconeResponse = newValue {
@@ -255,9 +280,21 @@ struct QuestionView: View {
                             handleQuestionEmbeddingsCompleted()
                         }
                     }
+                    .onChange(of: openAiManager.transriptionErrorForQuestion) { _, error in
+                        guard let error = error else { return }
+                        Task {
+                            await handleError(error)
+                        }
+                    }
+                    .onChange(of: openAiManager.openAIErrorFromQuestion) {_, error in
+                        guard let error = error else { return }
+                        Task {
+                            await handleError(error)
+                        }
+                    }
                     .navigationBarTitleView {
                         HStack {
-                            Text("Ask me").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
+                            Text("Assistant").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
                                 .minimumScaleFactor(0.8)
                                 .lineLimit(2)
                             LottieRepresentableNavigation(filename: "robotForQuestion").frame(width: 55, height: 55).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
@@ -362,7 +399,7 @@ struct QuestionView: View {
     
     private func handleQuestionEmbeddingsCompleted() {
         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
-        apiCalls.incrementApiCallCount()
+        //apiCalls.incrementApiCallCount()
     }
     
     private var ClearButton: some View {
@@ -429,6 +466,10 @@ struct QuestionView: View {
         pineconeManager.clearManager()
     }
     
+    private func processIntent(_ intent: IntentClassificationResponse) {
+        openAiManager.handleClassifiedIntent(intent)
+    }
+    
     //TIP: .onChange requires the type to conform to Equatable !!
     
     private func performTask() {
@@ -454,31 +495,60 @@ struct QuestionView: View {
                 await handleError(error)
             }
         }
-        apiCalls.incrementApiCallCount()
     }
     
     private func handleError(_ error: Error) async {
+        debugLog("handleError called with error: \(error)")
+
+        if activeModal != nil { return }
         
-        debugLog("handleError called from QuestionView with error: \(error)")
-        withAnimation(.easeInOut) {
-            isLoading = false
+        await MainActor.run {
+            withAnimation(.easeInOut) {
+                isLoading = false
+            }
+            
+            if let networkError = error as? AppNetworkError {
+                self.thrownError = networkError.errorDescription
+            } else if let ckError = error as? AppCKError {
+                self.thrownError = ckError.errorDescription
+            } else if let cloudKitError = error as? CKError {
+                self.thrownError = cloudKitError.customErrorDescription
+            } else {
+                self.thrownError = error.localizedDescription
+            }
+            
+            activeModal = .error(thrownError)
         }
-        
-        Task {
-            await MainActor.run {
-                if let networkError = error as? AppNetworkError {
-                    self.thrownError = networkError.errorDescription
-                    activeModal = .error(thrownError)
-                } else if let ckError = error as? AppCKError {
-                    self.thrownError = ckError.errorDescription
-                    activeModal = .error(thrownError)
-                } else if let cloudKitError = error as? CKError {
-                    self.thrownError = cloudKitError.customErrorDescription
-                    activeModal = .error(thrownError)
-                } else {
-                    self.thrownError = error.localizedDescription
-                    activeModal = .error(thrownError)
-                }
+    }
+    /// fake .onChange!
+    private func observeChanges() async {
+        while true {
+            do {
+                try await Task.sleep(nanoseconds: 300_000_000) // Polling every 0.3s
+            } catch {
+                debugLog("Task.sleep failed: \(error.localizedDescription)")
+                return // Exit the loop if sleep fails (e.g., task is cancelled)
+            }
+
+            if let newEvent = openAiManager.calendarEvent {
+                selectedEvent = newEvent
+                activeModal = .calendar
+            }
+            
+            if let intentResponse = openAiManager.intentResponse  {
+                if self.intentResponseIsRunning {  return }
+                
+                debugLog("Starting Loop for intentResponse".uppercased())
+                self.intentResponseIsRunning = true
+                processIntent(intentResponse)
+            }
+
+            if let error = openAiManager.reminderError {
+                await handleError(error)
+            }
+
+            if openAiManager.showCalendarPermissionAlert {
+                activeModal = .calendarPermission
             }
         }
     }
@@ -487,6 +557,18 @@ struct QuestionView: View {
         for match in pineconeResponse.matches {
             let id = match.id
             Task {
+                if openAiManager.intentResponse?.type == "is_question" {
+                    let userQuestion = openAiManager.intentResponse?.query ?? ""
+                debugLog("User question from Voice over: \(userQuestion), calling getGptResponse")
+                    await openAiManager.getGptResponse(queryMatches: pineconeResponse.matches, question: userQuestion)
+                }
+                else if self.question != "" {
+                    await openAiManager.getGptResponse(queryMatches: pineconeResponse.matches, question: question)
+                }
+                else {
+                    debugLog("type: \(String(describing: openAiManager.intentResponse?.type))\nquery: \(openAiManager.intentResponse?.query ?? "Default")")
+                }
+                
                 do {
                     if let image = try await cloudKitManager.fetchImageItem(uniqueID: id) {
                         await MainActor.run {
@@ -518,10 +600,6 @@ struct QuestionView: View {
                 }
             }
         }
-        Task {
-            await openAiManager.getGptResponse(queryMatches: pineconeResponse.matches, question: question)
-        }
-        apiCalls.incrementApiCallCount()
     }
 }
 

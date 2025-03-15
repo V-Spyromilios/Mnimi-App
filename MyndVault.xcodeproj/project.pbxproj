@@ -750,8 +750,10 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "MyndVault needs access to your calendar to schedule events when you want to";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "MyndVault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "MyndVault needs access to your reminders to create tasks when you want to";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -790,8 +792,10 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "MyndVault needs access to your calendar to schedule events when you want to";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "MyndVault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "MyndVault needs access to your reminders to create tasks when you want to";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

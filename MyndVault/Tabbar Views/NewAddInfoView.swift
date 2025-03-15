@@ -20,12 +20,11 @@ struct NewAddInfoView: View {
     @State private var showSettings: Bool = false
     @State private var isLoading: Bool = false // used just for the button
     @State private var showNoInternet: Bool = false
-//    @State private var showLang: Bool = false
     @State private var showSuccess: Bool = false
     @State private var isTextFieldEmpty: Bool = true
     @State var recordingURL: URL?
     @State private var showSettingsAlert = false
-
+    
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var keyboardResponder: KeyboardResponder
@@ -55,326 +54,304 @@ struct NewAddInfoView: View {
                     ScrollView {
                         VStack {
                             HStack {
-                            Image(systemName: "plus.bubble").bold()
-                            Text("info").bold()
-                            //                            if showLang {
-                            Text("\(languageSettings.selectedLanguage.displayName)")
-                                .foregroundStyle(.gray)
-                            //                                    .padding(.leading, 8)
-                                .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
-                                                        removal: .opacity))
-                            //                            }
-                            Spacer()
-                            //#if DEBUG
-                            //                            Text("Upsert Successful: \(pineconeManager.upsertSuccessful ? "Yes" : "No")")
-                            //                                .foregroundColor(pineconeManager.upsertSuccessful ? .green : .red)
-                            //                                .padding()
-                            //                                .onTapGesture {
-                            //                                    pineconeManager.upsertSuccessful.toggle()
-                            //                                }
-                            //#endif
-                        }
-                        .font(.callout)
-                        .padding(.top, 12)
-                        .padding(.bottom, 8)
-                        
-                        HStack {
-                            TextEditor(text: $newInfo)
-                                .background(Color.cardBackground)
-                                .fontDesign(.rounded)
-                                .font(.title2)
-                                .multilineTextAlignment(.leading)
-                                .frame(height: Constants.textEditorHeight)
-                            //                                .if(UIDevice.current.userInterfaceIdiom != .pad) { view in
-                            //                                    view.frame(maxWidth: idealWidth(for: geometry.size.width))
-                            //                                }
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .shadow(color: isFocused ? Color.blue.opacity(0.5) : Color.blue.opacity(0.4),
-                                        radius: isFocused ? 3 : 2,
-                                        x: isFocused ? 4 : 2,
-                                        y: isFocused ? 4 : 2)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(isFocused ? Color.blue.opacity(0.5) : Color.gray.opacity(0.5), lineWidth: 1)
-                                )
-                                .onTapGesture {
-                                    isFocused = true
-                                }
-                                .focused($isFocused)
-                                .padding(.bottom)
-                                .onChange(of: newInfo) { _, newValue in
-                                    isTextFieldEmpty = newValue.count < 8
-                                }
-                        }
-                        
-                        // photo Picker Button
-                        Button(action: {
-                            photoPicker.presentPicker()
-                        }) {
-                            VStack(alignment: .center) {
-                                if isIPad() {
-                                    Image(systemName: photoPicker.selectedImage == nil ? "photo.badge.plus.fill" : "photo.fill")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 50, height: 80)
-                                        .foregroundColor(.white)
-                                        .background(Color.black)
-                                        .clipShape(RoundedRectangle(cornerRadius: 15))
-                                } else {
-                                    Image(systemName: photoPicker.selectedImage == nil ? "photo.badge.plus.fill" : "photo.fill")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 50, height: 50)
-                                        .foregroundColor(colorScheme == .light ? Color.customLightBlue : Color.darkModeImageBackground)
-                                        .clipShape(RoundedRectangle(cornerRadius: 15))
-                                        .offset(x: 5)
-                                }
-                                if let image = photoPicker.selectedImage {
-                                    ZStack(alignment: .topTrailing) {
-                                        Image(uiImage: image)
+                                Image(systemName: "plus.bubble").bold()
+                                Text("info").bold()
+                                //                            if showLang {
+                                Text("\(languageSettings.selectedLanguage.displayName)")
+                                    .foregroundStyle(.gray)
+                                //                                    .padding(.leading, 8)
+                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                            removal: .opacity))
+                                //                            }
+                                Spacer()
+                            }
+                            .font(.callout)
+                            .padding(.top, 12)
+                            .padding(.bottom, 8)
+                            
+                            HStack {
+                                TextEditor(text: $newInfo)
+                                    .background(Color.cardBackground)
+                                    .fontDesign(.rounded)
+                                    .font(.title2)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(height: Constants.textEditorHeight)
+                                //                                .if(UIDevice.current.userInterfaceIdiom != .pad) { view in
+                                //                                    view.frame(maxWidth: idealWidth(for: geometry.size.width))
+                                //                                }
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .shadow(color: isFocused ? Color.blue.opacity(0.5) : Color.blue.opacity(0.4),
+                                            radius: isFocused ? 3 : 2,
+                                            x: isFocused ? 4 : 2,
+                                            y: isFocused ? 4 : 2)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(isFocused ? Color.blue.opacity(0.5) : Color.gray.opacity(0.5), lineWidth: 1)
+                                    )
+                                    .onTapGesture {
+                                        isFocused = true
+                                    }
+                                    .focused($isFocused)
+                                    .padding(.bottom)
+                                    .onChange(of: newInfo) { _, newValue in
+                                        isTextFieldEmpty = newValue.count < 8
+                                    }
+                            }
+                            
+                            // photo Picker Button
+                            Button(action: {
+                                photoPicker.presentPicker()
+                            }) {
+                                VStack(alignment: .center) {
+                                    if isIPad() {
+                                        Image(systemName: photoPicker.selectedImage == nil ? "photo.badge.plus.fill" : "photo.fill")
                                             .resizable()
-                                            .scaledToFit()
-                                            .frame(height: isIPad() ? 220 : 160)
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                                            .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
-                                            .overlay(alignment: .center) {
-                                                RoundedRectangle(cornerRadius: 10.0)
-                                                    .stroke(lineWidth: 1)
-                                                    .opacity(colorScheme == .light ? 0.3 : 0.7)
-                                                    .foregroundColor(Color.gray)
-                                            }
-                                        
-                                        // Remove image button
-                                        Button(action: {
-                                            withAnimation {
-                                                photoPicker.selectedImage = nil
-                                            }
-                                        }) {
-                                            Image(systemName: "xmark.circle.fill")
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 50, height: 80)
+                                            .foregroundColor(.white)
+                                            .background(Color.black)
+                                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                                    } else {
+                                        Image(systemName: photoPicker.selectedImage == nil ? "photo.badge.plus.fill" : "photo.fill")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 50, height: 50)
+                                            .foregroundColor(colorScheme == .light ? Color.customLightBlue : Color.darkModeImageBackground)
+                                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                                            .offset(x: 5)
+                                    }
+                                    if let image = photoPicker.selectedImage {
+                                        ZStack(alignment: .topTrailing) {
+                                            Image(uiImage: image)
                                                 .resizable()
-                                                .aspectRatio(contentMode: .fit)
-                                                .foregroundColor(.white)
-                                                .background(Color.black.opacity(0.6))
-                                                .clipShape(Circle())
-                                                .frame(width: isIPad() ? 30 : 20, height: isIPad() ? 30 : 20)
+                                                .scaledToFit()
+                                                .frame(height: isIPad() ? 220 : 160)
+                                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                                .overlay(alignment: .center) {
+                                                    RoundedRectangle(cornerRadius: 10.0)
+                                                        .stroke(lineWidth: 1)
+                                                        .opacity(colorScheme == .light ? 0.3 : 0.7)
+                                                        .foregroundColor(Color.gray)
+                                                }
+                                            
+                                            // Remove image button
+                                            Button(action: {
+                                                withAnimation {
+                                                    photoPicker.selectedImage = nil
+                                                }
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fit)
+                                                    .foregroundColor(.white)
+                                                    .background(Color.black.opacity(0.6))
+                                                    .clipShape(Circle())
+                                                    .frame(width: isIPad() ? 30 : 20, height: isIPad() ? 30 : 20)
+                                            }
+                                            .offset(x: isIPad() ? 10 : 5, y: isIPad() ? -10 : -5)
                                         }
-                                        .offset(x: isIPad() ? 10 : 5, y: isIPad() ? -10 : -5)
                                     }
                                 }
                             }
-                        }
-                        .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                        .buttonStyle(PlainButtonStyle())
-                        .padding()
-                        .background(colorScheme == .light ? Color.cardBackground : Color.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(color: photoPicker.selectedImage == nil ? Color.blue.opacity(0.3) : Color.blue.opacity(0.5),
-                                radius: photoPicker.selectedImage == nil ? 2 : 4,
-                                x: photoPicker.selectedImage == nil ? 3 : 4,
-                                y: photoPicker.selectedImage == nil ? 3 : 4) // Enhanced shadow on focus
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(isFocused ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
-                        )
-                        .padding(.bottom)
-                        ZStack {
-                            if saveButtonIsVisible && pineconeManager.pineconeErrorFromAdd == nil {
-                                SaveButton
-                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
-                                                            removal: .opacity))
-                            } else if pineconeManager.pineconeErrorFromAdd == nil && shouldShowLoading {
-                                LoadingTransitionView(isUpserting: $apiCallInProgress, isSuccess: $showSuccess)
-                                    .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
-                                    .padding()
-                                    .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
-                                                            removal: .opacity))
-                            }
-                        }
-                        .animation(.easeInOut(duration: 0.5), value: shouldShowLoading)
-                      
-                        Spacer()
-                    } //End of Vstack
-                    .padding(.horizontal, Constants.standardCardPadding)
-                    
-                    .sheet(isPresented: $photoPicker.isPickerPresented) {
-                        PHPickerViewControllerRepresentable(viewModel: photoPicker)
-                    }
-                    .sheet(isPresented: $showError) {
-                        ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
-                            .presentationDetents([.fraction(0.4)])
-                            .presentationDragIndicator(.hidden)
-                            .presentationBackground(Color.clear)
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                    }
-                    .alert("Microphone Access Denied", isPresented: $showSettingsAlert) {
-                        Button("Cancel", role: .cancel) { }
-                        Button("Open Settings") {
-                            if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
-                                UIApplication.shared.open(settingsURL)
+                            .buttonStyle(PlainButtonStyle())
+                            .padding()
+                            .background(colorScheme == .light ? Color.cardBackground : Color.black)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .shadow(color: photoPicker.selectedImage == nil ? Color.blue.opacity(0.3) : Color.blue.opacity(0.5),
+                                    radius: photoPicker.selectedImage == nil ? 2 : 4,
+                                    x: photoPicker.selectedImage == nil ? 3 : 4,
+                                    y: photoPicker.selectedImage == nil ? 3 : 4) // Enhanced shadow on focus
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(isFocused ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
+                            )
+                            .padding(.bottom)
+                            ZStack {
+                                if saveButtonIsVisible && pineconeManager.pineconeErrorFromAdd == nil {
+                                    SaveButton
+                                        .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                                removal: .opacity))
+                                } else if pineconeManager.pineconeErrorFromAdd == nil && shouldShowLoading {
+                                    LoadingTransitionView(isUpserting: $apiCallInProgress, isSuccess: $showSuccess)
+                                        .frame(width: isIPad() ? 440 : 220, height: isIPad() ? 440 : 220)
+                                        .padding()
+                                        .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity),
+                                                                removal: .opacity))
+                                }
                             }
-                        }
-                    } message: {
-                        Text("Please enable microphone access in Settings to record audio.")
-                    }
-                    .navigationBarTitleView {
-                        HStack {
-                            Text("Add New Info").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
-                                .minimumScaleFactor(0.8)
-                                .lineLimit(2)
-                            
-                            LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                            .animation(.easeInOut(duration: 0.5), value: shouldShowLoading)
                             
                             Spacer()
-                        }
+                        } //End of Vstack
+                        .padding(.horizontal, Constants.standardCardPadding)
                         
-                    }
-                    
-                }
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        RecordButton(
-                            onPressBegan: { print("🎤 Recording started!") },
-                            onPressEnded: { print("🛑 Recording ended!") },
-                            onConfirmRecording: { url in
-                                guard FileManager.default.fileExists(atPath: url.path) else {
-                                    print("⚠️ Recording file does not exist at \(url)")
-                                    return
+                        .sheet(isPresented: $photoPicker.isPickerPresented) {
+                            PHPickerViewControllerRepresentable(viewModel: photoPicker)
+                        }
+                        .sheet(isPresented: $showError) {
+                            ErrorView(thrownError: thrownError, dismissAction: self.performClearTask)
+                                .presentationDetents([.fraction(0.4)])
+                                .presentationDragIndicator(.hidden)
+                                .presentationBackground(Color.clear)
+                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+                        }
+                        .alert("Microphone Access Denied", isPresented: $showSettingsAlert) {
+                            Button("Cancel", role: .cancel) { }
+                            Button("Open Settings") {
+                                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                                    UIApplication.shared.open(settingsURL)
                                 }
-                                self.recordingURL = url
-                            },
-                            showAlert: $showSettingsAlert
-                        )
-//                        .padding()
-//                        .background(Circle().fill(Color.blue).shadow(radius: 5))
-//                        .padding(.trailing, 20)
-                        .padding(.bottom, geometry.safeAreaInsets.bottom)
-                        .padding(.trailing, Constants.standardCardPadding * 2)
-                    }
-                }
-                .toolbar {
-                    
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        if keyboardResponder.currentHeight > 0 {
-                            withAnimation(.easeInOut) {
-                                Button {
-                                    isFocused = false
-                                    //hideKeyboard()
-                                } label: {
-                                    HideKeyboardLabel()
-                                }.padding(.trailing, 10)
+                            }
+                        } message: {
+                            Text("Please enable microphone access in Settings to record audio.")
+                        }
+                        .navigationBarTitleView {
+                            HStack {
+                                Text("Add New Info").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
+                                    .minimumScaleFactor(0.8)
+                                    .lineLimit(2)
+                                
+                                LottieRepresentableNavigation(filename: "UploadingFile").frame(width: 45, height: 50).shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+                                
+                                Spacer()
                             }
                         }
-                        Button {
-                            showSettings.toggle()
-                        } label: {
-                            Image(systemName: "gear")
-                                .frame(width: 45, height: 45)
-                                .padding(.bottom, 5)
-                                .padding(.trailing, 5)
-                                .padding(.top, isIPad() ? 15 : 0)
-                                .opacity(0.8)
-                                .accessibilityLabel("Settings")
+                    }
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            RecordButton(
+                                onPressBegan: { print("🎤 Recording started!") },
+                                onPressEnded: { print("🛑 Recording ended!") },
+                                onConfirmRecording: { url in
+                                    guard FileManager.default.fileExists(atPath: url.path) else {
+                                        print("⚠️ Recording file does not exist at \(url)")
+                                        return
+                                    }
+                                    self.recordingURL = url
+                                },
+                                showAlert: $showSettingsAlert
+                            )
+                            //                        .padding()
+                            //                        .background(Circle().fill(Color.blue).shadow(radius: 5))
+                            //                        .padding(.trailing, 20)
+                            .padding(.bottom, geometry.safeAreaInsets.bottom)
+                            .padding(.trailing, Constants.standardCardPadding * 2)
+                        }
+                    }
+                    .toolbar {
+                        
+                        ToolbarItemGroup(placement: .topBarTrailing) {
+                            if keyboardResponder.currentHeight > 0 {
+                                withAnimation(.easeInOut) {
+                                    Button {
+                                        isFocused = false
+                                        //hideKeyboard()
+                                    } label: {
+                                        HideKeyboardLabel()
+                                    }.padding(.trailing, 10)
+                                }
+                            }
+                            Button {
+                                showSettings.toggle()
+                            } label: {
+                                Image(systemName: "gear")
+                                    .frame(width: 45, height: 45)
+                                    .padding(.bottom, 5)
+                                    .padding(.trailing, 5)
+                                    .padding(.top, isIPad() ? 15 : 0)
+                                    .opacity(0.8)
+                                    .accessibilityLabel("Settings")
+                            }
+                        }
+                    }
+                    .onChange(of: networkManager.hasInternet) { _, hasInternet in
+                        if !hasInternet {
+                            showNoInternet = true
+                        }
+                    }
+                    .onChange(of: thrownError) { _, newValue in
+                        if !pineconeManager.accountDeleted {
+                            if newValue != "" {
+                                showError = true
+                            }
+                            else {
+                                showError = false
+                            }
+                        }
+                    }
+                    .onChange(of: recordingURL) { _, url in
+                        guard let url = url else { return }
+                        Task {
+                            await openAiManager.processAudio(fileURL: url, fromQuestion: false)
+                        }
+                    }
+                    .onChange(of: openAiManager.transcription) { _, transcription in
+                        if !transcription.isEmpty {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                newInfo = transcription }
+                        }
+                    }
+                    
+                    .onChange(of: pineconeManager.upsertSuccessful) { _, isSuccesful in
+                        if isSuccesful {
+                            withAnimation {
+                                newInfo = ""
+                                photoPicker.selectedImage = nil
+                                apiCallInProgress = false
+                                showSuccess = true
+                                
+                                pineconeManager.refreshNamespacesIDs()
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                                saveButtonIsVisible = true
+                                showSuccess = false
+                                isLoading = false
+                                hapticGenerator.notificationOccurred(.success)
+                            }
+                        }
+                    }
+                    .onChange(of: pineconeManager.pineconeErrorFromAdd) { _, error in
+                        if pineconeManager.accountDeleted != true {
+                            if let error = error {
+                                self.thrownError = error.localizedDescription
+                                
+                            }
+                        }
+                    }
+                    .alert(isPresented: $showNoInternet) {
+                        Alert(
+                            title: Text("You are not connected to the Internet"),
+                            message: Text("Please check your connection"),
+                            dismissButton: .cancel(Text("OK"))
+                        )
+                    }
+                    .fullScreenCover(isPresented: $showSettings) {
+                        SettingsView(showSettings: $showSettings)
+                    }
+                    .onDisappear {
+                        if !thrownError.isEmpty || pineconeManager.pineconeErrorFromAdd != nil {
+                            performClearTask()
                         }
                     }
                 }
-                //                .onChange(of: languageSettings.selectedLanguage) {
-                //                    withAnimation {
-                //                        showLang = true
+                //            .overlay(alignment: .bottomTrailing) {
+                //                RecordButton(
+                //                    onPressBegan: {
+                //                        print("🎤 Recording started!")
+                //                    },
+                //                    onPressEnded: {
+                //                        print("🛑 Recording ended!")
                 //                    }
-                //                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.showLangDuration) {
-                //                        withAnimation {
-                //                            showLang = false
-                //                        }
-                //                    }
-                //                }
-                
-                .onChange(of: networkManager.hasInternet) { _, hasInternet in
-                    if !hasInternet {
-                        showNoInternet = true
-                    }
-                }
-                .onChange(of: thrownError) { _, newValue in
-                    if !pineconeManager.accountDeleted {
-                        if newValue != "" {
-                            showError = true
-                        }
-                        else {
-                            showError = false
-                        }
-                    }
-                }
-                .onChange(of: recordingURL) { _, url in
-                    guard let url = url else { return }
-                    Task {
-                        await openAiManager.processAudio(fileURL: url)
-                    }
-                }
-                .onChange(of: openAiManager.transcription) { _, transcription in
-                    if !transcription.isEmpty {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            newInfo = transcription }
-                    }
-                }
-                
-                .onChange(of: pineconeManager.upsertSuccessful) { _, isSuccesful in
-                    if isSuccesful {
-                        withAnimation {
-                            newInfo = ""
-                            photoPicker.selectedImage = nil
-                            apiCallInProgress = false
-                            showSuccess = true
-                            
-                            pineconeManager.refreshNamespacesIDs()
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-                            saveButtonIsVisible = true
-                            showSuccess = false
-                            isLoading = false
-                            hapticGenerator.notificationOccurred(.success)
-                        }
-                    }
-                }
-                .onChange(of: pineconeManager.pineconeErrorFromAdd) { _, error in
-                    if pineconeManager.accountDeleted != true {
-                        if let error = error {
-                            self.thrownError = error.localizedDescription
-                            
-                        }
-                    }
-                }
-                .alert(isPresented: $showNoInternet) {
-                    Alert(
-                        title: Text("You are not connected to the Internet"),
-                        message: Text("Please check your connection"),
-                        dismissButton: .cancel(Text("OK"))
-                    )
-                }
-                .fullScreenCover(isPresented: $showSettings) {
-                    SettingsView(showSettings: $showSettings)
-                }
-                .onDisappear {
-                    if !thrownError.isEmpty || pineconeManager.pineconeErrorFromAdd != nil {
-                        performClearTask()
-                    }
-                }
+                //                )
+                ////                .padding(.trailing, 16)
+                ////                .padding(.bottom, 30)
+                //            }
             }
-            //            .overlay(alignment: .bottomTrailing) {
-            //                RecordButton(
-            //                    onPressBegan: {
-            //                        print("🎤 Recording started!")
-            //                    },
-            //                    onPressEnded: {
-            //                        print("🛑 Recording ended!")
-            //                    }
-            //                )
-            ////                .padding(.trailing, 16)
-            ////                .padding(.bottom, 30)
-            //            }
         }
-        }
-        
     }
 }
 
@@ -383,16 +360,16 @@ struct NewAddInfoView: View {
 extension NewAddInfoView {
     
     private var SaveButton: some View {
-
+        
         CoolButton(title: String(localized: "saveButtonTitle"), systemImage: "cloud.circle.fill", action: addNewInfoAction)
-        .padding(.top, 12)
-        .padding(.horizontal)
-        .animation(.easeInOut, value: keyboardResponder.currentHeight)
-        .opacity(isTextFieldEmpty ? 0.5 : 1.0)
-//        .disabled(isTextFieldEmpty)
+            .padding(.top, 12)
+            .padding(.horizontal)
+            .animation(.easeInOut, value: keyboardResponder.currentHeight)
+            .opacity(isTextFieldEmpty ? 0.5 : 1.0)
+        //        .disabled(isTextFieldEmpty)
     }
     
-
+    
     private func performClearTask() {
         withAnimation {
             self.thrownError = ""
@@ -404,7 +381,7 @@ extension NewAddInfoView {
     }
     
     private func addNewInfoAction() {
-
+        
         //less than 8 chars -> Show message and return
         if isTextFieldEmpty {
             self.thrownError = String(localized: "8charsErrorMessage.")
@@ -472,7 +449,7 @@ extension NewAddInfoView {
         }
         
         cancellables.removeAll()
-
+        
     }
     
     private func handleError(_ error: Error) {
@@ -490,19 +467,19 @@ extension NewAddInfoView {
 
 struct NewAddInfoView_Previews: PreviewProvider {
     static var previews: some View {
-
+        
         let responder = KeyboardResponder()
         let networkManager = NetworkManager()
         let cloudKit = CloudKitViewModel.shared
         let apiCalls = ApiCallViewModel()
         let languageSettings = LanguageSettings.shared
-
+        
         let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
         let openAIActor = OpenAIActor()
-
+        
         let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
         let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-
+        
         NewAddInfoView()
             .environmentObject(pineconeViewModel)
             .environmentObject(openAIViewModel)
@@ -511,7 +488,7 @@ struct NewAddInfoView_Previews: PreviewProvider {
             .environmentObject(cloudKit)
             .environmentObject(apiCalls)
             .environmentObject(languageSettings)
-//            .environment(\.locale, Locale(identifier: "zh-Hans"))
+        //            .environment(\.locale, Locale(identifier: "zh-Hans"))
             .environment(\.locale, Locale(identifier: "gr"))
     }
 }

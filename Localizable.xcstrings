@@ -199,6 +199,9 @@
     "⚠️ No event available" : {
 
     },
+    "❌ Calendar Access Denied" : {
+
+    },
     "8charsErrorMessage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -789,6 +792,7 @@
       }
     },
     "Ask me" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -915,6 +919,9 @@
           }
         }
       }
+    },
+    "Assistant" : {
+
     },
     "Authentication Failed" : {
       "localizations" : {
@@ -2223,6 +2230,9 @@
         }
       }
     },
+    "Instruction" : {
+
+    },
     "invalid_password" : {
       "localizations" : {
         "de" : {
@@ -2826,6 +2836,9 @@
           }
         }
       }
+    },
+    "MyndVault needs access to your calendar to schedule events when you want to." : {
+
     },
     "Natively built with SwiftUI" : {
       "localizations" : {
@@ -3550,6 +3563,7 @@
       }
     },
     "Question" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
