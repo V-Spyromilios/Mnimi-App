@@ -28,16 +28,63 @@ struct TranscriptionResponse: Codable {
 }
 
 //MARK: RESPONSE FROM ANALYIZNG TRANSCRIPT
-struct IntentClassificationResponse: Codable {
-    let type: String // "is_question", "is_reminder", or "is_calendar"
-    let query: String? // If type == "is_question"
-    let task: String? // If type == "is_reminder"
-    let datetime: String? // If type == "is_reminder" or "is_calendar"
-    let title: String? // If type == "is_calendar"
-    let location: String? // If type == "is_calendar"
+// ✅ Top-level OpenAI API response structure
+struct OpenAIResponse: Codable {
+    let choices: [OpenAIChoice]
+}
+
+// ✅ Array of choices (OpenAI usually returns 1 choice)
+struct OpenAIChoice: Codable {
+    let message: OpenAIMessage
+}
+
+// ✅ Contains the actual JSON (wrapped in a code block)
+struct OpenAIMessage: Codable {
+    let content: String
+    
+    // ✅ Custom decoding to extract JSON from markdown code block
+    var extractedJSON: String {
+        if content.hasPrefix("```json") {
+            return content
+                .replacingOccurrences(of: "```json\n", with: "")
+                .replacingOccurrences(of: "```", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return content
+    }
+}
+struct IntentClassificationResponse: Codable, Equatable {
+    let type: String
+    let query: String?
+    let task: String?
+    let datetime: String?
+    let title: String?
+    let location: String?
+
+    
+    static func == (lhs: IntentClassificationResponse, rhs: IntentClassificationResponse) -> Bool {
+        return lhs.type == rhs.type &&
+        lhs.query == rhs.query &&
+        lhs.task == rhs.task &&
+        lhs.datetime == rhs.datetime &&
+        lhs.title == rhs.title &&
+        lhs.location == rhs.location
+    }
 
     enum CodingKeys: String, CodingKey {
         case type, query, task, datetime, title, location
+    }
+
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.type = (try? container.decode(String.self, forKey: .type)) ?? "unknown"
+        self.query = try? container.decode(String.self, forKey: .query)
+        self.task = try? container.decode(String.self, forKey: .task)
+        self.datetime = try? container.decode(String.self, forKey: .datetime)
+        self.title = try? container.decode(String.self, forKey: .title)
+        self.location = try? container.decode(String.self, forKey: .location)
     }
 }
 

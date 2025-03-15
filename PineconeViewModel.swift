@@ -55,8 +55,7 @@ extension PineconeError: Hashable {
 
 @MainActor
 class PineconeViewModel: ObservableObject {
-    
-//    @Published var pineconeError: PineconeError?
+
     @Published var pineconeErrorFromEdit: PineconeError?
     @Published var pineconeErrorFromAdd: PineconeError?
     @Published var pineconeErrorFromQ: PineconeError?
@@ -158,7 +157,6 @@ class PineconeViewModel: ObservableObject {
                     else if sender == .newInfo {
                         self.pineconeErrorFromAdd = .upsertFailed(error)
                     }
-//                    self.pineconeError = .upsertFailed(error)
                 }
             }
         }
@@ -172,7 +170,7 @@ class PineconeViewModel: ObservableObject {
                     self.vectorDeleted = true
                 }
             } catch {
-//                self.pineconeError = .deleteFailed(error)
+
                 self.pineconeErrorOnDel = .deleteFailed(error)
             }
         

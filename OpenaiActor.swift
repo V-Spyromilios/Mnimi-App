@@ -14,6 +14,7 @@ enum OpenAIError: Error, Identifiable {
     case embeddingsFailed(Error)
     case gptResponseFailed(Error)
     case transriptionFailed(Error)
+    case reminderError(Error)
     case unknown(Error)
     
     var localizedDescription: String {
@@ -24,6 +25,8 @@ enum OpenAIError: Error, Identifiable {
             return "GPT Response Failed: \(error.localizedDescription)"
         case .transriptionFailed(let error):
             return "Audio Transcription Error: \(error.localizedDescription)"
+        case .reminderError(let error):
+            return "Reminder Error: \(error.localizedDescription)"
         case .unknown(let error):
             return "An unknown error occurred: \(error.localizedDescription)"
         }
@@ -205,7 +208,7 @@ actor OpenAIActor {
                 let embeddingsResponse = try decoder.decode(EmbeddingsResponse.self, from: data)
                 
                 // Update token usage
-                updateTokenUsage(api: APIs.openAI, tokensUsed: embeddingsResponse.usage.totalTokens, read: false)
+//                updateTokenUsage(api: APIs.openAI, tokensUsed: embeddingsResponse.usage.totalTokens, read: false)
                 
                 return embeddingsResponse
             } catch {
@@ -266,7 +269,7 @@ actor OpenAIActor {
                 }
                 
                 // Update token usage
-                updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
+//                updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
                 
                 return firstChoice.message.content
             } catch {
@@ -517,9 +520,11 @@ actor OpenAIActor {
     
     
     
-    ///Ask Gpt if the provided transcript is_question, is_reminder, is_calendar.
-    ///If is a question the getGprResponse() should be used to get the reply. if its calendar -> EventKit, if it should be add to calendar -> EKEvent
-    func analyzeTranscript(transcrpt: String, selectedLanguage: LanguageCode) async throws -> IntentClassificationResponse {
+    /// Ask GPT to classify the provided transcript into: is_question, is_reminder, or is_calendar.
+    /// - If it's a question, `getGptResponse()` should be used for the reply.
+    /// - If it's calendar-related, EventKit should be used.
+    /// - If it should be added to the calendar, `EKEvent` should be used.
+    func analyzeTranscript(transcript: String, selectedLanguage: LanguageCode) async throws -> IntentClassificationResponse {
         let maxAttempts = 2
         var attempts = 0
         var lastError: Error?
@@ -536,14 +541,16 @@ actor OpenAIActor {
                 let requestBody: [String: Any] = [
                     "model": "gpt-4o",
                     "temperature": 0.1,
-                    "messages": [["role": "system", "content": prompt]]
+                    "messages": [
+                        ["role": "system", "content": prompt],
+                        ["role": "user", "content": transcript] // Include the transcript for classification
+                    ]
                 ]
                 
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
                 request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                
                 request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
                 
                 let (data, response) = try await URLSession.shared.data(for: request)
@@ -551,23 +558,41 @@ actor OpenAIActor {
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                     throw AppNetworkError.invalidResponse
                 }
+
+                // Log full response in DEBUG mode
+                #if DEBUG
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("📝 Raw JSON Response from OpenAI:\n\(jsonString)")
+                } else {
+                    print("❌ Failed to convert API response to string")
+                }
+                #endif
                 
-                let decoder = JSONDecoder()
-                let gptResponse = try decoder.decode(IntentClassificationResponse.self, from: data)
-                // ✅ Ensure response contains a valid intent type
+                // Step 1: Decode OpenAIResponse to get "message.content"
+                let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+                
+                // Step 2: Extract JSON from OpenAI's message.content
+                guard let rawJSON = openAIResponse.choices.first?.message.extractedJSON else {
+                    throw AppNetworkError.unknownError("No valid JSON found in OpenAI response")
+                }
+                
+                debugLog("📝 Extracted JSON from OpenAI:\n\(rawJSON)")
+                
+                // Step 3: Decode the extracted JSON into IntentClassificationResponse
+                let jsonData = rawJSON.data(using: .utf8)!
+                let gptResponse = try JSONDecoder().decode(IntentClassificationResponse.self, from: jsonData)
+                
+                // Ensure response contains a valid intent type
                 guard !gptResponse.type.isEmpty else {
                     throw AppNetworkError.unknownError("GPT response is empty or invalid.")
                 }
-                
-                // Update token usage
-                //                updateTokenUsage(api: APIs.openAI, tokensUsed: gptResponse.usage.totalTokens, read: false)
                 
                 return gptResponse
             } catch {
                 lastError = error
                 attempts += 1
                 if attempts < maxAttempts {
-                    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay
+                    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second delay before retrying
                 }
             }
         }
@@ -581,9 +606,9 @@ actor OpenAIActor {
     private func getGptPromptForTranscript(selectedLanguage: LanguageCode) -> String {
         
         let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.timeZone = TimeZone.current
+        isoFormatter.timeZone = TimeZone(secondsFromGMT: 0) // ✅ Force UTC
         isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let isoDateString = isoFormatter.string(from: Date())
+        let isoDateString = isoFormatter.string(from: Date()) // ✅ Now correctly in UTC
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEE, MMMM d, yyyy"
@@ -602,14 +627,16 @@ Analyze the text and determine its purpose. The possible types are:
 - If **"is_question"**, return the `"query"` field containing the user’s original question.
 - If **"is_reminder"**, return:
     - `"task"`: A short description of the reminder.
-    - `"datetime"`: The due date/time in ISO 8601 format (e.g., `"2024-06-15T09:00:00Z"`).
+    - `"datetime"`: The due date/time in ISO 8601 format (e.g., `"2024-06-15T09:00:00Z"`). Time and date now in ISO 8601 format is \(isoDateString)
 - If **"is_calendar"**, return:
     - `"title"`: The event name.
-    - `"datetime"`: The event date/time in ISO 8601 format.
+    - `"datetime"`: The event date/time in ISO 8601 format.  Time and date now in ISO 8601 format is \(isoDateString)
     - `"location"`: The optional location (if mentioned, else null).
 
 ### **⚠️ Important Formatting Rules:**
-1. **Always return a JSON object** that strictly follows this format:
+1. **Return ONLY raw JSON, with no additional text.**
+2. **DO NOT include markdown (` ```json `) or explanations.**
+3. **Respond in this exact JSON format:**
 ```json
 {
   "type": "is_question" | "is_reminder" | "is_calendar",
