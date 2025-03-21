@@ -17,6 +17,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>MyndVault is requesting your permission to create events in your Calendar.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>MyndVault needs access to your reminders to create tasks when you want to</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SF-Mono-Semibold.otf</string>

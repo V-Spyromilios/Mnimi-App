@@ -94,18 +94,18 @@ actor OpenAIActor {
                 request.httpMethod = "POST"
                 request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
                 
-                // ✅ Swift 6 Improvement: Use `let boundary = UUID().uuidString` inline
+                // Swift 6 Improvement: Use `let boundary = UUID().uuidString` inline
                 let boundary = UUID().uuidString
                 request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
                 
                 let formData = try createMultipartFormData(fileURL: fileURL, boundary: boundary, selectedLanguage: selectedLanguage)
                 
-                // ✅ Swift 6: Improved structured concurrency (async let for request)
+                // Swift 6: Improved structured concurrency (async let for request)
                 async let (data, response) = URLSession.shared.upload(for: request, from: formData)
                 
                 let (receivedData, receivedResponse) = try await (data, response)
                 
-                // ✅ Swift 6: Improved error handling with `.failure`
+                //Swift 6: Improved error handling with `.failure`
                 guard let httpResponse = receivedResponse as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                     throw AppNetworkError.invalidResponse
                 }
@@ -115,7 +115,7 @@ actor OpenAIActor {
                 lastError = error
                 attempts += 1
                 if attempts < maxAttempts {
-                    try await Task.sleep(nanoseconds: 200_000_000) // 0.2s retry delay
+                    try await Task.sleep(nanoseconds: 201_000_000) // 0.2s retry delay
                 }
             }
         }
@@ -206,10 +206,7 @@ actor OpenAIActor {
                 debugLog("Fetching Embeddings Will decode")
                 
                 let embeddingsResponse = try decoder.decode(EmbeddingsResponse.self, from: data)
-                
-                // Update token usage
-//                updateTokenUsage(api: APIs.openAI, tokensUsed: embeddingsResponse.usage.totalTokens, read: false)
-                
+
                 return embeddingsResponse
             } catch {
                 lastError = error
@@ -383,7 +380,7 @@ actor OpenAIActor {
     """
         case .greek:
             return """
-    Είστε ένας βοηθός τεχνητής νοημοσύνης με αποστολή να απαντήσετε στην ερώτηση του χρήστη βασιζόμενοι σε πληροφορίες που ανακτήθηκαν από μια βάση δεδομένων διανυσμάτων. Παρακάτω βρίσκονται η ερώτηση του χρήστη και δύο πληροφορίες που θεωρούνται οι πιο σχετικές βάσει της ομοιότητας ενσωμάτωσης. Σημειώστε ότι αυτές οι πληροφορίες ενδέχεται να μην είναι απαραίτητα άμεσα σχετικές με την ερώτηση του χρήστη.
+    Είστε ένας βοηθός τεχνητής νοημοσύνης με αποστολή να απαντήσετε στην ερώτηση του χρήστη βασιζόμενος σε πληροφορίες που ανακτήθηκαν από μια βάση δεδομένων διανυσμάτων. Παρακάτω βρίσκονται η ερώτηση του χρήστη και δύο πληροφορίες που θεωρούνται οι πιο σχετικές βάσει της ομοιότητας ενσωμάτωσης. Σημειώστε ότι αυτές οι πληροφορίες ενδέχεται να μην είναι απαραίτητα άμεσα σχετικές με την ερώτηση του χρήστη.
     
     - Ερώτηση του χρήστη: \(question)
     

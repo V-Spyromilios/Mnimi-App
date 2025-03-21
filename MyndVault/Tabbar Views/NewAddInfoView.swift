@@ -24,6 +24,9 @@ struct NewAddInfoView: View {
     @State private var isTextFieldEmpty: Bool = true
     @State var recordingURL: URL?
     @State private var showSettingsAlert = false
+    @State private var isProcessingAudio: Bool = false
+    @State private var showRecPopUp: Bool = false
+    @State private var justplaceHolder: Bool = false
     
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
@@ -35,6 +38,7 @@ struct NewAddInfoView: View {
     @EnvironmentObject var apiCalls: ApiCallViewModel
     @EnvironmentObject var languageSettings: LanguageSettings
     @FocusState private var isFocused: Bool
+    @StateObject private var addNewRecorder = AudioRecorder()
     
     @State private var cancellables = Set<AnyCancellable>()
     
@@ -224,7 +228,9 @@ struct NewAddInfoView: View {
                         HStack {
                             Spacer()
                             RecordButton(
-                                onPressBegan: { print("🎤 Recording started!") },
+                                onPressBegan: { print("🎤 Recording started!")
+                                
+                                },
                                 onPressEnded: { print("🛑 Recording ended!") },
                                 onConfirmRecording: { url in
                                     guard FileManager.default.fileExists(atPath: url.path) else {
@@ -233,7 +239,11 @@ struct NewAddInfoView: View {
                                     }
                                     self.recordingURL = url
                                 },
-                                showAlert: $showSettingsAlert
+                                showAlert: $showSettingsAlert,
+                                isProcessing: $isProcessingAudio,
+                                showPopup: $showRecPopUp,
+                                audioRecorder: addNewRecorder,
+                                showReminderSuccess: $justplaceHolder
                             )
                             //                        .padding()
                             //                        .background(Circle().fill(Color.blue).shadow(radius: 5))
@@ -338,7 +348,16 @@ struct NewAddInfoView: View {
                         }
                     }
                 }
-                //            .overlay(alignment: .bottomTrailing) {
+                .onAppear {
+                    openAiManager.checkCalendarPermission()
+                    
+                    Task {
+                        let granted = await addNewRecorder.requestPermission()
+                        if !granted {
+                            self.showSettingsAlert = true
+                        }
+                    }
+                }                //            .overlay(alignment: .bottomTrailing) {
                 //                RecordButton(
                 //                    onPressBegan: {
                 //                        print("🎤 Recording started!")

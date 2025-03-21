@@ -85,6 +85,7 @@
 		E8E1D3CC2BE105FB000FCFBC /* TokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */; };
 		E8E4A68C2D2F22F8002A122B /* CoolButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E4A68B2D2F22F8002A122B /* CoolButton.swift */; };
 		E8E4A68E2D32CFD3002A122B /* AccountDeletedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E4A68D2D32CFD3002A122B /* AccountDeletedView.swift */; };
+		E8ED2E2F2D87057600743EB6 /* test.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8ED2E2E2D87057600743EB6 /* test.swift */; };
 		E8FA7F0B2BC5BC320012EBF6 /* EditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */; };
 		E8FA7F0C2BC5BC320012EBF6 /* VaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F012BC5BC320012EBF6 /* VaultView.swift */; };
 		E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */; };
@@ -189,6 +190,7 @@
 		E8E1D3CB2BE105FB000FCFBC /* TokenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenManager.swift; sourceTree = "<group>"; };
 		E8E4A68B2D2F22F8002A122B /* CoolButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoolButton.swift; sourceTree = "<group>"; };
 		E8E4A68D2D32CFD3002A122B /* AccountDeletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletedView.swift; sourceTree = "<group>"; };
+		E8ED2E2E2D87057600743EB6 /* test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = test.swift; sourceTree = "<group>"; };
 		E8FA7F002BC5BC320012EBF6 /* EditInfoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditInfoView.swift; sourceTree = "<group>"; };
 		E8FA7F012BC5BC320012EBF6 /* VaultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VaultView.swift; sourceTree = "<group>"; };
 		E8FA7F022BC5BC320012EBF6 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
@@ -279,6 +281,7 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8ED2E2E2D87057600743EB6 /* test.swift */,
 				E8E4A68D2D32CFD3002A122B /* AccountDeletedView.swift */,
 				E8E4A68B2D2F22F8002A122B /* CoolButton.swift */,
 				E8FE18EF2D156CF900CA5ECD /* ShareSheet.swift */,
@@ -544,6 +547,7 @@
 				E87605B92C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift in Sources */,
 				E8E4A68C2D2F22F8002A122B /* CoolButton.swift in Sources */,
 				E878FA8D2CD3A87800CEA8EA /* OpenaiActor.swift in Sources */,
+				E8ED2E2F2D87057600743EB6 /* test.swift in Sources */,
 				E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */,
 				E82F456E2BC2A77E00945312 /* Codables.swift in Sources */,
 				E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */,
@@ -750,10 +754,9 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "MyndVault needs access to your calendar to schedule events when you want to";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "MyndVault is requesting your permission to create events in your Calendar.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "MyndVault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
-				INFOPLIST_KEY_NSRemindersUsageDescription = "MyndVault needs access to your reminders to create tasks when you want to";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -792,10 +795,9 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "MyndVault needs access to your calendar to schedule events when you want to";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "MyndVault is requesting your permission to create events in your Calendar.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "MyndVault secures the access to your infos with Face ID. ";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
-				INFOPLIST_KEY_NSRemindersUsageDescription = "MyndVault needs access to your reminders to create tasks when you want to";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
