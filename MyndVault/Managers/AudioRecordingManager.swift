@@ -10,12 +10,13 @@ import SwiftUI
 import AVFoundation
 
 @MainActor
-@Observable
-class AudioRecorder {
-    var isRecording = false
-    private var audioRecorder: AVAudioRecorder?
-    var audioURL: URL?
-    
+final class AudioRecorder: ObservableObject {
+
+    @Published var isRecording = false
+    private var avAudioRecorder: AVAudioRecorder?
+    @Published var audioURL: URL?
+
+
     /// Ask for microphone permission
        func requestPermission() async -> Bool {
            let granted = await withCheckedContinuation { continuation in
@@ -59,8 +60,8 @@ class AudioRecorder {
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
         ]
         
-        audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
-        audioRecorder?.record()
+        avAudioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
+        avAudioRecorder?.record()
         isRecording = true
         
         print("🎤 Recording started at: \(fileURL)")
@@ -68,13 +69,14 @@ class AudioRecorder {
 
     /// Stop recording and return the file URL
     func stopRecording() -> URL? {
-        guard let recorder = audioRecorder, recorder.isRecording else {
+        guard let recorder = avAudioRecorder, recorder.isRecording else {
             print("⚠️ stopRecording() called, but no active recording.")
             return nil
         }
         
         recorder.stop()
         isRecording = false
+        try? AVAudioSession.sharedInstance().setActive(false)
 
         guard let audioURL = audioURL else {
             print("❌ No valid recording URL found")
@@ -83,5 +85,18 @@ class AudioRecorder {
 
         print("🛑 Recording stopped at: \(audioURL)")
         return audioURL
+    }
+    
+    func deleteAudioAndUrl() {
+        guard let audioURL = audioURL else { return }
+        
+        do {
+            try FileManager.default.removeItem(at: audioURL)
+            self.audioURL = nil
+            debugLog("🗑️ Successfully deleted recording at \(audioURL)")
+        } catch {
+            debugLog("⚠️ Error deleting recording: \(error.localizedDescription)")
+        }
+               
     }
 }

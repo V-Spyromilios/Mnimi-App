@@ -238,18 +238,20 @@ struct NeumorphicStyle: ViewModifier {
 
 @MainActor
 struct RecordButton: View {
+
     var onPressBegan: () -> Void
     var onPressEnded: () -> Void
     var onConfirmRecording: (_: URL) -> Void
-    
-    @State private var showSettingsAlert = false
-    @State private var audioRecorder = AudioRecorder()
+
     @State private var isRecording = false
-    @State private var showPopup = false
     @State private var countdownTime = 15
     @State private var timer: Timer?
-    @State var recordingURL: URL?
+
     @Binding var showAlert: Bool
+    @Binding var isProcessing: Bool
+    @Binding var showPopup: Bool
+    @ObservedObject var audioRecorder: AudioRecorder
+    @Binding var showReminderSuccess: Bool
     
     var body: some View {
         ZStack(alignment: .trailing) {
@@ -266,31 +268,55 @@ struct RecordButton: View {
         }
         .animation(.spring(), value: showPopup) // ✅ Apply animation globally
     }
-    
+
     private var recordingPopup: some View {
         VStack {
-            Text("\(countdownTime) sec")
-                .font(.body)
-                .fontDesign(.rounded)
-                .bold()
-                .contentTransition(.numericText())
-                .padding(.top, 8)
-            
-            HStack(spacing: 10) {
-                Button(action: confirmRecording) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .resizable()
-                        .frame(width: 35, height: 35)
-                        .foregroundColor(.green)
-                }
-                Button(action: cancelRecording) {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .frame(width: 35, height: 35)
-                        .foregroundColor(.red)
-                }
+            if isProcessing {
+                ProgressView()
+                    .foregroundColor(.white.opacity(0.8))
+                    .scaleEffect(2.5) // Adjust this to match the thumb image
+                        .frame(width: 100, height: 100)
+                    .contentTransition(.opacity)
+            } else if showReminderSuccess {
+                Image(systemName: "hand.thumbsup.circle.fill")
+                    .resizable()
+                    .foregroundColor(.white.opacity(0.8))
+                    .frame(width: 80, height: 80)
+                    .contentTransition(.symbolEffect(.replace))
+                    .symbolEffect(.pulse, value: showReminderSuccess)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            withAnimation {
+                                showReminderSuccess = false
+                                showPopup = false
+                            }
+                        }
+                    }
             }
-            .padding(.bottom, 8)
+            else {
+                Text("\(countdownTime) sec")
+                    .font(.body)
+                    .fontDesign(.rounded)
+                    .bold()
+                    .contentTransition(.numericText())
+                    .padding(.top, 8)
+                
+                HStack(spacing: 10) {
+                    Button(action: confirmRecording) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .resizable()
+                            .frame(width: 35, height: 35)
+                            .foregroundColor(.green)
+                    }
+                    Button(action: cancelRecording) {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .frame(width: 35, height: 35)
+                            .foregroundColor(.red)
+                    }
+                }
+                .padding(.bottom, 8)
+            }
         }
         .frame(width: 120, height: 100)
         .background(.ultraThinMaterial.opacity(0.7))
@@ -329,21 +355,21 @@ struct RecordButton: View {
         DragGesture(minimumDistance: 0)
             .onChanged { _ in
                 Task {
-                    guard !isRecording else { return } // ✅ Prevent multiple triggers
+                    guard !isRecording else { return } // Prevent multiple triggers
                     
-                    let permissionGranted = await audioRecorder.requestPermission()
-                    if permissionGranted {
+//                    let permissionGranted = await audioRecorder.requestPermission()
+//                    if permissionGranted {
                         deletePreviousRecording()
                         showPopup = true
                         try? await audioRecorder.startRecording()
                         startCountdown()
                         isRecording = true
                         onPressBegan()
-                    } else {
-                        DispatchQueue.main.async {
-                            showSettingsAlert = true
-                        }
-                    }
+//                    } else {
+//                        DispatchQueue.main.async {
+//                            showAlert = true
+//                        }
+//                    }
                 }
             }
             .onEnded { _ in
@@ -354,25 +380,29 @@ struct RecordButton: View {
     
     private func confirmRecording() {
         
-        guard let recordedFile = recordingURL else { // ✅ Use stored URL instead of stopping again
+        guard let recordedFile = audioRecorder.audioURL else { // ✅ Use stored URL instead of stopping again
             debugLog("❌ No recorded file found")
             return
         }
         debugLog("✅ Recording confirmed: \(recordedFile)")
-        onConfirmRecording(recordedFile)
+        withAnimation {
+            isProcessing = true
+        }
         
-        showPopup = false
+         onConfirmRecording(recordedFile)
         resetState()
     }
+    
+    
+    
     
     private func cancelRecording() {
         
         debugLog("❌ Audio discarded.")
-        if let url = recordingURL {
-            try? FileManager.default.removeItem(at: url) // ✅ Delete the recorded file
+        if audioRecorder.audioURL != nil {
+            _ = audioRecorder.stopRecording()
+            audioRecorder.deleteAudioAndUrl()
         }
-        recordingURL = nil
-        
         showPopup = false
         resetState()
     }
@@ -386,11 +416,11 @@ struct RecordButton: View {
     }
     
     private func deletePreviousRecording() {
-        if let url = recordingURL {
+        if let url = audioRecorder.audioURL {
             try? FileManager.default.removeItem(at: url) // ✅ Delete previous recording
             debugLog("🗑 Deleted previous recording: \(url)")
+
         }
-        recordingURL = nil // ✅ Reset the stored URL
     }
     
     private func startCountdown() {
@@ -405,6 +435,7 @@ struct RecordButton: View {
                         countdownTime -= 1 }
                 } else {
                     timer?.invalidate()
+                    stopRecording()
                     withAnimation {
                         timer = nil
                         countdownTime = 0 }
@@ -423,15 +454,15 @@ struct RecordButton: View {
         }
         
         if audioRecorder.isRecording {
-            let recordedFile = audioRecorder.stopRecording()
+            let _ = audioRecorder.stopRecording()
             
             DispatchQueue.main.async {
-                if let recordedFile = recordedFile {
-                    self.recordingURL = recordedFile // ✅ Store recording URL properly
-                    print("⏳ Recording ended, file saved: \(recordedFile)")
-                } else {
-                    print("❌ stopRecording() failed to retrieve a valid file URL")
-                }
+//                if let recordedFile = recordedFile {
+//                    self.recordingURL = recordedFile
+//                    print("⏳ Recording ended, file saved: \(recordedFile)")
+//                } else {
+//                    print("❌ stopRecording() failed to retrieve a valid file URL")
+//                }
                 withAnimation {
                     isRecording = false
                     countdownTime = countdownTime

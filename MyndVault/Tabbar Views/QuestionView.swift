@@ -33,7 +33,10 @@ struct QuestionView: View {
     @State private var recordingURL: URL?
     @FocusState private var isFocused: Bool
     @State private var intentResponseIsRunning: Bool = false
-    
+    @StateObject private var questionAudioRecorder: AudioRecorder = AudioRecorder()
+    @State private var isProcessingAudio: Bool = false
+    @State private var onReminderSuccess: Bool = false
+    @State private var showRecordPopup: Bool = false
     private var shouldShowGoButton: Bool {
         goButtonIsVisible &&
         openAiManager.stringResponseOnQuestion.isEmpty &&
@@ -118,12 +121,6 @@ struct QuestionView: View {
                             .focused($isFocused)
                             .padding(.bottom)
                             .padding(.horizontal, Constants.standardCardPadding)
-                            .onAppear {
-                                openAiManager.checkCalendarPermission()
-                                Task {
-                                       await observeChanges()
-                                   }
-                            }
                             .onChange(of: question) { _, newValue in
                                 isTextFieldEmpty = newValue.count < 8
                             }
@@ -201,6 +198,8 @@ struct QuestionView: View {
                         case .calendar:
                             if let event = selectedEvent {
                                 EventEditView(eventStore: openAiManager.eventStore, event: event) {
+                                    openAiManager.calendarEvent = nil
+                                    self.selectedEvent = nil
                                     activeModal = nil
                                 }
                             } else {
@@ -268,6 +267,8 @@ struct QuestionView: View {
                         if !newValue.isEmpty {
                             isLoading = false
                             intentResponseIsRunning = false
+                            isProcessingAudio = false
+                            showRecordPopup = false
                         }
                     }
                     .onChange(of: pineconeManager.pineconeQueryResponse) { _, newValue in
@@ -315,6 +316,7 @@ struct QuestionView: View {
                             }
                         }
                     }
+                    
                     VStack {
                         Spacer()
                         HStack {
@@ -329,13 +331,55 @@ struct QuestionView: View {
                                     }
                                     self.recordingURL = url
                                 },
-                                showAlert: $showSettingsAlert
+                                showAlert: $showSettingsAlert,
+                                isProcessing: $isProcessingAudio,
+                                showPopup: $showRecordPopup,
+                                audioRecorder: questionAudioRecorder,
+                                showReminderSuccess: $onReminderSuccess
                             )
-                            //                        .padding()
-                            //                        .background(Circle().fill(Color.blue).shadow(radius: 5))
-                            //                        .padding(.trailing, 20)
                             .padding(.bottom, geometry.safeAreaInsets.bottom)
                             .padding(.trailing, Constants.standardCardPadding * 2)
+                            .ignoresSafeArea(.keyboard, edges: .bottom)
+                        }
+                    }
+                    .onChange(of: openAiManager.calendarEvent) { _, newEvent in
+                        guard let newEvent = newEvent else {
+                            debugLog("guard let newEvent as? EKEvent failed!")
+                            return
+                        }
+                        debugLog("New calendar event observed by the view!")
+                        
+                        intentResponseIsRunning = false
+                        isProcessingAudio = false
+                        showRecordPopup = false
+                        openAiManager.intentResponse = nil
+                        selectedEvent = newEvent
+                        activeModal = .calendar
+                    }
+                    .onChange(of: openAiManager.reminderCreated) { _, success in
+                        if success {
+                            intentResponseIsRunning = false
+                            isProcessingAudio = false
+//                            showRecordPopup = false
+                            onReminderSuccess = true
+                            openAiManager.intentResponse = nil
+                        }
+                    }
+                    .onChange(of: openAiManager.reminderError) {_, error in
+                        
+                       guard let error = error else { return }
+                            Task {
+                                await self.handleError(error)
+                            }
+                    }
+                    .onChange(of: openAiManager.intentResponse) {_, response in
+                        
+                        guard let response = response else { return }
+                            processIntent(response)
+                    }
+                    .onChange(of: openAiManager.showCalendarPermissionAlert) {_, alert in
+                            if alert {
+                                activeModal = .calendarPermission
                         }
                     }
                 }
@@ -461,12 +505,17 @@ struct QuestionView: View {
             fetchedImages = []
             self.goButtonIsVisible = true
             if isLoading { isLoading = false }
+            
         }
         openAiManager.clearManager()
         pineconeManager.clearManager()
     }
     
     private func processIntent(_ intent: IntentClassificationResponse) {
+        
+        debugLog("Started processIntetn: \(intent.type)")
+        debugLog("is on main thread: \(Thread.isMainThread)")
+        debugLog(" processIntetn: about to call openAiManager.handleClassifiedIntent()")
         openAiManager.handleClassifiedIntent(intent)
     }
     
@@ -501,6 +550,12 @@ struct QuestionView: View {
         debugLog("handleError called with error: \(error)")
 
         if activeModal != nil { return }
+        if isProcessingAudio { isProcessingAudio = false}
+        if showRecordPopup { showRecordPopup = false }
+
+        
+        intentResponseIsRunning = false
+        openAiManager.intentResponse = nil
         
         await MainActor.run {
             withAnimation(.easeInOut) {
@@ -518,38 +573,6 @@ struct QuestionView: View {
             }
             
             activeModal = .error(thrownError)
-        }
-    }
-    /// fake .onChange!
-    private func observeChanges() async {
-        while true {
-            do {
-                try await Task.sleep(nanoseconds: 300_000_000) // Polling every 0.3s
-            } catch {
-                debugLog("Task.sleep failed: \(error.localizedDescription)")
-                return // Exit the loop if sleep fails (e.g., task is cancelled)
-            }
-
-            if let newEvent = openAiManager.calendarEvent {
-                selectedEvent = newEvent
-                activeModal = .calendar
-            }
-            
-            if let intentResponse = openAiManager.intentResponse  {
-                if self.intentResponseIsRunning {  return }
-                
-                debugLog("Starting Loop for intentResponse".uppercased())
-                self.intentResponseIsRunning = true
-                processIntent(intentResponse)
-            }
-
-            if let error = openAiManager.reminderError {
-                await handleError(error)
-            }
-
-            if openAiManager.showCalendarPermissionAlert {
-                activeModal = .calendarPermission
-            }
         }
     }
     
