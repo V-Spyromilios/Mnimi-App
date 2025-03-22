@@ -18,7 +18,9 @@ class OpenAIViewModel: ObservableObject {
     @Published var embeddings: [Float] = []
     @Published var embeddingsFromQuestion: [Float] = []
     @Published var embeddingsCompleted: Bool = false
-    @Published var questionEmbeddingsCompleted: Bool = false
+//    @Published var questionEmbeddingsCompleted: Bool = false
+    @Published var transcriptionErrorTrigger = UUID()
+    @Published var questionEmbeddingTrigger = UUID()
     @Published var stringResponseOnQuestion: String = ""
     @Published var gptResponseError: OpenAIError?
     @Published var openAIErrorFromQuestion: OpenAIError?
@@ -45,7 +47,7 @@ class OpenAIViewModel: ObservableObject {
         embeddings = []
         embeddingsFromQuestion = []
         embeddingsCompleted = false
-        questionEmbeddingsCompleted = false
+        
         stringResponseOnQuestion = ""
         
         gptResponseError = nil
@@ -73,6 +75,7 @@ class OpenAIViewModel: ObservableObject {
                     self.transcription = response.text
                 } catch {
                     self.transriptionError = .transriptionFailed(error)
+                    transcriptionErrorTrigger = UUID()
                     debugLog("❌ processAudio() :: Error transcribing audio: \(error)")
                 }
             } else {
@@ -94,14 +97,14 @@ class OpenAIViewModel: ObservableObject {
 
             let embeddingsResponse: EmbeddingsResponse = try await openAIActor.fetchEmbeddings(for: text)
 
-//            debugLog("embeddingsResponse: \(embeddingsResponse.data.first.debugDescription)")
+            debugLog("embeddingsResponse: \(embeddingsResponse.data.first.debugDescription)")
 
             let embeddingsData = embeddingsResponse.data.flatMap { $0.embedding }
            
             // Update properties
             if isQuestion {
                 self.embeddingsFromQuestion = embeddingsData
-                self.questionEmbeddingsCompleted = true
+                questionEmbeddingTrigger = UUID()
 
             } else {
                 self.embeddings = embeddingsData
@@ -191,12 +194,14 @@ class OpenAIViewModel: ObservableObject {
                 
                 
             case "is_calendar":
-                if let title = intent.title, let dateStr = intent.datetime, let date = parseISO8601(dateStr) {
+                if let title = intent.title, let dateStr = intent.datetime, let utcDate = parseISO8601(dateStr) {
+                    
+                    let localDate = utcDate.toLocalTime() // As the UTC is for example -1 from Berlin time
                     
                     let newEvent = EKEvent(eventStore: self.eventStore)
                     newEvent.title = title
-                    newEvent.startDate = date
-                    newEvent.endDate = date.addingTimeInterval(3600) // Default 1-hour event
+                    newEvent.startDate = localDate
+                    newEvent.endDate = localDate.addingTimeInterval(3600) // Default 1-hour event
                     newEvent.location = intent.location
                     newEvent.calendar = self.eventStore.defaultCalendarForNewEvents
                     

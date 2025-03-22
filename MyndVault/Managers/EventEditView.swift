@@ -29,14 +29,14 @@ struct EventEditView: UIViewControllerRepresentable {
         return Coordinator(onDismiss: onDismiss)
     }
 
-    class Coordinator: NSObject, EKEventEditViewDelegate {
+    final class Coordinator: NSObject, EKEventEditViewDelegate {
         var onDismiss: (() -> Void)? // ✅ Now stored locally in Coordinator
 
         init(onDismiss: (() -> Void)?) {
             self.onDismiss = onDismiss
         }
 
-        func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
+        func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) { 
             switch action {
             case .saved:
                 print("✅ Event saved!")

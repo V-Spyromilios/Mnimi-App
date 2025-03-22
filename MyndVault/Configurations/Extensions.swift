@@ -252,6 +252,7 @@ struct RecordButton: View {
     @Binding var showPopup: Bool
     @ObservedObject var audioRecorder: AudioRecorder
     @Binding var showReminderSuccess: Bool
+    @State private var animateThumbsUp = false
     
     var body: some View {
         ZStack(alignment: .trailing) {
@@ -280,18 +281,29 @@ struct RecordButton: View {
             } else if showReminderSuccess {
                 Image(systemName: "hand.thumbsup.circle.fill")
                     .resizable()
+                    .scaledToFit()
                     .foregroundColor(.white.opacity(0.8))
                     .frame(width: 80, height: 80)
                     .contentTransition(.symbolEffect(.replace))
-                    .symbolEffect(.pulse, value: showReminderSuccess)
+                    .symbolEffect(.bounce, value: animateThumbsUp)
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            withAnimation {
-                                showReminderSuccess = false
-                                showPopup = false
+                                animateThumbsUp = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                    withAnimation {
+                                        showReminderSuccess = false
+                                        showPopup = false
+                                        animateThumbsUp = false
+                                    }
+                                }
                             }
-                        }
-                    }
+//                    .onAppear {
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+//                            withAnimation {
+//                                showReminderSuccess = false
+//                                showPopup = false
+//                            }
+//                        }
+//                    }
             }
             else {
                 Text("\(countdownTime) sec")
@@ -323,7 +335,7 @@ struct RecordButton: View {
         .cornerRadius(10)
         .shadow(radius: 10)
         .offset(x: -110, y: -10)
-        .transition(.scale.combined(with: .opacity)) // ✅ Consistent animation for both appearing and disappearing
+        .transition(.scale.combined(with: .opacity)) // Consistent animation for both appearing and disappearing
         .animation(.spring(), value: showPopup)
     }
     
@@ -356,31 +368,24 @@ struct RecordButton: View {
             .onChanged { _ in
                 Task {
                     guard !isRecording else { return } // Prevent multiple triggers
-                    
-//                    let permissionGranted = await audioRecorder.requestPermission()
-//                    if permissionGranted {
+
                         deletePreviousRecording()
                         showPopup = true
                         try? await audioRecorder.startRecording()
                         startCountdown()
                         isRecording = true
                         onPressBegan()
-//                    } else {
-//                        DispatchQueue.main.async {
-//                            showAlert = true
-//                        }
-//                    }
                 }
             }
             .onEnded { _ in
-                guard isRecording else { return } // ✅ Ensure recording is active before stopping
+                guard isRecording else { return } // Ensure recording is active before stopping
                 stopRecording()
             }
     }
     
     private func confirmRecording() {
         
-        guard let recordedFile = audioRecorder.audioURL else { // ✅ Use stored URL instead of stopping again
+        guard let recordedFile = audioRecorder.audioURL else { // Use stored URL instead of stopping again
             debugLog("❌ No recorded file found")
             return
         }
@@ -417,7 +422,7 @@ struct RecordButton: View {
     
     private func deletePreviousRecording() {
         if let url = audioRecorder.audioURL {
-            try? FileManager.default.removeItem(at: url) // ✅ Delete previous recording
+            try? FileManager.default.removeItem(at: url) // Delete previous recording
             debugLog("🗑 Deleted previous recording: \(url)")
 
         }
@@ -449,7 +454,7 @@ struct RecordButton: View {
         timer = nil
         
         guard isRecording else {
-            print("⚠️ stopRecording() called, but no active recording.")
+            debugLog("⚠️ stopRecording() called, but no active recording.")
             return
         }
         
@@ -573,4 +578,11 @@ func debugLog(_ message: String) {
 #if DEBUG
     print(message)
 #endif
+}
+extension Date {
+    func toLocalTime() -> Date {
+        let timezone = TimeZone.current
+        let seconds = TimeInterval(timezone.secondsFromGMT(for: self))
+        return self.addingTimeInterval(seconds)
+    }
 }

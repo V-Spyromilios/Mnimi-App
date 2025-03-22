@@ -245,9 +245,6 @@ struct NewAddInfoView: View {
                                 audioRecorder: addNewRecorder,
                                 showReminderSuccess: $justplaceHolder
                             )
-                            //                        .padding()
-                            //                        .background(Circle().fill(Color.blue).shadow(radius: 5))
-                            //                        .padding(.trailing, 20)
                             .padding(.bottom, geometry.safeAreaInsets.bottom)
                             .padding(.trailing, Constants.standardCardPadding * 2)
                         }
@@ -302,10 +299,17 @@ struct NewAddInfoView: View {
                     .onChange(of: openAiManager.transcription) { _, transcription in
                         if !transcription.isEmpty {
                             withAnimation(.easeInOut(duration: 0.2)) {
-                                newInfo = transcription }
+                                newInfo = transcription
+                                isProcessingAudio = false
+                                showRecPopUp = false
+                            }
                         }
                     }
-                    
+                    .onChange(of: openAiManager.transcriptionErrorTrigger) {
+                        if let error = openAiManager.transriptionError {
+                            handleError(error)
+                        }
+                    }
                     .onChange(of: pineconeManager.upsertSuccessful) { _, isSuccesful in
                         if isSuccesful {
                             withAnimation {
