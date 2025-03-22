@@ -191,6 +191,7 @@ class PineconeViewModel: ObservableObject {
   
     
     func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) {
+        debugLog("queryPinecone CALLED")
         Task {
             do {
                 let response = try await pineconeActor.queryPinecone(vector: vector, topK: topK, includeValues: includeValues)

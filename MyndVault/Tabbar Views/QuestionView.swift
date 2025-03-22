@@ -196,16 +196,7 @@ struct QuestionView: View {
                                 .statusBarHidden()
 
                         case .calendar:
-                            if let event = selectedEvent {
-                                EventEditView(eventStore: openAiManager.eventStore, event: event) {
-                                    openAiManager.calendarEvent = nil
-                                    self.selectedEvent = nil
-                                    activeModal = nil
-                                }
-                            } else {
-                                Text("⚠️ No event available")
-                            }
-
+                            calendarSheetContent()
                         case .calendarPermission:
                             VStack(spacing: 16) {
                                 Text("❌ Calendar Access Denied")
@@ -252,23 +243,36 @@ struct QuestionView: View {
                     .onChange(of: recordingURL) { _, url in
                         guard let url = url else { return }
                         
+                        question = ""
+                        goButtonIsVisible = true
+                        thrownError = ""
+                        openAiManager.stringResponseOnQuestion = ""
                         Task {
                             await openAiManager.processAudio(fileURL: url, fromQuestion: true)
                         }
                     }
                     .onChange(of: openAiManager.transcriptionForQuestion) {_, transcript in
-                        if !transcript.isEmpty {
+                        if !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             Task {
                                 await openAiManager.getTranscriptAnalysis(transcrpit: transcript)
                             }
+                        } else {
+                            debugLog("⚠️ Transcription was empty. Aborting flow.")
+                                   isLoading = false
+                                   isProcessingAudio = false
+                                   showRecordPopup = false
                         }
                     }
                     .onChange(of: openAiManager.stringResponseOnQuestion) { _, newValue in
                         if !newValue.isEmpty {
+                        debugLog("stringResponseOnQuestion, setting isLoading to false")
                             isLoading = false
                             intentResponseIsRunning = false
                             isProcessingAudio = false
                             showRecordPopup = false
+                            
+//                            goButtonIsVisible = true
+                            //MARK: HERE
                         }
                     }
                     .onChange(of: pineconeManager.pineconeQueryResponse) { _, newValue in
@@ -276,10 +280,14 @@ struct QuestionView: View {
                             handlePineconeResponse(pineconeResponse)
                         }
                     }
-                    .onChange(of: openAiManager.questionEmbeddingsCompleted) { _, newValue in
-                        if newValue {
-                            handleQuestionEmbeddingsCompleted()
-                        }
+//                    .onChange(of: openAiManager.questionEmbeddingsCompleted) { _, newValue in
+//                        debugLog("OnChange :: handleQuestionEmbeddingsCompleted : \(newValue)")
+//                        if newValue {
+//                            handleQuestionEmbeddingsCompleted()
+//                        }
+//                    }
+                    .onChange(of: openAiManager.questionEmbeddingTrigger) {
+                        handleQuestionEmbeddingsCompleted()
                     }
                     .onChange(of: openAiManager.transriptionErrorForQuestion) { _, error in
                         guard let error = error else { return }
@@ -321,34 +329,38 @@ struct QuestionView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            RecordButton(
-                                onPressBegan: { print("🎤 Recording started!") },
-                                onPressEnded: { print("🛑 Recording ended!") },
-                                onConfirmRecording: { url in
-                                    guard FileManager.default.fileExists(atPath: url.path) else {
-                                        print("⚠️ Recording file does not exist at \(url)")
-                                        return
-                                    }
-                                    self.recordingURL = url
-                                },
-                                showAlert: $showSettingsAlert,
-                                isProcessing: $isProcessingAudio,
-                                showPopup: $showRecordPopup,
-                                audioRecorder: questionAudioRecorder,
-                                showReminderSuccess: $onReminderSuccess
-                            )
-                            .padding(.bottom, geometry.safeAreaInsets.bottom)
-                            .padding(.trailing, Constants.standardCardPadding * 2)
-                            .ignoresSafeArea(.keyboard, edges: .bottom)
+                            if !isLoading && keyboardResponder.currentHeight <= 0 {
+                                RecordButton(
+                                    onPressBegan: { print("🎤 Recording started!") },
+                                    onPressEnded: { print("🛑 Recording ended!") },
+                                    onConfirmRecording: { url in
+                                        guard FileManager.default.fileExists(atPath: url.path) else {
+                                            print("⚠️ Recording file does not exist at \(url)")
+                                            return
+                                        }
+                                        self.recordingURL = url
+                                    },
+                                    showAlert: $showSettingsAlert,
+                                    isProcessing: $isProcessingAudio,
+                                    showPopup: $showRecordPopup,
+                                    audioRecorder: questionAudioRecorder,
+                                    showReminderSuccess: $onReminderSuccess
+                                )
+                                .padding(.bottom, geometry.safeAreaInsets.bottom)
+                                .padding(.trailing, Constants.standardCardPadding * 2)
+                                .ignoresSafeArea(.keyboard, edges: .bottom)
+                                .transition(.opacity.combined(with: .scale))
+                            }
                         }
                     }
+                    .animation(.easeInOut, value: isLoading)
                     .onChange(of: openAiManager.calendarEvent) { _, newEvent in
                         guard let newEvent = newEvent else {
-                            debugLog("guard let newEvent as? EKEvent failed!")
+                            debugLog("onChange(of: openAiManager.calendarEvent) RETURNED")
                             return
                         }
                         debugLog("New calendar event observed by the view!")
-                        
+                        isLoading = false
                         intentResponseIsRunning = false
                         isProcessingAudio = false
                         showRecordPopup = false
@@ -360,14 +372,16 @@ struct QuestionView: View {
                         if success {
                             intentResponseIsRunning = false
                             isProcessingAudio = false
-//                            showRecordPopup = false
                             onReminderSuccess = true
+
                             openAiManager.intentResponse = nil
+                            openAiManager.reminderCreated = false
+                            isLoading = false
                         }
                     }
                     .onChange(of: openAiManager.reminderError) {_, error in
                         
-                       guard let error = error else { return }
+                        guard let error = error else { return }
                             Task {
                                 await self.handleError(error)
                             }
@@ -375,7 +389,14 @@ struct QuestionView: View {
                     .onChange(of: openAiManager.intentResponse) {_, response in
                         
                         guard let response = response else { return }
-                            processIntent(response)
+                        guard response.type != "unknown", !response.type.isEmpty else {
+                            debugLog("⚠️ openAiManager.intentResponse.type was nil. Aborting flow.")
+                            isLoading = false
+                            isProcessingAudio = false
+                            showRecordPopup = false
+                            return
+                        }
+                        processIntent(response)
                     }
                     .onChange(of: openAiManager.showCalendarPermissionAlert) {_, alert in
                             if alert {
@@ -385,6 +406,19 @@ struct QuestionView: View {
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    private func calendarSheetContent() -> some View {
+        CalendarEventEditorView(
+            eventStore: openAiManager.eventStore,
+            event: selectedEvent,
+            onDismiss: {
+                openAiManager.calendarEvent = nil
+                selectedEvent = nil
+                activeModal = nil
+            }, isLoading: $isLoading
+        )
     }
     
     @ViewBuilder
@@ -537,12 +571,13 @@ struct QuestionView: View {
             isLoading = true
         }
         Task {
-            do {
-                try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
-            }
-            catch {
-                await handleError(error)
-            }
+            await openAiManager.getTranscriptAnalysis(transcrpit: question)
+//            do {
+//                try await openAiManager.requestEmbeddings(for: self.question, isQuestion: true)
+//            }
+//            catch {
+//                await handleError(error)
+//            }
         }
     }
     
@@ -586,6 +621,7 @@ struct QuestionView: View {
                     await openAiManager.getGptResponse(queryMatches: pineconeResponse.matches, question: userQuestion)
                 }
                 else if self.question != "" {
+                debugLog("handlePineconeResponse for question: \(question)")
                     await openAiManager.getGptResponse(queryMatches: pineconeResponse.matches, question: question)
                 }
                 else {
@@ -621,6 +657,28 @@ struct QuestionView: View {
                         self.activeModal = .error(thrownError)
                     }
                 }
+            }
+        }
+    }
+    
+}
+struct CalendarEventEditorView: View {
+    let eventStore: EKEventStore
+    let event: EKEvent?
+    let onDismiss: () -> Void
+    @Binding var isLoading: Bool
+    
+    var body: some View {
+        Group {
+            if let event = event {
+                EventEditView(eventStore: eventStore, event: event, onDismiss: onDismiss)
+                    .onAppear {
+                        if isLoading {
+                            isLoading = false
+                        }
+                    }
+            } else {
+                Text("⚠️ No event available")
             }
         }
     }

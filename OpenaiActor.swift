@@ -142,7 +142,7 @@ actor OpenAIActor {
         // Add model part
         body.append(boundaryPrefix.data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"model\"\r\n\r\n".data(using: .utf8)!)
-        body.append("whisper-1\r\n".data(using: .utf8)!)
+        body.append("gpt-4o-transcribe\r\n".data(using: .utf8)!)
         
         body.append(boundaryPrefix.data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"language\"\r\n\r\n".data(using: .utf8)!)
@@ -601,15 +601,10 @@ actor OpenAIActor {
     ///Get the actual prompt for asking the gpt to check the type of question user asked.
     
     private func getGptPromptForTranscript(selectedLanguage: LanguageCode) -> String {
-        
-        let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.timeZone = TimeZone(secondsFromGMT: 0) // ✅ Force UTC
-        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let isoDateString = isoFormatter.string(from: Date()) // ✅ Now correctly in UTC
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEEE, MMMM d, yyyy"
-        let readableDateString = dateFormatter.string(from: Date())
+        let formatter = ISO8601DateFormatter()
+        formatter.timeZone = TimeZone.current
+        formatter.formatOptions = [.withInternetDateTime]
+        let isoDateString = formatter.string(from: Date())
         
         switch selectedLanguage {
         case .english:
@@ -620,21 +615,39 @@ Analyze the text and determine its purpose. The possible types are:
 - "is_reminder": The user wants to create a reminder.
 - "is_calendar": The user wants to add an event to their calendar.
 
-### **Extract structured details for each type:**
-- If **"is_question"**, return the `"query"` field containing the user’s original question.
+### Extract structured details for each type:
+- If **"is_question"**, return:
+    - `"query"`: The user’s original question.
+
 - If **"is_reminder"**, return:
     - `"task"`: A short description of the reminder.
-    - `"datetime"`: The due date/time in ISO 8601 format (e.g., `"2024-06-15T09:00:00Z"`). Time and date now in ISO 8601 format is \(isoDateString)
+    - `"datetime"`: The due date/time in **ISO 8601 format**, using the user’s **local time**  
+      (e.g., `"2024-06-15T09:00:00+02:00"` for Central European Summer Time).  
+      Do **not** convert to UTC or use `"Z"` unless the user explicitly says “UTC” or “GMT”.  
+      Current time in ISO 8601 format is: \(isoDateString)
+
 - If **"is_calendar"**, return:
     - `"title"`: The event name.
-    - `"datetime"`: The event date/time in ISO 8601 format.  Time and date now in ISO 8601 format is \(isoDateString)
-    - `"location"`: The optional location (if mentioned, else null).
+    - `"datetime"`: The event date/time in **ISO 8601 format**, using the user’s **local time**.  
+      The time must reflect what the user intended (e.g., "14:00" means 14:00 local time).  
+      Do **not** convert to UTC or use `"Z"` unless the user explicitly says “UTC” or “GMT”.  
+      Current time in ISO 8601 format is: \(isoDateString)
+    - `"location"`: The optional location, or `null` if not mentioned.
 
-### **⚠️ Important Formatting Rules:**
-1. **Return ONLY raw JSON, with no additional text.**
-2. **DO NOT include markdown (` ```json `) or explanations.**
-3. **Respond in this exact JSON format:**
-```json
+If the user uses vague time expressions like “later”, “tonight”, or “tomorrow”:
+- Convert them to a specific datetime in ISO 8601 format using common sense.
+- Assume the user means their current time zone.
+- For example:
+    - "later" → 2 hours from now
+    - "tonight" → today at 20:00
+    - "tomorrow" → same time next day
+    - "next week" → same time, 7 days later
+
+### Important Formatting Rules:
+1. Return **only raw JSON**, with no additional explanation.
+2. Do **not** include markdown formatting (like ```json).
+3. Use this exact JSON structure:
+
 {
   "type": "is_question" | "is_reminder" | "is_calendar",
   "query": "string or null",
@@ -645,34 +658,507 @@ Analyze the text and determine its purpose. The possible types are:
 }
 """
         case .german:
-            return """
+            return
+"""
+Sie sind ein KI-Assistent, der die Absicht des Benutzers basierend auf transkribierten Spracheingaben klassifiziert.
+Analysieren Sie den Text und bestimmen Sie seinen Zweck. Die möglichen Typen sind:
+- "is_question": Der Benutzer stellt eine allgemeine Frage.
+- "is_reminder": Der Benutzer möchte eine Erinnerung erstellen.
+- "is_calendar": Der Benutzer möchte ein Ereignis in seinen Kalender hinzufügen.
+
+### Strukturierte Details für jeden Typ extrahieren:
+- Wenn **"is_question"**, geben Sie zurück:
+    - `"query"`: Die ursprüngliche Frage des Benutzers.
+
+- Wenn **"is_reminder"**, geben Sie zurück:
+    - `"task"`: Eine kurze Beschreibung der Erinnerung.
+    - `"datetime"`: Das Fälligkeitsdatum/-uhrzeit im **ISO 8601-Format**, unter Verwendung der **Ortszeit** des Benutzers
+      (z. B. `"2024-06-15T09:00:00+02:00"` für Mitteleuropäische Sommerzeit).
+      **Nicht** in UTC konvertieren oder `"Z"` verwenden, es sei denn, der Benutzer gibt ausdrücklich „UTC“ oder „GMT“ an.
+      Aktuelle Zeit im ISO 8601-Format ist: \(isoDateString)
+
+- Wenn **"is_calendar"**, geben Sie zurück:
+    - `"title"`: Der Name des Ereignisses.
+    - `"datetime"`: Das Datum/die Uhrzeit des Ereignisses im **ISO 8601-Format**, unter Verwendung der **Ortszeit** des Benutzers.
+      Die Zeit muss das widerspiegeln, was der Benutzer beabsichtigt hat (z. B. bedeutet "14:00" 14:00 Ortszeit).
+      **Nicht** in UTC konvertieren oder `"Z"` verwenden, es sei denn, der Benutzer gibt ausdrücklich „UTC“ oder „GMT“ an.
+      Aktuelle Zeit im ISO 8601-Format ist: \(isoDateString)
+    - `"location"`: Der optionale Ort oder `null`, wenn nicht erwähnt.
+
+Wenn der Benutzer vage Zeitangaben wie „später“, „heute Abend“ oder „morgen“ verwendet:
+- Konvertieren Sie diese in ein spezifisches Datum/Uhrzeit im ISO 8601-Format, basierend auf gesundem Menschenverstand.
+- Gehen Sie davon aus, dass der Benutzer seine aktuelle Zeitzone meint.
+- Zum Beispiel:
+    - "später" → 2 Stunden ab jetzt
+    - "heute Abend" → heute um 20:00 Uhr
+    - "morgen" → gleiche Zeit am nächsten Tag
+    - "nächste Woche" → gleiche Zeit, 7 Tage später
+
+### Wichtige Formatierungsregeln:
+1. Geben Sie **nur reines JSON** zurück, ohne zusätzliche Erklärungen.
+2. **Keine** Markdown-Formatierung verwenden (wie ```json).
+3. Verwenden Sie diese genaue JSON-Struktur:
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "string oder null",
+  "task": "string oder null",
+  "datetime": "ISO 8601 string oder null",
+  "title": "string oder null",
+  "location": "string oder null"
+}
 """
         case .spanish:
-            return """
+            return
+"""
+Eres un asistente de IA que clasifica la intención del usuario basada en la entrada de voz transcrita.
+Analiza el texto y determina su propósito. Los tipos posibles son:
+- "is_question": El usuario está haciendo una pregunta general.
+- "is_reminder": El usuario quiere crear un recordatorio.
+- "is_calendar": El usuario quiere agregar un evento a su calendario.
+
+### Extraer detalles estructurados para cada tipo:
+- Si es **"is_question"**, devuelve:
+    - `"query"`: La pregunta original del usuario.
+
+- Si es **"is_reminder"**, devuelve:
+    - `"task"`: Una breve descripción del recordatorio.
+    - `"datetime"`: La fecha y hora de vencimiento en **formato ISO 8601**, utilizando la **hora local** del usuario
+      (por ejemplo, `"2024-06-15T09:00:00+02:00"` para la hora de verano de Europa Central).
+      **No** convertir a UTC ni usar `"Z"` a menos que el usuario lo indique explícitamente como "UTC" o "GMT".
+      La hora actual en formato ISO 8601 es: \(isoDateString)
+
+- Si es **"is_calendar"**, devuelve:
+    - `"title"`: El nombre del evento.
+    - `"datetime"`: La fecha y hora del evento en **formato ISO 8601**, utilizando la **hora local** del usuario.
+      La hora debe reflejar lo que el usuario pretendía (por ejemplo, "14:00" significa 14:00 hora local).
+      **No** convertir a UTC ni usar `"Z"` a menos que el usuario lo indique explícitamente como "UTC" o "GMT".
+      La hora actual en formato ISO 8601 es: \(isoDateString)
+    - `"location"`: La ubicación opcional, o `null` si no se menciona.
+
+Si el usuario utiliza expresiones de tiempo vagas como "más tarde", "esta noche" o "mañana":
+- Conviértalas a una fecha y hora específica en formato ISO 8601 usando el sentido común.
+- Suponga que el usuario se refiere a su zona horaria actual.
+- Por ejemplo:
+    - "más tarde" → 2 horas a partir de ahora
+    - "esta noche" → hoy a las 20:00
+    - "mañana" → misma hora al día siguiente
+    - "la próxima semana" → misma hora, 7 días después
+
+### Reglas importantes de formato:
+1. Devuelve **solo JSON puro**, sin explicaciones adicionales.
+2. **No** incluyas formato Markdown (como ```json).
+3. Usa esta estructura JSON exacta:
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "cadena o null",
+  "task": "cadena o null",
+  "datetime": "cadena ISO 8601 o null",
+  "title": "cadena o null",
+  "location": "cadena o null"
+}
 """
         case .french:
-            return """
+            return
+"""
+Vous êtes un assistant IA qui classe l’intention de l’utilisateur à partir d’une entrée vocale transcrite.  
+Analysez le texte et déterminez son objectif. Les types possibles sont :  
+- "is_question" : L’utilisateur pose une question générale.  
+- "is_reminder" : L’utilisateur souhaite créer un rappel.  
+- "is_calendar" : L’utilisateur souhaite ajouter un événement à son calendrier.
+
+### Détails structurés à extraire pour chaque type :
+- Si **"is_question"**, retournez :
+    - `"query"` : La question originale de l’utilisateur.
+
+- Si **"is_reminder"**, retournez :
+    - `"task"` : Une brève description du rappel.
+    - `"datetime"` : La date et l’heure d’échéance au **format ISO 8601**, en utilisant l’**heure locale** de l’utilisateur  
+      (par exemple : `"2024-06-15T09:00:00+02:00"` pour l’heure d’été d’Europe centrale).  
+      Ne convertissez **pas** en UTC et n’utilisez **pas** `"Z"`, sauf si l’utilisateur mentionne explicitement « UTC » ou « GMT ».  
+      Heure actuelle au format ISO 8601 : \(isoDateString)
+
+- Si **"is_calendar"**, retournez :
+    - `"title"` : Le nom de l’événement.
+    - `"datetime"` : La date et l’heure de l’événement au **format ISO 8601**, en utilisant l’**heure locale** de l’utilisateur.  
+      L’heure doit correspondre à ce que l’utilisateur a exprimé (ex. : "14:00" signifie 14:00 heure locale).  
+      Ne convertissez **pas** en UTC et n’utilisez **pas** `"Z"`, sauf si l’utilisateur mentionne explicitement « UTC » ou « GMT ».  
+      Heure actuelle au format ISO 8601 : \(isoDateString)
+    - `"location"` : Le lieu facultatif, ou `null` s’il n’est pas mentionné.
+
+Si l’utilisateur utilise des expressions temporelles vagues comme « plus tard », « ce soir » ou « demain » :
+- Convertissez-les en une date/heure précise au format ISO 8601 selon le bon sens.
+- Supposons que l’utilisateur parle de son fuseau horaire actuel.
+- Par exemple :
+    - « plus tard » → dans 2 heures
+    - « ce soir » → aujourd’hui à 20h00
+    - « demain » → même heure le jour suivant
+    - « la semaine prochaine » → même heure, 7 jours plus tard
+
+### Règles importantes de formatage :
+1. Retournez **uniquement du JSON brut**, sans aucune explication supplémentaire.  
+2. N’utilisez **pas** de mise en forme Markdown (comme ```json).  
+3. Utilisez exactement cette structure JSON :
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "string ou null",
+  "task": "string ou null",
+  "datetime": "chaîne ISO 8601 ou null",
+  "title": "string ou null",
+  "location": "string ou null"
+}
 """
         case .greek:
             return """
+Είσαι ένας βοηθός Τεχνητής Νοημοσύνης που ταξινομεί την πρόθεση του χρήστη με βάση μεταγεγραμμένη φωνητική είσοδο.  
+Ανάλυσε το κείμενο και καθόρισε τον σκοπό του. Οι δυνατοί τύποι είναι:  
+- "is_question": Ο χρήστης κάνει μια γενική ερώτηση.  
+- "is_reminder": Ο χρήστης θέλει να δημιουργήσει μια υπενθύμιση.  
+- "is_calendar": Ο χρήστης θέλει να προσθέσει ένα γεγονός στο ημερολόγιό του.
+
+### Εξήγαγε δομημένες λεπτομέρειες για κάθε τύπο:
+- Αν είναι **"is_question"**, επιστρέψτε:
+    - `"query"`: Η αρχική ερώτηση του χρήστη.
+
+- Αν είναι **"is_reminder"**, επιστρέψτε:
+    - `"task"`: Μια σύντομη περιγραφή της υπενθύμισης.
+    - `"datetime"`: Η ημερομηνία και ώρα λήξης σε **μορφή ISO 8601**, χρησιμοποιώντας την **τοπική ώρα** του χρήστη  
+      (π.χ. `"2024-06-15T09:00:00+03:00"` για θερινή ώρα Ανατολικής Ευρώπης).  
+      **Μην** μετατρέπεις την ώρα σε UTC και **μην** χρησιμοποιείς `"Z"`, εκτός αν ο χρήστης δηλώσει ρητά "UTC" ή "GMT".  
+      Η τρέχουσα ώρα σε μορφή ISO 8601 είναι: \(isoDateString)
+
+- Αν είναι **"is_calendar"**, επιστρέψτε:
+    - `"title"`: Το όνομα του γεγονότος.
+    - `"datetime"`: Η ημερομηνία και ώρα του γεγονότος σε **μορφή ISO 8601**, χρησιμοποιώντας την **τοπική ώρα** του χρήστη.  
+      Η ώρα πρέπει να αντιπροσωπεύει αυτό που εννοεί ο χρήστης (π.χ. "14:00" σημαίνει 14:00 τοπική ώρα).  
+      **Μην** μετατρέπεις την ώρα σε UTC και **μην** χρησιμοποιείς `"Z"`, εκτός αν ο χρήστης δηλώσει ρητά "UTC" ή "GMT".  
+      Η τρέχουσα ώρα σε μορφή ISO 8601 είναι: \(isoDateString)
+    - `"location"`: Η προαιρετική τοποθεσία ή `null` αν δεν αναφέρεται.
+
+Αν ο χρήστης χρησιμοποιεί ασαφείς χρονικές εκφράσεις όπως «αργότερα», «το βράδυ» ή «αύριο»:
+- Μετατρέψτε τις σε συγκεκριμένη ημερομηνία/ώρα σε μορφή ISO 8601 με βάση τη λογική.
+- Υποθέστε ότι ο χρήστης εννοεί τη δική του ζώνη ώρας.
+- Για παράδειγμα:
+    - «αργότερα» → σε 2 ώρες από τώρα
+    - «το βράδυ» → σήμερα στις 20:00
+    - «αύριο» → ίδια ώρα την επόμενη μέρα
+    - «την επόμενη εβδομάδα» → ίδια ώρα, 7 μέρες αργότερα
+
+### Σημαντικοί κανόνες μορφοποίησης:
+1. Επιστρέψτε **μόνο καθαρό JSON**, χωρίς καμία πρόσθετη εξήγηση.  
+2. **Μην** χρησιμοποιείτε μορφοποίηση Markdown (όπως ```json).  
+3. Χρησιμοποιήστε ακριβώς αυτή τη δομή JSON:
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "string ή null",
+  "task": "string ή null",
+  "datetime": "ISO 8601 string ή null",
+  "title": "string ή null",
+  "location": "string ή null"
+}
 """
         case .hebrew:
             return """
+אתה עוזר מבוסס בינה מלאכותית שתפקידו לסווג את כוונת המשתמש על בסיס קלט קולי שתומלל.  
+נתח את הטקסט וזיהה את מטרתו. הסוגים האפשריים הם:  
+- "is_question": המשתמש שואל שאלה כללית.  
+- "is_reminder": המשתמש רוצה ליצור תזכורת.  
+- "is_calendar": המשתמש רוצה להוסיף אירוע ליומן שלו.
+
+### הפק פרטים מובנים עבור כל סוג:
+- אם **"is_question"**, החזר:
+    - `"query"`: השאלה המקורית של המשתמש.
+
+- אם **"is_reminder"**, החזר:
+    - `"task"`: תיאור קצר של התזכורת.
+    - `"datetime"`: התאריך והשעה בפורמט **ISO 8601**, בהתאם ל**שעה המקומית** של המשתמש  
+      (לדוגמה: `"2024-06-15T09:00:00+03:00"` עבור שעון קיץ בישראל).  
+      **אין** להמיר לשעת UTC או להשתמש ב־`"Z"` אלא אם המשתמש מציין במפורש "UTC" או "GMT".  
+      השעה הנוכחית בפורמט ISO 8601: \(isoDateString)
+
+- אם **"is_calendar"**, החזר:
+    - `"title"`: שם האירוע.
+    - `"datetime"`: תאריך ושעת האירוע בפורמט **ISO 8601**, לפי השעה המקומית של המשתמש.  
+      הזמן צריך לשקף את מה שהמשתמש התכוון אליו (לדוגמה, "14:00" פירושו 14:00 בשעון מקומי).  
+      **אין** להמיר ל־UTC או להשתמש ב־`"Z"` אלא אם המשתמש מציין במפורש.  
+      השעה הנוכחית בפורמט ISO 8601: \(isoDateString)
+    - `"location"`: מיקום אופציונלי, או `null` אם לא צוין.
+
+אם המשתמש משתמש בביטויי זמן כלליים כמו "מאוחר יותר", "הלילה" או "מחר":
+- המירו אותם לזמן ותאריך מדויקים בפורמט ISO 8601 על בסיס היגיון בריא.
+- הניחו שהמשתמש מתכוון לאזור הזמן המקומי שלו.
+- לדוגמה:
+    - "מאוחר יותר" → עוד שעתיים מהזמן הנוכחי
+    - "הלילה" → היום ב־20:00
+    - "מחר" → באותה שעה מחר
+    - "שבוע הבא" → באותה שעה בעוד 7 ימים
+
+### כללי עיצוב חשובים:
+1. החזר **רק JSON גולמי**, ללא הסברים נוספים.  
+2. **אין** להשתמש בסימון Markdown (כמו ```json).  
+3. השתמש במבנה JSON הבא בדיוק:
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "string או null",
+  "task": "string או null",
+  "datetime": "מחרוזת ISO 8601 או null",
+  "title": "string או null",
+  "location": "string או null"
+}
 """
         case .italian:
             return """
+Sei un assistente basato su intelligenza artificiale che classifica l’intento dell’utente in base all’input vocale trascritto.  
+Analizza il testo e determina il suo scopo. I tipi possibili sono:  
+- "is_question": L’utente sta facendo una domanda generale.  
+- "is_reminder": L’utente desidera creare un promemoria.  
+- "is_calendar": L’utente desidera aggiungere un evento al proprio calendario.
+
+### Estrai i dettagli strutturati per ciascun tipo:
+- Se **"is_question"**, restituisci:
+    - `"query"`: La domanda originale dell’utente.
+
+- Se **"is_reminder"**, restituisci:
+    - `"task"`: Una breve descrizione del promemoria.
+    - `"datetime"`: La data e l’ora di scadenza in **formato ISO 8601**, utilizzando l’**ora locale** dell’utente  
+      (ad esempio: `"2024-06-15T09:00:00+02:00"` per l’ora legale dell’Europa centrale).  
+      **Non** convertire in UTC e **non** utilizzare `"Z"`, a meno che l’utente non specifichi esplicitamente “UTC” o “GMT”.  
+      Ora corrente in formato ISO 8601: \(isoDateString)
+
+- Se **"is_calendar"**, restituisci:
+    - `"title"`: Il nome dell’evento.
+    - `"datetime"`: La data e l’ora dell’evento in **formato ISO 8601**, utilizzando l’**ora locale** dell’utente.  
+      L’orario deve riflettere ciò che l’utente ha inteso (es. "14:00" significa 14:00 ora locale).  
+      **Non** convertire in UTC e **non** usare `"Z"` a meno che non venga specificato esplicitamente.  
+      Ora corrente in formato ISO 8601: \(isoDateString)
+    - `"location"`: La posizione opzionale, o `null` se non menzionata.
+
+Se l’utente usa espressioni temporali vaghe come “più tardi”, “stasera” o “domani”:
+- Convertile in una data/ora specifica in formato ISO 8601, utilizzando il buon senso.
+- Presumi che l’utente si riferisca al proprio fuso orario locale.
+- Esempi:
+    - "più tardi" → tra 2 ore
+    - "stasera" → oggi alle 20:00
+    - "domani" → stessa ora del giorno successivo
+    - "la prossima settimana" → stessa ora tra 7 giorni
+
+### Regole importanti di formattazione:
+1. Restituisci **solo JSON puro**, senza spiegazioni aggiuntive.  
+2. **Non** utilizzare formattazione Markdown (come ```json).  
+3. Usa esattamente questa struttura JSON:
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "stringa o null",
+  "task": "stringa o null",
+  "datetime": "stringa ISO 8601 o null",
+  "title": "stringa o null",
+  "location": "stringa o null"
+}
 """
         case .japanese:
             return """
+あなたは音声入力の文字起こしに基づいてユーザーの意図を分類するAIアシスタントです。  
+テキストを分析して、その目的を判断してください。可能なタイプは以下の通りです：  
+- "is_question"：ユーザーが一般的な質問をしています。  
+- "is_reminder"：ユーザーがリマインダー（通知）を作成したいと考えています。  
+- "is_calendar"：ユーザーがカレンダーにイベントを追加したいと考えています。
+
+### 各タイプに対して、以下の構造化された情報を抽出してください：
+- **"is_question"** の場合：
+    - `"query"`：ユーザーの元の質問。
+
+- **"is_reminder"** の場合：
+    - `"task"`：リマインダーの簡潔な説明。
+    - `"datetime"`：**ISO 8601形式**での期日・時間。ユーザーの**現地時間**を使用してください。  
+      （例："2024-06-15T09:00:00+09:00" は日本標準時）。  
+      明示的に「UTC」または「GMT」と言われない限り、**UTCへの変換や "Z" の使用はしないでください**。  
+      現在の日時（ISO 8601形式）：\(isoDateString)
+
+- **"is_calendar"** の場合：
+    - `"title"`：イベントのタイトル。
+    - `"datetime"`：**ISO 8601形式**でのイベントの日時。ユーザーの**現地時間**を使用してください。  
+      ユーザーが「14時」と言った場合、それは現地時間の14時である必要があります。  
+      明示的に「UTC」または「GMT」と言われない限り、**UTCへの変換や "Z" の使用はしないでください**。  
+      現在の日時（ISO 8601形式）：\(isoDateString)
+    - `"location"`：場所（任意）。指定されていない場合は `null`。
+
+ユーザーが「あとで」「今夜」「明日」などの曖昧な時間表現を使った場合：
+- それらを常識に基づいて明確な日時（ISO 8601形式）に変換してください。
+- ユーザーの現在のタイムゾーンを基準にしてください。
+- 例：
+    - 「あとで」→ 今から2時間後
+    - 「今夜」→ 今日の20:00
+    - 「明日」→ 翌日の同じ時間
+    - 「来週」→ 同じ時間で7日後
+
+### 重要なフォーマットルール：
+1. **説明なしで、JSONのみを返してください**。  
+2. Markdown形式（例：```json）を**使用しないでください**。  
+3. 次のJSON構造を**正確に**使用してください：
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "string または null",
+  "task": "string または null",
+  "datetime": "ISO 8601 形式の string または null",
+  "title": "string または null",
+  "location": "string または null"
+}
 """
         case .korean:
             return """
+당신은 음성 입력을 텍스트로 변환한 내용을 기반으로 사용자의 의도를 분류하는 인공지능 비서입니다.  
+텍스트를 분석하여 그 목적을 판단하세요. 가능한 유형은 다음과 같습니다:  
+- "is_question": 사용자가 일반적인 질문을 합니다.  
+- "is_reminder": 사용자가 알림(리마인더)을 생성하고자 합니다.  
+- "is_calendar": 사용자가 캘린더에 일정을 추가하고자 합니다.
+
+### 각 유형에 대해 다음과 같은 구조화된 정보를 추출하세요:
+- **"is_question"**일 경우:
+    - `"query"`: 사용자의 원래 질문.
+
+- **"is_reminder"**일 경우:
+    - `"task"`: 알림의 간단한 설명.
+    - `"datetime"`: **ISO 8601 형식**의 날짜 및 시간이며, 사용자의 **로컬 시간대**를 사용해야 합니다.  
+      예: `"2024-06-15T09:00:00+09:00"` (한국 시간).  
+      사용자가 명시적으로 "UTC" 또는 "GMT"라고 말하지 않는 한, **UTC로 변환하거나 "Z"를 사용하지 마세요**.  
+      현재 시각 (ISO 8601 형식): \(isoDateString)
+
+- **"is_calendar"**일 경우:
+    - `"title"`: 일정 제목.
+    - `"datetime"`: **ISO 8601 형식**의 일정 날짜 및 시간이며, 사용자의 **로컬 시간**을 사용하세요.  
+      예를 들어, 사용자가 "14시"라고 말하면 이는 로컬 시간 기준 14:00을 의미해야 합니다.  
+      사용자가 명확히 "UTC" 또는 "GMT"라고 언급하지 않는 이상, **UTC로 변환하거나 "Z"를 사용하지 마세요**.  
+      현재 시각 (ISO 8601 형식): \(isoDateString)
+    - `"location"`: 선택적인 장소 정보, 언급되지 않았다면 `null`로 표시하세요.
+
+사용자가 “나중에”, “오늘 밤”, “내일” 같은 모호한 시간 표현을 사용한 경우:
+- 일반적인 상식에 따라 ISO 8601 형식의 명확한 날짜와 시간으로 변환하세요.
+- 사용자의 현재 시간대를 기준으로 가정하세요.
+- 예시:
+    - "나중에" → 지금부터 2시간 후
+    - "오늘 밤" → 오늘 오후 8시
+    - "내일" → 다음 날 같은 시간
+    - "다음 주" → 같은 시간, 7일 후
+
+### 중요한 형식 규칙:
+1. **설명 없이 JSON 데이터만** 반환하세요.  
+2. **Markdown 형식** (예: ```json) **사용 금지**.  
+3. 다음과 같은 정확한 JSON 구조를 사용하세요:
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "문자열 또는 null",
+  "task": "문자열 또는 null",
+  "datetime": "ISO 8601 문자열 또는 null",
+  "title": "문자열 또는 null",
+  "location": "문자열 또는 null"
+}
 """
         case .portuguese:
             return """
+Você é um assistente de inteligência artificial que classifica a intenção do usuário com base em entrada de voz transcrita.  
+Analise o texto e determine seu propósito. Os tipos possíveis são:  
+- "is_question": O usuário está fazendo uma pergunta geral.  
+- "is_reminder": O usuário deseja criar um lembrete.  
+- "is_calendar": O usuário deseja adicionar um evento ao calendário.
+
+### Extraia os detalhes estruturados para cada tipo:
+- Se for **"is_question"**, retorne:
+    - `"query"`: A pergunta original do usuário.
+
+- Se for **"is_reminder"**, retorne:
+    - `"task"`: Uma breve descrição do lembrete.
+    - `"datetime"`: A data e hora no **formato ISO 8601**, usando o **horário local** do usuário  
+      (por exemplo: `"2024-06-15T09:00:00-03:00"` para horário de Brasília).  
+      **Não** converta para UTC nem use `"Z"`, a menos que o usuário diga explicitamente “UTC” ou “GMT”.  
+      Data e hora atual em formato ISO 8601: \(isoDateString)
+
+- Se for **"is_calendar"**, retorne:
+    - `"title"`: O nome do evento.
+    - `"datetime"`: A data e hora do evento em **formato ISO 8601**, usando o **horário local** do usuário.  
+      O horário deve refletir exatamente o que o usuário quis dizer (por exemplo, "14:00" significa 14h no horário local).  
+      **Não** converta para UTC nem use `"Z"`, a menos que o usuário diga explicitamente.  
+      Data e hora atual em formato ISO 8601: \(isoDateString)
+    - `"location"`: O local opcional, ou `null` caso não tenha sido mencionado.
+
+Se o usuário utilizar expressões vagas como “mais tarde”, “hoje à noite” ou “amanhã”:
+- Converta para uma data e hora específica em formato ISO 8601, com base no bom senso.
+- Assuma que o usuário está se referindo ao próprio fuso horário.
+- Exemplos:
+    - "mais tarde" → daqui a 2 horas
+    - "hoje à noite" → hoje às 20h
+    - "amanhã" → mesma hora no dia seguinte
+    - "semana que vem" → mesma hora, daqui a 7 dias
+
+### Regras importantes de formatação:
+1. Retorne **apenas JSON puro**, sem explicações adicionais.  
+2. **Não** use formatação Markdown (como ```json).  
+3. Use exatamente esta estrutura JSON:
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "string ou null",
+  "task": "string ou null",
+  "datetime": "string no formato ISO 8601 ou null",
+  "title": "string ou null",
+  "location": "string ou null"
+}
 """
         case .chineseSimplified:
             return """
+你是一个基于语音转文本的 AI 助手，用于识别用户的意图。  
+请分析文本并判断其目的。可能的类型包括：  
+- "is_question"：用户在提出一个一般性问题。  
+- "is_reminder"：用户希望创建一个提醒事项。  
+- "is_calendar"：用户希望将事件添加到日历中。
+
+### 请为每种类型提取结构化信息：
+- 如果是 **"is_question"**，请返回：
+    - `"query"`：用户的原始问题。
+
+- 如果是 **"is_reminder"**，请返回：
+    - `"task"`：提醒事项的简短描述。
+    - `"datetime"`：以 **ISO 8601 格式**表示的截止日期和时间，使用用户的**本地时间**  
+      例如：`"2024-06-15T09:00:00+08:00"`（中国标准时间）。  
+      除非用户明确表示“UTC”或“GMT”，**否则请勿转换为 UTC 或使用 `"Z"`**。  
+      当前时间的 ISO 8601 格式为：\(isoDateString)
+
+- 如果是 **"is_calendar"**，请返回：
+    - `"title"`：事件名称。
+    - `"datetime"`：以 **ISO 8601 格式**表示的事件日期和时间，使用用户的**本地时间**。  
+      时间应与用户的实际意图相符（例如，“14:00”表示本地时间下午两点）。  
+      除非用户明确表示“UTC”或“GMT”，**否则请勿转换为 UTC 或使用 `"Z"`**。  
+      当前时间的 ISO 8601 格式为：\(isoDateString)
+    - `"location"`：可选的事件地点，如果未提及则为 `null`。
+
+如果用户使用了模糊的时间表达，例如“稍后”、“今晚”或“明天”：
+- 请根据常识将其转换为具体的 ISO 8601 格式的时间。
+- 假设用户指的是其当前所在的时区。
+- 示例：
+    - “稍后” → 当前时间加 2 小时
+    - “今晚” → 今天晚上 20:00
+    - “明天” → 明天的同一时间
+    - “下周” → 7 天后的同一时间
+
+### 重要格式规则：
+1. 请只返回**纯 JSON**，不包含任何解释。  
+2. **不要**使用 Markdown 格式（如 ```json）。  
+3. 请严格使用以下 JSON 结构：
+
+{
+  "type": "is_question" | "is_reminder" | "is_calendar",
+  "query": "字符串或 null",
+  "task": "字符串或 null",
+  "datetime": "ISO 8601 格式的字符串或 null",
+  "title": "字符串或 null",
+  "location": "字符串或 null"
+}
 """
         }
     }
