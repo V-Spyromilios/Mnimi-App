@@ -40,21 +40,21 @@ private func benefits() -> some View {
     VStack {
       
         HStack(spacing: 12) {
-            Image(systemName: "lock.fill").resizable().frame(width: 20, height: 25).foregroundStyle(.customLightPurple)
+            Image(systemName: "lock.fill").resizable().frame(width: 20, height: 25).foregroundStyle(.black)
             
             Text("Securely save and retrieve your info").fontDesign(.monospaced).bold()
             Spacer()
         }.padding(.bottom, 12)
         
         HStack(spacing: 12) {
-            Image(systemName: "lightbulb.fill").resizable().frame(width: 20, height: 25).foregroundStyle(.customLightPurple)
+            Image(systemName: "lightbulb.fill").resizable().frame(width: 20, height: 25).foregroundStyle(.purple)
             
            Text("Access the world's most advanced and secure AI").fontDesign(.monospaced).bold()
             Spacer()
         }.padding(.bottom, 12)
         
         HStack(spacing: 12) {
-            Image(systemName: "nosign").resizable().frame(width: 20, height: 20).foregroundStyle(.customLightPurple)
+            Image(systemName: "nosign").resizable().frame(width: 20, height: 20).foregroundStyle(.purple)
             
             Text("F*** Notifications, Ads and Personal Data Collection").fontDesign(.monospaced).bold()
             Spacer()

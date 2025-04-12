@@ -453,7 +453,7 @@ struct QuestionView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(colorScheme == .light ? Color.white : Color.black)
-                        .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3)
+                        .shadow(color: Color.black, radius: colorScheme == .light ? 5 : 3)
                 )
         }
         .padding(.bottom)

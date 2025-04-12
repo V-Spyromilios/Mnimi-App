@@ -20,7 +20,7 @@ struct ImageView: View {
                 .scaledToFit()
                 .frame(height: isIPad() ? 440 : 160)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3)
+                .shadow(color: Color.black, radius: colorScheme == .light ? 5 : 3)
         }
         .contentShape(Rectangle())
         .onTapGesture {

@@ -2447,6 +2447,9 @@
         }
       }
     },
+    "Kioku" : {
+
+    },
     "Language" : {
       "localizations" : {
         "de" : {
@@ -3892,6 +3895,9 @@
         }
       }
     },
+    "Save" : {
+
+    },
     "Save Info?" : {
       "localizations" : {
         "de" : {
@@ -5065,6 +5071,9 @@
           }
         }
       }
+    },
+    "Your memory starts here..." : {
+
     }
   },
   "version" : "1.0"

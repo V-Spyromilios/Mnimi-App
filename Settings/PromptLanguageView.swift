@@ -25,7 +25,7 @@ struct PromptLanguageView: View {
                     }) {
                         HStack {
                             Text(language.displayName)
-                                .foregroundStyle(colorScheme == .light ? .black : Color.smoothWhite)
+                                .foregroundStyle(colorScheme == .light ? .black : Color.white)
                             Spacer()
                             if language == languageSettings.selectedLanguage {
                                 Text(language.flagEmoji).font(.title3)
@@ -33,7 +33,7 @@ struct PromptLanguageView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background( Color.primaryBackground)
+                        .background( Color.black)
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: language == languageSettings.selectedLanguage ? 5 : 2)
                         .contentShape(Rectangle())
