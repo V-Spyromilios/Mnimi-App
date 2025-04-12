@@ -75,7 +75,7 @@ struct NewAddInfoView: View {
                             
                             HStack {
                                 TextEditor(text: $newInfo)
-                                    .background(Color.cardBackground)
+                                    .background(Color.black)
                                     .fontDesign(.rounded)
                                     .font(.title2)
                                     .multilineTextAlignment(.leading)
@@ -120,7 +120,7 @@ struct NewAddInfoView: View {
                                             .resizable()
                                             .aspectRatio(contentMode: .fit)
                                             .frame(width: 50, height: 50)
-                                            .foregroundColor(colorScheme == .light ? Color.customLightBlue : Color.darkModeImageBackground)
+                                            .foregroundColor(colorScheme == .light ? Color.blue : Color.black)
                                             .clipShape(RoundedRectangle(cornerRadius: 15))
                                             .offset(x: 5)
                                     }
@@ -131,7 +131,7 @@ struct NewAddInfoView: View {
                                                 .scaledToFit()
                                                 .frame(height: isIPad() ? 220 : 160)
                                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                                                .shadow(color: Color.customShadow, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
+                                                .shadow(color: Color.gray, radius: colorScheme == .light ? 5 : 3, x: 0, y: 0)
                                                 .overlay(alignment: .center) {
                                                     RoundedRectangle(cornerRadius: 10.0)
                                                         .stroke(lineWidth: 1)
@@ -161,7 +161,7 @@ struct NewAddInfoView: View {
                             .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
                             .buttonStyle(PlainButtonStyle())
                             .padding()
-                            .background(colorScheme == .light ? Color.cardBackground : Color.black)
+                            .background(colorScheme == .light ? Color.black : Color.black)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .shadow(color: photoPicker.selectedImage == nil ? Color.blue.opacity(0.3) : Color.blue.opacity(0.5),
                                     radius: photoPicker.selectedImage == nil ? 2 : 4,

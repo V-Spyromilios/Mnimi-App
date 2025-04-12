@@ -50,6 +50,8 @@
 		E85EE47B2D6F69DF00737A97 /* testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85EE47A2D6F69DF00737A97 /* testing.swift */; };
 		E85EE47D2D6F7BE100737A97 /* AudioRecordingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */; };
 		E86734AB2D2ADDA900CF4BEA /* UploadingFile.json in Resources */ = {isa = PBXBuildFile; fileRef = E86734AA2D2ADDA900CF4BEA /* UploadingFile.json */; };
+		E86C27102DAA724C008950A8 /* KView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86C270F2DAA724C008950A8 /* KView.swift */; };
+		E86EE10B2D9C353700DDB88E /* test2.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86EE10A2D9C353700DDB88E /* test2.swift */; };
 		E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */; };
 		E87605B72C7A18AD002A13E5 /* RCViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87605B62C7A18AD002A13E5 /* RCViewModel.swift */; };
 		E87605B92C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87605B82C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift */; };
@@ -154,6 +156,8 @@
 		E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingManager.swift; sourceTree = "<group>"; };
 		E86734AA2D2ADDA900CF4BEA /* UploadingFile.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UploadingFile.json; sourceTree = "<group>"; };
 		E86BE7632C5684550030C81B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		E86C270F2DAA724C008950A8 /* KView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KView.swift; sourceTree = "<group>"; };
+		E86EE10A2D9C353700DDB88E /* test2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = test2.swift; sourceTree = "<group>"; };
 		E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewModel.swift; sourceTree = "<group>"; };
 		E87605B62C7A18AD002A13E5 /* RCViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RCViewModel.swift; sourceTree = "<group>"; };
 		E87605B82C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurschasesDelegateHandler.swift; sourceTree = "<group>"; };
@@ -281,6 +285,7 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E86EE10A2D9C353700DDB88E /* test2.swift */,
 				E8ED2E2E2D87057600743EB6 /* test.swift */,
 				E8E4A68D2D32CFD3002A122B /* AccountDeletedView.swift */,
 				E8E4A68B2D2F22F8002A122B /* CoolButton.swift */,
@@ -336,6 +341,7 @@
 				E81C6ECA2C724DAD000DC3C7 /* CustomPayWall.swift */,
 				E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
+				E86C270F2DAA724C008950A8 /* KView.swift */,
 				E85055012C428B6800FBACC4 /* Lotties */,
 				E8459ECF2BC1E3BE00CE34A7 /* Preview Content */,
 			);
@@ -534,6 +540,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
 			shellScript = "
 ";
 		};
@@ -606,8 +613,10 @@
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
 				E840D1B02C427C9E000DB7AD /* LottieRepresentable.swift in Sources */,
 				E816E7B52CA4002A0045CEE1 /* LoadingDotsView.swift in Sources */,
+				E86C27102DAA724C008950A8 /* KView.swift in Sources */,
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
+				E86EE10B2D9C353700DDB88E /* test2.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -618,6 +627,7 @@
 		E8459ED22BC1E3BE00CE34A7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
@@ -683,6 +693,7 @@
 		E8459ED32BC1E3BE00CE34A7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;

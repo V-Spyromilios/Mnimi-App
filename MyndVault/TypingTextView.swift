@@ -23,7 +23,7 @@ struct TypingTextView: View {
             Text(displayedText)
                 .font(Font.custom(isTitle ? "SF Compact Display" : "SF Mono Semibold", size: dynamicFontSize()))
                 .fontDesign(isTitle ? .rounded : .monospaced)
-                .foregroundStyle(isTitle ? Color.customTiel : .primary)
+                .foregroundStyle(isTitle ? .black : .primary)
                 .multilineTextAlignment(.leading)
                 .padding(.horizontal)
                 .lineLimit(nil) // Ensure text can wrap
@@ -76,7 +76,7 @@ struct LoadingTransitionView: View {
                 if #available(iOS 18.0, *) {
                  
                     Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90.circle")
-                        .foregroundStyle(Color.customLightBlue, .blue)
+                        .foregroundStyle(.black, .blue)
                         .symbolEffect(.rotate, options: .speed(2).repeating)
                         .font(.system(size: 90))
                 } else {
@@ -89,14 +89,14 @@ struct LoadingTransitionView: View {
                             value: isUpserting
                         )
                         .font(.system(size: 90))
-                        .foregroundColor(Color.customLightBlue)
+                        .foregroundColor(Color.black)
                 }
             } else if isSuccess {
                 if #available(iOS 18.0, *) {
                     Image(systemName: "checkmark.circle.fill")
                         .symbolEffect(.bounce, options: .nonRepeating)
                         .font(.system(size: 90))
-                        .foregroundColor(Color.customLightBlue)
+                        .foregroundColor(Color.black)
                 } else {
                     Image(systemName: "checkmark.circle.fill")
                         .scaleEffect(isSuccess ? 1.2 : 1.0)
@@ -106,7 +106,7 @@ struct LoadingTransitionView: View {
                             value: isSuccess
                         )
                         .font(.system(size: 90))
-                        .foregroundColor(Color.customLightBlue)
+                        .foregroundColor(Color.black)
                 }
             }
         }

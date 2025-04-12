@@ -493,7 +493,7 @@ struct FloatingLabelTextField: View {
         ZStack(alignment: .leading) {
             
             Text(title)
-                .foregroundColor(isFocused || !text.isEmpty ? .customTiel : .gray)
+                .foregroundColor(isFocused || !text.isEmpty ? .black : .gray)
                 .background(Color.clear)
                 .offset(y: isFocused || !text.isEmpty ? -30 : 0)
                 .scaleEffect(isFocused || !text.isEmpty ? 0.8 : 1.0, anchor: .leading)

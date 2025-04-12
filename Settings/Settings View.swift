@@ -53,7 +53,7 @@ struct SettingsView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.primaryBackground)
+                        .background(Color.black)
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white.opacity(0.8) : .black.opacity(0.8), radius: 5)
                         .contentShape(Rectangle()) // Ensures the entire rectangle is tappable
@@ -70,7 +70,7 @@ struct SettingsView: View {
                         }
                     } .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background( Color.primaryBackground)
+                        .background( Color.white)
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                         .contentShape(Rectangle())
@@ -112,7 +112,7 @@ struct SettingsView: View {
                             }
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.primaryBackground)
+                            .background(Color.black)
                             .cornerRadius(10)
                             .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                             .contentShape(Rectangle())
@@ -135,7 +135,7 @@ struct SettingsView: View {
                             }
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.primaryBackground)
+                            .background(Color.black)
                             .cornerRadius(10)
                             .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                             .contentShape(Rectangle())
@@ -157,7 +157,7 @@ struct SettingsView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.primaryBackground)
+                        .background(Color.blue)
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                         .contentShape(Rectangle())
@@ -179,7 +179,7 @@ struct SettingsView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.primaryBackground)
+                        .background(Color.blue)
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                         .contentShape(Rectangle())
@@ -200,7 +200,7 @@ struct SettingsView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.primaryBackground)
+                        .background(Color.red)
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                         .contentShape(Rectangle())
@@ -225,7 +225,7 @@ struct SettingsView: View {
                             }
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.primaryBackground)
+                            .background(Color.red)
                             .cornerRadius(10)
                             .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                             .contentShape(Rectangle())
@@ -239,7 +239,7 @@ struct SettingsView: View {
                             }
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.primaryBackground)
+                            .background(Color.red)
                             .cornerRadius(10)
                             .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                             .contentShape(Rectangle())
