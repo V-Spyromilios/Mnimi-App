@@ -1509,6 +1509,9 @@
         }
       }
     },
+    "Done" : {
+
+    },
     "Edit Info:" : {
       "localizations" : {
         "de" : {
@@ -4031,6 +4034,9 @@
           }
         }
       }
+    },
+    "Saving..." : {
+
     },
     "Securely save and retrieve your info" : {
       "localizations" : {

@@ -61,40 +61,40 @@ struct MyndVaultApp: App {
     
     var body: some Scene {
         WindowGroup {
-            
-            if showSplash {
-                SplashScreen(showSplash: $showSplash)
-                    .environmentObject(cloudKitViewModel)
-                    .environmentObject(networkManager)
-                    .environmentObject(apiCallsViewModel)
-                    .statusBar(hidden: true)
-            }
-            else if cloudKitViewModel.isFirstLaunch {
-                InitialSetupView()
-                    .environmentObject(cloudKitViewModel)
-                    .environmentObject(networkManager)
-                    .environmentObject(apiCallsViewModel)
-                    .environmentObject(keyboardResponder)
-                    .environmentObject(authManager)
-                    .environmentObject(openAiManager)
-                    .environmentObject(pineconeViewModel)
-                    .environmentObject(languageSettings)
-                    .environmentObject(speechManager)
-                   
-            }
-            else {
-                RootView()
-                    .environmentObject(cloudKitViewModel)
-                    .environmentObject(networkManager)
-                    .environmentObject(apiCallsViewModel)
-                    .environmentObject(authManager)
-                    .environmentObject(openAiManager)
-                    .environmentObject(pineconeViewModel)
-                    .environmentObject(keyboardResponder)
-                    .environmentObject(languageSettings)
-                    .environmentObject(speechManager)
-                    .transition(.opacity)
-            }
+            KView()
+//            if showSplash {
+//                SplashScreen(showSplash: $showSplash)
+//                    .environmentObject(cloudKitViewModel)
+//                    .environmentObject(networkManager)
+//                    .environmentObject(apiCallsViewModel)
+//                    .statusBar(hidden: true)
+//            }
+//            else if cloudKitViewModel.isFirstLaunch {
+//                InitialSetupView()
+//                    .environmentObject(cloudKitViewModel)
+//                    .environmentObject(networkManager)
+//                    .environmentObject(apiCallsViewModel)
+//                    .environmentObject(keyboardResponder)
+//                    .environmentObject(authManager)
+//                    .environmentObject(openAiManager)
+//                    .environmentObject(pineconeViewModel)
+//                    .environmentObject(languageSettings)
+//                    .environmentObject(speechManager)
+//                   
+//            }
+//            else {
+//                RootView()
+//                    .environmentObject(cloudKitViewModel)
+//                    .environmentObject(networkManager)
+//                    .environmentObject(apiCallsViewModel)
+//                    .environmentObject(authManager)
+//                    .environmentObject(openAiManager)
+//                    .environmentObject(pineconeViewModel)
+//                    .environmentObject(keyboardResponder)
+//                    .environmentObject(languageSettings)
+//                    .environmentObject(speechManager)
+//                    .transition(.opacity)
+//            }
         }
     }
     
