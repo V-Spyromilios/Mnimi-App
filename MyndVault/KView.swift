@@ -8,91 +8,175 @@
 import SwiftUI
 
 struct KView: View {
+    enum ViewState: Equatable {
+        case idle
+        case input
+        case onApiCall
+        case onSuccess
+        case onError(String)
+    }
+
+    @State private var viewState: ViewState = .idle
     @State private var selectedImage: String = ""
     @State private var text: String = ""
     @FocusState private var isEditorFocused: Bool
-    
+
     var body: some View {
         ZStack {
-            // 1. Background image
-            Image(selectedImage)
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-                .blur(radius: 0.5)
-            
-            // 2. FAFAFA veil
-            if isEditorFocused {
-                Image("oldPaper")
-                    .resizable()
-                    .scaledToFill()
-                    .opacity(isEditorFocused ? 0.92 : 0)
-                    .blur(radius: 1)
-                    .ignoresSafeArea()
-                    .animation(.easeInOut(duration: 0.6), value: isEditorFocused)
-                
-            }
-            // 3. Content
-            VStack {
-                if !isEditorFocused {
-                    Text("Kioku")
-                        .fontDesign(.rounded)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 24)
+            GeometryReader { geo in
+                // 1) Shared background
+                if viewState == .idle {
+                    Image(selectedImage)
+                        .resizable()
+                        .scaledToFill()
+                        .clipped()
+                        .ignoresSafeArea()
+                } else {
+                    Image("oldPaper")
+                        .resizable()
+                        .scaledToFill()
+                        .clipped()
+                        .ignoresSafeArea()
+                        .opacity(0.9)
+                        .blur(radius: 1)
                 }
-                
-                ZStack(alignment: .topLeading) {
-                    TextEditor(text: $text)
-                        .focused($isEditorFocused)
-                        .font(.custom("New York", size: 18))
-                        .foregroundColor(.primary)
-                        .scrollContentBackground(.hidden)
-                        .background(Color.clear)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 12)
-                    
-                    if text.isEmpty && !isEditorFocused {
-                        HStack {
-                            Text("Your memory starts here...")
-                                .font(.custom("New York", size: 18))
-                                .foregroundColor(.secondary)
-//                                .padding(.horizontal, 20) // slightly more than TextEditor to match
-                                .padding(.top, 16)        // align visually with first line
-                                
-//                            Spacer()
+
+                ScrollView {
+                    // 2) Switch the displayed child view
+                    VStack {
+                        if viewState == .idle {
+                            IdleView()
+                                .transition(.opacity)
+                        } else {
+                            ZStack {
+                                InputView(
+                                    kViewState: $viewState, text: $text,
+                                    isEditorFocused: _isEditorFocused,
+                                    geometry: geo
+                                )
+                                .transition(.opacity)
+                            }
                         }
                     }
-                }.frame(width: 400)
-                .frame(maxHeight: .infinity)
-                
-                if isEditorFocused {
-                    Button("Save") {
-                        // Save logic
-                    }
-                    .font(.custom("New York", size: 28))
-                    .fontWeight(.bold)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 16)
-                    .transition(.opacity)
-                    .animation(.easeInOut(duration: 0.6), value: isEditorFocused)
+                    .ignoresSafeArea()
+                    .frame(width: geo.size.width)
+                    .animation(.easeInOut(duration: 0.6), value: viewState)
                 }
-                Spacer()
+                .ignoresSafeArea(.keyboard, edges: .all)
+                .onAppear {
+                    selectedImage = imageForToday()
+                }
             }
         }
-        .onAppear {
-            selectedImage = imageForToday()
+        .onTapGesture {
+            // Toggle the child view
+            withAnimation(.easeInOut(duration: 0.6)) {
+                switch viewState {
+                case .idle:
+                    viewState = .input
+                    isEditorFocused = true
+                case .input, .onApiCall, .onError, .onSuccess:
+                    viewState = .idle
+                    isEditorFocused = false
+                }
+            }
         }
-        .scrollDismissesKeyboard(.interactively) // optional
-        .ignoresSafeArea(.keyboard) // prevents view from jumping
-        
     }
+
     private func imageForToday() -> String {
         let dayIndex = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0
         return backgroundImages[dayIndex % backgroundImages.count]
     }
 }
+
+// MARK: - IdleView
+
+struct IdleView: View {
+    var body: some View {
+        VStack {
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
+    }
+}
+
+// MARK: - InputView
+
+struct InputView: View {
+    @Binding var kViewState: KView.ViewState   // we pass down the parent's state
+    @Binding var text: String
+    @FocusState var isEditorFocused: Bool
+    var geometry: GeometryProxy
+    
+    var body: some View {
+        
+        VStack(alignment: .center) {
+            TextEditor(text: $text)
+                .focused($isEditorFocused)
+                .font(.custom("New York", size: 18))
+                .foregroundColor(.primary)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .multilineTextAlignment(.leading)
+                .padding(.horizontal, 20)
+                .frame(width: geometry.size.width, height: 200)
+            
+            switch kViewState {
+            case .onApiCall:
+                // "Saving..." label (disabled button or no button)
+                Text("Saving...")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
+                    .padding(.bottom, 20)
+                
+            case .onError(let errorMessage):
+                VStack {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                    Button("Retry") {
+                        withAnimation {
+                            kViewState = .input
+                        }
+                    }
+                }
+                .font(.headline)
+                .foregroundColor(.secondary)
+                .padding(.bottom, 20)
+                
+            case .onSuccess:
+                Button("Done") {
+                    withAnimation {
+                        text = ""
+                        kViewState = .input
+                    }
+                }
+                .font(.headline)
+                .foregroundColor(.secondary)
+                .padding(.bottom, 20)
+                
+            case .input:
+                // Normal “Save” button
+                Button("Save") {
+                    print("Saving...")
+                    withAnimation {
+                        kViewState = .onApiCall
+                    }
+                }
+                .font(.headline)
+                .foregroundColor(.secondary)
+                .padding(.top, 20)
+                .transition(.opacity)
+            default:
+                EmptyView()
+            }
+        }
+        .padding()
+        
+    }
+}
+
 
 let backgroundImages = [
     "bg1", "bg2", "bg3", "bg4", "bg5",
@@ -103,7 +187,6 @@ let backgroundImages = [
     "bg26", "bg27", "bg28", "bg29", "bg30",
     "bg31"
 ]
-
 
 #Preview {
     KView()
