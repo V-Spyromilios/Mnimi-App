@@ -15,92 +15,83 @@ struct KView: View {
         case onSuccess
         case onError(String)
     }
-
+    
     @State private var viewState: ViewState = .idle
     @State private var selectedImage: String = ""
     @State private var text: String = ""
     @FocusState private var isEditorFocused: Bool
-
+    
     var body: some View {
         ZStack {
             GeometryReader { geo in
-                // 1) Shared background
-                if viewState == .idle {
+                if viewState != .input {
                     Image(selectedImage)
                         .resizable()
                         .scaledToFill()
                         .clipped()
                         .ignoresSafeArea()
-                } else {
-                    Image("oldPaper")
-                        .resizable()
-                        .scaledToFill()
-                        .clipped()
-                        .ignoresSafeArea()
-                        .opacity(0.9)
-                        .blur(radius: 1)
                 }
-
+                
                 ScrollView {
-                    // 2) Switch the displayed child view
                     VStack {
-                        if viewState == .idle {
-                            IdleView()
-                                .transition(.opacity)
-                        } else {
-                            ZStack {
-                                InputView(
-                                    kViewState: $viewState, text: $text,
-                                    isEditorFocused: _isEditorFocused,
-                                    geometry: geo
-                                )
-                                .transition(.opacity)
-                            }
+                        if viewState == .input {
+                            InputView(
+                                kViewState: $viewState, text: $text,
+                                isEditorFocused: _isEditorFocused,
+                                geometry: geo
+                            )
+                            .ignoresSafeArea(.keyboard, edges: .all)
+                            .transition(.opacity)
+                            .frame(height: geo.size.height)
                         }
-                    }
-                    .ignoresSafeArea()
-                    .frame(width: geo.size.width)
-                    .animation(.easeInOut(duration: 0.6), value: viewState)
+                    } .frame(width: geo.size.width, height: geo.size.height)
+                    Spacer()
                 }
-                .ignoresSafeArea(.keyboard, edges: .all)
-                .onAppear {
-                    selectedImage = imageForToday()
-                }
+                .ignoresSafeArea()
+                .frame(width: geo.size.width)
+            }
+            .ignoresSafeArea(.keyboard, edges: .all)
+            .onAppear {
+                selectedImage = imageForToday()
             }
         }
-        .onTapGesture {
-            // Toggle the child view
-            withAnimation(.easeInOut(duration: 0.6)) {
-                switch viewState {
-                case .idle:
-                    viewState = .input
-                    isEditorFocused = true
-                case .input, .onApiCall, .onError, .onSuccess:
-                    viewState = .idle
-                    isEditorFocused = false
-                }
-            }
-        }
+        .ignoresSafeArea()
+        .onTapGesture { handleTap() }
+        .statusBar(hidden: true)
     }
-
+    
     private func imageForToday() -> String {
         let dayIndex = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0
         return backgroundImages[dayIndex % backgroundImages.count]
     }
-}
-
-// MARK: - IdleView
-
-struct IdleView: View {
-    var body: some View {
-        VStack {
-            
-            Spacer()
+    
+    private func handleTap() {
+        switch viewState {
+        case .idle:  showInputView()
+        default:     fromInputToIdle()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.clear)
+    }
+    
+    private func showInputView() {
+        withAnimation(.easeInOut(duration: 0.4)) {
+            viewState = .input
+        }
+        DispatchQueue.main.async {
+            isEditorFocused = true
+        }
+    }
+    
+    
+    func fromInputToIdle() {
+        isEditorFocused = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { //    If you prefer the keyboard to finish before the overlay starts fading
+            withAnimation(.easeInOut(duration: 0.4)) {
+                viewState = .idle
+            }
+        }
     }
 }
+
 
 // MARK: - InputView
 
@@ -112,17 +103,26 @@ struct InputView: View {
     
     var body: some View {
         
-        VStack(alignment: .center) {
+        ZStack(alignment: .top) {
+            Image("oldPaper")
+                       .resizable()
+                       .scaledToFill()
+                       .frame(maxWidth: .infinity, maxHeight: .infinity)
+                       .clipped()
+                       .opacity(0.9)
+                       .blur(radius: 1)
+                       .ignoresSafeArea(.keyboard, edges: .bottom)
+        VStack {
             TextEditor(text: $text)
                 .focused($isEditorFocused)
-                .font(.custom("New York", size: 18))
-                .foregroundColor(.primary)
+                .font(.custom("New York", size: 20))
+                .foregroundColor(.black)
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .multilineTextAlignment(.leading)
-                .padding(.horizontal, 20)
+                .padding()
                 .frame(width: geometry.size.width, height: 200)
-            
+
             switch kViewState {
             case .onApiCall:
                 // "Saving..." label (disabled button or no button)
@@ -142,6 +142,7 @@ struct InputView: View {
                     }
                 }
                 .font(.headline)
+                .underline()
                 .foregroundColor(.secondary)
                 .padding(.bottom, 20)
                 
@@ -149,31 +150,38 @@ struct InputView: View {
                 Button("Done") {
                     withAnimation {
                         text = ""
-                        kViewState = .input
+                    }
+                    isEditorFocused = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { //    If you prefer the keyboard to finish before the overlay starts fading
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            kViewState = .idle
+                        }
                     }
                 }
                 .font(.headline)
+                .underline()
                 .foregroundColor(.secondary)
                 .padding(.bottom, 20)
                 
             case .input:
                 // Normal “Save” button
-                Button("Save") {
+                Button("Save"){
                     print("Saving...")
                     withAnimation {
                         kViewState = .onApiCall
                     }
                 }
-                .font(.headline)
-                .foregroundColor(.secondary)
+                .font(.custom("New York", size: 22))
+                .bold()
+                .foregroundColor(.black)
                 .padding(.top, 20)
                 .transition(.opacity)
             default:
                 EmptyView()
             }
         }
-        .padding()
-        
+        .padding(.top, 15)
+    }
     }
 }
 
