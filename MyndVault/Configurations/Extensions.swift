@@ -478,6 +478,79 @@ struct RecordButton: View {
     }
 }
 
+
+@MainActor
+struct KRecordButton: View {
+    @Binding var recordingURL: URL?
+    @ObservedObject var audioRecorder: AudioRecorder
+
+    @State private var isRecording = false
+    @State private var pulse = false
+    @State private var hasStartedRecording = false
+    @State private var recordingTask: Task<Void, Never>? = nil
+    @Binding var micColor: Color
+    let maxDuration: TimeInterval = 12
+
+    var body: some View {
+        Image(systemName: "mic.circle.fill")
+            .font(.system(size: 60))
+            .foregroundColor(micColor.opacity(0.7))
+            .opacity(pulse ? 1.0 : 0.8)
+            .scaleEffect(isRecording ? 1.15 : 1)
+            .shadow(radius: 10)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        if !hasStartedRecording {
+                            hasStartedRecording = true
+                            debugLog("Recording Started")
+                            startRecording()
+                        }
+                    }
+                    .onEnded { _ in
+                        stopRecording()
+                        hasStartedRecording = false
+                        debugLog("Recording Ended")
+                    }
+            )
+            .onChange(of: isRecording) { _, newVal in
+                pulse = newVal
+            }
+            .animation(.easeInOut(duration: 0.8), value: pulse)
+    }
+
+    private func startRecording() {
+        guard !isRecording else { return }
+        print("⏺ start")
+
+        recordingTask = Task {
+            isRecording = true
+            try? await audioRecorder.startRecording()
+
+            try? await Task.sleep(nanoseconds: UInt64(maxDuration * 1_000_000_000))
+
+            if isRecording {
+                stopRecording()
+            }
+        }
+    }
+
+    private func stopRecording() {
+        print("⏺ Ended")
+        recordingTask?.cancel()
+        recordingTask = nil
+
+        guard isRecording else { return }
+
+        isRecording = false
+
+        if let url = audioRecorder.stopRecording() {
+            recordingURL = url
+        }
+    }
+}
+
 @MainActor
 struct FloatingLabelTextField: View {
     

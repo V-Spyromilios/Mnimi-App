@@ -452,7 +452,7 @@ extension NewAddInfoView {
         let uniqueID = UUID().uuidString
         
         
-        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .newInfo)
+        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .KView)
         handleUpsertSuccess(uniqueID: uniqueID)
     }
     

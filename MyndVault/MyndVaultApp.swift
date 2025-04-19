@@ -62,6 +62,9 @@ struct MyndVaultApp: App {
     var body: some Scene {
         WindowGroup {
             KView()
+                .environmentObject(openAiManager)
+                .environmentObject(pineconeViewModel)
+            
 //            if showSplash {
 //                SplashScreen(showSplash: $showSplash)
 //                    .environmentObject(cloudKitViewModel)
