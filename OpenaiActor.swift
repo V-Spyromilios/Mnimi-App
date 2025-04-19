@@ -580,8 +580,8 @@ actor OpenAIActor {
                 let gptResponse = try JSONDecoder().decode(IntentClassificationResponse.self, from: jsonData)
                 
                 // Ensure response contains a valid intent type
-                guard !gptResponse.type.isEmpty else {
-                    throw AppNetworkError.unknownError("GPT response is empty or invalid.")
+                guard gptResponse.type != .unknown else {
+                    throw AppNetworkError.unknownError("GPT response is unknown.")
                 }
                 
                 return gptResponse
@@ -599,7 +599,6 @@ actor OpenAIActor {
     
     
     ///Get the actual prompt for asking the gpt to check the type of question user asked.
-    
     private func getGptPromptForTranscript(selectedLanguage: LanguageCode) -> String {
         let formatter = ISO8601DateFormatter()
         formatter.timeZone = TimeZone.current
@@ -611,50 +610,62 @@ actor OpenAIActor {
             return """
 You are an AI assistant that classifies user intent based on transcribed voice input.
 Analyze the text and determine its purpose. The possible types are:
+
 - "is_question": The user is asking a general question.
 - "is_reminder": The user wants to create a reminder.
 - "is_calendar": The user wants to add an event to their calendar.
+- "save_info": The user is stating a fact or detail they want to remember later.
 
-### Extract structured details for each type:
-- If **"is_question"**, return:
-    - `"query"`: The user’s original question.
+---
 
-- If **"is_reminder"**, return:
-    - `"task"`: A short description of the reminder.
-    - `"datetime"`: The due date/time in **ISO 8601 format**, using the user’s **local time**  
-      (e.g., `"2024-06-15T09:00:00+02:00"` for Central European Summer Time).  
-      Do **not** convert to UTC or use `"Z"` unless the user explicitly says “UTC” or “GMT”.  
-      Current time in ISO 8601 format is: \(isoDateString)
+### For each type, extract structured data:
 
-- If **"is_calendar"**, return:
-    - `"title"`: The event name.
-    - `"datetime"`: The event date/time in **ISO 8601 format**, using the user’s **local time**.  
-      The time must reflect what the user intended (e.g., "14:00" means 14:00 local time).  
-      Do **not** convert to UTC or use `"Z"` unless the user explicitly says “UTC” or “GMT”.  
-      Current time in ISO 8601 format is: \(isoDateString)
-    - `"location"`: The optional location, or `null` if not mentioned.
+#### If **"is_question"**, return:
+- `"query"`: The user’s question, as plain text.
 
-If the user uses vague time expressions like “later”, “tonight”, or “tomorrow”:
-- Convert them to a specific datetime in ISO 8601 format using common sense.
-- Assume the user means their current time zone.
-- For example:
-    - "later" → 2 hours from now
-    - "tonight" → today at 20:00
-    - "tomorrow" → same time next day
-    - "next week" → same time, 7 days later
+#### If **"is_reminder"**, return:
+- `"task"`: A short description of what the reminder is about.
+- `"datetime"`: A specific due date/time in **ISO 8601 format**, in the user's **local time**.  
+  Do **not** use `"Z"` or convert to UTC unless the user explicitly says so.
 
-### Important Formatting Rules:
-1. Return **only raw JSON**, with no additional explanation.
-2. Do **not** include markdown formatting (like ```json).
-3. Use this exact JSON structure:
+#### If **"is_calendar"**, return:
+- `"title"`: The event title.
+- `"datetime"`: The event time in **ISO 8601 format**, using the user's **local time**.
+- `"location"`: The location as plain text, or `null` if not mentioned.
 
+#### If **"save_info"**, return:
+- `"memory"`: The statement or fact the user wants to save (e.g. “My Wi-Fi password is potato123”).
+
+---
+
+### Handling vague or natural language times:
+
+Convert phrases like “tonight”, “tomorrow”, or “in 10 minutes” into **specific ISO 8601 datetime** using common-sense assumptions and the user’s **current time zone**.
+
+Examples:
+- "later" → ~2 hours from now
+- "tonight" → today at 20:00
+- "tomorrow" → same time next day
+- "next week" → same time, 7 days later
+
+Current time (local timezone): `\(isoDateString)`
+
+---
+
+### Output Rules (very important):
+1. Return only **raw JSON**, with no explanation or markdown.
+2. Fields that do not apply must be set to **`null`**.
+3. Use this exact structure:
+
+```json
 {
-  "type": "is_question" | "is_reminder" | "is_calendar",
+  "type": "is_question" | "is_reminder" | "is_calendar" | "save_info",
   "query": "string or null",
   "task": "string or null",
   "datetime": "ISO 8601 string or null",
   "title": "string or null",
-  "location": "string or null"
+  "location": "string or null",
+  "memory": "string or null"
 }
 """
         case .german:

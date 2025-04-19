@@ -36,27 +36,30 @@ struct ContentView: View {
         ZStack {
             TabView(selection: $tabSelection) {
                 
-                NewAddInfoView().tag(1)
+                LazyView(NewAddInfoView())
+                    .tag(1)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
                     .transition(.opacity)
                 
-                QuestionView().tag(2)
-                    .environmentObject(openAiManager)
-                    .environmentObject(pineconeManager)
-                    .environmentObject(keyboardResponder)
-                    .environmentObject(languageSettings)
-                    .transition(.opacity)
+//                LazyView(QuestionView())
+//                    .tag(2)
+//                    .environmentObject(openAiManager)
+//                    .environmentObject(pineconeManager)
+//                    .environmentObject(keyboardResponder)
+//                    .environmentObject(languageSettings)
+//                    .transition(.opacity)
                 
-                VaultView().tag(3)
+                LazyView(VaultView())
+                    .tag(3)
                     .environmentObject(openAiManager)
                     .environmentObject(pineconeManager)
                     .environmentObject(keyboardResponder)
                     .environmentObject(languageSettings)
                     .transition(.opacity)
-            }
+            } //TODO: Pass the enviromentObjects outside od the ZSstack. they get passed to everyview once.
             .ignoresSafeArea(edges: .bottom)
             .overlay(
                 CustomTabBarView(tabSelection: $tabSelection)
@@ -143,4 +146,16 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+
+/// This defers view creation until needed, reducing memory.
+struct LazyView<Content: View>: View {
+    let build: () -> Content
+    init(_ build: @autoclosure @escaping () -> Content) {
+        self.build = build
+    }
+
+    var body: some View {
+        build()
+    }
 }

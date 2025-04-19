@@ -35,7 +35,7 @@ enum PineconeError: Error, Identifiable {
 }
 
 enum senderView {
-    case editInfo, newInfo
+    case editInfo, KView
 }
 
 
@@ -142,9 +142,9 @@ class PineconeViewModel: ObservableObject {
                     if sender == .editInfo {
                         self.upsertSuccessful = true
                         
-                    } //TODO: Seperate also the successful ??
-                    self.upsertSuccessful = true
-                    
+                    } else if sender == .KView {
+                        self.upsertSuccessful = true
+                    }
                 }
                 debugLog("upsertSuccess: \(self.upsertSuccessful)")
             } catch {
@@ -154,7 +154,7 @@ class PineconeViewModel: ObservableObject {
                     if sender == .editInfo {
                         self.pineconeErrorFromEdit = .upsertFailed(error)
                     }
-                    else if sender == .newInfo {
+                    else if sender == .KView {
                         self.pineconeErrorFromAdd = .upsertFailed(error)
                     }
                 }

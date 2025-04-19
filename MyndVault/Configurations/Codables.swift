@@ -53,14 +53,23 @@ struct OpenAIMessage: Codable {
         return content
     }
 }
+
+enum IntentType: String, Codable {
+    case isQuestion = "is_question"
+    case isReminder = "is_reminder"
+    case isCalendar = "is_calendar"
+    case saveInfo = "save_info"
+    case unknown
+}
+
 struct IntentClassificationResponse: Codable, Equatable {
-    let type: String
+    let type: IntentType
     let query: String?
     let task: String?
     let datetime: String?
     let title: String?
     let location: String?
-
+    let memory: String?
     
     static func == (lhs: IntentClassificationResponse, rhs: IntentClassificationResponse) -> Bool {
         return lhs.type == rhs.type &&
@@ -68,23 +77,25 @@ struct IntentClassificationResponse: Codable, Equatable {
         lhs.task == rhs.task &&
         lhs.datetime == rhs.datetime &&
         lhs.title == rhs.title &&
-        lhs.location == rhs.location
+        lhs.location == rhs.location &&
+        lhs.memory == rhs.memory
     }
 
     enum CodingKeys: String, CodingKey {
-        case type, query, task, datetime, title, location
+        case type, query, task, datetime, title, location, memory
     }
 
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        self.type = (try? container.decode(String.self, forKey: .type)) ?? "unknown"
+        self.type = (try? container.decode(IntentType.self, forKey: .type)) ?? .unknown
         self.query = try? container.decode(String.self, forKey: .query)
         self.task = try? container.decode(String.self, forKey: .task)
         self.datetime = try? container.decode(String.self, forKey: .datetime)
         self.title = try? container.decode(String.self, forKey: .title)
         self.location = try? container.decode(String.self, forKey: .location)
+        self.memory = try? container.decode(String.self, forKey: .memory)
     }
 }
 

@@ -196,12 +196,6 @@
     "%lld sec" : {
 
     },
-    "⚠️ No event available" : {
-
-    },
-    "❌ Calendar Access Denied" : {
-
-    },
     "8charsErrorMessage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -857,6 +851,7 @@
       }
     },
     "Ask Question" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -919,9 +914,6 @@
           }
         }
       }
-    },
-    "Assistant" : {
-
     },
     "Authentication Failed" : {
       "localizations" : {
@@ -2235,9 +2227,6 @@
           }
         }
       }
-    },
-    "Instruction" : {
-
     },
     "invalid_password" : {
       "localizations" : {
@@ -3707,6 +3696,7 @@
       }
     },
     "Reply" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -3771,6 +3761,7 @@
       }
     },
     "reset the question and reply" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4034,9 +4025,6 @@
           }
         }
       }
-    },
-    "Saving..." : {
-
     },
     "Securely save and retrieve your info" : {
       "localizations" : {
@@ -4493,6 +4481,7 @@
       }
     },
     "This will query the database and return a reply" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4557,6 +4546,7 @@
       }
     },
     "This will reset your question and reply text fields" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

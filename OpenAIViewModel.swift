@@ -38,6 +38,7 @@ class OpenAIViewModel: ObservableObject {
     private var languageSettings = LanguageSettings.shared
     private var cancellables = Set<AnyCancellable>()
     let eventStore = EKEventStore()
+    @Published var lastGptResponse: String? = nil
 
     init(openAIActor: OpenAIActor) {
         self.openAIActor = openAIActor
@@ -109,6 +110,7 @@ class OpenAIViewModel: ObservableObject {
             } else {
                 self.embeddings = embeddingsData
                 self.embeddingsCompleted = true
+                questionEmbeddingTrigger = UUID()
             }
         } catch {
             throw error
@@ -128,6 +130,7 @@ class OpenAIViewModel: ObservableObject {
                 selectedLanguage: selectedLanguage
             )
             self.stringResponseOnQuestion = response
+            self.lastGptResponse = response //TODO: Once you’ve saved it to Pinecone, you might want to clear it
             self.intentResponse = nil
 
         } catch {
@@ -147,6 +150,7 @@ class OpenAIViewModel: ObservableObject {
             self.intentResponse = response
         } catch(let error) {
             self.openAIErrorFromQuestion = .gptResponseFailed(error)
+            debugLog("Error from getTranscriptAnalysis: \(error)")
         }
     }
 
@@ -185,7 +189,7 @@ class OpenAIViewModel: ObservableObject {
             debugLog("handleClassifiedIntent called with intent: \(intent)")
             switch intent.type {
                 
-            case "is_reminder":
+            case .isReminder:
                 if let task = intent.task, let dateStr = intent.datetime, let date = parseISO8601(dateStr) {
                     createReminder(title: task, date: date)
                 } else {
@@ -193,7 +197,7 @@ class OpenAIViewModel: ObservableObject {
                 }
                 
                 
-            case "is_calendar":
+            case .isCalendar:
                 if let title = intent.title, let dateStr = intent.datetime, let utcDate = parseISO8601(dateStr) {
                     
                     let localDate = utcDate.toLocalTime() // As the UTC is for example -1 from Berlin time
@@ -208,7 +212,7 @@ class OpenAIViewModel: ObservableObject {
                     self.calendarEvent = newEvent // Triggers .onChange in the View
                 }
 
-            case "is_question":
+            case .isQuestion:
                 if let userQuestion = intent.query {
                     Task {
                         do  {
@@ -218,7 +222,16 @@ class OpenAIViewModel: ObservableObject {
                         }
                     }
                 }
-
+            case .saveInfo:
+                if let newInfo = intent.memory {
+                    Task {
+                        do  {
+                            try await requestEmbeddings(for: newInfo, isQuestion: false)
+                        } catch(let error) {
+                            self.openAIErrorFromQuestion = .embeddingsFailed(error)
+                        }
+                    }
+                }
             default:
                 debugLog("⚠️ Unknown response type: \(intent.type)")
             }
