@@ -593,6 +593,9 @@
         }
       }
     },
+    "Alarm Time" : {
+
+    },
     "All of your data has been removed.\nWe really value your thoughts—please share any feedback about your experience with MyndVault." : {
       "localizations" : {
         "de" : {
@@ -1110,6 +1113,9 @@
         }
       }
     },
+    "Confirm Reminder" : {
+
+    },
     "ConnectWithMeOnLinkedIn" : {
       "localizations" : {
         "de" : {
@@ -1500,9 +1506,6 @@
           }
         }
       }
-    },
-    "Done" : {
-
     },
     "Edit Info:" : {
       "localizations" : {
@@ -4609,6 +4612,9 @@
           }
         }
       }
+    },
+    "Title" : {
+
     },
     "Toggle" : {
       "localizations" : {
