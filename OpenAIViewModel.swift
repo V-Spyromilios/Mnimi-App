@@ -29,10 +29,10 @@ class OpenAIViewModel: ObservableObject {
     @Published var transriptionError: OpenAIError?
     @Published var transriptionErrorForQuestion: OpenAIError?
     @Published var reminderError: OpenAIError?
-    @Published var intentResponse: IntentClassificationResponse?
+    @Published var userIntent: IntentClassificationResponse? = nil
     @Published var showCalendarPermissionAlert: Bool = false
-    @Published var calendarEvent: EKEvent?
     @Published var reminderCreated: Bool = false
+    @Published var pendingReminder: ReminderWrapper?
 
     private let openAIActor: OpenAIActor
     private var languageSettings = LanguageSettings.shared
@@ -57,12 +57,11 @@ class OpenAIViewModel: ObservableObject {
         transcription = "" //TODO: Check if this affects the addnew info . 
         transcriptionForQuestion = ""
         reminderError = nil
-        if intentResponse != nil {
-            intentResponse = nil
+        if userIntent != nil {
+            userIntent = nil
         }
         reminderError = nil
-        intentResponse = nil
-        calendarEvent = nil
+        pendingReminder = nil
     }
     
 
@@ -131,7 +130,7 @@ class OpenAIViewModel: ObservableObject {
             )
             self.stringResponseOnQuestion = response
             self.lastGptResponse = response //TODO: Once you’ve saved it to Pinecone, you might want to clear it
-            self.intentResponse = nil
+            self.userIntent = nil
 
         } catch {
             self.gptResponseError = .gptResponseFailed(error)
@@ -143,11 +142,21 @@ class OpenAIViewModel: ObservableObject {
         do {
             // Access `languageSettings` on the main actor
             let selectedLanguage = self.languageSettings.selectedLanguage
-
+            
             // Perform network call off the main actor
             let response: IntentClassificationResponse = try await openAIActor.analyzeTranscript(transcript: transcrpit, selectedLanguage: selectedLanguage)
             
-            self.intentResponse = response
+            if self.userIntent != response {
+                debugLog("✅ userIntent is different — assigning [ViewModel]")
+                self.userIntent = response
+              
+                debugLog("📍 After assignment — new intent: \(response)")
+                
+            } else {
+                debugLog("⚠️ userIntent unchanged — not assigning")
+            }
+            
+            debugLog("getTranscriptAnalysis, assigned to userIntent: \(response)")
         } catch(let error) {
             self.openAIErrorFromQuestion = .gptResponseFailed(error)
             debugLog("Error from getTranscriptAnalysis: \(error)")
@@ -185,58 +194,77 @@ class OpenAIViewModel: ObservableObject {
     }
     
     /// Processes the classified intent and takes appropriate action
-        func handleClassifiedIntent(_ intent: IntentClassificationResponse) {
-            debugLog("handleClassifiedIntent called with intent: \(intent)")
-            switch intent.type {
-                
-            case .isReminder:
-                if let task = intent.task, let dateStr = intent.datetime, let date = parseISO8601(dateStr) {
-                    createReminder(title: task, date: date)
-                } else {
-                    debugLog("❌ Failed to parse reminder intent: Task=\(intent.task ?? "nil"), Date=\(intent.datetime ?? "nil")")
+    func handleClassifiedIntent(_ intent: IntentClassificationResponse) {
+        debugLog("handleClassifiedIntent called with intent: \(intent)")
+        
+        switch intent.type {
+        case .isReminder:
+            handleReminderIntent(intent)
+        case .isCalendar:
+            handleCalendarIntent(intent)
+        case .isQuestion:
+            handleQuestionIntent(intent)
+        case .saveInfo:
+            handleSaveInfoIntent(intent)
+        case .unknown:
+            debugLog("⚠️ Unknown response type: \(intent.type)")
+        }
+    }
+    
+    
+    
+    
+    private func handleReminderIntent(_ intent: IntentClassificationResponse) {
+        
+        if let task = intent.task, let dateStr = intent.datetime, let date = parseISO8601(dateStr) {
+            prepareReminderForConfirmation(title: task, date: date)
+        } else {
+            debugLog("❌ Failed to parse reminder intent: Task=\(intent.task ?? "nil"), Date=\(intent.datetime ?? "nil")")
+        }
+    }
+    
+    
+    private func handleCalendarIntent(_ intent: IntentClassificationResponse) {
+        
+        if let title = intent.title, let dateStr = intent.datetime, let utcDate = parseISO8601(dateStr) {
+            
+            let localDate = utcDate.toLocalTime() // As the UTC is for example -1 from Berlin time
+            let newEvent = EKEvent(eventStore: self.eventStore)
+            newEvent.title = title
+            newEvent.startDate = localDate
+            newEvent.endDate = localDate.addingTimeInterval(3600) // Default 1-hour event
+            newEvent.location = intent.location
+            newEvent.calendar = self.eventStore.defaultCalendarForNewEvents
+//            self.calendarEvent = newEvent // Triggers .onChange in the View
+        }
+    }
+    
+    private func handleQuestionIntent(_ intent: IntentClassificationResponse) {
+        
+        if let userQuestion = intent.query {
+            Task {
+                do  {
+                    try await requestEmbeddings(for: userQuestion, isQuestion: true)
+                } catch(let error) {
+                    self.openAIErrorFromQuestion = .embeddingsFailed(error)
                 }
-                
-                
-            case .isCalendar:
-                if let title = intent.title, let dateStr = intent.datetime, let utcDate = parseISO8601(dateStr) {
-                    
-                    let localDate = utcDate.toLocalTime() // As the UTC is for example -1 from Berlin time
-                    
-                    let newEvent = EKEvent(eventStore: self.eventStore)
-                    newEvent.title = title
-                    newEvent.startDate = localDate
-                    newEvent.endDate = localDate.addingTimeInterval(3600) // Default 1-hour event
-                    newEvent.location = intent.location
-                    newEvent.calendar = self.eventStore.defaultCalendarForNewEvents
-                    
-                    self.calendarEvent = newEvent // Triggers .onChange in the View
-                }
-
-            case .isQuestion:
-                if let userQuestion = intent.query {
-                    Task {
-                        do  {
-                            try await requestEmbeddings(for: userQuestion, isQuestion: true)
-                        } catch(let error) {
-                            self.openAIErrorFromQuestion = .embeddingsFailed(error)
-                        }
-                    }
-                }
-            case .saveInfo:
-                if let newInfo = intent.memory {
-                    Task {
-                        do  {
-                            try await requestEmbeddings(for: newInfo, isQuestion: false)
-                        } catch(let error) {
-                            self.openAIErrorFromQuestion = .embeddingsFailed(error)
-                        }
-                    }
-                }
-            default:
-                debugLog("⚠️ Unknown response type: \(intent.type)")
             }
         }
-    
+    }
+
+    private func handleSaveInfoIntent(_ intent: IntentClassificationResponse) {
+
+        if let newInfo = intent.memory {
+            Task {
+                do  {
+                    try await requestEmbeddings(for: newInfo, isQuestion: false)
+                } catch(let error) {
+                    self.openAIErrorFromQuestion = .embeddingsFailed(error)
+                }
+            }
+        }
+    }
+
     private func parseISO8601(_ string: String) -> Date? {
         let formatter = ISO8601DateFormatter()
 
@@ -250,25 +278,28 @@ class OpenAIViewModel: ObservableObject {
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter.date(from: string)
     }
-        
+
         /// Creates a Reminder using EventKit
-    private func createReminder(title: String, date: Date) {
-        
+    func prepareReminderForConfirmation(title: String, date: Date) {
+        let reminder = EKReminder(eventStore: self.eventStore)
+        reminder.title = title
+        reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
+        reminder.addAlarm(EKAlarm(absoluteDate: date))
+
+        self.pendingReminder = ReminderWrapper(reminder: reminder)
+    }
+    
+    func savePendingReminder() {
+
+        guard let pendingReminder = pendingReminder else { return }
         Task {
-            let reminder = EKReminder(eventStore: self.eventStore)
-            reminder.title = title
-            reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
-
-            let alarm = EKAlarm(absoluteDate: date)
-            reminder.addAlarm(alarm)
-
             do {
-                try self.eventStore.save(reminder, commit: true)
+                try self.eventStore.save(pendingReminder.reminder, commit: true)
                 debugLog("Reminder saved successfully! setting up the reminderCreated flag")
                 self.reminderCreated = true
+                self.pendingReminder = nil
             } catch {
                 self.reminderError = .reminderError(error)
-                debugLog("❌ Failed to save reminder: \(error.localizedDescription)")
             }
         }
     }

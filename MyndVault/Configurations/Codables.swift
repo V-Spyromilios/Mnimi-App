@@ -71,15 +71,15 @@ struct IntentClassificationResponse: Codable, Equatable {
     let location: String?
     let memory: String?
     
-    static func == (lhs: IntentClassificationResponse, rhs: IntentClassificationResponse) -> Bool {
-        return lhs.type == rhs.type &&
-        lhs.query == rhs.query &&
-        lhs.task == rhs.task &&
-        lhs.datetime == rhs.datetime &&
-        lhs.title == rhs.title &&
-        lhs.location == rhs.location &&
-        lhs.memory == rhs.memory
-    }
+//    static func == (lhs: IntentClassificationResponse, rhs: IntentClassificationResponse) -> Bool {
+//        return lhs.type == rhs.type &&
+//        lhs.query == rhs.query &&
+//        lhs.task == rhs.task &&
+//        lhs.datetime == rhs.datetime &&
+//        lhs.title == rhs.title &&
+//        lhs.location == rhs.location &&
+//        lhs.memory == rhs.memory
+//    }
 
     enum CodingKeys: String, CodingKey {
         case type, query, task, datetime, title, location, memory

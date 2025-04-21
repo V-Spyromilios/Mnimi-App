@@ -102,9 +102,9 @@ class PineconeViewModel: ObservableObject {
         self.pineconeFetchedVectors.removeAll { $0.id == id }
     }
     
-    func updateUpsertSuccessful(_ success: Bool) {
-        self.upsertSuccessful = success
-    }
+//    func updateUpsertSuccessful(_ success: Bool) {
+//        self.upsertSuccessful = success
+//    }
     
 
     //MARK: - Methods for the Views
@@ -143,6 +143,7 @@ class PineconeViewModel: ObservableObject {
                         self.upsertSuccessful = true
                         
                     } else if sender == .KView {
+                        debugLog("Upsert successful from KView")
                         self.upsertSuccessful = true
                     }
                 }

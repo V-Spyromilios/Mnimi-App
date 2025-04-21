@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import UIKit
 import Combine
+import EventKit
 
 @MainActor
 struct Constants {
@@ -478,6 +479,14 @@ struct RecordButton: View {
     }
 }
 
+final class ReminderWrapper: ObservableObject, Identifiable {
+    let id = UUID()
+    @Published var reminder: EKReminder
+
+    init(reminder: EKReminder) {
+        self.reminder = reminder
+    }
+}
 
 @MainActor
 struct KRecordButton: View {
