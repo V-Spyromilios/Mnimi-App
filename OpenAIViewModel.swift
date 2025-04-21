@@ -291,7 +291,10 @@ class OpenAIViewModel: ObservableObject {
     
     func savePendingReminder() {
 
-        guard let pendingReminder = pendingReminder else { return }
+        guard let pendingReminder = pendingReminder else {
+            debugLog("savePendingReminder == nil")
+            return
+        }
         Task {
             do {
                 try self.eventStore.save(pendingReminder.reminder, commit: true)
