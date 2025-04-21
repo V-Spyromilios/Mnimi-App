@@ -48,6 +48,8 @@ struct KView: View {
                         .scaledToFill()
                         .clipped()
                         .ignoresSafeArea()
+                    
+                    KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
                 }
                 
                 ScrollView {
@@ -78,7 +80,6 @@ struct KView: View {
                     micColor = brightness > 0.7 ? .black : .white // Tune threshold if needed
                 }
             }
-            KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
                 .onChange(of: recordingURL) { _, url in
                     if let url {
                         Task {
@@ -104,7 +105,7 @@ struct KView: View {
         .statusBar(hidden: true)
     }
     
-    private func imageForToday() -> String {
+    func imageForToday() -> String {
         let dayIndex = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0
         return backgroundImages[dayIndex % backgroundImages.count]
     }
@@ -192,7 +193,7 @@ struct InputView: View {
                 if cuccess {
                     withAnimation {
                         text = "" }
-                    toinputStateFromState()
+                    toSuccessState()
                 } else {
                     kViewState = .onError("Error saving reminder. Please try again.")
                 }
@@ -259,7 +260,7 @@ struct InputView: View {
     
     private var successView: some View {
         Group {
-            if userIntentType == .saveInfo {
+            
                 Text(apiCallLabel(for: userIntentType))
                     .font(.custom("New York", size: 20))
                     .foregroundColor(.black)
@@ -272,7 +273,6 @@ struct InputView: View {
                             }
                         }
                     }
-            }
         }
     }
     
@@ -391,11 +391,7 @@ struct InputView: View {
         
         func body(content: Content) -> some View {
             content
-                .onChange(of: openAiManager.pendingReminder?.reminder) { _, pendingReminder in
-                    if pendingReminder != nil {
-                        kViewState = .onSuccess
-                    }
-                }
+                
                 .onChange(of: openAiManager.questionEmbeddingTrigger) {
                     if openAiManager.userIntent?.type == .isQuestion {
                         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
@@ -471,21 +467,41 @@ struct ReminderConfirmationView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                TextField("Title", text: Binding(
-                    get: { wrapper.reminder.title },
-                    set: { wrapper.reminder.title = $0 }
-                ))
+            ZStack {
+                // Background behind the form
+                Image("oldPaper")
+                    .resizable()
+                    .scaledToFill()
+                    .blur(radius: 1)
+                    .opacity(0.8)
+                    .ignoresSafeArea()
                 
-                DatePicker("Alarm Time", selection: Binding(
-                    get: {
-                        wrapper.reminder.alarms?.first?.absoluteDate ?? Date()
-                    },
-                    set: { newDate in
-                        wrapper.reminder.alarms?.removeAll()
-                        wrapper.reminder.addAlarm(EKAlarm(absoluteDate: newDate))
-                    }
-                ), displayedComponents: [.date, .hourAndMinute])
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+
+                // The form
+                Form {
+                    TextField("Title", text: Binding(
+                        get: { wrapper.reminder.title },
+                        set: { wrapper.reminder.title = $0 }
+                    ))
+
+                    DatePicker("Alarm Time", selection: Binding(
+                        get: {
+                            wrapper.reminder.alarms?.first?.absoluteDate ?? Date()
+                        },
+                        set: { newDate in
+                            wrapper.reminder.alarms?.removeAll()
+                            wrapper.reminder.addAlarm(EKAlarm(absoluteDate: newDate))
+                        }
+                    ), displayedComponents: [.date, .hourAndMinute])
+                }
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
             }
             .navigationTitle("Confirm Reminder")
             .toolbar {
@@ -495,7 +511,7 @@ struct ReminderConfirmationView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         wrapper.reminder.title = ""
-                        openAiManager.pendingReminder = nil // or use a dismiss closure
+                        openAiManager.pendingReminder = nil
                     }
                 }
             }
