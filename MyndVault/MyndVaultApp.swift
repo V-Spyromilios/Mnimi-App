@@ -65,6 +65,8 @@ struct MyndVaultApp: App {
             KView()
                 .environmentObject(openAiManager)
                 .environmentObject(pineconeViewModel)
+                .environmentObject(networkManager)
+                .environmentObject(cloudKitViewModel)
             
 //            if showSplash {
 //                SplashScreen(showSplash: $showSplash)

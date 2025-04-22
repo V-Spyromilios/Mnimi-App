@@ -40,6 +40,10 @@ struct SettingsView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 15) {
+                    
+                    
+                    
+                    
                     //MARK: Language
                     NavigationLink(destination: PromptLanguageView()) {
                         HStack {
@@ -74,27 +78,6 @@ struct SettingsView: View {
                         .cornerRadius(10)
                         .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
                         .contentShape(Rectangle())
-                    
-                    
-                    
-                    //MARK: Credit
-//                    HStack {
-//                        NavigationLink(destination: ApiCallsView()) {
-//                            Text("Credit").foregroundStyle(colorScheme == .light ? .black : .white)
-//                            Spacer()
-//                            
-//                            Image(systemName: "chevron.right")
-//                            
-//                                .foregroundStyle(.blue)
-//                            
-//                            
-//                        }
-//                    } .padding()
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                        .background( Color.primaryBackground)
-//                        .cornerRadius(10)
-//                        .shadow(color: colorScheme == .dark ? .white : .black, radius: 5)
-//                        .contentShape(Rectangle())
                     
                     //MARK: Open App Settings
                     if canShowAppSettings {
