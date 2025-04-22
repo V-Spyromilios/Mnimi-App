@@ -25,7 +25,7 @@ class OpenAIViewModel: ObservableObject {
     @Published var gptResponseError: OpenAIError?
     @Published var openAIErrorFromQuestion: OpenAIError?
     @Published var transcription: String = ""
-    @Published var transcriptionForQuestion: String = ""
+    @Published var transcriptionFromWhisper: String = ""
     @Published var transriptionError: OpenAIError?
     @Published var transriptionErrorForQuestion: OpenAIError?
     @Published var reminderError: OpenAIError?
@@ -55,7 +55,7 @@ class OpenAIViewModel: ObservableObject {
         transriptionError = nil
         transriptionErrorForQuestion = nil
         transcription = "" //TODO: Check if this affects the addnew info . 
-        transcriptionForQuestion = ""
+        transcriptionFromWhisper = ""
         reminderError = nil
         if userIntent != nil {
             userIntent = nil
@@ -82,7 +82,7 @@ class OpenAIViewModel: ObservableObject {
                 
                 do {
                     let response = try await openAIActor.transcribeAudio(fileURL: fileURL, selectedLanguage: selectedLanguage)
-                    self.transcriptionForQuestion = response.text
+                    self.transcriptionFromWhisper = response.text
                 } catch {
                     self.transriptionErrorForQuestion = .transriptionFailed(error)
                     debugLog("❌ processAudio() :: Error transcribing audio: \(error)")
@@ -302,6 +302,7 @@ class OpenAIViewModel: ObservableObject {
                 self.reminderCreated = true
                 self.pendingReminder = nil
             } catch {
+                debugLog(error.localizedDescription)
                 self.reminderError = .reminderError(error)
             }
         }
