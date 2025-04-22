@@ -38,6 +38,9 @@ struct KView: View {
     @State private var micColor: Color = .white
     @State private var viewTransitionDelay: Double = 0.4
     @State private var viewTransitionDuration: Double = 0.4
+    @State private var showVault: Bool = false
+    @State private var showSettings: Bool = false
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             GeometryReader { geo in
@@ -100,10 +103,35 @@ struct KView: View {
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 140)
+            
+            //MARK: For drag gestures
+            vaultSwipeGestureLayer
+            settingsSwipeGestureLayer
+            
+            // MARK: - Overlays
+            if showVault {
+                VaultView()
+                    .transition(.move(edge: .leading))
+            }
+            if showSettings {
+               KSettings()
+                    .transition(.move(edge: .trailing))
+            }
+            //MARK: End of gestures
         }
         .ignoresSafeArea()
         .onTapGesture { handleTap() }
         .statusBar(hidden: true)
+        .gesture(
+                    DragGesture(minimumDistance: 30)
+                        .onEnded { value in
+                            if value.startLocation.x < 20 && value.translation.width > 100 {
+                                withAnimation { showVault = true }
+                            } else if value.startLocation.x > UIScreen.main.bounds.width - 20 && value.translation.width < -100 {
+                                withAnimation { showSettings = true }
+                            }
+                        }
+                )
     }
     
     func imageForToday() -> String {
@@ -117,6 +145,21 @@ struct KView: View {
         default:     toIdleView()
         }
     }
+    private var vaultSwipeGestureLayer: some View {
+            Color.clear
+                .frame(width: 20)
+                .contentShape(Rectangle())
+                .onTapGesture {} // keeps it interactive
+                .offset(x: showVault ? 0 : -UIScreen.main.bounds.width)
+        }
+
+        private var settingsSwipeGestureLayer: some View {
+            Color.clear
+                .frame(width: 20)
+                .contentShape(Rectangle())
+                .onTapGesture {}
+                .offset(x: showSettings ? 0 : UIScreen.main.bounds.width)
+        }
     
     func showInputView() {
         withAnimation(.easeInOut(duration: viewTransitionDuration)) {
