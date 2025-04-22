@@ -41,15 +41,13 @@ struct KView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             GeometryReader { geo in
-                if viewState == .idle  {
+                if viewState == .idle {
                     
                     Image(selectedImage)
                         .resizable()
                         .scaledToFill()
                         .clipped()
                         .ignoresSafeArea()
-                    
-                    KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
                 }
                 
                 ScrollView {
@@ -80,6 +78,9 @@ struct KView: View {
                     micColor = brightness > 0.7 ? .black : .white // Tune threshold if needed
                 }
             }
+            KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
+                .opacity(viewState == .idle ? 1 : 0)
+                .allowsHitTesting(viewState == .idle)
                 .onChange(of: recordingURL) { _, url in
                     if let url {
                         Task {
@@ -87,7 +88,7 @@ struct KView: View {
                         }
                     }
                 }
-                .onChange(of: openAiManager.transcriptionForQuestion) { _, newTranscript in
+                .onChange(of: openAiManager.transcriptionFromWhisper) { _, newTranscript in
                     guard !newTranscript.isEmpty else { return }
                     
                     text = newTranscript
@@ -176,11 +177,11 @@ struct InputView: View {
                 stateContent
             }
             .padding(.top, 15)
-            .onChange(of: openAiManager.userIntent) { _, intent in
-                debugLog("✅ Trigger received — handle intent")
-                if let intent = intent {
-                    openAiManager.handleClassifiedIntent(intent)
-                }
+        }
+        .onChange(of: openAiManager.userIntent) { _, intent in
+            debugLog("✅ Trigger received — handle intent")
+            if let intent = intent {
+                openAiManager.handleClassifiedIntent(intent)
             }
         }
         .onChangeHandlers(viewState: $kViewState)
@@ -190,20 +191,20 @@ struct InputView: View {
             }
         }
         .onChange(of: openAiManager.reminderCreated) { _, cuccess in
-                if cuccess {
-                    withAnimation {
-                        text = "" }
-                    toSuccessState()
-                } else {
-                    kViewState = .onError("Error saving reminder. Please try again.")
-                }
+            if cuccess {
+                withAnimation {
+                    text = "" }
+                toSuccessState()
+            } else {
+                kViewState = .onError("Error saving reminder. Please try again.")
+            }
         }
         .sheet(item: $openAiManager.pendingReminder) { wrapper in
             ReminderConfirmationView(wrapper: wrapper) {
                 openAiManager.savePendingReminder()
             }
         }
-
+        
     }
     
     private var textEditor: some View {
@@ -261,18 +262,18 @@ struct InputView: View {
     private var successView: some View {
         Group {
             
-                Text(apiCallLabel(for: userIntentType))
-                    .font(.custom("New York", size: 20))
-                    .foregroundColor(.black)
-                    .italic()
-                    .padding(.bottom, 20)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            if kViewState != .idle {
-                                self.toIdleView()
-                            }
+            Text(apiCallLabel(for: userIntentType))
+                .font(.custom("New York", size: 20))
+                .foregroundColor(.black)
+                .italic()
+                .padding(.bottom, 20)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        if kViewState != .idle {
+                            self.toIdleView()
                         }
                     }
+                }
         }
     }
     
@@ -334,9 +335,9 @@ struct InputView: View {
     
     private func toinputStateFromState() {
         isEditorFocused = true
-            withAnimation(.easeInOut(duration: duration)) {
-                kViewState = .input
-            }
+        withAnimation(.easeInOut(duration: duration)) {
+            kViewState = .input
+        }
     }
     
     private func toSuccessState() {
@@ -391,7 +392,7 @@ struct InputView: View {
         
         func body(content: Content) -> some View {
             content
-                
+            
                 .onChange(of: openAiManager.questionEmbeddingTrigger) {
                     if openAiManager.userIntent?.type == .isQuestion {
                         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
@@ -482,14 +483,14 @@ struct ReminderConfirmationView: View {
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-
+                
                 // The form
                 Form {
                     TextField("Title", text: Binding(
                         get: { wrapper.reminder.title },
                         set: { wrapper.reminder.title = $0 }
                     ))
-
+                    
                     DatePicker("Alarm Time", selection: Binding(
                         get: {
                             wrapper.reminder.alarms?.first?.absoluteDate ?? Date()
