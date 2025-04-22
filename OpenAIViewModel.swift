@@ -20,7 +20,7 @@ class OpenAIViewModel: ObservableObject {
     @Published var embeddingsCompleted: Bool = false
 //    @Published var questionEmbeddingsCompleted: Bool = false
     @Published var transcriptionErrorTrigger = UUID()
-    @Published var questionEmbeddingTrigger = UUID()
+    @Published var embeddingsTrigger = UUID()
     @Published var stringResponseOnQuestion: String = ""
     @Published var gptResponseError: OpenAIError?
     @Published var openAIErrorFromQuestion: OpenAIError?
@@ -33,6 +33,8 @@ class OpenAIViewModel: ObservableObject {
     @Published var showCalendarPermissionAlert: Bool = false
     @Published var reminderCreated: Bool = false
     @Published var pendingReminder: ReminderWrapper?
+    @Published var pendingCalendarEvent: EventWrapper?
+    @Published var calendarEventCreated: Bool = false
 
     private let openAIActor: OpenAIActor
     private var languageSettings = LanguageSettings.shared
@@ -104,12 +106,12 @@ class OpenAIViewModel: ObservableObject {
             // Update properties
             if isQuestion {
                 self.embeddingsFromQuestion = embeddingsData
-                questionEmbeddingTrigger = UUID()
+                embeddingsTrigger = UUID()
 
             } else {
                 self.embeddings = embeddingsData
                 self.embeddingsCompleted = true
-                questionEmbeddingTrigger = UUID()
+                embeddingsTrigger = UUID()
             }
         } catch {
             throw error
@@ -235,7 +237,7 @@ class OpenAIViewModel: ObservableObject {
             newEvent.endDate = localDate.addingTimeInterval(3600) // Default 1-hour event
             newEvent.location = intent.location
             newEvent.calendar = self.eventStore.defaultCalendarForNewEvents
-//            self.calendarEvent = newEvent // Triggers .onChange in the View
+            self.pendingCalendarEvent = EventWrapper(event: newEvent)
         }
     }
     
@@ -305,6 +307,24 @@ class OpenAIViewModel: ObservableObject {
                 debugLog(error.localizedDescription)
                 self.reminderError = .reminderError(error)
             }
+        }
+    }
+    
+    func saveCalendarEvent() {
+
+        guard let event = pendingCalendarEvent else {
+            debugLog("❌ calendarEvent is nil.")
+            return
+        }
+        do {
+            try eventStore.save(event.event, span: .thisEvent, commit: true)
+            debugLog("✅ Calendar event saved successfully.")
+            self.calendarEventCreated = true
+            // Reset
+            self.pendingCalendarEvent = nil
+        } catch {
+            debugLog("❌ Failed to save calendar event: \(error.localizedDescription)")
+            // Optionally: set an error @Published var here
         }
     }
 

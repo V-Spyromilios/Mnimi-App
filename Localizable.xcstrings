@@ -1113,6 +1113,9 @@
         }
       }
     },
+    "Confirm Event" : {
+
+    },
     "Confirm Reminder" : {
 
     },
@@ -1635,6 +1638,9 @@
           }
         }
       }
+    },
+    "End" : {
+
     },
     "Enter Username/Password" : {
       "localizations" : {
@@ -2578,6 +2584,9 @@
           }
         }
       }
+    },
+    "Location" : {
+
     },
     "Login" : {
       "localizations" : {
@@ -4348,6 +4357,9 @@
           }
         }
       }
+    },
+    "Start" : {
+
     },
     "Support Request" : {
       "localizations" : {

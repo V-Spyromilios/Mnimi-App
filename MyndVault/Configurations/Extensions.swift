@@ -488,6 +488,15 @@ final class ReminderWrapper: ObservableObject, Identifiable {
     }
 }
 
+final class EventWrapper: ObservableObject, Identifiable {
+    let id = UUID()
+    @Published var event: EKEvent
+
+    init(event: EKEvent) {
+        self.event = event
+    }
+}
+
 @MainActor
 struct KRecordButton: View {
     @Binding var recordingURL: URL?
