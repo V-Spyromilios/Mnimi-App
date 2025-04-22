@@ -50,6 +50,7 @@ struct MyndVaultApp: App {
     
     init() {
         let ckViewModel = CloudKitViewModel.shared
+        Task {await ckViewModel.startCloudKit() }
         let pineconeActor = PineconeActor(cloudKitViewModel: ckViewModel)
         _pineconeViewModel = StateObject(wrappedValue: PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: ckViewModel))
         

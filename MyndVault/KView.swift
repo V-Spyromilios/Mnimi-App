@@ -173,10 +173,16 @@ struct InputView: View {
                 .ignoresSafeArea(.keyboard, edges: .bottom)
             
             VStack {
-                textEditor
+                if kViewState == .response {
+                    responseTextView
+                        .transition(.opacity)
+                } else {
+                    textEditor
+                        .transition(.opacity)
+                }
                 stateContent
-            }
-            .padding(.top, 15)
+                    .transition(.opacity)
+            }.padding(.top, 15)
         }
         .onChange(of: openAiManager.userIntent) { _, intent in
             debugLog("✅ Trigger received — handle intent")
@@ -188,23 +194,48 @@ struct InputView: View {
         .onChange(of: openAiManager.stringResponseOnQuestion) { _, newResponse in
             withAnimation {
                 text = newResponse
+                toResponseView()
             }
         }
         .onChange(of: openAiManager.reminderCreated) { _, cuccess in
             if cuccess {
+                withAnimation { text = "" }
+                toSuccessState()
+            }
+//            else {
+//                kViewState = .onError("Error saving reminder. Please try again.")
+//            } //TODO: Observe the Error instead!
+        }
+        .onChange(of: openAiManager.calendarEventCreated) {_, success in
+            if success {
                 withAnimation {
                     text = "" }
                 toSuccessState()
-            } else {
-                kViewState = .onError("Error saving reminder. Please try again.")
             }
+            
         }
         .sheet(item: $openAiManager.pendingReminder) { wrapper in
             ReminderConfirmationView(wrapper: wrapper) {
                 openAiManager.savePendingReminder()
             }
         }
-        
+        .sheet(item: $openAiManager.pendingCalendarEvent) { wrapper in
+            CalendarConfirmationView(wrapper: wrapper) {
+                openAiManager.saveCalendarEvent()
+            }
+        }
+    }
+    
+    private var responseTextView: some View {
+        ScrollView {
+            Text(text)
+                .font(.custom("New York", size: 20))
+                .foregroundColor(.black)
+                .multilineTextAlignment(.leading)
+                .padding(.top, 40)
+                .padding(.horizontal, 30)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
     
     private var textEditor: some View {
@@ -244,36 +275,41 @@ struct InputView: View {
             .font(.custom("New York", size: 20))
             .foregroundColor(.black)
             .italic()
-            .padding(.bottom, 20)
     }
     
     private func errorView(_ message: String) -> some View {
         VStack {
-            Text(message)
+            Text(message).multilineTextAlignment(.leading) .padding(.top, 40)
+                .padding(.leading, 30)
             Button("Cancel") {
                 withAnimation { kViewState = .input }
-            }.underline()
+            }.underline().padding(.top, 20)
         }
+        .buttonStyle(.plain)
+        .underline()
         .font(.custom("New York", size: 20))
         .foregroundColor(.black)
-        .padding(.bottom, 20)
     }
     
     private var successView: some View {
         Group {
             
-            Text(apiCallLabel(for: userIntentType))
+            Text(successLabel(for: userIntentType))
                 .font(.custom("New York", size: 20))
                 .foregroundColor(.black)
                 .italic()
                 .padding(.bottom, 20)
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        if kViewState != .idle {
-                            self.toIdleView()
-                        }
-                    }
-                }
+        }
+        .onAppear {
+            if isEditorFocused {
+                isEditorFocused = false
+            }
+            withAnimation {
+                text = ""
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+                toinputStateFromState()
+            }
         }
     }
     
@@ -281,6 +317,8 @@ struct InputView: View {
         Button("OK") {
             withAnimation {
                 text = ""
+                openAiManager.clearManager()
+                pineconeManager.clearManager()
             }
             isEditorFocused = false
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
@@ -289,11 +327,12 @@ struct InputView: View {
                 }
             }
         }
+        .buttonStyle(.plain)
         .underline()
         .font(.custom("New York", size: 22))
         .bold()
         .foregroundColor(.black)
-        .padding(.bottom, 20)
+        .padding(.top, 20)
     }
     
     private var saveButton: some View {
@@ -305,6 +344,7 @@ struct InputView: View {
                 kViewState = .onApiCall
             }
         }
+        .buttonStyle(.plain)
         .underline()
         .font(.custom("New York", size: 22))
         .bold()
@@ -323,6 +363,16 @@ struct InputView: View {
         default: return "Working..."
         }
     }
+    private func successLabel(for type: IntentType) -> String {
+        switch type {
+        case .isQuestion: return "Done"
+        case .saveInfo: return "Saved"
+        case .isCalendar: return "Event Added"
+        case .isReminder: return "Reminder Set"
+        default:  return "Done"
+            
+        }
+    }
     
     private func toIdleView() {
         isEditorFocused = false
@@ -333,11 +383,18 @@ struct InputView: View {
         }
     }
     
+    private func toResponseView() {
+        isEditorFocused = false
+        withAnimation(.easeInOut(duration: duration)) {
+            kViewState = .response
+        }
+    }
+    
     private func toinputStateFromState() {
-        isEditorFocused = true
         withAnimation(.easeInOut(duration: duration)) {
             kViewState = .input
         }
+        isEditorFocused = true
     }
     
     private func toSuccessState() {
@@ -346,12 +403,11 @@ struct InputView: View {
         }
     }
     
-    private func saveToPinecone() {
-        let metadata = toDictionary(desc: self.text)
-        let uniqueID = UUID().uuidString
-        
-        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .KView)
-    }
+//    private func saveToPinecone() {
+//        let metadata = toDictionary(desc: self.text)
+//        let uniqueID = UUID().uuidString
+//        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .KView)
+//    }
     
     private func processIntent(_ intent: IntentClassificationResponse) {
         
@@ -393,7 +449,7 @@ struct InputView: View {
         func body(content: Content) -> some View {
             content
             
-                .onChange(of: openAiManager.questionEmbeddingTrigger) {
+                .onChange(of: openAiManager.embeddingsTrigger) {
                     if openAiManager.userIntent?.type == .isQuestion {
                         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
                     } else if openAiManager.userIntent?.type == .saveInfo {
@@ -427,6 +483,7 @@ struct InputView: View {
                         debugLog("✅ Successfully saved to Pinecone")
                         withAnimation {
                             kViewState = .onSuccess
+                            
                         }
                     }
                 }
@@ -441,19 +498,19 @@ struct InputView: View {
     }
 }
 
-#Preview {
-    
-    let cloudKit = CloudKitViewModel.shared
-    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
-    let openAIActor = OpenAIActor()
-    let languageSettings = LanguageSettings.shared
-    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
-    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-    let networkManager = NetworkManager()
-    KView()
-        .environmentObject(openAIViewModel)
-        .environmentObject(pineconeViewModel)
-}
+//#Preview {
+//
+//    let cloudKit = CloudKitViewModel.shared
+//    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+//    let openAIActor = OpenAIActor()
+//    let languageSettings = LanguageSettings.shared
+//    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
+//    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
+//    let networkManager = NetworkManager()
+//    KView()
+//        .environmentObject(openAIViewModel)
+//        .environmentObject(pineconeViewModel)
+//}
 
 extension View {
     func onChangeHandlers(viewState: Binding<KView.ViewState>) -> some View {
@@ -470,7 +527,8 @@ struct ReminderConfirmationView: View {
         NavigationView {
             ZStack {
                 // Background behind the form
-                Image("oldPaper")
+                let reminderImage = randomBackgroundName()
+                Image(reminderImage)
                     .resizable()
                     .scaledToFill()
                     .blur(radius: 1)
@@ -478,44 +536,188 @@ struct ReminderConfirmationView: View {
                     .ignoresSafeArea()
                 
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
+                    gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
                     startPoint: .top,
-                    endPoint: .bottom
+                    endPoint: .center
                 )
                 .ignoresSafeArea()
                 
                 // The form
-                Form {
-                    TextField("Title", text: Binding(
-                        get: { wrapper.reminder.title },
-                        set: { wrapper.reminder.title = $0 }
-                    ))
-                    
-                    DatePicker("Alarm Time", selection: Binding(
-                        get: {
-                            wrapper.reminder.alarms?.first?.absoluteDate ?? Date()
-                        },
-                        set: { newDate in
-                            wrapper.reminder.alarms?.removeAll()
-                            wrapper.reminder.addAlarm(EKAlarm(absoluteDate: newDate))
-                        }
-                    ), displayedComponents: [.date, .hourAndMinute])
-                }
+                VStack {
+                    Form {
+                        TextField("Title", text: Binding(
+                            get: { wrapper.reminder.title },
+                            set: { wrapper.reminder.title = $0 }
+                        )) .font(.custom("New York", size: 18))
+                        
+                        DatePicker("Alarm Time", selection: Binding(
+                            get: {
+                                wrapper.reminder.alarms?.first?.absoluteDate ?? Date()
+                            },
+                            set: { newDate in
+                                wrapper.reminder.alarms?.removeAll()
+                                wrapper.reminder.addAlarm(EKAlarm(absoluteDate: newDate))
+                            }
+                        ), displayedComponents: [.date, .hourAndMinute])
+                        .font(.custom("New York", size: 18))
+                    }.formStyle(.automatic)
+                }.frame(maxWidth: 500)
+
                 .scrollContentBackground(.hidden)
-                .background(Color.clear)
+                    .background(Color.clear)
+                    .shadow(radius: 4)
+                    .padding(.horizontal, 42)
             }
-            .navigationTitle("Confirm Reminder")
+            .navigationTitle(Text("Confirm Reminder"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: onConfirm)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         wrapper.reminder.title = ""
                         openAiManager.pendingReminder = nil
                     }
+                    .font(.system(size: 18, weight: .regular, design: .rounded))
                 }
             }
         }
     }
+
+}
+
+struct CalendarConfirmationView: View {
+    @EnvironmentObject var openAiManager: OpenAIViewModel
+    @ObservedObject var wrapper: EventWrapper
+    var onConfirm: () -> Void
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                // Background behind the form
+                let calendarImage = randomBackgroundName()
+                Image(calendarImage)
+                    .resizable()
+                    .scaledToFill()
+                    .blur(radius: 1)
+                    .opacity(0.8)
+                    .ignoresSafeArea()
+                
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
+                    startPoint: .top,
+                    endPoint: .center
+                )
+                .ignoresSafeArea()
+                
+                // The form
+                VStack {
+                    Form {
+                        TextField("Title", text: Binding(
+                            get: { wrapper.event.title ?? "" },
+                            set: { wrapper.event.title = $0 }
+                        ))
+                        .font(.custom("New York", size: 18))
+                        
+                        DatePicker("Start", selection: Binding(
+                            get: { wrapper.event.startDate ?? Date() },
+                            set: { wrapper.event.startDate = $0 }
+                        ), displayedComponents: [.date, .hourAndMinute])
+                        .font(.custom("New York", size: 18))
+                        
+                        DatePicker("End", selection: Binding(
+                            get: { wrapper.event.endDate ?? Date().addingTimeInterval(3600) },
+                            set: { wrapper.event.endDate = $0 }
+                        ), displayedComponents: [.date, .hourAndMinute])
+                        .font(.custom("New York", size: 18))
+                        
+                        TextField("Location", text: Binding(
+                            get: { wrapper.event.location ?? "" },
+                            set: { wrapper.event.location = $0 }
+                        ))
+                        .font(.custom("New York", size: 18))
+                    }
+                    .formStyle(.automatic)
+                }
+                .frame(maxWidth: 500)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .shadow(radius: 4)
+                .padding(.horizontal, 42)
+            }
+            .navigationTitle(Text("Confirm Event"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save", action: onConfirm)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        openAiManager.pendingCalendarEvent = nil
+                    }
+                    .font(.system(size: 18, weight: .regular, design: .rounded))
+                }
+            }
+        }
+    }
+
+}
+
+func randomBackgroundName() -> String {
+    let imageCount = 14  // adjust if you have more
+    let index = Int.random(in: 1...imageCount)
+    return "rm\(index)"
+}
+
+// FOR REMINDER sheet
+//#Preview {
+//    let mockEventStore = EKEventStore()
+//    let mockReminder = EKReminder(eventStore: mockEventStore)
+//    mockReminder.title = "Call Alice"
+//    mockReminder.addAlarm(EKAlarm(absoluteDate: Date().addingTimeInterval(3600)))
+//    
+//    let wrapper = ReminderWrapper(reminder: mockReminder)
+//    let mockOpenAI = OpenAIViewModel(openAIActor: OpenAIActor())
+//    
+//    return ReminderConfirmationView(wrapper: wrapper) {
+//        print("Confirmed reminder")
+//    }
+//    .environmentObject(mockOpenAI)
+//}
+
+
+// For the KView!
+//#Preview {
+//
+//    let cloudKit = CloudKitViewModel.shared
+//    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+//    let openAIActor = OpenAIActor()
+//    let languageSettings = LanguageSettings.shared
+//    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
+//    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
+//    let networkManager = NetworkManager()
+//    KView()
+//        .environmentObject(openAIViewModel)
+//        .environmentObject(pineconeViewModel)
+//}
+
+//For the Calendar Sheet
+#Preview {
+    let eventStore = EKEventStore()
+    let mockEvent = EKEvent(eventStore: eventStore)
+    mockEvent.title = "Lunch with Bethan!"
+    mockEvent.startDate = Date()
+    mockEvent.endDate = Date().addingTimeInterval(3600)
+    mockEvent.location = "Italian Café"
+    
+    let wrapper = EventWrapper(event: mockEvent)
+    let mockOpenAI = OpenAIViewModel(openAIActor: OpenAIActor())
+
+    return CalendarConfirmationView(wrapper: wrapper) {
+        mockOpenAI.saveCalendarEvent()
+    }
+    .environmentObject(mockOpenAI)
 }
