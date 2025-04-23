@@ -44,6 +44,7 @@ struct KSettings: View {
                         }
                     }
                     .kiokuButton()
+                    .padding(.top, 25)
                     .sheet(isPresented: $showPromptLanguage) {
                         PromptLanguageView()
                     }
@@ -116,7 +117,6 @@ struct KSettings: View {
                         HStack {
                             Text("About us")
                             Spacer()
-                          
                         }
                     }
                     .kiokuButton()
@@ -125,10 +125,9 @@ struct KSettings: View {
                     }
                     
                     //TODO: Bring 'Delete Account' from old Settings!
-                }
+                }.padding(.top, 25)
                 
             }
-                .padding(.top, 25)
                 .padding(.horizontal, 20)
                 .frame(maxWidth: 400)
         }

@@ -51,44 +51,51 @@ struct KVault: View {
             .ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(alignment: .center, spacing: 24) {
                     if vectorsAreLoading {
-                       Text("Loading...")
+                        Text("Loading...")
                             .font(.custom("New York", size: 20))
                             .foregroundColor(.black)
                             .italic()
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.top, 40)
+                            .padding(.horizontal, 24)
                     } else if !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
-                        ForEach(Array(filteredVectors.enumerated()), id: \.element.id) { index, data in
+                        ForEach(Array(filteredVectors.enumerated()), id: \.element.id) { _, data in
                             Button {
                                 selectedVector = data
                                 showEditSheet = true
                             } label: {
                                 VaultCellView(data: data)
-                                    .padding(.horizontal, 16)
+                                    .padding(.horizontal, 24)
                             }
-                            .buttonStyle(PlainButtonStyle()) // Removes default button tint
+                            .buttonStyle(.plain)
                         }
                     } else if pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
                         Text("Nothing saved...")
-                             .font(.custom("New York", size: 20))
-                             .foregroundColor(.black)
-                             .italic()
-                             .padding(.top, 40)
+                            .font(.custom("New York", size: 20))
+                            .foregroundColor(.black)
+                            .italic()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 40)
+                            .padding(.horizontal, 24)
                     } else if let error = pineconeVm.pineconeErrorFromEdit {
                         errorView(error.localizedDescription)
-                        }
-                }
-                .searchable(text: $searchText)
-                .padding(.top, 32)
-                .padding(.horizontal, 42)
-                .sheet(isPresented: $showEditSheet) {
-                    if let vector = selectedVector {
-                        EditInfoView(viewModel: EditInfoViewModel(vector: vector))
+                            .padding(.horizontal, 24)
                     }
                 }
+                .padding(.top, 32)
             }
-        }
+            .frame(maxWidth: 600) // soft constraint for tablets
+            .padding(.horizontal)
+            .sheet(isPresented: $showEditSheet) {
+                if let vector = selectedVector {
+                    EditInfoView(viewModel: EditInfoViewModel(vector: vector))
+                } else {
+                    Text("vector is nil").bold()
+                }
+            }
+        }.frame(maxWidth: 400)
         .onAppear {
             if pineconeVm.pineconeFetchedVectors.isEmpty && !pineconeVm.accountDeleted {
                 vectorsAreLoading = true
@@ -121,6 +128,7 @@ struct KVault: View {
     private func fetchPineconeEntries() {
         if pineconeVm.accountDeleted { return }
         vectorsAreLoading = true
+        
         pineconeVm.refreshNamespacesIDs()
     }
     private func errorView(_ message: String) -> some View {
@@ -138,6 +146,7 @@ struct KVault: View {
     }
 }
 
+
 struct VaultCellView: View {
     let data: Vector
     @Environment(\.colorScheme) var colorScheme
@@ -147,22 +156,21 @@ struct VaultCellView: View {
             let note = data.metadata["description"] ?? "Empty note."
             let dateText = dateFromISO8601(isoDate: data.metadata["timestamp"] ?? "").map { formatDateForDisplay(date: $0) } ?? ""
 
-            (
+            VStack(alignment: .leading, spacing: 8) {
                 Text("\"\(note)\"")
                     .font(.custom("New York", size: 18))
                     .fontWeight(.semibold)
                     .foregroundColor(.black)
-                +
-                Text("\n\n   (\(dateText))")
+
+                Text("(\(dateText))")
                     .font(.custom("New York", size: 14))
                     .italic()
                     .foregroundColor(.black.opacity(0.8))
-                    
-            )
+            }
             .multilineTextAlignment(.leading)
-            .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
+        .frame(maxWidth: 350, alignment: .leading)
         .background(
             Image("oldPaper2")
                 .resizable()
@@ -175,42 +183,18 @@ struct VaultCellView: View {
     }
 }
 
-//#Preview {
-//    // Create lightweight actor stubs
-//    let mockCK = CloudKitViewModel.shared // okay for preview if not used deeply
-//    let mockPineconeActor = PineconeActor(cloudKitViewModel: mockCK)
-//
-//    // Mock PineconeViewModel with static data
-//    class MockPineconeViewModel: PineconeViewModel {
-//        override init(pineconeActor: PineconeActor, CKviewModel: CloudKitViewModel) {
-//            super.init(pineconeActor: pineconeActor, CKviewModel: CKviewModel)
-//            self.pineconeFetchedVectors = [
-//                Vector(
-//                    id: UUID().uuidString,
-//                    metadata: [
-//                        "description": "Meeting with Alice about the new design pitch.",
-//                        "timestamp": ISO8601DateFormatter().string(from: Date())
-//                    ]
-//                ),
-//                Vector(
-//                    id: UUID().uuidString,
-//                    metadata: [
-//                        "description": "Dentist appointment on Monday morning.",
-//                        "timestamp": ISO8601DateFormatter().string(from: Date().addingTimeInterval(-86400))
-//                    ]
-//                )
-//            ]
-//        }
-//    }
-//
-//    let pineconeVM = MockPineconeViewModel(pineconeActor: mockPineconeActor, CKviewModel: mockCK)
-//    let networkManager = NetworkManager()
-//
-//    KVault()
-//        .environmentObject(pineconeVM)
-//        .environmentObject(networkManager)
-//        .environmentObject(mockCK)
-//}
+#Preview {
+    let cloudKit = CloudKitViewModel.shared
+    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+    let openAIActor = OpenAIActor()
+    let languageSettings = LanguageSettings.shared
+    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
+    let networkManager = NetworkManager()
+    
+    KVault()
+        .environmentObject(pineconeViewModel)
+        .environmentObject(networkManager)
+}
 
 
 
