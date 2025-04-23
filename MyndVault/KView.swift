@@ -35,6 +35,7 @@ struct KView: View {
     @FocusState private var isEditorFocused: Bool
     @StateObject private var audioRecorder: AudioRecorder = AudioRecorder()
     @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var pineconeManager: PineconeViewModel
     @State private var micColor: Color = .white
     @State private var viewTransitionDelay: Double = 0.4
     @State private var viewTransitionDuration: Double = 0.4
@@ -109,29 +110,47 @@ struct KView: View {
             settingsSwipeGestureLayer
             
             // MARK: - Overlays
+            // This layer blocks interaction below
+                if showSettings  || showVault {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .ignoresSafeArea()
+                        .onTapGesture {} // eat taps
+                        .zIndex(2)
+                }
+
+                // Actual overlay on top
+                if showSettings {
+                    KSettings()
+                        .transition(.move(edge: .trailing))
+                        .zIndex(3)
+                }
             if showVault {
-                VaultView()
+                KVault()
                     .transition(.move(edge: .leading))
-            }
-            if showSettings {
-               KSettings()
-                    .transition(.move(edge: .trailing))
+                    .zIndex(3)
             }
             //MARK: End of gestures
         }
+        .zIndex(0)
         .ignoresSafeArea()
-        .onTapGesture { handleTap() }
+        .onTapGesture {
+            if !showSettings || !showVault {
+                handleTap()
+            }
+        }
         .statusBar(hidden: true)
+        .allowsHitTesting(!showSettings || !showVault)
         .gesture(
-                    DragGesture(minimumDistance: 30)
-                        .onEnded { value in
-                            if value.startLocation.x < 20 && value.translation.width > 100 {
-                                withAnimation { showVault = true }
-                            } else if value.startLocation.x > UIScreen.main.bounds.width - 20 && value.translation.width < -100 {
-                                withAnimation { showSettings = true }
-                            }
-                        }
-                )
+            showSettings ? nil : DragGesture(minimumDistance: 30)
+                .onEnded { value in
+                    if value.startLocation.x < 20 && value.translation.width > 100 {
+                        withAnimation { showVault = true }
+                    } else if value.startLocation.x > UIScreen.main.bounds.width - 20 && value.translation.width < -100 {
+                        withAnimation { showSettings = true }
+                    }
+                }
+        )
     }
     
     func imageForToday() -> String {
@@ -488,6 +507,7 @@ struct InputView: View {
         @Binding var kViewState: KView.ViewState
         @EnvironmentObject var openAiManager: OpenAIViewModel
         @EnvironmentObject var pineconeManager: PineconeViewModel
+        @EnvironmentObject var networkManager: NetworkManager
         
         func body(content: Content) -> some View {
             content
@@ -534,6 +554,13 @@ struct InputView: View {
                     if let error = error {
                         withAnimation {
                             kViewState = .onError(error.localizedDescription)
+                        }
+                    }
+                }
+                .onChange(of: networkManager.hasInternet) { _, hasInternet in
+                    if !hasInternet {
+                        withAnimation {
+                            kViewState = .onError("Check your Connection")
                         }
                     }
                 }
@@ -742,9 +769,11 @@ func randomBackgroundName() -> String {
 //    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
 //    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
 //    let networkManager = NetworkManager()
+//    let networkManager = NetworkManager()
 //    KView()
 //        .environmentObject(openAIViewModel)
 //        .environmentObject(pineconeViewModel)
+//          .environmentObject(networkManager)
 //}
 
 //For the Calendar Sheet

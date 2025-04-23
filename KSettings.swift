@@ -24,9 +24,9 @@ struct KSettings: View {
                 .ignoresSafeArea()
             
             LinearGradient(
-                gradient: Gradient(colors: [Color.white.opacity(0.7), Color.clear]),
+                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
                 startPoint: .top,
-                endPoint: .center
+                endPoint: .bottom
             )
             .ignoresSafeArea()
 
@@ -40,24 +40,7 @@ struct KSettings: View {
                         HStack {
                             Text("Prompt Language")
                             Spacer()
-                            Image(systemName: "chevron.right")
-                        }
-                    }
-                    .kiokuButton()
-                    .sheet(isPresented: $showPromptLanguage) {
-                        PromptLanguageView()
-                    }
-                    
-                    
-                    
-                    //MARK: About Us
-                    Button {
-                        showAboutUs.toggle()
-                    } label: {
-                        HStack {
-                            Text("About Us")
-                            Spacer()
-                            Image(systemName: "chevron.right")
+                           
                         }
                     }
                     .kiokuButton()
@@ -71,9 +54,11 @@ struct KSettings: View {
                         Button {
                             openAppSettings()
                         } label: {
-                            Text("App General Settings")
-                            Spacer()
-                            Image(systemName: "chevron.right")
+                            HStack {
+                                Text("App General Settings")
+                                Spacer()
+                            }
+                            
                         }.kiokuButton()
                     }
                     
@@ -82,9 +67,11 @@ struct KSettings: View {
                         Button {
                             openSubscriptionManagement()
                         } label: {
-                            Text("Manage Subscription")
-                            Spacer()
-                            Image(systemName: "chevron.right")
+                            HStack {
+                                Text("Manage Subscription")
+                                Spacer()
+                            }
+                            
                         }.kiokuButton()
                     }
                    //MARK: Privacy Policy
@@ -94,7 +81,7 @@ struct KSettings: View {
                         HStack {
                             Text("Privacy Policy")
                             Spacer()
-                            Image(systemName: "chevron.right")
+                            
                         }
                     }
                     .kiokuButton()
@@ -104,28 +91,48 @@ struct KSettings: View {
                     Button {
                         eula()
                     } label: {
-                        Text("Terms of use")
-                        Spacer()
-                        Image(systemName: "chevron.right")
+                        HStack {
+                            Text("Terms of use")
+                            Spacer()
+                        }
+//                        Image(systemName: "chevron.right")
                     } .kiokuButton()
                     
                     //MARK: Open Support request
                     Button {
                         openSupportRequest()
                     } label: {
-                        Text("Support Request")
-                        Spacer()
-                        Image(systemName: "chevron.right")
+                        HStack {
+                            Text("Support Request")
+                            Spacer()
+                        }
+//                        Image(systemName: "chevron.right")
                     }.kiokuButton()
                     
+                    //MARK: About Us
+                    Button {
+                        showAboutUs.toggle()
+                    } label: {
+                        HStack {
+                            Text("About us")
+                            Spacer()
+                          
+                        }
+                    }
+                    .kiokuButton()
+                    .sheet(isPresented: $showPromptLanguage) {
+                        PromptLanguageView()
+                    }
                     
-                    //TODO: Delete Account from old Settings!
+                    //TODO: Bring 'Delete Account' from old Settings!
                 }
                 
             }
-                .padding(.top, 32)
+                .padding(.top, 25)
+                .padding(.horizontal, 20)
                 .frame(maxWidth: 400)
-        }.onAppear {
+        }
+        .onAppear {
             checkOpeningSettings()
             checkOpeningSubscriptions()
         }
