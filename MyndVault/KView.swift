@@ -46,14 +46,13 @@ struct KView: View {
         ZStack(alignment: .bottomTrailing) {
             GeometryReader { geo in
                 if viewState == .idle {
-                    
                     Image(selectedImage)
                         .resizable()
                         .scaledToFill()
                         .clipped()
                         .ignoresSafeArea()
                 }
-                
+
                 ScrollView {
                     VStack {
                         if viewState != .idle {
@@ -68,23 +67,27 @@ struct KView: View {
                             .transition(.opacity)
                             .frame(height: geo.size.height)
                         }
-                    } .frame(width: geo.size.width, height: geo.size.height)
+                    }
+                    .frame(width: geo.size.width, height: geo.size.height)
                     Spacer()
                 }
                 .ignoresSafeArea()
                 .frame(width: geo.size.width)
+                .zIndex(0)
+                .allowsHitTesting(!(showSettings || showVault)) // disable interaction
             }
             .ignoresSafeArea(.keyboard, edges: .all)
             .onAppear {
                 selectedImage = imageForToday()
                 if let uiImage = UIImage(named: selectedImage) {
                     let brightness = averageBrightness(of: uiImage)
-                    micColor = brightness > 0.7 ? .black : .white // Tune threshold if needed
+                    micColor = brightness > 0.7 ? .black : .white
                 }
             }
+
             KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
                 .opacity(viewState == .idle ? 1 : 0)
-                .allowsHitTesting(viewState == .idle)
+                .allowsHitTesting(viewState == .idle && !(showSettings || showVault)) // prevent interaction while overlays are shown
                 .onChange(of: recordingURL) { _, url in
                     if let url {
                         Task {
@@ -94,55 +97,43 @@ struct KView: View {
                 }
                 .onChange(of: openAiManager.transcriptionFromWhisper) { _, newTranscript in
                     guard !newTranscript.isEmpty else { return }
-                    
                     text = newTranscript
                     showInputView()
-                    
-                    // Clean up audio
                     audioRecorder.deleteAudioAndUrl()
                     recordingURL = nil
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 140)
-            
-            //MARK: For drag gestures
+
+            // MARK: - Drag gesture layers
             vaultSwipeGestureLayer
             settingsSwipeGestureLayer
-            
-            // MARK: - Overlays
-            // This layer blocks interaction below
-                if showSettings  || showVault {
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .ignoresSafeArea()
-                        .onTapGesture {} // eat taps
-                        .zIndex(2)
-                }
 
-                // Actual overlay on top
+            // MARK: - Overlay blocker + views
+            if showSettings || showVault {
+                Color.black.opacity(0.001) // absorbs taps
+                    .ignoresSafeArea()
+                    .zIndex(2)
+                    .onTapGesture {} // absorbs touches
+
                 if showSettings {
                     KSettings()
                         .transition(.move(edge: .trailing))
                         .zIndex(3)
                 }
-            if showVault {
-                KVault()
-                    .transition(.move(edge: .leading))
-                    .zIndex(3)
+
+                if showVault {
+                    KVault()
+                        .transition(.move(edge: .leading))
+                        .zIndex(3)
+                }
             }
-            //MARK: End of gestures
         }
-        .zIndex(0)
         .ignoresSafeArea()
-        .onTapGesture {
-            if !showSettings || !showVault {
-                handleTap()
-            }
-        }
         .statusBar(hidden: true)
-        .allowsHitTesting(!showSettings || !showVault)
         .gesture(
-            showSettings ? nil : DragGesture(minimumDistance: 30)
+            showSettings || showVault ? nil :
+            DragGesture(minimumDistance: 30)
                 .onEnded { value in
                     if value.startLocation.x < 20 && value.translation.width > 100 {
                         withAnimation { showVault = true }
@@ -151,8 +142,12 @@ struct KView: View {
                     }
                 }
         )
+        .onTapGesture {
+            if !showSettings && !showVault {
+                handleTap()
+            }
+        }
     }
-    
     func imageForToday() -> String {
         let dayIndex = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0
         return backgroundImages[dayIndex % backgroundImages.count]
@@ -768,7 +763,6 @@ func randomBackgroundName() -> String {
 //    let languageSettings = LanguageSettings.shared
 //    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
 //    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-//    let networkManager = NetworkManager()
 //    let networkManager = NetworkManager()
 //    KView()
 //        .environmentObject(openAIViewModel)
