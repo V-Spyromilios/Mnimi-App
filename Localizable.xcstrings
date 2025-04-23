@@ -65,6 +65,12 @@
         }
       }
     },
+    "\n\n   (%@)" : {
+
+    },
+    "\"%@\"" : {
+
+    },
     "%@" : {
       "localizations" : {
         "de" : {
@@ -401,6 +407,9 @@
         }
       }
     },
+    "About us" : {
+
+    },
     "Access the world's most advanced and secure AI" : {
       "localizations" : {
         "de" : {
@@ -659,6 +668,9 @@
           }
         }
       }
+    },
+    "App General Settings" : {
+
     },
     "Are you sure you want to delete this info?" : {
       "localizations" : {
@@ -2515,6 +2527,9 @@
         }
       }
     },
+    "Loading..." : {
+
+    },
     "loadingDotsViewText" : {
       "localizations" : {
         "de" : {
@@ -2977,6 +2992,9 @@
           }
         }
       }
+    },
+    "Nothing saved..." : {
+
     },
     "Notifications" : {
       "localizations" : {
@@ -4424,6 +4442,9 @@
           }
         }
       }
+    },
+    "Terms of use" : {
+
     },
     "Terms of Use" : {
       "localizations" : {
