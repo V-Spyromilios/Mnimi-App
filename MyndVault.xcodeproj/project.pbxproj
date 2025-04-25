@@ -38,6 +38,9 @@
 		E83D83FC2C5903DD002BBDE7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E83D83FB2C5903DD002BBDE7 /* Localizable.xcstrings */; };
 		E840D1AE2C427BA8000DB7AD /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = E840D1AD2C427BA8000DB7AD /* Lottie */; };
 		E840D1B02C427C9E000DB7AD /* LottieRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E840D1AF2C427C9E000DB7AD /* LottieRepresentable.swift */; };
+		E84203E32DBB851C00DFCFE2 /* KEditInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84203E22DBB851C00DFCFE2 /* KEditInfoViewModel.swift */; };
+		E84203E52DBB853800DFCFE2 /* KEditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84203E42DBB853800DFCFE2 /* KEditInfoView.swift */; };
+		E84203E72DBBA15500DFCFE2 /* NewYorkItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E84203E62DBBA15500DFCFE2 /* NewYorkItalic.ttf */; };
 		E8459B2B2C45AC020039BFA7 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459B2A2C45AC020039BFA7 /* ErrorView.swift */; };
 		E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */; };
 		E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */; };
@@ -145,6 +148,9 @@
 		E838498F2C3471B200C7E390 /* FullScreenImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImage.swift; sourceTree = "<group>"; };
 		E83D83FB2C5903DD002BBDE7 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E840D1AF2C427C9E000DB7AD /* LottieRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieRepresentable.swift; sourceTree = "<group>"; };
+		E84203E22DBB851C00DFCFE2 /* KEditInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEditInfoViewModel.swift; sourceTree = "<group>"; };
+		E84203E42DBB853800DFCFE2 /* KEditInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEditInfoView.swift; sourceTree = "<group>"; };
+		E84203E62DBBA15500DFCFE2 /* NewYorkItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NewYorkItalic.ttf; sourceTree = "<group>"; };
 		E8459B2A2C45AC020039BFA7 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyndVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyndVaultApp.swift; sourceTree = "<group>"; };
@@ -291,6 +297,8 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E84203E22DBB851C00DFCFE2 /* KEditInfoViewModel.swift */,
+				E84203E42DBB853800DFCFE2 /* KEditInfoView.swift */,
 				E81AABDD2DB8FC4300BF7C1A /* KVault.swift */,
 				E87530912DB7BD6C0020BFDD /* KSettings.swift */,
 				E88B34D22DB3A99A002B43C2 /* BrightnessChecker.swift */,
@@ -334,6 +342,7 @@
 			children = (
 				E8BDF9C32CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf */,
 				E8B72E902BC93B9600E0C90D /* Info.plist */,
+				E84203E62DBBA15500DFCFE2 /* NewYorkItalic.ttf */,
 				E8FA7F182BC5D3C60012EBF6 /* MyndVault.entitlements */,
 				E82F45672BC2A77E00945312 /* Configurations */,
 				E82F456C2BC2A77E00945312 /* Notification Views */,
@@ -512,6 +521,7 @@
 			files = (
 				E83D83FC2C5903DD002BBDE7 /* Localizable.xcstrings in Resources */,
 				E877FA272C4A92D4002FBFFC /* Woman_vault.json in Resources */,
+				E84203E72DBBA15500DFCFE2 /* NewYorkItalic.ttf in Resources */,
 				E87874402C677F4B001299D9 /* ManWithLaptop.json in Resources */,
 				E85055092C42CF2A00FBACC4 /* Image Recognition.json in Resources */,
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
@@ -560,6 +570,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E84203E32DBB851C00DFCFE2 /* KEditInfoViewModel.swift in Sources */,
 				E87605B92C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift in Sources */,
 				E8E4A68C2D2F22F8002A122B /* CoolButton.swift in Sources */,
 				E81AABDE2DB8FC4300BF7C1A /* KVault.swift in Sources */,
@@ -573,6 +584,7 @@
 				E87605B72C7A18AD002A13E5 /* RCViewModel.swift in Sources */,
 				E8B4D50C2BF8D37100F2A174 /* InitialSetupView.swift in Sources */,
 				E8459B2B2C45AC020039BFA7 /* ErrorView.swift in Sources */,
+				E84203E52DBB853800DFCFE2 /* KEditInfoView.swift in Sources */,
 				E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */,
 				E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */,
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,

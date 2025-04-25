@@ -23,6 +23,7 @@
 	<string>MyndVault needs access to your reminders to create tasks when you want to</string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>NewYorkItalic.ttf</string>
 		<string>SF-Mono-Semibold.otf</string>
 		<string>NewYork.ttf</string>
 	</array>

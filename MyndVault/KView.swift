@@ -41,6 +41,8 @@ struct KView: View {
     @State private var viewTransitionDuration: Double = 0.4
     @State private var showVault: Bool = false
     @State private var showSettings: Bool = false
+    
+    @GestureState private var dragOffset: CGFloat = 0
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -49,8 +51,8 @@ struct KView: View {
                     Image(selectedImage)
                         .resizable()
                         .scaledToFill()
-                        .clipped()
                         .ignoresSafeArea()
+                        .clipped()
                 }
 
                 ScrollView {
@@ -86,7 +88,7 @@ struct KView: View {
             }
 
             KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
-                .opacity(viewState == .idle ? 1 : 0)
+                .opacity((viewState == .idle && !(showSettings || showVault)) ? 1 : 0)
                 .allowsHitTesting(viewState == .idle && !(showSettings || showVault)) // prevent interaction while overlays are shown
                 .onChange(of: recordingURL) { _, url in
                     if let url {
@@ -115,25 +117,48 @@ struct KView: View {
                     .ignoresSafeArea()
                     .zIndex(2)
                     .onTapGesture {} // absorbs touches
-
+                
                 if showSettings {
                     KSettings()
-                        .transition(.move(edge: .trailing))
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                        .animation(.easeInOut(duration: 0.35), value: showSettings)
                         .zIndex(3)
+                        .gesture(
+                            DragGesture(minimumDistance: 20)
+                                .onEnded { value in
+                                    if value.translation.width > 80 {
+                                        withAnimation { showSettings = false }
+                                    }
+                                }
+                        )
                 }
 
                 if showVault {
                     KVault()
-                        .transition(.move(edge: .leading))
+                        .frame(width: UIScreen.main.bounds.width)
+                        .transition(.move(edge: .leading).combined(with: .opacity))
+                        .animation(.easeInOut(duration: 0.35), value: showVault)
                         .zIndex(3)
+                        .gesture(
+                            DragGesture(minimumDistance: 20)
+                                .onEnded { value in
+                                    if value.translation.width < -80 {
+                                        withAnimation { showVault = false }
+                                    }
+                                }
+                        )
                 }
             }
         }
         .ignoresSafeArea()
         .statusBar(hidden: true)
+//        .offset(x: dragOffset)
         .gesture(
             showSettings || showVault ? nil :
             DragGesture(minimumDistance: 30)
+                .updating($dragOffset) { value, state, _ in
+                    state = value.translation.width
+                }
                 .onEnded { value in
                     if value.startLocation.x < 20 && value.translation.width > 100 {
                         withAnimation { showVault = true }
@@ -148,6 +173,7 @@ struct KView: View {
             }
         }
     }
+    
     func imageForToday() -> String {
         let dayIndex = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0
         return backgroundImages[dayIndex % backgroundImages.count]
@@ -274,11 +300,19 @@ struct InputView: View {
         .sheet(item: $openAiManager.pendingReminder) { wrapper in
             ReminderConfirmationView(wrapper: wrapper) {
                 openAiManager.savePendingReminder()
+            } onCancel: {
+                openAiManager.pendingReminder = nil
+                text = ""
+                toinputStateFromState()
             }
         }
         .sheet(item: $openAiManager.pendingCalendarEvent) { wrapper in
             CalendarConfirmationView(wrapper: wrapper) {
                 openAiManager.saveCalendarEvent()
+            } onCancel: {
+                openAiManager.pendingCalendarEvent = nil
+                text = ""
+                toinputStateFromState()
             }
         }
     }
@@ -587,6 +621,7 @@ struct ReminderConfirmationView: View {
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @ObservedObject var wrapper: ReminderWrapper
     var onConfirm: () -> Void
+    var onCancel: () -> Void
     
     var body: some View {
         NavigationView {
@@ -657,6 +692,7 @@ struct CalendarConfirmationView: View {
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @ObservedObject var wrapper: EventWrapper
     var onConfirm: () -> Void
+    var onCancel: () -> Void
     
     var body: some View {
         NavigationView {
@@ -720,9 +756,7 @@ struct CalendarConfirmationView: View {
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                 }
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        openAiManager.pendingCalendarEvent = nil
-                    }
+                    Button("Cancel", action: onCancel)
                     .font(.system(size: 18, weight: .regular, design: .rounded))
                 }
             }
@@ -784,6 +818,8 @@ func randomBackgroundName() -> String {
 
     return CalendarConfirmationView(wrapper: wrapper) {
         mockOpenAI.saveCalendarEvent()
+    } onCancel: {
+       
     }
     .environmentObject(mockOpenAI)
 }

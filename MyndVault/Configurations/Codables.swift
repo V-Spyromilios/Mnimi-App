@@ -347,8 +347,9 @@ struct PineconeIDResponse: Codable {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             self.id = try container.decode(String.self, forKey: .id)
         }
+        
     }
-    
+
     struct Pagination: Codable {
         let next: String
         

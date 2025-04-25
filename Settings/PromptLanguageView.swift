@@ -8,68 +8,68 @@
 import SwiftUI
 
 struct PromptLanguageView: View {
-    
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var languageSettings: LanguageSettings
 
-    
     var body: some View {
-        ScrollView {
-            
-            VStack(spacing: 10) {
-                ForEach(LanguageCode.allCases, id: \.self) { language in
-                    Button(action: {
-                       
-                        languageSettings.selectedLanguage = language
-                    }) {
-                        HStack {
-                            Text(language.displayName)
-                                .foregroundStyle(colorScheme == .light ? .black : Color.white)
-                            Spacer()
-                            if language == languageSettings.selectedLanguage {
-                                Text(language.flagEmoji).font(.title3)
-                            }
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background( Color.black)
-                        .cornerRadius(10)
-                        .shadow(color: colorScheme == .dark ? .white : .black, radius: language == languageSettings.selectedLanguage ? 5 : 2)
-                        .contentShape(Rectangle())
-                        .accessibilityLabel("selected Language: \(language.rawValue)")
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-            .padding(.top, 12)
-            .padding(.horizontal)
-        }
-        .background {
-            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                .opacity(0.4)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        NavigationView {
+            ZStack {
+                // Background
+                Image("oldPaper")
+                    .resizable()
+                    .scaledToFill()
+                    .blur(radius: 1)
+                    .opacity(0.85)
+                    .ignoresSafeArea()
+
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
                 .ignoresSafeArea()
-        }
-        .navigationTitle("Language")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    self.presentationMode.wrappedValue.dismiss()
-                }) {
-                    HStack {
-                        Image(systemName: "chevron.left")
-                        Text("Settings")
-                    }.font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
-                        .minimumScaleFactor(0.8)
-                        .lineLimit(2)
+
+                ScrollView {
+                    VStack(spacing: 17) {
+                        ForEach(LanguageCode.allCases, id: \.self) { language in
+                            Button(action: {
+                                languageSettings.selectedLanguage = language
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                    dismiss()
+                                }
+                            }) {
+                                HStack {
+                                    Text(language.displayName)
+                                        .font(.custom("New York", size: 18))
+                                        .foregroundStyle(.black)
+                                        .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
+                                        .underline(language == languageSettings.selectedLanguage, color: .primary)
+                                        .animation(.easeInOut(duration: 0.2), value: languageSettings.selectedLanguage)
+
+                                    Spacer()
+                                }
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.clear)
+                                )
+                                
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.top, 24)
+                    .padding(.horizontal, 24)
+                    .frame(maxWidth: UIScreen.main.bounds.width)
                 }
             }
         }
     }
 }
 #Preview {
+    let languageSettings = LanguageSettings.shared
     PromptLanguageView()
+        .environmentObject(languageSettings)
 }

@@ -61,7 +61,6 @@ class PineconeViewModel: ObservableObject {
     @Published var pineconeErrorFromQ: PineconeError?
     @Published var pineconeErrorOnDel: PineconeError?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
-    @Published var vectorDeleted: Bool = false
     @Published var accountDeleted: Bool = false
     @Published var pineconeIDResponse: PineconeIDResponse?
     @Published var pineconeIDs: [String] = []
@@ -163,18 +162,15 @@ class PineconeViewModel: ObservableObject {
         }
     }
     
-    func deleteVectorFromPinecone(id: String) async {
-        debugLog("deleteVectorFromPinecone CALLED") //NO task here the EditInfoView.deleteInfo has spawn Task!
-            do {
-                try await pineconeActor.deleteVectorFromPinecone(id: id)
-                await MainActor.run {
-                    self.vectorDeleted = true
-                }
-            } catch {
-
-                self.pineconeErrorOnDel = .deleteFailed(error)
-            }
-        
+    func deleteVectorFromPinecone(id: String) async -> Bool {
+        debugLog("deleteVectorFromPinecone CALLED")
+        do {
+            try await pineconeActor.deleteVectorFromPinecone(id: id)
+            return true
+        } catch {
+            self.pineconeErrorOnDel = .deleteFailed(error)
+            return false
+        }
     }
     
     func deleteAllVectorsInNamespace() async {
