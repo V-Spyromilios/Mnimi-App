@@ -19,7 +19,10 @@ struct KVault: View {
     @State private var searchText: String = ""
     
     @State private var selectedVector: Vector? = nil
-    @State private var showEditSheet = false
+    @State private var inputedDescription: String = ""
+
+    @StateObject var editViewModel = KEditInfoViewModel.empty
+    @State private var isEditing = false
 
     var filteredVectors: [Vector] {
         if searchText.isEmpty {
@@ -35,75 +38,25 @@ struct KVault: View {
     }
 
     var body: some View {
+
         ZStack {
-            Image("oldPaper")
-                .resizable()
-                .scaledToFill()
-                .blur(radius: 1)
-                .opacity(0.85)
-                .ignoresSafeArea()
-
-            LinearGradient(
-                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
-            ScrollView {
-                VStack(alignment: .center, spacing: 24) {
-                    if vectorsAreLoading {
-                        Text("Loading...")
-                            .font(.custom("New York", size: 20))
-                            .foregroundColor(.black)
-                            .italic()
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.top, 40)
-                            .padding(.horizontal, 24)
-                    } else if !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
-                        ForEach(Array(filteredVectors.enumerated()), id: \.element.id) { _, data in
-                            Button {
-                                selectedVector = data
-                                showEditSheet = true
-                            } label: {
-                                VaultCellView(data: data)
-                                    .padding(.horizontal, 24)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    } else if pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
-                        Text("Nothing saved...")
-                            .font(.custom("New York", size: 20))
-                            .foregroundColor(.black)
-                            .italic()
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.top, 40)
-                            .padding(.horizontal, 24)
-                    } else if let error = pineconeVm.pineconeErrorFromEdit {
-                        errorView(error.localizedDescription)
-                            .padding(.horizontal, 24)
-                    }
-                }
-                .padding(.top, 32)
-            }
-            .frame(maxWidth: 600) // soft constraint for tablets
+            backgroundView
+                   contentView
+//            .frame(maxWidth: 400) // soft constraint for tablets
             .padding(.horizontal)
-            .sheet(isPresented: $showEditSheet) {
-                if let vector = selectedVector {
-                    EditInfoView(viewModel: EditInfoViewModel(vector: vector))
-                } else {
-                    Text("vector is nil").bold()
-                }
-            }
-        }.frame(maxWidth: 400)
+        }
+        .frame(width: UIScreen.main.bounds.width)
+        .clipped()
         .onAppear {
-            if pineconeVm.pineconeFetchedVectors.isEmpty && !pineconeVm.accountDeleted {
-                vectorsAreLoading = true
+            if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
+                withAnimation {
+                    vectorsAreLoading = true }
                 fetchPineconeEntries()
             }
         }
         .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
-            vectorsAreLoading = false
+            withAnimation {
+                vectorsAreLoading = false }
             showEmpty = vectors.isEmpty
         }
         .onReceive(pineconeVm.$pineconeErrorFromEdit) { error in
@@ -125,6 +78,10 @@ struct KVault: View {
         }
     }
 
+    
+    
+    
+    
     private func fetchPineconeEntries() {
         if pineconeVm.accountDeleted { return }
         vectorsAreLoading = true
@@ -144,7 +101,98 @@ struct KVault: View {
         .font(.custom("New York", size: 20))
         .foregroundColor(.black)
     }
+    
+    private func closeSheet() {
+        selectedVector = nil
+        
+    }
+
+    private var backgroundView: some View {
+        ZStack {
+            Image("oldPaper")
+                .resizable()
+                .scaledToFill()
+                .blur(radius: 1)
+                .opacity(0.85)
+                .ignoresSafeArea()
+
+            LinearGradient(
+                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+        }
+    }
+
+    private var contentView: some View {
+        ScrollView {
+            VStack(alignment: .center, spacing: 24) {
+                if vectorsAreLoading {
+                    loadingView()
+                } else if !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
+                    KSearchBar(text: $searchText)
+                        .frame(maxWidth: 380)
+                    ForEach(Array(filteredVectors.enumerated()), id: \.element.id) { _, data in
+                        Button {
+                            editViewModel.update(with: data)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                isEditing = true }
+                        } label: {
+                            VaultCellView(data: data)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } else if pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
+                    emptyView()
+                } else if let error = pineconeVm.pineconeErrorFromEdit {
+                    errorView(error.localizedDescription)
+                        .padding(.horizontal, 24)
+                }
+            }
+            .padding(.top, 32)
+            .transition(.opacity)
+        }
+        .frame(maxWidth: UIScreen.main.bounds.width)
+        .clipped()
+        .contentShape(Rectangle())
+        .sheet(isPresented: $isEditing) {
+            KEditInfoView(
+                viewModel: editViewModel,
+                onSave: {
+                    isEditing = false
+                },
+                onCancel: {
+                    isEditing = false
+                }
+            ) .id(editViewModel.id)
+        }
+        .onChange(of: isEditing) { _, newValue in
+            if newValue == false {
+                // Sheet was dismissed manually or programmatically
+                editViewModel.update(with: .empty)
+            }
+        }
+    }
 }
+
+    private func loadingView() -> some View {
+        Text("Loading...")
+            .font(.custom("New York", size: 20))
+            .foregroundColor(.black)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, 40)
+            .padding(.horizontal, 24)
+    }
+    
+    private func emptyView() -> some View {
+        Text("Loading...")
+            .font(.custom("New York", size: 20))
+            .foregroundColor(.black)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, 40)
+            .padding(.horizontal, 24)
+    }
 
 
 struct VaultCellView: View {
@@ -170,50 +218,83 @@ struct VaultCellView: View {
             .multilineTextAlignment(.leading)
         }
         .padding()
-        .frame(maxWidth: 350, alignment: .leading)
-        .background(
-            Image("oldPaper2")
-                .resizable()
-                .scaledToFill()
-                .clipped()
-                .opacity(0.2)
-        )
-        .cornerRadius(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+        .drawingGroup()
     }
 }
 
-#Preview {
-    let cloudKit = CloudKitViewModel.shared
-    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
-    let openAIActor = OpenAIActor()
-    let languageSettings = LanguageSettings.shared
-    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
-    let networkManager = NetworkManager()
-    
-    KVault()
-        .environmentObject(pineconeViewModel)
-        .environmentObject(networkManager)
+extension Vector {
+    static var empty: Vector {
+        Vector(id: UUID().uuidString, metadata: [:])
+    }
 }
 
+struct KSearchBar: View {
+    @Binding var text: String
+    @FocusState private var isFocused: Bool
 
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.gray)
+                
+            TextField("Search saved info...", text: $text)
+                .font(.custom("NewYork-RegularItalic", size: 15))
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .foregroundColor(.black)
+                .focused($isFocused)
+                .submitLabel(.done)
 
+            if !text.isEmpty {
+                Button(action: { text = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                }
+            }
+        }
+        .padding(12)
+        .onTapGesture {
+            isFocused.toggle()
+        }
+        .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 2)
+        .padding(.horizontal, 24)
+        .padding(.top, 16)
+    }
+}
 
 //#Preview {
+//    let cloudKit = CloudKitViewModel.shared
+//    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+//    let openAIActor = OpenAIActor()
+//    let languageSettings = LanguageSettings.shared
+//    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
+//    let networkManager = NetworkManager()
 //    
-//    let formatter = ISO8601DateFormatter()
-//    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-//    
-//    let mockVector = Vector(
-//        id: UUID().uuidString,
-//        metadata: [
-//            "description": "Lunch with Leo on Friday. Don’t forget the location is Café Central.",
-//            "timestamp":  formatter.string(from: Date())
-//        ]
-//    )
-//    
-//    return VaultCellView(data: mockVector)
-//        
-//        .padding()
-//        .background(Color.white)
+//    KVault()
+//        .environmentObject(pineconeViewModel)
+//        .environmentObject(networkManager)
 //}
+
+
+
+
+#Preview {
+    
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    
+    let mockVector = Vector(
+        id: UUID().uuidString,
+        metadata: [
+            "description": "Lunch with Leo on Friday. Don’t forget the location is Café Central.",
+            "timestamp":  formatter.string(from: Date())
+        ]
+    )
+    
+    return VaultCellView(data: mockVector)
+        
+        .padding()
+        .background(Color.white)
+}

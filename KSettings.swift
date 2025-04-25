@@ -8,13 +8,27 @@
 import SwiftUI
 
 struct KSettings: View {
-    
-    @State private var showPromptLanguage = false
-    @State private var showAboutUs = false
+
+    @EnvironmentObject var language: LanguageSettings
     @State private var canShowAppSettings: Bool = true
     @State private var canShowSubscription: Bool = true
     
+    enum SettingsSheet: Identifiable {
+        case promptLanguage
+        case aboutUs
+
+        var id: Int {
+            switch self {
+            case .promptLanguage: return 0
+            case .aboutUs: return 1
+            }
+        }
+    }
+    
+    @State private var activeSheet: SettingsSheet?
+    
     var body: some View {
+
         ZStack {
             Image("oldPaper")
                 .resizable()
@@ -29,25 +43,23 @@ struct KSettings: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
-
+            
             ScrollView {
                 VStack(spacing: 24) {
                     
                     //MARK: Prompt Language
                     Button {
-                        showPromptLanguage.toggle()
+                        activeSheet = .promptLanguage
                     } label: {
                         HStack {
                             Text("Prompt Language")
                             Spacer()
-                           
+                            
                         }
                     }
                     .kiokuButton()
                     .padding(.top, 25)
-                    .sheet(isPresented: $showPromptLanguage) {
-                        PromptLanguageView()
-                    }
+                    
                     
                     
                     //MARK: App Setting in the phone
@@ -75,7 +87,7 @@ struct KSettings: View {
                             
                         }.kiokuButton()
                     }
-                   //MARK: Privacy Policy
+                    //MARK: Privacy Policy
                     Button {
                         openPrivacyPolicy()
                     } label: {
@@ -96,7 +108,7 @@ struct KSettings: View {
                             Text("Terms of use")
                             Spacer()
                         }
-//                        Image(systemName: "chevron.right")
+                        //                        Image(systemName: "chevron.right")
                     } .kiokuButton()
                     
                     //MARK: Open Support request
@@ -107,12 +119,12 @@ struct KSettings: View {
                             Text("Support Request")
                             Spacer()
                         }
-//                        Image(systemName: "chevron.right")
+                        //                        Image(systemName: "chevron.right")
                     }.kiokuButton()
                     
                     //MARK: About Us
                     Button {
-                        showAboutUs.toggle()
+                        activeSheet = .aboutUs
                     } label: {
                         HStack {
                             Text("About us")
@@ -120,16 +132,20 @@ struct KSettings: View {
                         }
                     }
                     .kiokuButton()
-                    .sheet(isPresented: $showPromptLanguage) {
-                        PromptLanguageView()
-                    }
                     
                     //TODO: Bring 'Delete Account' from old Settings!
                 }.padding(.top, 25)
-                
+                    .sheet(item: $activeSheet) { item in
+                        switch item {
+                        case .promptLanguage:
+                            PromptLanguageView()
+                        case .aboutUs:
+                            AboutUsView()
+                        }
+                    }
             }
-                .padding(.horizontal, 20)
-                .frame(maxWidth: 400)
+            .padding(.horizontal, 20)
+            .frame(width: UIScreen.main.bounds.width)
         }
         .onAppear {
             checkOpeningSettings()

@@ -8,80 +8,61 @@
 import SwiftUI
 
 struct AboutUsView: View {
-    @State private var animate: Bool = false
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    let linkedInURL: URL = URL(string: "https://www.linkedin.com/in/evangelos-spyromilios/")!
-
+    private let linkedInURL: URL = URL(string: "https://www.linkedin.com/in/evangelos-spyromilios/")!
     
     var body: some View {
-        ScrollView {
-            
-                TypingTextView(fullText: "Hello World!", typingSpeed: 0.1, isTitle: true)
-                    .padding(.top, 30)
-           
-            
-            LottieRepresentable(filename: "ManWithLaptop", loopMode: .playOnce)
-                .frame(height: 140)
-            
-            VStack {
-                Text("Welcome to MyndVault!\n\nThis app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. MyndVault was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention. No ads, no notifications, no personal data collection. Just a simple, elegant interface that empowers you to remember the important staff.\n\nIf you’re a fellow coder or just curious about how this app works, feel free to connect— I’d love to share ideas and stories.\nLet’s build something meaningful together!")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .fontDesign(.rounded)
-                    .padding()
-                    .foregroundStyle(.primary)
-                    .dynamicTypeSize(.medium ... .xxLarge)
-                
-                CoolButton(title: String(localized: "ConnectWithMeOnLinkedIn"), systemImage: "link.circle.fill", action: openLinkedInProfile)
-                builtWith().padding(.top, 8)
-            }
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        self.presentationMode.wrappedValue.dismiss()
-                    }) {
-                        HStack {
-                            Image(systemName: "chevron.left")
-                            Text("Settings")
-                        }.font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
-                            .minimumScaleFactor(0.8)
-                            .lineLimit(2)
-                    }
-                }
-            }
-        }  .background {
-            LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                .opacity(0.2)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ZStack {
+            Image("oldPaper")
+                .resizable()
+                .scaledToFill()
+                .blur(radius: 1)
+                .opacity(0.85)
                 .ignoresSafeArea()
+
+            LinearGradient(
+                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    Text("About Kioku")
+                        .font(.custom("New York", size: 28))
+                        .fontWeight(.bold)
+                        .padding(.top, 30)
+
+                    Text("This app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. Kioku was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention.\n\nNo ads, no notifications, no personal data collection.\n\nJust a simple, elegant interface that empowers you to remember what matters.")
+                        .font(.custom("NewYork-RegularItalic", size: 17))
+                        .foregroundColor(.black)
+                        .multilineTextAlignment(.leading)
+
+                    Button {
+                        openLinkedInProfile()
+                    } label: {
+                        HStack {
+                            Image(systemName: "link.circle.fill")
+                            Text("Connect with me on LinkedIn")
+                        }
+                    }
+                    .kiokuButton()
+
+                    Text("Natively built with SwiftUI")
+                        .font(.footnote)
+                        .italic()
+                        .foregroundColor(.secondary)
+                        .padding(.top, 8)
+                }
+                .padding(.horizontal, 24)
+                .frame(maxWidth: 500, alignment: .leading)
+            }
         }
     }
-    
-    
-    private func builtWith() -> some View {
-        
-        Text("Natively built with SwiftUI")
-            .font(.footnote)
-            .fontWeight(.semibold)
-            .fontDesign(.rounded)
-            .foregroundStyle(.secondary)
-            .dynamicTypeSize(.medium ... .xxLarge)
-//            .offset(y: 7)
-    }
-    
-    @MainActor
-    private func SwiftLogo() -> some View {
-        
-        HStack {
-            LottieRepresentable(filename: "Swift", loopMode: .playOnce, speed: 0.3)
-                .frame(width: 70, height: 70)
-        }
-    }
-    
+
     private func openLinkedInProfile() {
         if UIApplication.shared.canOpenURL(linkedInURL) {
-            UIApplication.shared.open(linkedInURL, options: [:], completionHandler: nil)
+            UIApplication.shared.open(linkedInURL)
         }
     }
 }

@@ -1,178 +1,178 @@
-    //
-    //  Vault.swift
-    //  Memory
-    //
-    //  Created by Evangelos Spyromilios on 13.02.24.
-    //
-
-    import SwiftUI
-
-    struct VaultView: View {
-        
-        @Environment(\.colorScheme) var colorScheme
-        @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-        @EnvironmentObject var networkManager: NetworkManager
-        @EnvironmentObject var pineconeVm: PineconeViewModel
-        @State private var vectorsAreLoading: Bool = true
-        @State private var showEmpty: Bool = false
-        @State private var showNoInternet = false
-        @State private var searchText: String = ""
-        @State private var selectedInfo : Vector?
-        @State private var showEdit: Bool = false
-
-        var filteredVectors: [Vector] {
-            if searchText.isEmpty {
-                return pineconeVm.pineconeFetchedVectors
-            } else {
-                return pineconeVm.pineconeFetchedVectors.filter { vector in
-                    if let description = vector.metadata["description"] {
-                        return description.lowercased().contains(searchText.lowercased())
-                    }
-                    return false
-                }
-            }
-        }
-        
-        var body: some View {
-            GeometryReader { geometry in
-                NavigationStack {
-                    ScrollView {
-                        LazyVStack {
- 
-                            if vectorsAreLoading {
-                               LoadingDotsView()
-                                    .if(isIPad()) { loadingDots in
-                                        loadingDots.padding(.top, 40)
-                                    }
-                                    .if(!isIPad()) { loadingDots in
-                                        loadingDots.padding(.top, 20)
-                                    }
-                                    .transition(.opacity)
-    //                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
-                            }
-                            
-                            else if !vectorsAreLoading && !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil { //TODO: SOS need one Error for this view, error like failed to fetch !
-                                ForEach(Array(filteredVectors.enumerated()), id: \.element.id) { index, data in
-                                    NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
-                                        InfosViewListCellView(data: data)
-                                            .padding(.horizontal, Constants.standardCardPadding)
-                                            .padding(.vertical)
-                                            .transition(.opacity)
-                                    }
-                                }
-                            }
-                            else if  pineconeVm.pineconeFetchedVectors.isEmpty && !vectorsAreLoading && pineconeVm.pineconeErrorFromEdit == nil {
-                                VStack {
-                                    LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
-                                    TypingTextView(fullText: "No Info has been saved. Add whatever you want to remember!")
-                                        .shadow(radius: 1)
-                                        .padding(.horizontal)
-                                }
-                                .transition(.opacity)
-                            }
-                            else if pineconeVm.pineconeErrorFromEdit != nil && !vectorsAreLoading {
-                                ErrorView(thrownError: pineconeVm.pineconeErrorFromEdit!.localizedDescription) {
-                                    pineconeVm.pineconeErrorFromEdit = nil
-                                }
-                                .transition(.opacity)
-                            }
-                        }
-                        .searchable(text: $searchText) //Do not move outside of the Scroll. makes top padding when return from EditView
-                    }
-                    .refreshable {
-                        withAnimation {
-                            vectorsAreLoading = true
-                            pineconeVm.refreshNamespacesIDs()
-                        }
-                    }
-                    .background {
-                        LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                            .opacity(0.4)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .ignoresSafeArea()
-                    }
-                    .navigationBarTitleView {
-                        HStack {
-                            Text("Vault").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
-                                .minimumScaleFactor(0.8)
-                                .lineLimit(2)
-                            
-                            LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55)
-                                .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
-                                .padding(.top, 7)
-                        }
-                        .padding(.top, isIPad() ? 15: 0)
-                        .padding(.bottom)
-                    }
-                }
-            }
-            .onAppear {
-                if pineconeVm.pineconeFetchedVectors.isEmpty && !pineconeVm.accountDeleted {
-                    withAnimation {
-                        self.vectorsAreLoading = true
-                    }
-                    fetchPineconeEntries()
-                }
-            }
-            .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
-                withAnimation {
-                    self.vectorsAreLoading = false
-                }
-                if vectors.isEmpty {
-                    withAnimation {
-                        showEmpty = true
-                    }
-                } else {
-                    withAnimation {
-                        showEmpty = false
-                    }
-                }
-            }
-            .onReceive(pineconeVm.$pineconeErrorFromEdit) { error in
-                if error != nil {
-                    withAnimation {
-                        self.vectorsAreLoading = false
-                    }
-                }
-            }
-            .alert(isPresented: $showNoInternet) {
-                Alert(
-                    title: Text("You are not connected to the Internet"),
-                    message: Text("Please check your connection"),
-                    dismissButton: .cancel(Text("OK"))
-                )
-            }
-            .onChange(of: networkManager.hasInternet) { _, hasInternet in
-                if !hasInternet {
-                    withAnimation {
-                        showNoInternet = true
-                    }
-                }
-            }
-        }
-
-        private func fetchPineconeEntries() {
-            if pineconeVm.accountDeleted { return }
-
-            vectorsAreLoading = true
-            pineconeVm.refreshNamespacesIDs()
-        }
-        
-//        private func deleteInfo(at offsets: IndexSet) {
-//            let idsToDelete = offsets.compactMap { offset -> String? in
-//                return pineconeVm.pineconeFetchedVectors[offset].id
-//            }
+//    //
+//    //  Vault.swift
+//    //  Memory
+//    //
+//    //  Created by Evangelos Spyromilios on 13.02.24.
+//    //
 //
-//            for id in idsToDelete {
-//                pineconeVm.deleteVectorFromPinecone(id: id)
+//    import SwiftUI
+//
+//    struct VaultView: View {
+//        
+//        @Environment(\.colorScheme) var colorScheme
+//        @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+//        @EnvironmentObject var networkManager: NetworkManager
+//        @EnvironmentObject var pineconeVm: PineconeViewModel
+//        @State private var vectorsAreLoading: Bool = true
+//        @State private var showEmpty: Bool = false
+//        @State private var showNoInternet = false
+//        @State private var searchText: String = ""
+//        @State private var selectedInfo : Vector?
+//        @State private var showEdit: Bool = false
+//
+//        var filteredVectors: [Vector] {
+//            if searchText.isEmpty {
+//                return pineconeVm.pineconeFetchedVectors
+//            } else {
+//                return pineconeVm.pineconeFetchedVectors.filter { vector in
+//                    if let description = vector.metadata["description"] {
+//                        return description.lowercased().contains(searchText.lowercased())
+//                    }
+//                    return false
+//                }
 //            }
 //        }
-    }
-
-    struct VaultView_Previews: PreviewProvider {
-        
-        static var previews: some View {
-            VaultView()
-            
-        }
-    }
+//        
+//        var body: some View {
+//            GeometryReader { geometry in
+//                NavigationStack {
+//                    ScrollView {
+//                        LazyVStack {
+// 
+//                            if vectorsAreLoading {
+//                               LoadingDotsView()
+//                                    .if(isIPad()) { loadingDots in
+//                                        loadingDots.padding(.top, 40)
+//                                    }
+//                                    .if(!isIPad()) { loadingDots in
+//                                        loadingDots.padding(.top, 20)
+//                                    }
+//                                    .transition(.opacity)
+//    //                                .transition(.blurReplace(.downUp).combined(with: .push(from: .bottom)))
+//                            }
+//                            
+//                            else if !vectorsAreLoading && !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil { //TODO: SOS need one Error for this view, error like failed to fetch !
+//                                ForEach(Array(filteredVectors.enumerated()), id: \.element.id) { index, data in
+//                                    NavigationLink(destination: EditInfoView(viewModel: EditInfoViewModel(vector: data))) {
+//                                        InfosViewListCellView(data: data)
+//                                            .padding(.horizontal, Constants.standardCardPadding)
+//                                            .padding(.vertical)
+//                                            .transition(.opacity)
+//                                    }
+//                                }
+//                            }
+//                            else if  pineconeVm.pineconeFetchedVectors.isEmpty && !vectorsAreLoading && pineconeVm.pineconeErrorFromEdit == nil {
+//                                VStack {
+//                                    LottieRepresentable(filename: "Woman_vault").frame(height: 280).padding(.bottom)
+//                                    TypingTextView(fullText: "No Info has been saved. Add whatever you want to remember!")
+//                                        .shadow(radius: 1)
+//                                        .padding(.horizontal)
+//                                }
+//                                .transition(.opacity)
+//                            }
+//                            else if pineconeVm.pineconeErrorFromEdit != nil && !vectorsAreLoading {
+//                                ErrorView(thrownError: pineconeVm.pineconeErrorFromEdit!.localizedDescription) {
+//                                    pineconeVm.pineconeErrorFromEdit = nil
+//                                }
+//                                .transition(.opacity)
+//                            }
+//                        }
+//                        .searchable(text: $searchText) //Do not move outside of the Scroll. makes top padding when return from EditView
+//                    }
+//                    .refreshable {
+//                        withAnimation {
+//                            vectorsAreLoading = true
+//                            pineconeVm.refreshNamespacesIDs()
+//                        }
+//                    }
+//                    .background {
+//                        LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+//                            .opacity(0.4)
+//                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                            .ignoresSafeArea()
+//                    }
+//                    .navigationBarTitleView {
+//                        HStack {
+//                            Text("Vault").font(.headline).bold().foregroundStyle(.blue.opacity(0.8)).fontDesign(.rounded).padding(.trailing, 5)
+//                                .minimumScaleFactor(0.8)
+//                                .lineLimit(2)
+//                            
+//                            LottieRepresentableNavigation(filename: "smallVault").frame(width: 55, height: 55)
+//                                .shadow(color: colorScheme == .dark ? .white : .clear, radius: colorScheme == .dark ? 4 : 0)
+//                                .padding(.top, 7)
+//                        }
+//                        .padding(.top, isIPad() ? 15: 0)
+//                        .padding(.bottom)
+//                    }
+//                }
+//            }
+//            .onAppear {
+//                if pineconeVm.pineconeFetchedVectors.isEmpty && !pineconeVm.accountDeleted {
+//                    withAnimation {
+//                        self.vectorsAreLoading = true
+//                    }
+//                    fetchPineconeEntries()
+//                }
+//            }
+//            .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
+//                withAnimation {
+//                    self.vectorsAreLoading = false
+//                }
+//                if vectors.isEmpty {
+//                    withAnimation {
+//                        showEmpty = true
+//                    }
+//                } else {
+//                    withAnimation {
+//                        showEmpty = false
+//                    }
+//                }
+//            }
+//            .onReceive(pineconeVm.$pineconeErrorFromEdit) { error in
+//                if error != nil {
+//                    withAnimation {
+//                        self.vectorsAreLoading = false
+//                    }
+//                }
+//            }
+//            .alert(isPresented: $showNoInternet) {
+//                Alert(
+//                    title: Text("You are not connected to the Internet"),
+//                    message: Text("Please check your connection"),
+//                    dismissButton: .cancel(Text("OK"))
+//                )
+//            }
+//            .onChange(of: networkManager.hasInternet) { _, hasInternet in
+//                if !hasInternet {
+//                    withAnimation {
+//                        showNoInternet = true
+//                    }
+//                }
+//            }
+//        }
+//
+//        private func fetchPineconeEntries() {
+//            if pineconeVm.accountDeleted { return }
+//
+//            vectorsAreLoading = true
+//            pineconeVm.refreshNamespacesIDs()
+//        }
+//        
+////        private func deleteInfo(at offsets: IndexSet) {
+////            let idsToDelete = offsets.compactMap { offset -> String? in
+////                return pineconeVm.pineconeFetchedVectors[offset].id
+////            }
+////
+////            for id in idsToDelete {
+////                pineconeVm.deleteVectorFromPinecone(id: id)
+////            }
+////        }
+//    }
+//
+//    struct VaultView_Previews: PreviewProvider {
+//        
+//        static var previews: some View {
+//            VaultView()
+//            
+//        }
+//    }

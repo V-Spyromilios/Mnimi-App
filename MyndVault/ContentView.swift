@@ -52,13 +52,13 @@ struct ContentView: View {
 //                    .environmentObject(languageSettings)
 //                    .transition(.opacity)
                 
-                LazyView(VaultView())
-                    .tag(3)
-                    .environmentObject(openAiManager)
-                    .environmentObject(pineconeManager)
-                    .environmentObject(keyboardResponder)
-                    .environmentObject(languageSettings)
-                    .transition(.opacity)
+//                LazyView(VaultView())
+//                    .tag(3)
+//                    .environmentObject(openAiManager)
+//                    .environmentObject(pineconeManager)
+//                    .environmentObject(keyboardResponder)
+//                    .environmentObject(languageSettings)
+//                    .transition(.opacity)
             } //TODO: Pass the enviromentObjects outside od the ZSstack. they get passed to everyview once.
             .ignoresSafeArea(edges: .bottom)
             .overlay(
