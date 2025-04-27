@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 final class KEditInfoViewModel: ObservableObject {
     @Published var id: String
     @Published var description: String

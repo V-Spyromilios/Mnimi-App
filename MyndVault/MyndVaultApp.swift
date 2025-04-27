@@ -39,10 +39,8 @@ struct MyndVaultApp: App {
     @StateObject private var openAiManager: OpenAIViewModel
     
     @StateObject var cloudKitViewModel: CloudKitViewModel = .shared
-    @StateObject private var languageSettings = LanguageSettings.shared
     
     @StateObject var speechManager = SpeechRecognizerManager()
-    @StateObject var keyboardResponder = KeyboardResponder()
     @StateObject var authManager = AuthenticationManager()
     @StateObject private var networkManager = NetworkManager()
     @StateObject var apiCallsViewModel = ApiCallViewModel()
@@ -67,7 +65,6 @@ struct MyndVaultApp: App {
                 .environmentObject(pineconeViewModel)
                 .environmentObject(networkManager)
                 .environmentObject(cloudKitViewModel)
-                .environmentObject(languageSettings)
             
 //            if showSplash {
 //                SplashScreen(showSplash: $showSplash)

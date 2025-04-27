@@ -394,7 +394,7 @@ actor PineconeActor {
                 let pineconeResponse = try decoder.decode(PineconeQueryResponse.self, from: data)
 
                 // Update token usage
-                updateTokenUsage(api: APIs.pinecone, tokensUsed: pineconeResponse.usage.readUnits, read: true)
+//                updateTokenUsage(api: APIs.pinecone, tokensUsed: pineconeResponse.usage.readUnits, read: true)
 
                 return pineconeResponse
             } catch {

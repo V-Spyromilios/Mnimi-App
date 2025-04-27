@@ -67,7 +67,7 @@ struct AboutUsView: View {
                 }
                 .padding(.horizontal, 24)
                 .frame(maxWidth: UIScreen.main.bounds.width, alignment: .leading)
-            }
+            }.scrollIndicators(.hidden)
         }
         .kiokuBackground()
     }
