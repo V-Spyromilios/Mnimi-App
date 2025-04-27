@@ -9,17 +9,14 @@ import SwiftUI
 
 struct KSettings: View {
 
-    @EnvironmentObject var language: LanguageSettings
     @State private var canShowAppSettings: Bool = true
     @State private var canShowSubscription: Bool = true
     
     enum SettingsSheet: Identifiable {
-        case promptLanguage
         case aboutUs
 
         var id: Int {
             switch self {
-            case .promptLanguage: return 0
             case .aboutUs: return 1
             }
         }
@@ -46,22 +43,7 @@ struct KSettings: View {
             
             ScrollView {
                 VStack(spacing: 24) {
-                    
-                    //MARK: Prompt Language
-                    Button {
-                        activeSheet = .promptLanguage
-                    } label: {
-                        HStack {
-                            Text("Prompt Language")
-                            Spacer()
-                            
-                        }
-                    }
-                    .kiokuButton()
-                    .padding(.top, 25)
-                    
-                    
-                    
+
                     //MARK: App Setting in the phone
                     if canShowAppSettings {
                         Button {
@@ -137,13 +119,12 @@ struct KSettings: View {
                 }.padding(.top, 25)
                     .sheet(item: $activeSheet) { item in
                         switch item {
-                        case .promptLanguage:
-                            PromptLanguageView()
+                       
                         case .aboutUs:
                             AboutUsView()
                         }
                     }
-            }
+            }.scrollIndicators(.hidden)
             .padding(.horizontal, 20)
             .frame(width: UIScreen.main.bounds.width)
         }

@@ -43,7 +43,6 @@ struct KView: View {
     @StateObject private var audioRecorder: AudioRecorder = AudioRecorder()
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
-    @EnvironmentObject var language: LanguageSettings
     @State private var micColor: Color = .white
     @State private var viewTransitionDelay: Double = 0.4
     @State private var viewTransitionDuration: Double = 0.4
@@ -81,6 +80,7 @@ struct KView: View {
                     .frame(width: geo.size.width, height: geo.size.height)
                     Spacer()
                 }
+                .scrollIndicators(.hidden)
                 .ignoresSafeArea()
                 .frame(width: geo.size.width)
                 .zIndex(0)
@@ -341,7 +341,7 @@ struct InputView: View {
                 .padding(.top, 40)
                 .padding(.horizontal, 30)
                 .frame(maxWidth: .infinity, alignment: .leading)
-        }
+        }.scrollIndicators(.hidden)
     }
     
     private var textEditor: some View {

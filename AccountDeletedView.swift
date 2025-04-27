@@ -32,11 +32,11 @@ struct AccountDeletedView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
-                if let url = URL(string: "https://polydactyl-drain-3f7.notion.site/MyndVault-d74ca5df50374eada3193a64c1cee7dc?pvs=4") {
-                    CoolButton(title: "Give Feedback", systemImage: "megaphone") {
-                        UIApplication.shared.open(url)
-                        
-                    }
+//                if let url = URL(string: "https://polydactyl-drain-3f7.notion.site/MyndVault-d74ca5df50374eada3193a64c1cee7dc?pvs=4") {
+//                    CoolButton(title: "Give Feedback", systemImage: "megaphone") {
+//                        UIApplication.shared.open(url)
+//                        
+//                    }
                     .padding(.top, 20)
                 }
             }
@@ -47,7 +47,6 @@ struct AccountDeletedView: View {
             }
         }
     }
-}
 
 #Preview {
     AccountDeletedView()

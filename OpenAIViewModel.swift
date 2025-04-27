@@ -37,7 +37,6 @@ class OpenAIViewModel: ObservableObject {
     @Published var calendarEventCreated: Bool = false
 
     private let openAIActor: OpenAIActor
-    private var languageSettings = LanguageSettings.shared
     private var cancellables = Set<AnyCancellable>()
     let eventStore = EKEventStore()
     @Published var lastGptResponse: String? = nil
@@ -68,12 +67,11 @@ class OpenAIViewModel: ObservableObject {
     
 
         func processAudio(fileURL: URL, fromQuestion: Bool) async {
-            let selectedLanguage = self.languageSettings.selectedLanguage.rawValue
 
             if !fromQuestion {
                
                 do {
-                    let response = try await openAIActor.transcribeAudio(fileURL: fileURL, selectedLanguage: selectedLanguage)
+                    let response = try await openAIActor.transcribeAudio(fileURL: fileURL)
                     self.transcription = response.text
                 } catch {
                     self.transriptionError = .transriptionFailed(error)
@@ -83,7 +81,7 @@ class OpenAIViewModel: ObservableObject {
             } else {
                 
                 do {
-                    let response = try await openAIActor.transcribeAudio(fileURL: fileURL, selectedLanguage: selectedLanguage)
+                    let response = try await openAIActor.transcribeAudio(fileURL: fileURL)
                     self.transcriptionFromWhisper = response.text
                 } catch {
                     self.transriptionErrorForQuestion = .transriptionFailed(error)
@@ -122,13 +120,11 @@ class OpenAIViewModel: ObservableObject {
 
         do {
             // Access `languageSettings` on the main actor
-            let selectedLanguage = self.languageSettings.selectedLanguage
 
             // Perform network call off the main actor
             let response = try await openAIActor.getGptResponse(
                 vectorResponses: queryMatches,
-                question: question,
-                selectedLanguage: selectedLanguage
+                question: question
             )
             self.stringResponseOnQuestion = response
             self.lastGptResponse = response //TODO: Once you’ve saved it to Pinecone, you might want to clear it
@@ -142,11 +138,8 @@ class OpenAIViewModel: ObservableObject {
     func getTranscriptAnalysis(transcrpit: String) async {
 
         do {
-            // Access `languageSettings` on the main actor
-            let selectedLanguage = self.languageSettings.selectedLanguage
-            
-            // Perform network call off the main actor
-            let response: IntentClassificationResponse = try await openAIActor.analyzeTranscript(transcript: transcrpit, selectedLanguage: selectedLanguage)
+           // Perform network call off the main actor
+            let response: IntentClassificationResponse = try await openAIActor.analyzeTranscript(transcript: transcrpit)
             
             if self.userIntent != response {
                 debugLog("✅ userIntent is different — assigning [ViewModel]")

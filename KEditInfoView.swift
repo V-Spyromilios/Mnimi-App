@@ -63,7 +63,7 @@ struct KEditInfoView: View {
                     .padding(.top, 24)
                     .kiokuShadow()
                     .frame(maxWidth: UIScreen.main.bounds.width)
-                }
+                }.scrollIndicators(.hidden)
             }
             .onAppear {
                 print("onAppear: description is: \(viewModel.description)")

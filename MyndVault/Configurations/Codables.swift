@@ -307,7 +307,6 @@ struct Match: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case id, score, metadata
     }
-
 }
 
 struct PineconeSingleUsage: Codable, Equatable {

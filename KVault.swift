@@ -153,7 +153,8 @@ struct KVault: View {
             }
             .padding(.top, 32)
             .transition(.opacity)
-        }
+            
+        }.scrollIndicators(.hidden)
         .frame(maxWidth: UIScreen.main.bounds.width)
         .clipped()
         .contentShape(Rectangle())

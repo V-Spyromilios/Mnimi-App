@@ -200,9 +200,6 @@
         }
       }
     },
-    "%lld sec" : {
-
-    },
     "8charsErrorMessage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3545,6 +3542,7 @@
       }
     },
     "Prompt Language" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
