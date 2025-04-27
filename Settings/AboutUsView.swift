@@ -12,52 +12,64 @@ struct AboutUsView: View {
     
     var body: some View {
         ZStack {
-            Image("oldPaper")
-                .resizable()
-                .scaledToFill()
-                .blur(radius: 1)
-                .opacity(0.85)
-                .ignoresSafeArea()
-
-            LinearGradient(
-                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     Text("About Kioku")
                         .font(.custom("New York", size: 28))
+                        .foregroundColor(.gray)
                         .fontWeight(.bold)
                         .padding(.top, 30)
+                        .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
 
-                    Text("This app is more than just a project—it’s a reflection of my journey. Transitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise. Kioku was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention.\n\nNo ads, no notifications, no personal data collection.\n\nJust a simple, elegant interface that empowers you to remember what matters.")
+                    Text("This app is more than just a project—it’s a reflection of my journey.\n\nTransitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise.\nKioku was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention.\n\nNo ads, no notifications, no personal data collection. - Just a simple, elegant interface that empowers you to remember what matters.\n\nCurious to connect? I’d love to hear from you.")
                         .font(.custom("NewYork-RegularItalic", size: 17))
                         .foregroundColor(.black)
                         .multilineTextAlignment(.leading)
+                        .lineSpacing(4)
+                        .kiokuShadow()
 
                     Button {
                         openLinkedInProfile()
                     } label: {
-                        HStack {
-                            Image(systemName: "link.circle.fill")
-                            Text("Connect with me on LinkedIn")
-                        }
+                        Text("LinkedIn").underline().italic().fontWeight(.light).foregroundColor(.black)
+                            .font(.custom("NewYork-RegularItalic", size: 17))
+                            .kiokuShadow()
                     }
-                    .kiokuButton()
+                    .buttonStyle(.plain)
 
-                    Text("Natively built with SwiftUI")
-                        .font(.footnote)
-                        .italic()
-                        .foregroundColor(.secondary)
-                        .padding(.top, 8)
+                    HStack {
+                        Spacer()
+                        
+                        Button(action: {
+                            if let url = URL(string: "https://developer.apple.com/xcode/swiftui/") {
+                                UIApplication.shared.open(url)
+                            }
+                        }) {
+                            (
+                                Text("Natively built with Apple's ")
+                                    .font(.custom("NewYork-RegularItalic", size: 14))
+                                    .italic()
+                                    .foregroundColor(.black)
+                                +
+                                Text("SwiftUI")
+                                    .font(.custom("NewYork-RegularItalic", size: 14))
+                                    .italic()
+                                    .underline()
+                                    .foregroundColor(.black)
+                            )
+                            .kiokuShadow()
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Spacer()
+                    }
+                    .padding(.top, 28)
                 }
                 .padding(.horizontal, 24)
-                .frame(maxWidth: 500, alignment: .leading)
+                .frame(maxWidth: UIScreen.main.bounds.width, alignment: .leading)
             }
         }
+        .kiokuBackground()
     }
 
     private func openLinkedInProfile() {
@@ -70,6 +82,6 @@ struct AboutUsView: View {
 #Preview {
     NavigationView {
         AboutUsView()
-            .environment(\.locale, Locale(identifier: "de"))
+            .environment(\.locale, Locale(identifier: "en"))
     }
 }

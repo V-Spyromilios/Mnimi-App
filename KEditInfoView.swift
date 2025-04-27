@@ -44,8 +44,8 @@ struct KEditInfoView: View {
                                 .background(Color.clear)
                                 .foregroundStyle(.black)
                                 .frame(height: 100)
-                               // .cornerRadius(12)
-                                .shadow(radius: 1)
+                                .lineSpacing(5)
+                                .multilineTextAlignment(.leading)
                         }
                         else if isReady {
                             Text("Empty Description").bold()
@@ -61,6 +61,7 @@ struct KEditInfoView: View {
                     .transition(.opacity)
                     .padding(.horizontal, 42)
                     .padding(.top, 24)
+                    .kiokuShadow()
                     .frame(maxWidth: UIScreen.main.bounds.width)
                 }
             }

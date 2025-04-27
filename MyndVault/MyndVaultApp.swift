@@ -67,6 +67,7 @@ struct MyndVaultApp: App {
                 .environmentObject(pineconeViewModel)
                 .environmentObject(networkManager)
                 .environmentObject(cloudKitViewModel)
+                .environmentObject(languageSettings)
             
 //            if showSplash {
 //                SplashScreen(showSplash: $showSplash)

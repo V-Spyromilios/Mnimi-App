@@ -44,7 +44,7 @@ struct PromptLanguageView: View {
                                         .font(.custom("New York", size: 18))
                                         .foregroundStyle(.black)
                                         .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
-                                        .underline(language == languageSettings.selectedLanguage, color: .primary)
+                                        .underline(language == languageSettings.selectedLanguage, color: .black)
                                         .animation(.easeInOut(duration: 0.2), value: languageSettings.selectedLanguage)
 
                                     Spacer()

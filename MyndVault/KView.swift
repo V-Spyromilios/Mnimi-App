@@ -12,7 +12,14 @@
  Remind me to call mom tonight              is_reminder             Create reminder, show visual success
  Add lunch with Leo Friday 12              is_calendar              Use EventEditView to create event
  My license plate is AB123              (default -> save info)      Save to Pinecone as embedding
+
  
+ Font Size      Recommended Line Spacing
+ 17                 4
+ 18                 5
+ 20                 7
+ 22                 8
+
  */
 
 import SwiftUI
@@ -36,6 +43,7 @@ struct KView: View {
     @StateObject private var audioRecorder: AudioRecorder = AudioRecorder()
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
+    @EnvironmentObject var language: LanguageSettings
     @State private var micColor: Color = .white
     @State private var viewTransitionDelay: Double = 0.4
     @State private var viewTransitionDuration: Double = 0.4
@@ -82,8 +90,10 @@ struct KView: View {
             .onAppear {
                 selectedImage = imageForToday()
                 if let uiImage = UIImage(named: selectedImage) {
-                    let brightness = averageBrightness(of: uiImage)
-                    micColor = brightness > 0.7 ? .black : .white
+                    let brightness = bottomTrailingBrightness(of: uiImage)
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        micColor = brightness > 0.6 ? .black : .white
+                    }
                 }
             }
 
@@ -152,7 +162,6 @@ struct KView: View {
         }
         .ignoresSafeArea()
         .statusBar(hidden: true)
-//        .offset(x: dragOffset)
         .gesture(
             showSettings || showVault ? nil :
             DragGesture(minimumDistance: 30)
@@ -184,6 +193,12 @@ struct KView: View {
         case .idle:  showInputView()
         default:     toIdleView()
         }
+    }
+    
+    private func bottomTrailingBrightness(of image: UIImage) -> CGFloat {
+        // Bottom-right 20% width and 30% height
+        let focusRect = CGRect(x: 0.8, y: 0.0, width: 0.2, height: 0.3)
+        return localizedBrightness(of: image, relativeRect: focusRect)
     }
     private var vaultSwipeGestureLayer: some View {
             Color.clear
@@ -253,7 +268,7 @@ struct InputView: View {
                 .clipped()
                 .opacity(0.9)
                 .blur(radius: 1)
-                .ignoresSafeArea(.keyboard, edges: .bottom)
+                .ignoresSafeArea(.keyboard, edges: .all)
             
             VStack {
                 if kViewState == .response {
@@ -273,7 +288,7 @@ struct InputView: View {
                 openAiManager.handleClassifiedIntent(intent)
             }
         }
-        .onChangeHandlers(viewState: $kViewState)
+        .onChangeHandlers(viewState: $kViewState, text: $text)
         .onChange(of: openAiManager.stringResponseOnQuestion) { _, newResponse in
             withAnimation {
                 text = newResponse
@@ -338,6 +353,7 @@ struct InputView: View {
             .scrollContentBackground(.hidden)
             .background(Color.clear)
             .multilineTextAlignment(.leading)
+            .lineSpacing(7)
             .padding(.top, 40)
             .padding(.leading, 30)
             .frame(width: geometry.size.width, height: 220)
@@ -493,12 +509,7 @@ struct InputView: View {
             kViewState = .onSuccess
         }
     }
-    
-//    private func saveToPinecone() {
-//        let metadata = toDictionary(desc: self.text)
-//        let uniqueID = UUID().uuidString
-//        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .KView)
-//    }
+
     
     private func processIntent(_ intent: IntentClassificationResponse) {
         
@@ -513,30 +524,14 @@ struct InputView: View {
         debugLog("handleQuestionEmbeddingsCompleted CALLED" )
         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
     }
-    
-    //    private func handleUserIntention(_ pineconeResponse: PineconeQueryResponse) {
-    //        debugLog("📌 Intent type at pinecone response: \(String(describing: openAiManager.intentResponse?.type))")
-    //        for match in pineconeResponse.matches {
-    //
-    //            Task {
-    //                if openAiManager.intentResponse?.type == .isQuestion {
-    //                    let userQuestion = openAiManager.intentResponse?.query ?? ""
-    //                    debugLog("User question from Voice over: \(userQuestion), calling getGptResponse")
-    //                    await openAiManager.getGptResponse(queryMatches: pineconeResponse.matches, question: userQuestion)
-    //                }
-    //
-    //                else {
-    //                    debugLog("type: \(String(describing: openAiManager.intentResponse?.type))\nquery: \(openAiManager.intentResponse?.query ?? "Default")")
-    //                }
-    //            }
-    //        }
-    //    }
-    
+
+    //MARK: InputViewChangeHandler
     struct InputViewChangeHandler: ViewModifier {
         @Binding var kViewState: KView.ViewState
         @EnvironmentObject var openAiManager: OpenAIViewModel
         @EnvironmentObject var pineconeManager: PineconeViewModel
         @EnvironmentObject var networkManager: NetworkManager
+        @Binding var textEditorsText: String
         
         func body(content: Content) -> some View {
             content
@@ -545,8 +540,9 @@ struct InputView: View {
                     if openAiManager.userIntent?.type == .isQuestion {
                         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
                     } else if openAiManager.userIntent?.type == .saveInfo {
-                        let metadata = toDictionary(desc: openAiManager.transcription)
+                        let metadata = toDictionary(desc: textEditorsText)
                         let uniqueID = UUID().uuidString
+                        debugLog("About to upsert To Pinecone: \(textEditorsText)")
                         pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .KView)
                     }
                 }
@@ -587,10 +583,13 @@ struct InputView: View {
                     }
                 }
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
+                    let lastState = kViewState
                     if !hasInternet {
                         withAnimation {
                             kViewState = .onError("Check your Connection")
                         }
+                    } else {
+                        kViewState = lastState //TODO: Check if this is correct
                     }
                 }
         }
@@ -612,8 +611,8 @@ struct InputView: View {
 //}
 
 extension View {
-    func onChangeHandlers(viewState: Binding<KView.ViewState>) -> some View {
-        modifier(InputView.InputViewChangeHandler(kViewState: viewState))
+    func onChangeHandlers(viewState: Binding<KView.ViewState>, text: Binding<String>) -> some View {
+        modifier(InputView.InputViewChangeHandler(kViewState: viewState, textEditorsText: text))
     }
 }
 
@@ -766,7 +765,7 @@ struct CalendarConfirmationView: View {
 }
 
 func randomBackgroundName() -> String {
-    let imageCount = 14  // adjust if you have more
+    let imageCount = 14  // adjust
     let index = Int.random(in: 1...imageCount)
     return "rm\(index)"
 }
