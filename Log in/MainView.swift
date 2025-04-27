@@ -1,58 +1,58 @@
+////
+////  MainView.swift
+////  MyndVault
+////
+////  Created by Evangelos Spyromilios on 18.05.24.
+////
 //
-//  MainView.swift
-//  MyndVault
+//import SwiftUI
 //
-//  Created by Evangelos Spyromilios on 18.05.24.
+//struct MainView: View {
+//    
+//    @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
+//    @EnvironmentObject var openAiManager: OpenAIViewModel
+//    @EnvironmentObject var pineconeManager: PineconeViewModel
+//    @EnvironmentObject var keyboardResponder: KeyboardResponder
+//    @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
+//    @EnvironmentObject var language: LanguageSettings
+//    @EnvironmentObject var speechManager: SpeechRecognizerManager
+//    
+//    var body: some View {
 //
-
-import SwiftUI
-
-struct MainView: View {
-    
-    @EnvironmentObject var cloudKitViewModel: CloudKitViewModel
-    @EnvironmentObject var openAiManager: OpenAIViewModel
-    @EnvironmentObject var pineconeManager: PineconeViewModel
-    @EnvironmentObject var keyboardResponder: KeyboardResponder
-    @EnvironmentObject var apiCallsViewModel: ApiCallViewModel
-    @EnvironmentObject var language: LanguageSettings
-    @EnvironmentObject var speechManager: SpeechRecognizerManager
-    
-    var body: some View {
-
-            Group {
-                if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
-                    
-                    ContentView()
-                        .environmentObject(openAiManager)
-                        .environmentObject(pineconeManager)
-                        .environmentObject(cloudKitViewModel)
-                        .environmentObject(keyboardResponder)
-                        .environmentObject(apiCallsViewModel)
-                        .environmentObject(language)
-                        .environmentObject(speechManager)
-                }
-
-                else if cloudKitViewModel.CKErrorDesc != "" {
-                    
-                    let errorDesc = cloudKitViewModel.CKErrorDesc
-                    let errorTitle = "CloudKit Error"
-                    ErrorView(thrownError: errorTitle, extraMessage: errorDesc) {
-                        self.cloudKitViewModel.CKErrorDesc = ""
-                    }
-                    
-                }
-            }
-            .background {
-                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
-                    .opacity(0.4)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
-            }
-        
-    }
-
-}
-
-#Preview {
-    MainView()
-}
+//            Group {
+//                if cloudKitViewModel.userIsSignedIn && !cloudKitViewModel.fetchedNamespaceDict.isEmpty {
+//                    
+//                    ContentView()
+//                        .environmentObject(openAiManager)
+//                        .environmentObject(pineconeManager)
+//                        .environmentObject(cloudKitViewModel)
+//                        .environmentObject(keyboardResponder)
+//                        .environmentObject(apiCallsViewModel)
+//                        .environmentObject(language)
+//                        .environmentObject(speechManager)
+//                }
+//
+//                else if cloudKitViewModel.CKErrorDesc != "" {
+//                    
+//                    let errorDesc = cloudKitViewModel.CKErrorDesc
+//                    let errorTitle = "CloudKit Error"
+//                    ErrorView(thrownError: errorTitle, extraMessage: errorDesc) {
+//                        self.cloudKitViewModel.CKErrorDesc = ""
+//                    }
+//                    
+//                }
+//            }
+//            .background {
+//                LottieRepresentable(filename: "Gradient Background", loopMode: .loop, speed: Constants.backgroundSpeed, contentMode: .scaleAspectFill)
+//                    .opacity(0.4)
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                    .ignoresSafeArea()
+//            }
+//        
+//    }
+//
+//}
+//
+//#Preview {
+//    MainView()
+//}

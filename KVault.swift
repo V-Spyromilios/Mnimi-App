@@ -40,13 +40,14 @@ struct KVault: View {
     var body: some View {
 
         ZStack {
-            backgroundView
+//            backgroundView
                    contentView
 //            .frame(maxWidth: 400) // soft constraint for tablets
             .padding(.horizontal)
         }
         .frame(width: UIScreen.main.bounds.width)
         .clipped()
+        .kiokuBackground()
         .onAppear {
             if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
                 withAnimation {
@@ -208,6 +209,8 @@ struct VaultCellView: View {
                 Text("\"\(note)\"")
                     .font(.custom("New York", size: 18))
                     .fontWeight(.semibold)
+                    .lineSpacing(5)
+                    .multilineTextAlignment(.leading)
                     .foregroundColor(.black)
 
                 Text("(\(dateText))")

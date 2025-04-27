@@ -188,6 +188,76 @@ func toDictionary(desc: String) -> [String: String] {
     ]
 }
 
+extension View {
+    func kiokuShadow() -> some View {
+        self.shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+    }
+}
+
+extension View {
+    func kiokuBackground(opacity: Double = 0.95) -> some View {
+        self.background(
+            ZStack {
+                Image("oldPaper")
+                    .resizable()
+                    .scaledToFill()
+                    .blur(radius: 1)
+                    .opacity(opacity)
+                    .ignoresSafeArea()
+                
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            }.ignoresSafeArea(.keyboard, edges: .bottom)
+        )
+    }
+}
+
+func localizedBrightness(of image: UIImage, relativeRect: CGRect) -> CGFloat {
+    guard let cgImage = image.cgImage else { return 1.0 }
+    
+    let context = CIContext()
+    let ciImage = CIImage(cgImage: cgImage)
+    let extent = ciImage.extent
+
+    let sampleRect = CGRect(
+        x: extent.width * relativeRect.origin.x,
+        y: extent.height * relativeRect.origin.y,
+        width: extent.width * relativeRect.width,
+        height: extent.height * relativeRect.height
+    )
+
+    let inputExtent = CIVector(
+        x: sampleRect.origin.x,
+        y: sampleRect.origin.y,
+        z: sampleRect.width,
+        w: sampleRect.height
+    )
+
+    let filter = CIFilter(name: "CIAreaAverage", parameters: [
+        kCIInputImageKey: ciImage,
+        kCIInputExtentKey: inputExtent
+    ])!
+
+    guard let outputImage = filter.outputImage else { return 1.0 }
+
+    var bitmap = [UInt8](repeating: 0, count: 4)
+    context.render(outputImage,
+                   toBitmap: &bitmap,
+                   rowBytes: 4,
+                   bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+                   format: .RGBA8,
+                   colorSpace: CGColorSpaceCreateDeviceRGB())
+
+    let brightness = (0.299 * CGFloat(bitmap[0]) +
+                      0.587 * CGFloat(bitmap[1]) +
+                      0.114 * CGFloat(bitmap[2])) / 255.0
+    return brightness
+}
+
 
 struct BlurView: UIViewRepresentable {
     var style: UIBlurEffect.Style
