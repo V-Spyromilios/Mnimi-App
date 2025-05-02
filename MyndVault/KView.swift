@@ -49,6 +49,10 @@ struct KView: View {
     @State private var showVault: Bool = false
     @State private var showSettings: Bool = false
     
+#if DEBUG
+@State var currentIndex: Int = 0
+#endif
+    
     @GestureState private var dragOffset: CGFloat = 0
 
     var body: some View {
@@ -60,6 +64,25 @@ struct KView: View {
                         .scaledToFill()
                         .ignoresSafeArea()
                         .clipped()
+                    
+#if DEBUG
+                   
+                    Button(action: {
+                       showNextImage()
+                        print("Image: \(selectedImage)")
+                    }) {
+                        Text("Next Image")
+                            .font(.headline)
+                            .foregroundStyle(.red)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Capsule())
+                    }
+                    .padding(.bottom, 40)
+                    .zIndex(3)
+                        
+#endif
                 }
 
                 ScrollView {
@@ -184,9 +207,16 @@ struct KView: View {
     }
     
     func imageForToday() -> String {
-        let dayIndex = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0
+        let dayIndex = Calendar.current.ordinality(of: .day, in: .month, for: Date()) ?? 0
         return backgroundImages[dayIndex % backgroundImages.count]
     }
+    
+#if DEBUG
+func showNextImage() {
+    currentIndex = (currentIndex + 1) % backgroundImages.count
+    selectedImage = backgroundImages[currentIndex]
+}
+#endif
     
     private func handleTap() {
         switch viewState {
@@ -788,37 +818,37 @@ func randomBackgroundName() -> String {
 
 
 // For the KView!
-//#Preview {
-//
-//    let cloudKit = CloudKitViewModel.shared
-//    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
-//    let openAIActor = OpenAIActor()
-//    let languageSettings = LanguageSettings.shared
-//    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
-//    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-//    let networkManager = NetworkManager()
-//    KView()
-//        .environmentObject(openAIViewModel)
-//        .environmentObject(pineconeViewModel)
-//          .environmentObject(networkManager)
-//}
+#Preview {
+
+    let cloudKit = CloudKitViewModel.shared
+    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+    let openAIActor = OpenAIActor()
+
+    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
+    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
+    let networkManager = NetworkManager()
+    KView()
+        .environmentObject(openAIViewModel)
+        .environmentObject(pineconeViewModel)
+          .environmentObject(networkManager)
+}
 
 //For the Calendar Sheet
-#Preview {
-    let eventStore = EKEventStore()
-    let mockEvent = EKEvent(eventStore: eventStore)
-    mockEvent.title = "Lunch with Bethan!"
-    mockEvent.startDate = Date()
-    mockEvent.endDate = Date().addingTimeInterval(3600)
-    mockEvent.location = "Italian Café"
-    
-    let wrapper = EventWrapper(event: mockEvent)
-    let mockOpenAI = OpenAIViewModel(openAIActor: OpenAIActor())
-
-    return CalendarConfirmationView(wrapper: wrapper) {
-        mockOpenAI.saveCalendarEvent()
-    } onCancel: {
-       
-    }
-    .environmentObject(mockOpenAI)
-}
+//#Preview {
+//    let eventStore = EKEventStore()
+//    let mockEvent = EKEvent(eventStore: eventStore)
+//    mockEvent.title = "Lunch with Bethan!"
+//    mockEvent.startDate = Date()
+//    mockEvent.endDate = Date().addingTimeInterval(3600)
+//    mockEvent.location = "Italian Café"
+//    
+//    let wrapper = EventWrapper(event: mockEvent)
+//    let mockOpenAI = OpenAIViewModel(openAIActor: OpenAIActor())
+//
+//    return CalendarConfirmationView(wrapper: wrapper) {
+//        mockOpenAI.saveCalendarEvent()
+//    } onCancel: {
+//       
+//    }
+//    .environmentObject(mockOpenAI)
+//}

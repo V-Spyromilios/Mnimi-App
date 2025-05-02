@@ -32,7 +32,6 @@
 		E82F45882BC2A80C00945312 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45802BC2A80C00945312 /* NetworkViewModel.swift */; };
 		E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45892BC2A85D00945312 /* CustomTapBarView.swift */; };
 		E83849902C3471B200C7E390 /* FullScreenImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E838498F2C3471B200C7E390 /* FullScreenImage.swift */; };
-		E83D83FC2C5903DD002BBDE7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E83D83FB2C5903DD002BBDE7 /* Localizable.xcstrings */; };
 		E84203E32DBB851C00DFCFE2 /* KEditInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84203E22DBB851C00DFCFE2 /* KEditInfoViewModel.swift */; };
 		E84203E52DBB853800DFCFE2 /* KEditInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84203E42DBB853800DFCFE2 /* KEditInfoView.swift */; };
 		E84203E72DBBA15500DFCFE2 /* NewYorkItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E84203E62DBBA15500DFCFE2 /* NewYorkItalic.ttf */; };
@@ -44,6 +43,7 @@
 		E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */; };
 		E85EE47B2D6F69DF00737A97 /* testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85EE47A2D6F69DF00737A97 /* testing.swift */; };
 		E85EE47D2D6F7BE100737A97 /* AudioRecordingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */; };
+		E86AD9A62DC5639600AD434C /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E86AD9A52DC5639600AD434C /* Launch Screen.storyboard */; };
 		E86C27102DAA724C008950A8 /* KView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86C270F2DAA724C008950A8 /* KView.swift */; };
 		E871C4DF2C270B5500747BC7 /* ImagePickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */; };
 		E87530922DB7BD6C0020BFDD /* KSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87530912DB7BD6C0020BFDD /* KSettings.swift */; };
@@ -127,7 +127,6 @@
 		E82F45802BC2A80C00945312 /* NetworkViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkViewModel.swift; sourceTree = "<group>"; };
 		E82F45892BC2A85D00945312 /* CustomTapBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTapBarView.swift; sourceTree = "<group>"; };
 		E838498F2C3471B200C7E390 /* FullScreenImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImage.swift; sourceTree = "<group>"; };
-		E83D83FB2C5903DD002BBDE7 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E84203E22DBB851C00DFCFE2 /* KEditInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEditInfoViewModel.swift; sourceTree = "<group>"; };
 		E84203E42DBB853800DFCFE2 /* KEditInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEditInfoView.swift; sourceTree = "<group>"; };
 		E84203E62DBBA15500DFCFE2 /* NewYorkItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NewYorkItalic.ttf; sourceTree = "<group>"; };
@@ -140,6 +139,7 @@
 		E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboardLabel.swift; sourceTree = "<group>"; };
 		E85EE47A2D6F69DF00737A97 /* testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testing.swift; sourceTree = "<group>"; };
 		E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingManager.swift; sourceTree = "<group>"; };
+		E86AD9A52DC5639600AD434C /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		E86BE7632C5684550030C81B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		E86C270F2DAA724C008950A8 /* KView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KView.swift; sourceTree = "<group>"; };
 		E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePickerViewModel.swift; sourceTree = "<group>"; };
@@ -265,6 +265,7 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E86AD9A52DC5639600AD434C /* Launch Screen.storyboard */,
 				E84203E22DBB851C00DFCFE2 /* KEditInfoViewModel.swift */,
 				E84203E42DBB853800DFCFE2 /* KEditInfoView.swift */,
 				E81AABDD2DB8FC4300BF7C1A /* KVault.swift */,
@@ -281,7 +282,6 @@
 				E878B7262C95A9A4003D782A /* PrivacyInfo.xcprivacy */,
 				E87605B62C7A18AD002A13E5 /* RCViewModel.swift */,
 				E878744A2C70D0DC001299D9 /* MyndVault.storekit */,
-				E83D83FB2C5903DD002BBDE7 /* Localizable.xcstrings */,
 				E8459B2A2C45AC020039BFA7 /* ErrorView.swift */,
 				E816E7B42CA4002A0045CEE1 /* LoadingDotsView.swift */,
 				E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */,
@@ -462,9 +462,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E83D83FC2C5903DD002BBDE7 /* Localizable.xcstrings in Resources */,
 				E84203E72DBBA15500DFCFE2 /* NewYorkItalic.ttf in Resources */,
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
+				E86AD9A62DC5639600AD434C /* Launch Screen.storyboard in Resources */,
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
 				E8BDF9C42CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf in Resources */,
 				E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */,
@@ -723,7 +723,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen";
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
@@ -763,7 +763,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen";
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
