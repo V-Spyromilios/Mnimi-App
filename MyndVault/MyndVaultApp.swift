@@ -119,11 +119,11 @@ struct MyndVaultApp: App {
         Purchases.shared.delegate = PurchasesDelegateHandler.shared
     }
     
-    private func contentError(error: String) -> some View {
-        VStack{
-            Image(systemName: "exclamationmark.icloud.fill").resizable() .scaledToFit().padding(.bottom).frame(width: 90, height: 90)
-            Text("iCloud Error").font(.title).bold().padding(.vertical)
-            Text("\(error).\nPlease check your iCloud status and restart the Mynd Vault app").font(.title3).italic()
-        }.foregroundStyle(.gray)
-    }
+//    private func contentError(error: String) -> some View {
+//        VStack{
+//            Image(systemName: "exclamationmark.icloud.fill").resizable() .scaledToFit().padding(.bottom).frame(width: 90, height: 90)
+//            Text("iCloud Error").font(.title).bold().padding(.vertical)
+//            Text("\(error).\nPlease check your iCloud status and restart the app").font(.title3).italic()
+//        }.foregroundStyle(.gray)
+//    }
 }

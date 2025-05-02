@@ -52,7 +52,7 @@ struct KSettings: View {
                             HStack {
                                 Text("App General Settings")
                                 Spacer()
-                            }
+                            }.padding(.top, 45)
                             
                         }.kiokuButton()
                     }
@@ -116,7 +116,7 @@ struct KSettings: View {
                     .kiokuButton()
                     
                     //TODO: Bring 'Delete Account' from old Settings!
-                }.padding(.top, 25)
+                }
                     .sheet(item: $activeSheet) { item in
                         switch item {
                        

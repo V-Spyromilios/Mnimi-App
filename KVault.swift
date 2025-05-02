@@ -130,7 +130,7 @@ struct KVault: View {
         ScrollView {
             VStack(alignment: .center, spacing: 24) {
                 if vectorsAreLoading {
-                    loadingView()
+                    loadingView().padding(.top, 42)
                 } else if !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
                     KSearchBar(text: $searchText)
                         .frame(maxWidth: 380)
