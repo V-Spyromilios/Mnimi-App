@@ -20,10 +20,10 @@ struct KVault: View {
     
     @State private var selectedVector: Vector? = nil
     @State private var inputedDescription: String = ""
-
+    
     @StateObject var editViewModel = KEditInfoViewModel.empty
     @State private var isEditing = false
-
+    
     var filteredVectors: [Vector] {
         if searchText.isEmpty {
             return pineconeVm.pineconeFetchedVectors
@@ -36,18 +36,37 @@ struct KVault: View {
             }
         }
     }
-
+    
     var body: some View {
-
+        
         ZStack {
-//            backgroundView
-                   contentView
-//            .frame(maxWidth: 400) // soft constraint for tablets
-            .padding(.horizontal)
+            //            backgroundView
+            contentView
+            //            .frame(maxWidth: 400) // soft constraint for tablets
+                .padding(.horizontal)
+            
+            
+            if showNoInternet {
+                Color.black.opacity(0.4).ignoresSafeArea()
+                
+                KAlertView(
+                    title: "You are not connected to the Internet",
+                    message: "Please check your connection",
+                    dismissAction: {
+                        withAnimation {
+                            showNoInternet = false
+                        }
+                    }
+                )
+                .transition(.scale)
+                .zIndex(1)
+                
+            }
         }
         .frame(width: UIScreen.main.bounds.width)
         .clipped()
         .kiokuBackground()
+        .animation(.easeOut(duration: 0.2), value: showNoInternet)
         .onAppear {
             if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
                 withAnimation {
@@ -62,31 +81,30 @@ struct KVault: View {
         }
         .onReceive(pineconeVm.$pineconeErrorFromEdit) { error in
             if error != nil {
-                vectorsAreLoading = false
+                withAnimation {
+                    vectorsAreLoading = false
+                }
+            }
+        }
+        .onReceive(pineconeVm.$pineconeErrorFromRefreshNamespace) { error in
+            if error != nil {
+                withAnimation {
+                    vectorsAreLoading = false
+                }
             }
         }
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
-                showNoInternet = true
+                withAnimation {
+                    showNoInternet = true
+                }
             }
         }
-        .alert(isPresented: $showNoInternet) {
-            Alert(
-                title: Text("You are not connected to the Internet"),
-                message: Text("Please check your connection"),
-                dismissButton: .cancel(Text("OK"))
-            )
-        }
     }
-
-    
-    
-    
     
     private func fetchPineconeEntries() {
         if pineconeVm.accountDeleted { return }
         vectorsAreLoading = true
-        
         pineconeVm.refreshNamespacesIDs()
     }
     private func errorView(_ message: String) -> some View {
@@ -107,7 +125,7 @@ struct KVault: View {
         selectedVector = nil
         
     }
-
+    
     private var backgroundView: some View {
         ZStack {
             Image("oldPaper")
@@ -116,7 +134,7 @@ struct KVault: View {
                 .blur(radius: 1)
                 .opacity(0.85)
                 .ignoresSafeArea()
-
+            
             LinearGradient(
                 gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
                 startPoint: .top,
@@ -125,7 +143,7 @@ struct KVault: View {
             .ignoresSafeArea()
         }
     }
-
+    
     private var contentView: some View {
         ScrollView {
             VStack(alignment: .center, spacing: 24) {
@@ -146,66 +164,78 @@ struct KVault: View {
                     }
                 } else if pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
                     emptyView()
-                } else if let error = pineconeVm.pineconeErrorFromEdit {
-                    errorView(error.localizedDescription)
-                        .padding(.horizontal, 24)
+                }
+                if let error = pineconeVm.pineconeErrorFromRefreshNamespace {
+                    KErrorView(
+                        title: error.title,
+                        message: error.localizedDescription,
+                        retryAction: retryLoading
+                    )
+                    .transition(.opacity.combined(with: .scale))
+                    .animation(.easeOut(duration: 0.2), value: error.localizedDescription)
                 }
             }
             .padding(.top, 32)
             .transition(.opacity)
             
         }.scrollIndicators(.hidden)
-        .frame(maxWidth: UIScreen.main.bounds.width)
-        .clipped()
-        .contentShape(Rectangle())
-        .sheet(isPresented: $isEditing) {
-            KEditInfoView(
-                viewModel: editViewModel,
-                onSave: {
-                    isEditing = false
-                },
-                onCancel: {
-                    isEditing = false
-                }
-            ) .id(editViewModel.id)
-        }
-        .onChange(of: isEditing) { _, newValue in
-            if newValue == false {
-                // Sheet was dismissed manually or programmatically
-                editViewModel.update(with: .empty)
+            .frame(maxWidth: UIScreen.main.bounds.width)
+            .clipped()
+            .contentShape(Rectangle())
+            .sheet(isPresented: $isEditing) {
+                KEditInfoView(
+                    viewModel: editViewModel,
+                    onSave: {
+                        isEditing = false
+                    },
+                    onCancel: {
+                        isEditing = false
+                    }
+                ) .id(editViewModel.id)
             }
-        }
+            .onChange(of: isEditing) { _, newValue in
+                if newValue == false {
+                    // Sheet was dismissed manually or programmatically
+                    editViewModel.update(with: .empty)
+                }
+            }
+    }
+    
+    private func retryLoading() {
+        pineconeVm.pineconeErrorFromEdit = nil
+        pineconeVm.pineconeErrorFromRefreshNamespace = nil
+        pineconeVm.refreshNamespacesIDs()
     }
 }
 
-    private func loadingView() -> some View {
-        Text("Loading...")
-            .font(.custom("New York", size: 20))
-            .foregroundColor(.black)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.top, 40)
-            .padding(.horizontal, 24)
-    }
-    
-    private func emptyView() -> some View {
-        Text("Loading...")
-            .font(.custom("New York", size: 20))
-            .foregroundColor(.black)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.top, 40)
-            .padding(.horizontal, 24)
-    }
+private func loadingView() -> some View {
+    Text("Loading...")
+        .font(.custom("New York", size: 20))
+        .foregroundColor(.black)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, 40)
+        .padding(.horizontal, 24)
+}
+
+private func emptyView() -> some View {
+    Text("Saved information will appear here.")
+        .font(.custom("New York", size: 20))
+        .foregroundColor(.black)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, 42)
+        .padding(.horizontal, 24)
+}
 
 
 struct VaultCellView: View {
     let data: Vector
     @Environment(\.colorScheme) var colorScheme
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             let note = data.metadata["description"] ?? "Empty note."
             let dateText = dateFromISO8601(isoDate: data.metadata["timestamp"] ?? "").map { formatDateForDisplay(date: $0) } ?? ""
-
+            
             VStack(alignment: .leading, spacing: 8) {
                 Text("\"\(note)\"")
                     .font(.custom("New York", size: 18))
@@ -213,7 +243,7 @@ struct VaultCellView: View {
                     .lineSpacing(5)
                     .multilineTextAlignment(.leading)
                     .foregroundColor(.black)
-
+                
                 Text("(\(dateText))")
                     .font(.custom("New York", size: 14))
                     .italic()
@@ -237,12 +267,12 @@ extension Vector {
 struct KSearchBar: View {
     @Binding var text: String
     @FocusState private var isFocused: Bool
-
+    
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
-                
+            
             TextField("Search saved info...", text: $text)
                 .font(.custom("NewYork-RegularItalic", size: 15))
                 .scrollContentBackground(.hidden)
@@ -250,7 +280,7 @@ struct KSearchBar: View {
                 .foregroundColor(.black)
                 .focused($isFocused)
                 .submitLabel(.done)
-
+            
             if !text.isEmpty {
                 Button(action: { text = "" }) {
                     Image(systemName: "xmark.circle.fill")
@@ -260,7 +290,9 @@ struct KSearchBar: View {
         }
         .padding(12)
         .onTapGesture {
-            isFocused.toggle()
+            withAnimation {
+                isFocused.toggle()
+            }
         }
         .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 2)
         .padding(.horizontal, 24)
@@ -275,7 +307,7 @@ struct KSearchBar: View {
 //    let languageSettings = LanguageSettings.shared
 //    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
 //    let networkManager = NetworkManager()
-//    
+//
 //    KVault()
 //        .environmentObject(pineconeViewModel)
 //        .environmentObject(networkManager)
@@ -284,21 +316,38 @@ struct KSearchBar: View {
 
 
 
-#Preview {
-    
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    
-    let mockVector = Vector(
-        id: UUID().uuidString,
-        metadata: [
-            "description": "Lunch with Leo on Friday. Don’t forget the location is Café Central.",
-            "timestamp":  formatter.string(from: Date())
-        ]
-    )
-    
-    return VaultCellView(data: mockVector)
-        
-        .padding()
-        .background(Color.white)
+//#Preview {
+//
+//    let formatter = ISO8601DateFormatter()
+//    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+//
+//    let mockVector = Vector(
+//        id: UUID().uuidString,
+//        metadata: [
+//            "description": "Lunch with Leo on Friday. Don’t forget the location is Café Central.",
+//            "timestamp":  formatter.string(from: Date())
+//        ]
+//    )
+//
+//    return VaultCellView(data: mockVector)
+//
+//        .padding()
+//        .background(Color.white)
+//}
+
+
+// Preview for the KAlert
+
+struct KAlertView_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack{
+            KAlertView(
+                title: "You are not connected to the Internet",
+                message: "Please check your connection",
+                dismissAction: {}
+            )
+        }
+        .previewDisplayName("Kioku Alert Preview")
+        .kiokuBackground().ignoresSafeArea()
+    }
 }

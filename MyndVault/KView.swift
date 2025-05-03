@@ -26,13 +26,26 @@ import SwiftUI
 import EventKit
 
 struct KView: View {
+    
     enum ViewState: Equatable {
         case idle
-        case input // user is typing or about to type
-        case response // GPT answered something ONLY for Q&A
+        case input
+        case response
         case onApiCall
         case onSuccess
-        case onError(String)
+        case onError(AnyDisplayableError)
+
+        static func ==(lhs: ViewState, rhs: ViewState) -> Bool {
+            switch (lhs, rhs) {
+            case (.idle, .idle), (.input, .input), (.response, .response),
+                 (.onApiCall, .onApiCall), (.onSuccess, .onSuccess):
+                return true
+            case (.onError(let e1), .onError(let e2)):
+                return e1.id == e2.id
+            default:
+                return false
+            }
+        }
     }
     
     @State private var viewState: ViewState = .idle
@@ -394,8 +407,18 @@ struct InputView: View {
         switch kViewState {
         case .onApiCall:
             apiCallLabelView
-        case .onError(let errorMessage):
-            errorView(errorMessage)
+        case .onError(let error):
+            KErrorView(
+                    title: error.title,
+                    message: error.message,
+                    retryAction: {
+                        withAnimation {
+                            kViewState = .input
+                        }
+                    }
+                )
+            .transition(.scale.combined(with: .opacity))
+            .animation(.easeOut(duration: 0.2), value: error.title)
         case .onSuccess:
             successView
         case .response:
@@ -414,19 +437,20 @@ struct InputView: View {
             .italic()
     }
     
-    private func errorView(_ message: String) -> some View {
-        VStack {
-            Text(message).multilineTextAlignment(.leading) .padding(.top, 40)
-                .padding(.leading, 30)
-            Button("Cancel") {
-                withAnimation { kViewState = .input }
-            }.underline().padding(.top, 20)
-        }
-        .buttonStyle(.plain)
-        .underline()
-        .font(.custom("New York", size: 20))
-        .foregroundColor(.black)
-    }
+//    private func errorView(_ error: Error) -> some View {
+//        KErrorView(
+//            title: "Something went wrong",
+//            message: message,
+//            retryAction: {
+//                withAnimation {
+//                    kViewState = .input
+//                }
+//            }
+//        )
+//        .padding(.top, 40)
+//        .transition(.scale.combined(with: .opacity))
+//        .animation(.easeOut(duration: 0.2), value: kViewState)
+//    }
     
     private var successView: some View {
         Group {
@@ -592,7 +616,7 @@ struct InputView: View {
                 .onChange(of: pineconeManager.pineconeErrorFromAdd) { _, error in
                     if let error = error {
                         withAnimation {
-                            kViewState = .onError(error.localizedDescription)
+                            kViewState = .onError(AnyDisplayableError(error))
                         }
                     }
                 }
@@ -608,18 +632,20 @@ struct InputView: View {
                 .onChange(of: pineconeManager.pineconeErrorFromQ) { _, error in
                     if let error = error {
                         withAnimation {
-                            kViewState = .onError(error.localizedDescription)
+                            kViewState = .onError(AnyDisplayableError(error))
                         }
                     }
                 }
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
-                    let lastState = kViewState
                     if !hasInternet {
-                        withAnimation {
-                            kViewState = .onError("Check your Connection")
-                        }
+                        kViewState = .onError(AnyDisplayableError(PineconeError.networkUnavailable))
                     } else {
-                        kViewState = lastState //TODO: Check if this is correct
+                        //When network is back
+                        if case .onError = kViewState {
+                            withAnimation {
+                                kViewState = .input
+                            }
+                        }
                     }
                 }
         }

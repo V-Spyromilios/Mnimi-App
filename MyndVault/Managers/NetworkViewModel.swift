@@ -9,51 +9,23 @@ import Foundation
 import Network
 import Combine
 
+@MainActor
 final class NetworkManager: ObservableObject {
     @Published var hasInternet: Bool = true
-    private var monitor: NWPathMonitor?
+    private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "NetworkMonitor")
-    private var cancellable: AnyCancellable?
 
     init() {
-        startMonitoring()
-        observeNetworkChanges()
+        monitor.pathUpdateHandler = { [weak self] path in
+            let status = path.status == .satisfied
+            Task { @MainActor in
+                self?.hasInternet = status
+            }
+        }
+        monitor.start(queue: queue)
     }
 
     deinit {
-        stopMonitoring()
+        monitor.cancel()
     }
-
-    func stopMonitoring() {
-        monitor?.cancel()
-        monitor = nil
-        cancellable?.cancel()
-    }
-
-    private func startMonitoring() {
-        stopMonitoring()
-
-        monitor = NWPathMonitor()
-        monitor?.start(queue: queue)
-
-        monitor?.pathUpdateHandler = { path in
-            let status = path.status == .satisfied
-            NotificationCenter.default.post(
-                name: .networkStatusChanged,
-                object: nil,
-                userInfo: ["status": status]
-            )
-        }
-    }
-
-    private func observeNetworkChanges() {
-        cancellable = NotificationCenter.default.publisher(for: .networkStatusChanged)
-            .compactMap { $0.userInfo?["status"] as? Bool }
-            .receive(on: DispatchQueue.main)
-            .assign(to: \.hasInternet, on: self)
-    }
-}
-
-extension Notification.Name {
-    static let networkStatusChanged = Notification.Name("networkStatusChanged")
 }

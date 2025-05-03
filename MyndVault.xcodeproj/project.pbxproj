@@ -60,6 +60,7 @@
 		E88B34D32DB3A99A002B43C2 /* BrightnessChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88B34D22DB3A99A002B43C2 /* BrightnessChecker.swift */; };
 		E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */; };
 		E8AD72452C2E03BC0049FC11 /* ImageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AD72442C2E03BC0049FC11 /* ImageItem.swift */; };
+		E8AE7BEC2DC62E21002CBCF1 /* KEmbarkationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */; };
 		E8B4C5782CDD69CA00813AC0 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4C5772CDD69CA00813AC0 /* ImageView.swift */; };
 		E8B4D5042BF8C08700F2A174 /* FaceIDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */; };
 		E8B4D5062BF8C1FA00F2A174 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4D5052BF8C1FA00F2A174 /* MainView.swift */; };
@@ -157,6 +158,7 @@
 		E88B34D22DB3A99A002B43C2 /* BrightnessChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrightnessChecker.swift; sourceTree = "<group>"; };
 		E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		E8AD72442C2E03BC0049FC11 /* ImageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageItem.swift; sourceTree = "<group>"; };
+		E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEmbarkationView.swift; sourceTree = "<group>"; };
 		E8B4C5772CDD69CA00813AC0 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
 		E8B4D5032BF8C08700F2A174 /* FaceIDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceIDView.swift; sourceTree = "<group>"; };
 		E8B4D5052BF8C1FA00F2A174 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */,
 				E86AD9A52DC5639600AD434C /* Launch Screen.storyboard */,
 				E84203E22DBB851C00DFCFE2 /* KEditInfoViewModel.swift */,
 				E84203E42DBB853800DFCFE2 /* KEditInfoView.swift */,
@@ -567,6 +570,7 @@
 				E8E1D3CA2BE0F646000FCFBC /* NewAddInfoView.swift in Sources */,
 				E816E7B52CA4002A0045CEE1 /* LoadingDotsView.swift in Sources */,
 				E86C27102DAA724C008950A8 /* KView.swift in Sources */,
+				E8AE7BEC2DC62E21002CBCF1 /* KEmbarkationView.swift in Sources */,
 				E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */,
 				E8E1D3C82BDA5A4A000FCFBC /* QuestionView.swift in Sources */,
 				E82F45762BC2A77E00945312 /* NotificationViewModel.swift in Sources */,

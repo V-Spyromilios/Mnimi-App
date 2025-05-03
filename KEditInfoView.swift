@@ -47,8 +47,14 @@ struct KEditInfoView: View {
                                 .lineSpacing(5)
                                 .multilineTextAlignment(.leading)
                         }
-                        else if isReady {
-                            Text("Empty Description").bold()
+                       else if let error = pineconeVm.pineconeErrorFromEdit {
+                            KErrorView(
+                                title: error.title,
+                                message: error.localizedDescription,
+                                retryAction: retrySaving
+                            )
+                            .transition(.scale.combined(with: .opacity))
+                            .animation(.easeOut(duration: 0.2), value: pineconeVm.pineconeErrorFromEdit?.id)
                         }
                         
                         // Timestamp (non-editable)
@@ -66,7 +72,7 @@ struct KEditInfoView: View {
                 }.scrollIndicators(.hidden)
             }
             .onAppear {
-                print("onAppear: description is: \(viewModel.description)")
+                debugLog("onAppear: description is: \(viewModel.description)")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                     isReady = true
                 }
@@ -104,12 +110,21 @@ struct KEditInfoView: View {
             }
         }
     }
-
+    private func retrySaving() {
+        pineconeVm.pineconeErrorFromEdit = nil
+        Task {
+            await upsertEditedInfo()
+            
+        }
+    }
+    
     private func upsert() {
         Task {
             await upsertEditedInfo()
         }
     }
+
+    
     
     @MainActor
     private func upsertEditedInfo() async {
@@ -131,9 +146,9 @@ struct KEditInfoView: View {
             }
         } catch {
             debugLog(error.localizedDescription)
+           
         }
     }
-    
 }
 
 #Preview {

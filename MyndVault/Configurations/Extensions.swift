@@ -714,6 +714,10 @@ struct KRecordButton: View {
 //    }
 //}
 
+extension Color {
+    static let softWhite = Color(red: 0.97, green: 0.97, blue: 0.94)
+}
+
 extension View {
     @ViewBuilder
     func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
@@ -748,4 +752,105 @@ extension Date {
         let seconds = TimeInterval(timezone.secondsFromGMT(for: self))
         return self.addingTimeInterval(seconds)
     }
+}
+
+struct KAlertView: View {
+    let title: String
+    let message: String
+    let dismissAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text(title)
+                .font(.custom("New York", size: 20))
+                .italic()
+                .multilineTextAlignment(.center)
+
+            Text(message)
+                .font(.custom("New York", size: 16))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Button(action: dismissAction) {
+                Text("OK")
+                    .font(.custom("New York", size: 17)).bold()
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Capsule())
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(.thinMaterial)
+                .shadow(radius: 10)
+        )
+        .padding(40)
+    }
+}
+
+struct KErrorView: View {
+    let title: String
+    let message: String
+    let retryAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text(title)
+                .font(.custom("New York", size: 20))
+                .italic()
+                .multilineTextAlignment(.center)
+
+            Text(message)
+                .font(.custom("New York", size: 16))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Button(action: retryAction) {
+                Text("Retry")
+                    .font(.custom("New York", size: 17))
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Capsule())
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color.softWhite)
+                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
+        )
+        .padding(40)
+        .transition(.opacity.combined(with: .scale))
+    }
+}
+
+
+protocol DisplayableError: Error, Identifiable where ID == String {
+    var title: String { get }
+    var message: String { get }
+}
+
+struct AnyDisplayableError: DisplayableError {
+    let id: String
+    let title: String
+    let message: String
+
+    init(_ error: any DisplayableError) {
+        self.id = error.id
+        self.title = error.title
+        self.message = error.message
+    }
+}
+
+enum EmbarkationStep: Int, CaseIterable {
+    case idleExplanation
+    case inputExplanation
+    case vaultSwipeExplanation
+    case vaultListExplanation
+    case settingsSwipeExplanation
 }

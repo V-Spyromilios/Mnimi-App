@@ -44,18 +44,23 @@ struct MyndVaultApp: App {
     @StateObject var authManager = AuthenticationManager()
     @StateObject private var networkManager = NetworkManager()
     @StateObject var apiCallsViewModel = ApiCallViewModel()
-    @State var showSplash: Bool = true
+    @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
+    @State private var showOnboarding: Bool = false
     
     init() {
         let ckViewModel = CloudKitViewModel.shared
-        Task {await ckViewModel.startCloudKit() }
-        let pineconeActor = PineconeActor(cloudKitViewModel: ckViewModel)
-        _pineconeViewModel = StateObject(wrappedValue: PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: ckViewModel))
+        _pineconeViewModel = StateObject(wrappedValue: PineconeViewModel(
+            pineconeActor: PineconeActor(cloudKitViewModel: ckViewModel),
+            CKviewModel: ckViewModel
+        ))
         
-        let openAIActor = OpenAIActor()
-        _openAiManager = StateObject(wrappedValue: OpenAIViewModel(openAIActor: openAIActor))
-        
+        _openAiManager = StateObject(wrappedValue: OpenAIViewModel(openAIActor: OpenAIActor()))
+
         configureRevenueCat()
+
+        Task {
+            await ckViewModel.startCloudKit()
+        }
     }
     
     var body: some Scene {
@@ -65,45 +70,18 @@ struct MyndVaultApp: App {
                 .environmentObject(pineconeViewModel)
                 .environmentObject(networkManager)
                 .environmentObject(cloudKitViewModel)
-            
-//            if showSplash {
-//                SplashScreen(showSplash: $showSplash)
-//                    .environmentObject(cloudKitViewModel)
-//                    .environmentObject(networkManager)
-//                    .environmentObject(apiCallsViewModel)
-//                    .statusBar(hidden: true)
-//            }
-//            else if cloudKitViewModel.isFirstLaunch {
-//                InitialSetupView()
-//                    .environmentObject(cloudKitViewModel)
-//                    .environmentObject(networkManager)
-//                    .environmentObject(apiCallsViewModel)
-//                    .environmentObject(keyboardResponder)
-//                    .environmentObject(authManager)
-//                    .environmentObject(openAiManager)
-//                    .environmentObject(pineconeViewModel)
-//                    .environmentObject(languageSettings)
-//                    .environmentObject(speechManager)
-//                   
-//            }
-//            else {
-//                RootView()
-//                    .environmentObject(cloudKitViewModel)
-//                    .environmentObject(networkManager)
-//                    .environmentObject(apiCallsViewModel)
-//                    .environmentObject(authManager)
-//                    .environmentObject(openAiManager)
-//                    .environmentObject(pineconeViewModel)
-//                    .environmentObject(keyboardResponder)
-//                    .environmentObject(languageSettings)
-//                    .environmentObject(speechManager)
-//                    .transition(.opacity)
-//            }
+                .onAppear {
+//                    if !hasSeenOnboarding {
+                        showOnboarding = true
+//                    }
+                }
+                .sheet(isPresented: $showOnboarding) {
+                    onboardingSheet
+                }
         }
     }
     
     private func configureRevenueCat() {
-        
 #if DEBUG
         Purchases.logLevel = .debug
 #else
@@ -119,11 +97,14 @@ struct MyndVaultApp: App {
         Purchases.shared.delegate = PurchasesDelegateHandler.shared
     }
     
-//    private func contentError(error: String) -> some View {
-//        VStack{
-//            Image(systemName: "exclamationmark.icloud.fill").resizable() .scaledToFit().padding(.bottom).frame(width: 90, height: 90)
-//            Text("iCloud Error").font(.title).bold().padding(.vertical)
-//            Text("\(error).\nPlease check your iCloud status and restart the app").font(.title3).italic()
-//        }.foregroundStyle(.gray)
-//    }
+    @ViewBuilder
+    var onboardingSheet: some View {
+        if showOnboarding {
+            KEmbarkationView {
+                hasSeenOnboarding = true
+                showOnboarding = false
+            }
+        }
+    }
+
 }

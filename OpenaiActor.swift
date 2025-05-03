@@ -8,27 +8,33 @@
 import Foundation
 
 
-enum OpenAIError: Error, Identifiable {
-    var id: String { localizedDescription }
-    
+enum OpenAIError: DisplayableError {
     case embeddingsFailed(Error)
     case gptResponseFailed(Error)
     case transriptionFailed(Error)
     case reminderError(Error)
     case unknown(Error)
-    
-    var localizedDescription: String {
+
+    var id: String { message }
+
+    var title: String {
         switch self {
-        case .embeddingsFailed(let error):
-            return "Embeddings Request Error: \(error.localizedDescription)"
-        case .gptResponseFailed(let error):
-            return "GPT Response Failed: \(error.localizedDescription)"
-        case .transriptionFailed(let error):
-            return "Audio Transcription Error: \(error.localizedDescription)"
-        case .reminderError(let error):
-            return "Reminder Error: \(error.localizedDescription)"
-        case .unknown(let error):
-            return "An unknown error occurred: \(error.localizedDescription)"
+        case .embeddingsFailed: return "Embeddings Error"
+        case .gptResponseFailed: return "GPT Error"
+        case .transriptionFailed: return "Transcription Error"
+        case .reminderError: return "Reminder Error"
+        case .unknown: return "Unexpected Error"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .embeddingsFailed(let e),
+             .gptResponseFailed(let e),
+             .transriptionFailed(let e),
+             .reminderError(let e),
+             .unknown(let e):
+            return e.localizedDescription
         }
     }
 }

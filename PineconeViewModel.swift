@@ -9,27 +9,38 @@ import Foundation
 import SwiftUI
 import Combine
 
-enum PineconeError: Error, Identifiable {
-    var id: String { localizedDescription }
-    
+
+enum PineconeError: DisplayableError {
     case upsertFailed(Error)
     case deleteFailed(Error)
     case queryFailed(Error)
     case refreshFailed(Error)
+    case networkUnavailable
     case unknown(Error)
-    
-    var localizedDescription: String {
+
+    var id: String { message }
+
+    var title: String {
         switch self {
-        case .upsertFailed(let error):
-            return "Upsert Failed: \(error.localizedDescription)"
-        case .deleteFailed(let error):
-            return "Delete Failed: \(error.localizedDescription)"
-        case .queryFailed(let error):
-            return "Query Failed: \(error.localizedDescription)"
-        case .refreshFailed(let error):
-            return "Refresh Failed: \(error.localizedDescription)"
-        case .unknown(let error):
-            return "An unknown error occurred: \(error.localizedDescription)"
+        case .upsertFailed: return "Save Error"
+        case .deleteFailed: return "Delete Error"
+        case .queryFailed: return "Search Error"
+        case .refreshFailed: return "Load Error"
+        case .networkUnavailable: return "Connection Lost"
+        case .unknown: return "Unexpected Error"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .upsertFailed(let err),
+             .deleteFailed(let err),
+             .queryFailed(let err),
+             .refreshFailed(let err),
+             .unknown(let err):
+            return err.localizedDescription
+        case .networkUnavailable:
+            return "You're offline. Please check your connection."
         }
     }
 }
@@ -58,6 +69,7 @@ class PineconeViewModel: ObservableObject {
 
     @Published var pineconeErrorFromEdit: PineconeError?
     @Published var pineconeErrorFromAdd: PineconeError?
+    @Published var pineconeErrorFromRefreshNamespace: PineconeError?
     @Published var pineconeErrorFromQ: PineconeError?
     @Published var pineconeErrorOnDel: PineconeError?
     @Published var pineconeQueryResponse: PineconeQueryResponse?
@@ -90,6 +102,7 @@ class PineconeViewModel: ObservableObject {
     
     func clearManager() {
         self.pineconeErrorFromAdd = nil
+        self.pineconeErrorFromRefreshNamespace = nil
         self.pineconeErrorFromEdit = nil
         self.pineconeErrorFromQ = nil
         self.pineconeQueryResponse = nil
@@ -120,10 +133,10 @@ class PineconeViewModel: ObservableObject {
                     self.pineconeFetchedVectors = []
                     self.pineconeErrorFromQ = nil
                     self.pineconeErrorFromEdit = nil
-                    self.pineconeErrorFromAdd = nil
+                    self.pineconeErrorFromRefreshNamespace = nil
                 }
             } catch {
-                self.pineconeErrorFromAdd = .refreshFailed(error)
+                self.pineconeErrorFromRefreshNamespace = .refreshFailed(error)
                 debugLog("from refreshNamespacesIDs: \(error) - \( error.localizedDescription)")
             }
         }
@@ -168,7 +181,9 @@ class PineconeViewModel: ObservableObject {
             try await pineconeActor.deleteVectorFromPinecone(id: id)
             return true
         } catch {
-            self.pineconeErrorOnDel = .deleteFailed(error)
+            if pineconeErrorFromEdit == nil {
+                pineconeErrorFromEdit = .deleteFailed(error)
+            }
             return false
         }
     }
