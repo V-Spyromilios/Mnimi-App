@@ -19,19 +19,7 @@ struct KEditInfoView: View {
         NavigationView {
             ZStack {
                 // Background
-                Image("oldPaper")
-                    .resizable()
-                    .scaledToFill()
-                    .blur(radius: 1)
-                    .opacity(0.8)
-                    .ignoresSafeArea()
-                
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
-                    startPoint: .top,
-                    endPoint: .center
-                )
-                .ignoresSafeArea()
+                KiokuBackgroundView()
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -159,6 +147,12 @@ struct KEditInfoView: View {
             "timestamp": ISO8601DateFormatter().string(from: Date())
         ]
     )
+    let cloudKit = CloudKitViewModel.shared
+
+    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+    let openAIActor = OpenAIActor()
+
+    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
     
     let viewModel = KEditInfoViewModel(vector: vector)
     
@@ -166,5 +160,5 @@ struct KEditInfoView: View {
         viewModel: viewModel,
         onSave: {},
         onCancel: {}
-    )
+    ).environmentObject(pineconeViewModel)
 }

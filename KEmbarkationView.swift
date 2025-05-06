@@ -10,42 +10,48 @@ import SwiftUI
 
 struct KEmbarkationView: View {
     var onDone: () -> Void
-    @State private var step: EmbarkationStep = .inputExplanation
+    @State private var animateSwipe: Bool = false
+    @State private var animateSwap2: Bool = false
+    @State private var step: EmbarkationStep = .welcomeIntro
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            KMockedView(for: step)
+            KMockedView(for: step, animateSwap: $animateSwipe, animateSwap2: $animateSwap2)
                 .transition(.opacity)
             VStack {
-                annotationView(for: step)
-                    .transition(.opacity)
-                    .padding(.top, 15)
-                
-                Button(nextButtonTitle) {
-                    advanceStep()
+                if step.annotationAlignment == .top {
+                    annotationBox(
+                        annotationText(for: step),
+                        fontWeight: step == .welcomeIntro ? .semibold : .regular,
+                        fontSize: step == .welcomeIntro ? 22 : 18
+                    )
+                    .padding(.top, step.annotationPadding)
+                    Spacer()
+                    nextButton
+                } else {
+                    Spacer()
+                    annotationBox(annotationText(for: step))
+                        .padding(.bottom, step.annotationPadding)
+                    nextButton
+                        .padding(.bottom, 20)
                 }
-                .font(.custom("New York", size: 20))
-                .padding()
-                .background(.ultraThinMaterial)
-                .clipShape(Capsule())
-//                .padding(.bottom, 40)
-                Spacer()
             }
-            
-//            VStack {
-//                
-//                Button(nextButtonTitle) {
-//                    advanceStep()
-//                }
-//                .font(.custom("New York", size: 20))
-//                .padding()
-//                .background(.ultraThinMaterial)
-//                .clipShape(Capsule())
-//                .padding(.bottom, 40)
-//                Spacer()
-//            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .transition(.opacity)
         }
         .animation(.easeInOut, value: step)
+    }
+    
+    private var nextButton: some View {
+        Button(nextButtonTitle) {
+            advanceStep()
+        }
+        .font(.custom("New York", size: 20))
+        .padding(.horizontal, 24)
+        .padding(.vertical, 12)
+        .background(.ultraThinMaterial)
+        .clipShape(Capsule())
+        .foregroundColor(.black)
     }
     
     private var nextButtonTitle: String {
@@ -59,6 +65,7 @@ struct KEmbarkationView: View {
             onDone()
         }
     }
+    
 }
 
 #Preview {
@@ -67,12 +74,12 @@ struct KEmbarkationView: View {
 
 @MainActor
 @ViewBuilder
-func KMockedView(for step: EmbarkationStep) -> some View {
+func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateSwap2: Binding<Bool>) -> some View {
     let audioRecorder = AudioRecorder()
     switch step {
     case .idleExplanation:
         ZStack(alignment: .bottomTrailing) {
-            Image("bg12")
+            Image("bg10")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
@@ -80,93 +87,95 @@ func KMockedView(for step: EmbarkationStep) -> some View {
             KRecordButton(recordingURL: .constant(nil), audioRecorder: audioRecorder, micColor: .constant(.white))
                 .padding(.bottom, 140)
                 .padding(.trailing, 100)
+                .disabled(true)
         }
     case .inputExplanation:
         ZStack {
-            Image("oldPaper")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
+            KiokuBackgroundView()
             VStack {
                 TextEditor(text: .constant("Remind me to call Jane tomorrow"))
                     .font(.custom("New York", size: 20))
+                
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .foregroundStyle(.black)
+                    .lineSpacing(7)
+                    .padding(.top, 40)
+                    .padding(.leading, 30)
                     .frame(height: 150)
-                    .padding()
-                    .background(.white.opacity(0.7))
-                    .cornerRadius(16)
-                    .padding(.top, 160)
-                    .padding(.horizontal, 30)
+                saveButton
                 Spacer()
-            }
+            }.frame(width: UIScreen.main.bounds.width)
         }
     case .vaultSwipeExplanation:
-        ZStack {
-            Image("bg12")
+        ZStack(alignment: .bottomTrailing) {
+            Image("bg10")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
             
             KRecordButton(recordingURL: .constant(nil), audioRecorder: audioRecorder, micColor: .constant(.white))
                 .padding(.bottom, 140)
-                .padding(.trailing, 20)
-            
-            // Optional swipe indicator
-            HStack {
-                Image(systemName: "chevron.right")
-                    .font(.largeTitle)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .clipShape(Circle())
-                    .padding(.leading, 20)
-                    .opacity(0.8)
-                Spacer()
-            }
-            .frame(maxHeight: .infinity, alignment: .center)
+                .padding(.trailing, 100)
+                .disabled(true)
         }
-    case .vaultListExplanation:
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                ForEach(0..<3) { index in
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("“License plate is AB123”")
-                            .font(.custom("New York", size: 18))
-                            .fontWeight(.semibold)
-                            .foregroundColor(.black)
-
-                        Text("(Added on Mar 4, 2025)")
-                            .font(.custom("New York", size: 14))
-                            .italic()
-                            .foregroundColor(.gray)
+        
+        HStack {
+            Image(systemName: "chevron.right")
+                .font(.largeTitle)
+                .foregroundColor(.white)
+                .padding()
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .offset(x: animateSwap.wrappedValue ? 13 : -5)
+                .opacity(animateSwap.wrappedValue ? 1.0: 0.7)
+                .scaleEffect(animateSwap.wrappedValue ? 1.1 : 1.0)
+                .padding(.leading, 20)
+                .onAppear {
+                    withAnimation(
+                        .easeInOut(duration: 0.9)
+                        .repeatForever(autoreverses: true)
+                    ) {
+                        animateSwap.wrappedValue = true
                     }
-                    .padding()
-                    .background(.white.opacity(0.8))
-                    .cornerRadius(16)
-                    .shadow(radius: 2)
                 }
-            }
-            .padding(.horizontal, 30)
-            .padding(.top, 100)
+            
+            Spacer()
         }
-        .background(
-            Image("oldPaper")
-                .resizable()
-                .scaledToFill()
-                .blur(radius: 1)
-                .opacity(0.9)
-                .ignoresSafeArea()
-        )
-    case .settingsSwipeExplanation:
+        .frame(maxHeight: .infinity, alignment: .center)
+        .frame(width: UIScreen.main.bounds.width)
+        
+    case .vaultListExplanation:
         ZStack {
-            Image("bg12")
+            KiokuBackgroundView()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    ForEach(demoVectors) { vector in
+                        sampleContentView(data: vector)
+                            .padding(.horizontal)
+                    }
+                    
+                }.padding(.top, 50)
+                    .frame(maxHeight: .infinity, alignment: .leading)
+                    .frame(width: UIScreen.main.bounds.width)
+                    .clipped()
+                
+            }
+        }
+        
+    case .settingsSwipeExplanation:
+        ZStack(alignment: .bottomTrailing) {
+            Image("bg10")
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
-
+                .frame(width: UIScreen.main.bounds.width)
+            
             KRecordButton(recordingURL: .constant(nil), audioRecorder: AudioRecorder(), micColor: .constant(.white))
                 .padding(.bottom, 140)
-                .padding(.trailing, 20)
-
+            
+                .padding()
+            
             HStack {
                 Spacer()
                 Image(systemName: "chevron.left")
@@ -174,50 +183,165 @@ func KMockedView(for step: EmbarkationStep) -> some View {
                     .foregroundColor(.white)
                     .padding()
                     .background(.ultraThinMaterial)
-                    .clipShape(Circle())
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.trailing, 20)
-                    .opacity(0.8)
+                    .offset(x: animateSwap2.wrappedValue ? -5 : 13)
+                    .opacity(animateSwap2.wrappedValue ? 1.0: 0.7)
+                    .scaleEffect(animateSwap2.wrappedValue ? 1.1 : 1.0)
+                
             }
             .frame(maxHeight: .infinity, alignment: .center)
+            .onAppear {
+                withAnimation(
+                    .easeInOut(duration: 0.9)
+                    .repeatForever(autoreverses: true)
+                ) {
+                    animateSwap2.wrappedValue = true
+                }
+            }
+            
+        }
+    case .welcomeIntro:
+        ZStack {
+            KiokuBackgroundView()
+            
+            Text("Kioku helps you remember anything.\n\nSpeak or type, and Kioku will store your notes, reminders, or calendar events — all searchable and secure.")
+                .font(.custom("New York", size: 18))
+                .multilineTextAlignment(.center)
+                .foregroundColor(.black)
+                .kiokuShadow()
+                .padding(.horizontal, 30)
+            
         }
     }
 }
 
+@MainActor
+private var saveButton: some View {
+    Button("Go") {
+        //Just sample for the Embarkation
+    }
+    .buttonStyle(.plain)
+    .underline()
+    .font(.custom("New York", size: 22))
+    .bold()
+    .foregroundColor(.black)
+    .padding(.top, 20)
+    .transition(.opacity)
+}
+@MainActor
+private func sampleContentView(data: Vector) -> some View {
+    
+    VStack(alignment: .leading, spacing: 15) {
+        let note = data.metadata["description"] ?? "Empty note."
+        let dateText = dateFromISO8601(isoDate: data.metadata["timestamp"] ?? "").map { formatDateForDisplay(date: $0) } ?? ""
+        
+        VStack(alignment: .leading, spacing: 8) {
+            Text("\"\(note)\"")
+                .font(.custom("New York", size: 18))
+                .fontWeight(.semibold)
+                .lineSpacing(5)
+                .multilineTextAlignment(.leading)
+                .foregroundColor(.black)
+            
+            Text("(\(dateText))")
+                .font(.custom("New York", size: 14))
+                .italic()
+                .foregroundColor(.black.opacity(0.8))
+        }
+        .multilineTextAlignment(.leading)
+    }
+    .padding()
+    .frame(maxWidth: .infinity, alignment: .leading)
+    
+    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+    .drawingGroup()
+}
 
-@ViewBuilder
-func annotationView(for step: EmbarkationStep) -> some View {
+private var demoVectors: [Vector] {
+    let formatter = ISO8601DateFormatter()
+    let now = Date()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return [
+        Vector(
+            id: UUID().uuidString,
+            metadata: [
+                "description": "Dieses Buch von Marco Polo ist gut, um es vor der Reise nach Griechenland zu huben.",
+                "timestamp": formatter.string(from: now.addingTimeInterval(-86400 * 1))
+            ]
+        ),
+        Vector(
+            id: UUID().uuidString,
+            metadata: [
+                "description": "Idea for the next app: microservices with Go and grpc on private cloud - focus on ios and visionOS",
+                "timestamp": formatter.string(from: now.addingTimeInterval(+86500 * 3)) // 3 days ago
+            ]
+        ),
+        
+        Vector(
+            id: UUID().uuidString,
+            metadata: [
+                "description": "My research paper can be on late 1800s Athens, perhaps: 'The Evolution of small retailers and urbanisation'",
+                "timestamp": formatter.string(from: now.addingTimeInterval(+86500 * 3)) // 3 days ago
+            ]
+        ),
+        Vector(
+            id: UUID().uuidString,
+            metadata: [
+                "description": "the cafe of the art museum is open Tuesday to Sunday 11:00 - 18:00.",
+                "timestamp": formatter.string(from: now.addingTimeInterval(+86400 * 5)) // 5 days ago
+            ]
+        ),
+        Vector(
+            id: UUID().uuidString,
+            metadata: [
+                "description": "Sofia likes hats and tops with puppies!",
+                "timestamp": formatter.string(from: now.addingTimeInterval(-86400 * 1))
+            ]
+        ),
+        Vector(
+            id: UUID().uuidString,
+            metadata: [
+                "description": "Το ντοκιμαντέρ για την Αθήνα να ξεκινά με αφήγηση απο το παλιό Πανεπιστημίο στην Πλάκα!",
+                "timestamp": formatter.string(from: now.addingTimeInterval(-86400 * 1))
+            ]
+        )
+    ]
+}
+
+
+func annotationText(for step: EmbarkationStep) -> String {
     switch step {
     case .idleExplanation:
-        annotationBox("This is your starting screen.\nTap and hold the microphone to speak and save:\n– Notes\n– Reminders\n– Calendar events.")
-//            .padding(.top, 80)
-            .padding()
+        return "This is your starting screen.\nPress and hold the microphone to speak and save:\nNotes, Reminders, or Calendar events.\n\nPrefer typing?\nJust tap anywhere on the main screen to bring up the keyboard and write instead."
         
     case .inputExplanation:
-        annotationBox("Prefer typing?\nJust tap anywhere on the screen to bring up the keyboard and write instead.")
-            .padding(.top, 80)
+        return "Type a new info, a reminder or calendar event and press Go. Kioku will remember it for you."
         
     case .vaultSwipeExplanation:
-        annotationBox("Swipe from the left edge to reveal your Vault.\nIt holds everything you've saved.")
-            .padding(.top, 80)
+        return "In the starting screen swipe from the left edge to reveal your Vault.\nIt holds everything you've saved."
         
     case .vaultListExplanation:
-        annotationBox("This is your Vault.\nHere you can review, edit, or delete anything you’ve saved.\nJust tap an item to manage it.")
-            .padding(.top, 80)
+        return "This is your Vault.\nHere you can review, edit, or delete anything you’ve saved.\nJust tap an item to manage it."
         
     case .settingsSwipeExplanation:
-        annotationBox("Swipe from the right edge to open Settings.\nFrom there, you can change preferences — or revisit this tour anytime.")
-            .padding(.top, 80)
+        return "Swipe from the right edge to open Settings.\nFrom there, you can change preferences — or revisit this tour anytime."
+    case .welcomeIntro:
+        return "Welcome to Kioku"
     }
 }
 
-func annotationBox(_ text: String) -> some View {
+@MainActor
+func annotationBox(_ text: String, fontWeight: Font.Weight = .regular, fontSize: CGFloat = 18) -> some View {
     Text(text)
-        .font(.custom("New York", size: 18))
+        .font(.custom("New York", size: fontSize))
+        .fontWeight(fontWeight)
+        .kiokuShadow()
         .padding()
         .background(.ultraThinMaterial)
         .cornerRadius(20)
         .padding(.horizontal, 30)
         .multilineTextAlignment(.center)
         .foregroundColor(.black)
-        .shadow(radius: 4)
+        .frame(width: UIScreen.main.bounds.width - 10)
 }

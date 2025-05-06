@@ -188,17 +188,18 @@ class PineconeViewModel: ObservableObject {
         }
     }
     
-    func deleteAllVectorsInNamespace() async {
+    func deleteAllVectorsInNamespace() async -> Bool {
 
             do {
                 try await pineconeActor.deleteAllVectorsInNamespace()
-                self.accountDeleted = true
+                
                 self.pineconeFetchedVectors = []
                 self.pineconeIDs = []
+                return true
             } catch {
                 self.pineconeErrorOnDel = .deleteFailed(error)
+                return false
             }
-        
     }
   
     

@@ -11,13 +11,18 @@ struct KSettings: View {
 
     @State private var canShowAppSettings: Bool = true
     @State private var canShowSubscription: Bool = true
+    @EnvironmentObject var pineconeManager: PineconeViewModel
     
     enum SettingsSheet: Identifiable {
         case aboutUs
+        case kEmbarkationView
+        case deleteAccount
 
         var id: Int {
             switch self {
             case .aboutUs: return 1
+            case .kEmbarkationView: return 2
+            case .deleteAccount: return 3
             }
         }
     }
@@ -25,25 +30,13 @@ struct KSettings: View {
     @State private var activeSheet: SettingsSheet?
     
     var body: some View {
-
+        
         ZStack {
-            Image("oldPaper")
-                .resizable()
-                .scaledToFill()
-                .blur(radius: 1)
-                .opacity(0.85)
-                .ignoresSafeArea()
-            
-            LinearGradient(
-                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            KiokuBackgroundView()
             
             ScrollView {
                 VStack(spacing: 24) {
-
+                    
                     //MARK: App Setting in the phone
                     if canShowAppSettings {
                         Button {
@@ -115,15 +108,38 @@ struct KSettings: View {
                     }
                     .kiokuButton()
                     
-                    //TODO: Bring 'Delete Account' from old Settings!
-                }
-                    .sheet(item: $activeSheet) { item in
-                        switch item {
-                       
-                        case .aboutUs:
-                            AboutUsView()
+                    
+                    Button {
+                        activeSheet = .kEmbarkationView
+                    } label: {
+                        HStack {
+                            Text("Kioku Embarkation")
+                            Spacer()
                         }
+                    }.kiokuButton()
+                    
+                    Button {
+                        activeSheet = .deleteAccount
+                    } label: {
+                        HStack {
+                            Text("Delete Account")
+                            Spacer()
+                        }
+                    }.kiokuButton()
+                }
+                .sheet(item: $activeSheet) { item in
+                    switch item {
+                        
+                    case .aboutUs:
+                        AboutUsView()
+                    case .kEmbarkationView:
+                        KEmbarkationView(onDone: {
+                            self.activeSheet = nil
+                        })
+                    case .deleteAccount:
+                        KDeleteAccountView(onCancel: {self.activeSheet = nil})
                     }
+                }
             }.scrollIndicators(.hidden)
             .padding(.horizontal, 20)
             .frame(width: UIScreen.main.bounds.width)

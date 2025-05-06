@@ -40,6 +40,8 @@ struct MyndVaultApp: App {
     
     @StateObject var cloudKitViewModel: CloudKitViewModel = .shared
     
+    @StateObject var apiCallUsageManager = ApiCallUsageManager()
+    
     @StateObject var speechManager = SpeechRecognizerManager()
     @StateObject var authManager = AuthenticationManager()
     @StateObject private var networkManager = NetworkManager()
@@ -70,12 +72,13 @@ struct MyndVaultApp: App {
                 .environmentObject(pineconeViewModel)
                 .environmentObject(networkManager)
                 .environmentObject(cloudKitViewModel)
+                .environmentObject(apiCallUsageManager)
                 .onAppear {
 //                    if !hasSeenOnboarding {
                         showOnboarding = true
 //                    }
                 }
-                .sheet(isPresented: $showOnboarding) {
+                .fullScreenCover(isPresented: $showOnboarding) {
                     onboardingSheet
                 }
         }

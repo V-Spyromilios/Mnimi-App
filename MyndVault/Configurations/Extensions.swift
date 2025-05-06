@@ -195,28 +195,6 @@ extension View {
     }
 }
 
-extension View {
-    func kiokuBackground(opacity: Double = 0.95) -> some View {
-        self.background(
-            ZStack {
-                Image("oldPaper")
-                    .resizable()
-                    .scaledToFill()
-                    .blur(radius: 1)
-                    .opacity(opacity)
-                    .ignoresSafeArea()
-                
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.white.opacity(0.5), Color.clear]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-            }.ignoresSafeArea(.keyboard, edges: .bottom)
-        )
-    }
-}
-
 func localizedBrightness(of image: UIImage, relativeRect: CGRect) -> CGFloat {
     guard let cgImage = image.cgImage else { return 1.0 }
     
@@ -640,7 +618,7 @@ struct KRecordButton: View {
     }
 }
 
-@MainActor
+
 //struct FloatingLabelTextField: View {
 //    
 //    @EnvironmentObject var keyboardResponder: KeyboardResponder
@@ -848,9 +826,49 @@ struct AnyDisplayableError: DisplayableError {
 }
 
 enum EmbarkationStep: Int, CaseIterable {
+    case welcomeIntro
     case idleExplanation
-    case inputExplanation
     case vaultSwipeExplanation
-    case vaultListExplanation
     case settingsSwipeExplanation
+    case inputExplanation
+    case vaultListExplanation
+
+    /// Determines where the annotation box appears (top or bottom).
+    var annotationAlignment: Alignment {
+        switch self {
+        case .idleExplanation, .vaultSwipeExplanation, .settingsSwipeExplanation, .welcomeIntro:
+            return .top
+        case .inputExplanation, .vaultListExplanation:
+            return .bottom
+        }
+    }
+
+    /// Controls the padding from the screen edge for the annotation.
+    var annotationPadding: CGFloat {
+        switch annotationAlignment {
+        case .top:
+            return 80
+        case .bottom:
+            return 40
+        default:
+            return 60 // fallback if ever needed
+        }
+    }
+}
+
+struct KiokuBackgroundView: View {
+    var body: some View {
+        Image("oldPaper")
+            .resizable()
+            .scaledToFill()
+            .blur(radius: 1)
+            .opacity(0.9)
+            .ignoresSafeArea()
+            .frame(width: UIScreen.main.bounds.width)
+    }
+}
+
+enum UsageTrackingKeys {
+    static let apiCallCount = "apiCallCount"
+    static let lastResetDate = "lastResetDate"
 }
