@@ -59,6 +59,8 @@
 		E878FA8F2CD3A90F00CEA8EA /* OpenAIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */; };
 		E88B34D32DB3A99A002B43C2 /* BrightnessChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88B34D22DB3A99A002B43C2 /* BrightnessChecker.swift */; };
 		E8A1965F2C1B3D72008AAAAA /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */; };
+		E8A450DF2DCA51B3008E86B7 /*  DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A450DE2DCA51B3008E86B7 /*  DeleteAccountView.swift */; };
+		E8A450E12DCA64FA008E86B7 /* ApiCallUsageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A450E02DCA64FA008E86B7 /* ApiCallUsageManager.swift */; };
 		E8AD72452C2E03BC0049FC11 /* ImageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AD72442C2E03BC0049FC11 /* ImageItem.swift */; };
 		E8AE7BEC2DC62E21002CBCF1 /* KEmbarkationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */; };
 		E8B4C5782CDD69CA00813AC0 /* ImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8B4C5772CDD69CA00813AC0 /* ImageView.swift */; };
@@ -157,6 +159,8 @@
 		E878FA8E2CD3A90F00CEA8EA /* OpenAIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIViewModel.swift; sourceTree = "<group>"; };
 		E88B34D22DB3A99A002B43C2 /* BrightnessChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrightnessChecker.swift; sourceTree = "<group>"; };
 		E8A1965E2C1B3D72008AAAAA /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
+		E8A450DE2DCA51B3008E86B7 /*  DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " DeleteAccountView.swift"; sourceTree = "<group>"; };
+		E8A450E02DCA64FA008E86B7 /* ApiCallUsageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallUsageManager.swift; sourceTree = "<group>"; };
 		E8AD72442C2E03BC0049FC11 /* ImageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageItem.swift; sourceTree = "<group>"; };
 		E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEmbarkationView.swift; sourceTree = "<group>"; };
 		E8B4C5772CDD69CA00813AC0 /* ImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageView.swift; sourceTree = "<group>"; };
@@ -267,6 +271,8 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E8A450E02DCA64FA008E86B7 /* ApiCallUsageManager.swift */,
+				E8A450DE2DCA51B3008E86B7 /*  DeleteAccountView.swift */,
 				E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */,
 				E86AD9A52DC5639600AD434C /* Launch Screen.storyboard */,
 				E84203E22DBB851C00DFCFE2 /* KEditInfoViewModel.swift */,
@@ -530,6 +536,7 @@
 				E877FA2D2C4A9FB6002FBFFC /* TypingTextView.swift in Sources */,
 				E878FA892CCD169900CEA8EA /* PineconeViewModel.swift in Sources */,
 				E82F456D2BC2A77E00945312 /* ApiConfiguration.swift in Sources */,
+				E8A450E12DCA64FA008E86B7 /* ApiCallUsageManager.swift in Sources */,
 				E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */,
 				E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */,
 				E8AD72452C2E03BC0049FC11 /* ImageItem.swift in Sources */,
@@ -554,6 +561,7 @@
 				E82F45772BC2A77E00945312 /* NotificationsView.swift in Sources */,
 				E8B4D5082BF8CD7F00F2A174 /* KeychainManager.swift in Sources */,
 				E878FA8B2CCD16BF00CEA8EA /* PineconeActor.swift in Sources */,
+				E8A450DF2DCA51B3008E86B7 /*  DeleteAccountView.swift in Sources */,
 				E8B4C5782CDD69CA00813AC0 /* ImageView.swift in Sources */,
 				E8DA57AF2BE265F000EB2013 /* AddNotificationView.swift in Sources */,
 				E8FA7F172BC5C8F30012EBF6 /* InfosViewListCellView.swift in Sources */,

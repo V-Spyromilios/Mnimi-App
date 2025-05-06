@@ -12,6 +12,7 @@ struct AboutUsView: View {
     
     var body: some View {
         ZStack {
+            KiokuBackgroundView()
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     Text("About Kioku")
@@ -69,7 +70,7 @@ struct AboutUsView: View {
                 .frame(maxWidth: UIScreen.main.bounds.width, alignment: .leading)
             }.scrollIndicators(.hidden)
         }
-        .kiokuBackground()
+       
     }
 
     private func openLinkedInProfile() {

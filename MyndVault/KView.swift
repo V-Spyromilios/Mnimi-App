@@ -56,6 +56,7 @@ struct KView: View {
     @StateObject private var audioRecorder: AudioRecorder = AudioRecorder()
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
+    @EnvironmentObject var usageManager: ApiCallUsageManager
     @State private var micColor: Color = .white
     @State private var viewTransitionDelay: Double = 0.4
     @State private var viewTransitionDuration: Double = 0.4
@@ -149,6 +150,7 @@ struct KView: View {
                     showInputView()
                     audioRecorder.deleteAudioAndUrl()
                     recordingURL = nil
+                    usageManager.trackApiCall()
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 140)
@@ -304,14 +306,7 @@ struct InputView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            Image("oldPaper")
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-                .opacity(0.9)
-                .blur(radius: 1)
-                .ignoresSafeArea(.keyboard, edges: .all)
+            KiokuBackgroundView()
             
             VStack {
                 if kViewState == .response {

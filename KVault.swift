@@ -12,6 +12,7 @@ struct KVault: View {
     @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var pineconeVm: PineconeViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var usageManager: ApiCallUsageManager
     
     @State private var vectorsAreLoading: Bool = true
     @State private var showEmpty: Bool = false
@@ -40,12 +41,11 @@ struct KVault: View {
     var body: some View {
         
         ZStack {
-            //            backgroundView
+            KiokuBackgroundView()
             contentView
-            //            .frame(maxWidth: 400) // soft constraint for tablets
+
                 .padding(.horizontal)
-            
-            
+
             if showNoInternet {
                 Color.black.opacity(0.4).ignoresSafeArea()
                 
@@ -64,14 +64,13 @@ struct KVault: View {
             }
         }
         .frame(width: UIScreen.main.bounds.width)
-        .clipped()
-        .kiokuBackground()
         .animation(.easeOut(duration: 0.2), value: showNoInternet)
         .onAppear {
             if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
                 withAnimation {
                     vectorsAreLoading = true }
                 fetchPineconeEntries()
+                usageManager.trackApiCall()
             }
         }
         .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
@@ -128,19 +127,8 @@ struct KVault: View {
     
     private var backgroundView: some View {
         ZStack {
-            Image("oldPaper")
-                .resizable()
-                .scaledToFill()
-                .blur(radius: 1)
-                .opacity(0.85)
-                .ignoresSafeArea()
-            
-            LinearGradient(
-                gradient: Gradient(colors: [Color.white.opacity(0.6), Color.clear]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            KiokuBackgroundView()
+
         }
     }
     
@@ -300,18 +288,18 @@ struct KSearchBar: View {
     }
 }
 
-//#Preview {
-//    let cloudKit = CloudKitViewModel.shared
-//    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
-//    let openAIActor = OpenAIActor()
-//    let languageSettings = LanguageSettings.shared
-//    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
-//    let networkManager = NetworkManager()
-//
-//    KVault()
-//        .environmentObject(pineconeViewModel)
-//        .environmentObject(networkManager)
-//}
+#Preview {
+    let cloudKit = CloudKitViewModel.shared
+    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+    let openAIActor = OpenAIActor()
+
+    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
+    let networkManager = NetworkManager()
+
+    KVault()
+        .environmentObject(pineconeViewModel)
+        .environmentObject(networkManager)
+}
 
 
 
@@ -337,17 +325,17 @@ struct KSearchBar: View {
 
 
 // Preview for the KAlert
-
-struct KAlertView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack{
-            KAlertView(
-                title: "You are not connected to the Internet",
-                message: "Please check your connection",
-                dismissAction: {}
-            )
-        }
-        .previewDisplayName("Kioku Alert Preview")
-        .kiokuBackground().ignoresSafeArea()
-    }
-}
+//
+//struct KAlertView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        VStack{
+//            KAlertView(
+//                title: "You are not connected to the Internet",
+//                message: "Please check your connection",
+//                dismissAction: {}
+//            )
+//        }
+//        .previewDisplayName("Kioku Alert Preview")
+//        .kiokuBackground().ignoresSafeArea()
+//    }
+//}
