@@ -41,7 +41,7 @@ final class AudioRecorder: ObservableObject {
         } // ✅ Prevent duplicate recordings
         
         guard await requestPermission() else {
-            print("❌ Microphone permission denied")
+            debugLog("❌ Microphone permission denied")
             return
         }
         
@@ -64,7 +64,7 @@ final class AudioRecorder: ObservableObject {
         avAudioRecorder?.record()
         isRecording = true
         
-        print("🎤 Recording started at: \(fileURL)")
+        debugLog("🎤 Recording started at: \(fileURL)")
     }
 
     /// Stop recording and return the file URL
@@ -83,7 +83,7 @@ final class AudioRecorder: ObservableObject {
             return nil
         }
 
-        print("🛑 Recording stopped at: \(audioURL)")
+        debugLog("🛑 Recording stopped at: \(audioURL)")
         return audioURL
     }
     

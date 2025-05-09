@@ -301,6 +301,8 @@ struct InputView: View {
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @State private var userIntentType: IntentType = .unknown
+    @State private var showPaywall = false
+    @StateObject var revenueCat = RevenueCatManager()
     @Binding var delay: Double
     @Binding var duration: Double
     
@@ -368,6 +370,7 @@ struct InputView: View {
                 toinputStateFromState()
             }
         }
+        .fullScreenCover(item: $showPaywall, content: <#T##(Identifiable) -> View#>)
     }
     
     private var responseTextView: some View {
@@ -580,6 +583,7 @@ struct InputView: View {
         @EnvironmentObject var openAiManager: OpenAIViewModel
         @EnvironmentObject var pineconeManager: PineconeViewModel
         @EnvironmentObject var networkManager: NetworkManager
+        @EnvironmentObject var usageManager: ApiCallUsageManager
         @Binding var textEditorsText: String
         
         func body(content: Content) -> some View {
@@ -607,6 +611,7 @@ struct InputView: View {
                     } else {
                         debugLog("⚠️ pineconeManager.pineconeQueryResponse was nil.")
                     }
+                    usageManager.trackApiCall()
                 }
                 .onChange(of: pineconeManager.pineconeErrorFromAdd) { _, error in
                     if let error = error {

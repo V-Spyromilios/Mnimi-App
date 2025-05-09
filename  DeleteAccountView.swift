@@ -16,27 +16,42 @@ struct KDeleteAccountView: View {
 
     var body: some View {
         ZStack {
-            // Background
+
             KiokuBackgroundView()
 
             VStack(spacing: 27) {
                 Spacer()
 
-                Text("Are you sure?")
-                    .font(.custom("New York", size: 24))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.black)
-                    .kiokuShadow()
-
-                Text("This will permanently delete all your saved information from Kioku.")
-                    .font(.custom("New York", size: 18))
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.black)
-                    .lineSpacing(7)
-                    .padding(.horizontal, 30)
-
-                Spacer()
-                
+                if deletionSuccess == false {
+                    Text("Are you sure?")
+                        .font(.custom("New York", size: 24))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.black)
+                        .kiokuShadow()
+                    
+                    Text("This will permanently delete all your saved information from Mnimi.")
+                        .font(.custom("New York", size: 18))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.black)
+                        .lineSpacing(7)
+                        .padding(.horizontal, 30)
+                    
+                    Spacer()
+                } else {
+                    Text("Your account was deleted.")
+                        .font(.custom("New York", size: 24))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.black)
+                        .kiokuShadow()
+                    
+                    Text("You can safely uninstall the app")
+                        .font(.custom("New York", size: 18))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.black)
+                        .lineSpacing(7)
+                        .padding(.horizontal, 30)
+                    Spacer()
+                }
                 VStack(spacing: 16) {
                     Button(action: {
                         Task {
@@ -54,7 +69,7 @@ struct KDeleteAccountView: View {
                     }) {
                         Text("Delete My Account")
                             .font(.custom("New York", size: 20))
-                            .foregroundColor(.red)
+                            .foregroundColor(.black)
                             .padding()
                             .frame(maxWidth: .infinity)
                             .background(.ultraThinMaterial)
@@ -69,7 +84,7 @@ struct KDeleteAccountView: View {
                         Text("Cancel")
                             .font(.custom("New York", size: 18))
                             .foregroundColor(.black)
-                            .padding(.vertical, 12)
+                            .padding(.vertical, 16)
                     }.disabled(isDeleting)
                     
                     if showError, let error = pineconeManager.pineconeErrorOnDel {
@@ -80,19 +95,19 @@ struct KDeleteAccountView: View {
                             .padding(.horizontal)
                             .transition(.opacity)
                     }
-
-                    if deletionSuccess {
-                        Text("Your account was deleted.")
-                            .font(.custom("New York", size: 18))
-                            .foregroundColor(.black)
-                            .padding(.top)
-                            .transition(.opacity)
-                    }
                 }
                 .padding(.horizontal, 40)
                 .padding(.bottom, 60)
             }
+//            .onAppear {
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+//                    withAnimation {
+//                        deletionSuccess.toggle() }
+//                }
+//            }
+            .transition(.opacity)
         }
+        .statusBarHidden()
     }
 }
 

@@ -113,7 +113,7 @@ struct KSettings: View {
                         activeSheet = .kEmbarkationView
                     } label: {
                         HStack {
-                            Text("Kioku Embarkation")
+                            Text("See the Embarkation")
                             Spacer()
                         }
                     }.kiokuButton()
@@ -148,6 +148,7 @@ struct KSettings: View {
             checkOpeningSettings()
             checkOpeningSubscriptions()
         }
+        .statusBarHidden()
     }
     private func checkOpeningSettings() {
         guard let urlSettings = URL(string: UIApplication.openSettingsURLString),

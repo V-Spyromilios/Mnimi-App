@@ -37,15 +37,12 @@ struct MyndVaultApp: App {
     
     @StateObject private var pineconeViewModel: PineconeViewModel
     @StateObject private var openAiManager: OpenAIViewModel
-    
     @StateObject var cloudKitViewModel: CloudKitViewModel = .shared
     
     @StateObject var apiCallUsageManager = ApiCallUsageManager()
     
     @StateObject var speechManager = SpeechRecognizerManager()
-    @StateObject var authManager = AuthenticationManager()
     @StateObject private var networkManager = NetworkManager()
-    @StateObject var apiCallsViewModel = ApiCallViewModel()
     @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
     @State private var showOnboarding: Bool = false
     
@@ -74,9 +71,9 @@ struct MyndVaultApp: App {
                 .environmentObject(cloudKitViewModel)
                 .environmentObject(apiCallUsageManager)
                 .onAppear {
-//                    if !hasSeenOnboarding {
+                    if !hasSeenOnboarding {
                         showOnboarding = true
-//                    }
+                    }
                 }
                 .fullScreenCover(isPresented: $showOnboarding) {
                     onboardingSheet

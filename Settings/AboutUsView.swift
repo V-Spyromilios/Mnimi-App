@@ -15,14 +15,14 @@ struct AboutUsView: View {
             KiokuBackgroundView()
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text("About Kioku")
+                    Text("The Developer")
                         .font(.custom("New York", size: 28))
                         .foregroundColor(.gray)
                         .fontWeight(.bold)
                         .padding(.top, 30)
                         .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
 
-                    Text("This app is more than just a project—it’s a reflection of my journey.\n\nTransitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise.\nKioku was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention.\n\nNo ads, no notifications, no personal data collection. - Just a simple, elegant interface that empowers you to remember what matters.\n\nCurious to connect? I’d love to hear from you.")
+                    Text("This app is more than just a project—it’s a reflection of my journey.\n\nTransitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise.\nMnimi was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention.\n\nNo ads, no notifications, no personal data collection. - Just a simple, elegant interface that empowers you to remember what matters.\n\nCurious to connect? I’d love to hear from you.")
                         .font(.custom("NewYork-RegularItalic", size: 17))
                         .foregroundColor(.black)
                         .multilineTextAlignment(.leading)
