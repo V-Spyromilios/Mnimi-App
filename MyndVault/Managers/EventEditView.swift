@@ -39,16 +39,15 @@ struct EventEditView: UIViewControllerRepresentable {
         func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) { 
             switch action {
             case .saved:
-                print("✅ Event saved!")
+                debugLog("✅ Event saved!")
             case .canceled:
-                print("❌ Event creation canceled.")
+                debugLog("❌ Event creation canceled.")
             case .deleted:
-                print("🗑 Event deleted.")
+                debugLog("🗑 Event deleted.")
             @unknown default:
-                print("⚠️ Unknown action.")
+                debugLog("⚠️ Unknown action.")
             }
             onDismiss?() // dismiss the SwiftUI sheet: activeModel = nil is called.
-            
         }
     }
 }

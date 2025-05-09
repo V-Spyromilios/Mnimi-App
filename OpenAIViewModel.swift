@@ -18,7 +18,7 @@ class OpenAIViewModel: ObservableObject {
     @Published var embeddings: [Float] = []
     @Published var embeddingsFromQuestion: [Float] = []
     @Published var embeddingsCompleted: Bool = false
-//    @Published var questionEmbeddingsCompleted: Bool = false
+
     @Published var transcriptionErrorTrigger = UUID()
     @Published var embeddingsTrigger = UUID()
     @Published var stringResponseOnQuestion: String = ""

@@ -55,7 +55,7 @@ struct KEmbarkationView: View {
     }
     
     private var nextButtonTitle: String {
-        step == EmbarkationStep.allCases.last ? "Start Using Kioku" : "Next"
+        step == EmbarkationStep.allCases.last ? "Start Using Mnimi" : "Next"
     }
     
     private func advanceStep() {
@@ -205,7 +205,7 @@ func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateS
         ZStack {
             KiokuBackgroundView()
             
-            Text("Kioku helps you remember anything.\n\nSpeak or type, and Kioku will store your notes, reminders, or calendar events — all searchable and secure.")
+            Text("Mnimi helps you remember anything.\n\nSpeak or type, and Mnimi will store your notes, reminders, or calendar events — all searchable and secure.")
                 .font(.custom("New York", size: 18))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.black)
@@ -316,7 +316,7 @@ func annotationText(for step: EmbarkationStep) -> String {
         return "This is your starting screen.\nPress and hold the microphone to speak and save:\nNotes, Reminders, or Calendar events.\n\nPrefer typing?\nJust tap anywhere on the main screen to bring up the keyboard and write instead."
         
     case .inputExplanation:
-        return "Type a new info, a reminder or calendar event and press Go. Kioku will remember it for you."
+        return "Type a new info, a reminder or calendar event and press Go. Mnimi will remember it for you."
         
     case .vaultSwipeExplanation:
         return "In the starting screen swipe from the left edge to reveal your Vault.\nIt holds everything you've saved."
@@ -327,7 +327,7 @@ func annotationText(for step: EmbarkationStep) -> String {
     case .settingsSwipeExplanation:
         return "Swipe from the right edge to open Settings.\nFrom there, you can change preferences — or revisit this tour anytime."
     case .welcomeIntro:
-        return "Welcome to Kioku"
+        return "Welcome to your Mnimi"
     }
 }
 

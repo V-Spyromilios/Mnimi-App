@@ -13,7 +13,6 @@ struct KVault: View {
     @EnvironmentObject var pineconeVm: PineconeViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var usageManager: ApiCallUsageManager
-    
     @State private var vectorsAreLoading: Bool = true
     @State private var showEmpty: Bool = false
     @State private var showNoInternet = false
