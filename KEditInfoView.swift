@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct KEditInfoView: View {
+
     @EnvironmentObject var pineconeVm: PineconeViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @ObservedObject var viewModel: KEditInfoViewModel
@@ -16,48 +17,78 @@ struct KEditInfoView: View {
     var onCancel: () -> Void
     
     var body: some View {
-        NavigationView {
-            ZStack {
+
+        GeometryReader { geo in
+            ZStack(alignment: .top) {
                 // Background
                 KiokuBackgroundView()
                 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Description
-                        if isReady && !viewModel.description.isEmpty {
-                            TextEditor(text: $viewModel.description)
-                                .font(.custom("New York", size: 18))
-                                .padding()
-                                .scrollContentBackground(.hidden)
-                                .background(Color.clear)
-                                .foregroundStyle(.black)
-                                .frame(height: 100)
-                                .lineSpacing(5)
-                                .multilineTextAlignment(.leading)
-                        }
-                       else if let error = pineconeVm.pineconeErrorFromEdit {
-                            KErrorView(
-                                title: error.title,
-                                message: error.localizedDescription,
-                                retryAction: retrySaving
-                            )
-                            .transition(.scale.combined(with: .opacity))
-                            .animation(.easeOut(duration: 0.2), value: pineconeVm.pineconeErrorFromEdit?.id)
-                        }
-                        
-                        // Timestamp (non-editable)
-                        Text(viewModel.timestamp)
-                            .font(.custom("New York", size: 14))
-                            .italic()
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                VStack(spacing: 20) {
+                    // Description
+                    if isReady && !viewModel.description.isEmpty {
+                        TextEditor(text: $viewModel.description)
+                            .font(.custom("New York", size: 18))
+                            .padding(.leading)
+                            .scrollContentBackground(.hidden)
+                            .background(Color.clear)
+                            .foregroundStyle(.black)
+                            .lineSpacing(5)
+                            .frame(width: UIScreen.main.bounds.width * 0.9, height: 140)
+                            .multilineTextAlignment(.leading)
+                            .kiokuShadow()
+                            .animation(.easeOut(duration: 0.25), value: isReady)
                     }
-                    .transition(.opacity)
-                    .padding(.horizontal, 42)
+                    else if let error = pineconeVm.pineconeErrorFromEdit {
+                        KErrorView(
+                            title: error.title,
+                            message: error.localizedDescription,
+                            retryAction: retrySaving
+                        )
+                        .transition(.scale.combined(with: .opacity))
+                        .animation(.easeOut(duration: 0.2), value: pineconeVm.pineconeErrorFromEdit?.id)
+                        .kiokuShadow()
+                    }
+                    
+                    // Timestamp (non-editable)
+                    Text(viewModel.timestamp)
+                        .font(.custom("New York", size: 14))
+                        .italic()
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: UIScreen.main.bounds.width * 0.6, alignment: .trailing)
+                    Spacer()
+                }
+                .transition(.opacity)
+                .padding(.top, 80)
+                .frame(maxWidth: UIScreen.main.bounds.width)
+                .ignoresSafeArea(.keyboard)
+                
+                VStack(spacing: 0) {
+                    HStack {
+                        Button("Cancel", action: onCancel)
+                            .font(.custom("New York", size: 19))
+                            .foregroundColor(.black)
+                        
+                        Spacer()
+                        
+                        Button("Delete", action: delete)
+                            .font(.custom("New York", size: 18))
+                            .foregroundColor(.black)
+                        
+                        Spacer()
+                        
+                        
+                        Button("Save", action: upsert)
+                            .font(.custom("New York", size: 18))
+                            .foregroundColor(.black)
+                    }
+                    .padding(.horizontal, 32)
                     .padding(.top, 24)
-                    .kiokuShadow()
-                    .frame(maxWidth: UIScreen.main.bounds.width)
-                }.scrollIndicators(.hidden)
+                    
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 2)
+                        .edgesIgnoringSafeArea(.horizontal)
+                }
             }
             .onAppear {
                 debugLog("onAppear: description is: \(viewModel.description)")
@@ -65,25 +96,13 @@ struct KEditInfoView: View {
                     isReady = true
                 }
             }
-//            .navigationTitle("Edit Info")
-//            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: upsert)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .font(.system(size: 18, weight: .regular, design: .rounded))
-                }
-                ToolbarItem(placement: .destructiveAction) {
-                    Button("Delete", action: delete)
-                        .font(.system(size: 18, weight: .regular, design: .rounded))
-                }
-            }
-            .ignoresSafeArea(.keyboard)
-        }
+           
+            .hideKeyboardOnTap()
+        }  .ignoresSafeArea(.keyboard)
+            .statusBarHidden()
+           
     }
+
     private func delete() {
         Task {
             let success = await pineconeVm.deleteVectorFromPinecone(id: viewModel.id)
@@ -143,7 +162,7 @@ struct KEditInfoView: View {
     let vector = Vector(
         id: UUID().uuidString,
         metadata: [
-            "description": "Lunch with Leo next Friday.",
+            "description": "Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday.Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday .Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday .Lunch with Leo next Friday.",
             "timestamp": ISO8601DateFormatter().string(from: Date())
         ]
     )

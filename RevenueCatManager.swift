@@ -8,18 +8,19 @@
 import Foundation
 import RevenueCat
 
+@MainActor
 final class RevenueCatManager: ObservableObject {
     @Published var isProUser: Bool = false
 
     init() {
-        Purchases.shared.getCustomerInfo { info, error in
-            self.isProUser = info?.entitlements["manager"]?.isActive == true
-        }
+        checkStatus()
     }
 
     func checkStatus() {
         Purchases.shared.getCustomerInfo { info, error in
-            self.isProUser = info?.entitlements["manager"]?.isActive == true
+            DispatchQueue.main.async {
+                self.isProUser = info?.entitlements["manager"]?.isActive == true
+            }
         }
     }
 }
