@@ -62,6 +62,7 @@ struct KView: View {
     @State private var viewTransitionDuration: Double = 0.4
     @State private var showVault: Bool = false
     @State private var showSettings: Bool = false
+    @State private var showPaywall: Bool = false
     
 #if DEBUG
 @State var currentIndex: Int = 0
@@ -80,14 +81,14 @@ struct KView: View {
                         .clipped()
                     
 #if DEBUG
-                   
                     Button(action: {
-                       showNextImage()
+//                       showNextImage()
+                        showPaywall.toggle()
                         print("Image: \(selectedImage)")
                     }) {
-                        Text("Next Image")
+                        Text("Paywall")
                             .font(.headline)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.black)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 12)
                             .background(.ultraThinMaterial)
@@ -106,7 +107,7 @@ struct KView: View {
                                 kViewState: $viewState, text: $text,
                                 isEditorFocused: _isEditorFocused,
                                 geometry: geo,
-                                delay: $viewTransitionDelay,
+                                showPaywall: $showPaywall, delay: $viewTransitionDelay,
                                 duration: $viewTransitionDuration
                             )
                             .ignoresSafeArea(.keyboard, edges: .all)
@@ -132,6 +133,12 @@ struct KView: View {
                         micColor = brightness > 0.6 ? .black : .white
                     }
                 }
+            }
+            .fullScreenCover(isPresented: $showPaywall) {
+                CustomPaywallView {
+                    showPaywall = false
+                }
+               
             }
 
             KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
@@ -301,7 +308,7 @@ struct InputView: View {
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @State private var userIntentType: IntentType = .unknown
-    @State private var showPaywall = false
+    @Binding var showPaywall: Bool
     @StateObject var revenueCat = RevenueCatManager()
     @Binding var delay: Double
     @Binding var duration: Double
@@ -370,7 +377,6 @@ struct InputView: View {
                 toinputStateFromState()
             }
         }
-        .fullScreenCover(item: $showPaywall, content: <#T##(Identifiable) -> View#>)
     }
     
     private var responseTextView: some View {

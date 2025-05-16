@@ -12,9 +12,9 @@
 		E817A4272C54F7E300A0172A /* ApiCallsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E817A4262C54F7E300A0172A /* ApiCallsView.swift */; };
 		E817A4292C54F8DB00A0172A /* ApiCallViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E817A4282C54F8DB00A0172A /* ApiCallViewModel.swift */; };
 		E81AABDE2DB8FC4300BF7C1A /* KVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81AABDD2DB8FC4300BF7C1A /* KVault.swift */; };
-		E81C6ECB2C724DAD000DC3C7 /* CustomPayWall.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81C6ECA2C724DAD000DC3C7 /* CustomPayWall.swift */; };
 		E81E2E4A2DCE587C000647CA /* RevenueCatManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81E2E492DCE587C000647CA /* RevenueCatManager.swift */; };
 		E81E2E4C2DCE59E4000647CA /* CustomPayWall.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81E2E4B2DCE59E4000647CA /* CustomPayWall.swift */; };
+		E81E2E4E2DCF684D000647CA /* MyndVault.storekit in Resources */ = {isa = PBXBuildFile; fileRef = E81E2E4D2DCF684D000647CA /* MyndVault.storekit */; };
 		E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */ = {isa = PBXBuildFile; fileRef = E82F454B2BC2A6D100945312 /* OpenAIKey.plist */; };
 		E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */; };
 		E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45552BC2A72100945312 /* OpenAIManager.swift */; };
@@ -111,9 +111,10 @@
 		E817A4262C54F7E300A0172A /* ApiCallsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallsView.swift; sourceTree = "<group>"; };
 		E817A4282C54F8DB00A0172A /* ApiCallViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallViewModel.swift; sourceTree = "<group>"; };
 		E81AABDD2DB8FC4300BF7C1A /* KVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KVault.swift; sourceTree = "<group>"; };
-		E81C6ECA2C724DAD000DC3C7 /* CustomPayWall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPayWall.swift; sourceTree = "<group>"; };
 		E81E2E492DCE587C000647CA /* RevenueCatManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevenueCatManager.swift; sourceTree = "<group>"; };
 		E81E2E4B2DCE59E4000647CA /* CustomPayWall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPayWall.swift; sourceTree = "<group>"; };
+		E81E2E4D2DCF684D000647CA /* MyndVault.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = MyndVault.storekit; sourceTree = "<group>"; };
+		E81E2E4F2DCF6A99000647CA /* MyndVault.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyndVault.entitlements; sourceTree = "<group>"; };
 		E82F454B2BC2A6D100945312 /* OpenAIKey.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = OpenAIKey.plist; sourceTree = "<group>"; };
 		E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudKitViewModel.swift; sourceTree = "<group>"; };
 		E82F45552BC2A72100945312 /* OpenAIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenAIManager.swift; sourceTree = "<group>"; };
@@ -273,6 +274,8 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E81E2E4F2DCF6A99000647CA /* MyndVault.entitlements */,
+				E81E2E4D2DCF684D000647CA /* MyndVault.storekit */,
 				E81E2E4B2DCE59E4000647CA /* CustomPayWall.swift */,
 				E81E2E492DCE587C000647CA /* RevenueCatManager.swift */,
 				E8A450E02DCA64FA008E86B7 /* ApiCallUsageManager.swift */,
@@ -333,7 +336,6 @@
 				E87605B82C7A1BDC002A13E5 /* PurschasesDelegateHandler.swift */,
 				E871C4DE2C270B5500747BC7 /* ImagePickerViewModel.swift */,
 				E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */,
-				E81C6ECA2C724DAD000DC3C7 /* CustomPayWall.swift */,
 				E877FA2C2C4A9FB6002FBFFC /* TypingTextView.swift */,
 				E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */,
 				E86C270F2DAA724C008950A8 /* KView.swift */,
@@ -478,6 +480,7 @@
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
 				E86AD9A62DC5639600AD434C /* Launch Screen.storyboard in Resources */,
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
+				E81E2E4E2DCF684D000647CA /* MyndVault.storekit in Resources */,
 				E8BDF9C42CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf in Resources */,
 				E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */,
 				E8CFEAFE2C3D5D52005A2630 /* NewYork.ttf in Resources */,
@@ -556,7 +559,6 @@
 				E8E4A68E2D32CFD3002A122B /* AccountDeletedView.swift in Sources */,
 				E8B4D50E2BF8EBE000F2A174 /* AuthenticationManager.swift in Sources */,
 				E82F458A2BC2A85D00945312 /* CustomTapBarView.swift in Sources */,
-				E81C6ECB2C724DAD000DC3C7 /* CustomPayWall.swift in Sources */,
 				E8FA7F122BC5BC320012EBF6 /* Settings View.swift in Sources */,
 				E817A4272C54F7E300A0172A /* ApiCallsView.swift in Sources */,
 				E8459EC82BC1E3BE00CE34A7 /* MyndVaultApp.swift in Sources */,
@@ -732,10 +734,10 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "MyndVault is requesting your permission to create events in your Calendar.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "MyndVault secures the access to your infos with Face ID. ";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Mnimi is requesting your permission to create events in your Calendar.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mnimi secures the access to your infos with Face ID. ";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Mnimi requires access to microphone to convert spoken words into text for reminders and other features.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Mnimi requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -772,10 +774,10 @@
 				INFOPLIST_FILE = MyndVault/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "MyndVault is requesting your permission to create events in your Calendar.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "MyndVault secures the access to your infos with Face ID. ";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MyndVault requires access to microphone to convert spoken words into text for reminders and other features.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "MyndVault requires access to Apple's speech recognition for processing your voice commands.";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Mnimi is requesting your permission to create events in your Calendar.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mnimi secures the access to your infos with Face ID. ";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Mnimi requires access to microphone to convert spoken words into text for reminders and other features.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Mnimi requires access to Apple's speech recognition for processing your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

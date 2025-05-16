@@ -872,3 +872,39 @@ enum UsageTrackingKeys {
     static let apiCallCount = "apiCallCount"
     static let lastResetDate = "lastResetDate"
 }
+
+//extension View {
+//    @ViewBuilder
+//    func keyboardAvoidance() -> some View {
+//        if #available(iOS 16.0, *) {
+//            self.scrollDismissesKeyboard(.interactively)
+//        } else {
+//            self
+//        }
+//    }
+//}
+//
+//extension View {
+//    func hideKeyboardOnDrag() -> some View {
+//        self.gesture(
+//            DragGesture().onChanged { _ in
+//                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+//                                                to: nil, from: nil, for: nil)
+//            }
+//        )
+//    }
+//}
+
+
+import SwiftUI
+
+extension View {
+    func hideKeyboardOnTap() -> some View {
+        self.gesture(
+            TapGesture().onEnded {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                to: nil, from: nil, for: nil)
+            }
+        )
+    }
+}

@@ -64,7 +64,7 @@ actor PineconeActor {
                 let ids = decodedResponse.vectors.map { $0.id }
 
                 // Update token usage or any other necessary operations
-                updateTokenUsage(api: APIs.pinecone, tokensUsed: 1, read: true)
+//                updateTokenUsage(api: APIs.pinecone, tokensUsed: 1, read: true)
 
                 return ids
             } catch {
@@ -124,7 +124,7 @@ actor PineconeActor {
 
                 // Update token usage
                 let readUnits = sortedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
-                updateTokenUsage(api: APIs.pinecone, tokensUsed: readUnits, read: true)
+//                updateTokenUsage(api: APIs.pinecone, tokensUsed: readUnits, read: true)
 
                 return sortedVectors
             } catch {
@@ -211,7 +211,7 @@ actor PineconeActor {
                 }
 
                 // Update token usage
-                updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
+//                updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
 
                 // If the operation is successful, return
                 return
@@ -273,7 +273,7 @@ actor PineconeActor {
                 }
 
                 // Update token usage
-                updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
+//                updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
                 
                 // If the operation is successful, return
                 return
@@ -333,7 +333,7 @@ actor PineconeActor {
                 }
 
                 // Update token usage
-                updateTokenUsage(api: APIs.pinecone, tokensUsed: 10, read: false)
+//                updateTokenUsage(api: APIs.pinecone, tokensUsed: 10, read: false)
 
                 // If successful, return
                 return
