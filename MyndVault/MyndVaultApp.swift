@@ -34,50 +34,30 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MyndVaultApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
-    @StateObject private var pineconeViewModel: PineconeViewModel
-    @StateObject private var openAiManager: OpenAIViewModel
-    @StateObject var cloudKitViewModel: CloudKitViewModel = .shared
-    
-    @StateObject var apiCallUsageManager = ApiCallUsageManager()
-    
-    @StateObject var speechManager = SpeechRecognizerManager()
-    @StateObject private var networkManager = NetworkManager()
-    @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
-    @State private var showOnboarding: Bool = false
-    
-    init() {
-        let ckViewModel = CloudKitViewModel.shared
-        _pineconeViewModel = StateObject(wrappedValue: PineconeViewModel(
-            pineconeActor: PineconeActor(cloudKitViewModel: ckViewModel),
-            CKviewModel: ckViewModel
-        ))
-        
-        _openAiManager = StateObject(wrappedValue: OpenAIViewModel(openAIActor: OpenAIActor()))
 
+       @StateObject private var openAiManager = OpenAIViewModel(openAIActor: OpenAIActor())
+       @StateObject private var apiCallUsageManager = ApiCallUsageManager()
+       @StateObject private var speechManager = SpeechRecognizerManager()
+       @StateObject private var networkManager = NetworkManager()
+       @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
+       @State private var showOnboarding: Bool = false
+
+    init() {
         configureRevenueCat()
 
-        Task {
-            await ckViewModel.startCloudKit()
-        }
     }
     
     var body: some Scene {
         WindowGroup {
-            KView()
-                .environmentObject(openAiManager)
-                .environmentObject(pineconeViewModel)
-                .environmentObject(networkManager)
-                .environmentObject(cloudKitViewModel)
-                .environmentObject(apiCallUsageManager)
-                .onAppear {
-                    if !hasSeenOnboarding {
-                        showOnboarding = true
-                    }
-                }
-                .fullScreenCover(isPresented: $showOnboarding) {
-                    onboardingSheet
-                }
+            AppRootView(
+                            showOnboarding: $showOnboarding,
+                            hasSeenOnboarding: $hasSeenOnboarding
+                        )
+                        .modelContainer(for: VectorEntity.self)
+                        .environmentObject(openAiManager)
+                        .environmentObject(networkManager)
+                        .environmentObject(apiCallUsageManager)
+                        .environmentObject(speechManager)
         }
     }
     
@@ -95,16 +75,6 @@ struct MyndVaultApp: App {
             debugLog("Failed to configure RCat key.")
         }
         Purchases.shared.delegate = PurchasesDelegateHandler.shared
-    }
-    
-    @ViewBuilder
-    var onboardingSheet: some View {
-        if showOnboarding {
-            KEmbarkationView {
-                hasSeenOnboarding = true
-                showOnboarding = false
-            }
-        }
     }
 
 }

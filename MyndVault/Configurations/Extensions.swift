@@ -769,44 +769,6 @@ struct KAlertView: View {
     }
 }
 
-struct KErrorView: View {
-    let title: String
-    let message: String
-    let retryAction: () -> Void
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text(title)
-                .font(.custom("New York", size: 20))
-                .italic()
-                .multilineTextAlignment(.center)
-
-            Text(message)
-                .font(.custom("New York", size: 16))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            Button(action: retryAction) {
-                Text("Retry")
-                    .font(.custom("New York", size: 17))
-                    .foregroundStyle(.black)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.softWhite)
-                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
-        )
-        .padding(40)
-        .transition(.opacity.combined(with: .scale))
-    }
-}
-
 
 protocol DisplayableError: Error, Identifiable where ID == String {
     var title: String { get }

@@ -4,11 +4,11 @@
 //
 //  Created by Evangelos Spyromilios on 23.04.25.
 //
-
+import SwiftData
 import SwiftUI
 
 struct KVault: View {
-    @Environment(\.colorScheme) var colorScheme
+
     @EnvironmentObject var networkManager: NetworkManager
     @EnvironmentObject var pineconeVm: PineconeViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
@@ -65,11 +65,15 @@ struct KVault: View {
         .frame(width: UIScreen.main.bounds.width)
         .animation(.easeOut(duration: 0.2), value: showNoInternet)
         .onAppear {
-            if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
-                withAnimation {
-                    vectorsAreLoading = true }
-                fetchPineconeEntries()
-                usageManager.trackApiCall()
+            Task {
+                if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
+                    vectorsAreLoading = true
+                    pineconeVm.loadLocalVectors()
+                    withAnimation {
+                        vectorsAreLoading = false
+                    }
+                    usageManager.trackApiCall()
+                }
             }
         }
         .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
@@ -149,17 +153,17 @@ struct KVault: View {
                         }
                         .buttonStyle(.plain)
                     }
-                } else if pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
+                } else if pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil && pineconeVm.pineconeErrorFromRefreshNamespace == nil {
                     emptyView()
                 }
                 if let error = pineconeVm.pineconeErrorFromRefreshNamespace {
                     KErrorView(
                         title: error.title,
-                        message: error.localizedDescription,
+                        message: error.message,
                         retryAction: retryLoading
                     )
                     .transition(.opacity.combined(with: .scale))
-                    .animation(.easeOut(duration: 0.2), value: error.localizedDescription)
+                    .animation(.easeOut(duration: 0.2), value: error.message)
                 }
             }
             .padding(.top, 32)
@@ -216,7 +220,6 @@ private func emptyView() -> some View {
 
 struct VaultCellView: View {
     let data: Vector
-    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -288,18 +291,23 @@ struct KSearchBar: View {
 }
 
 #Preview {
-    let cloudKit = CloudKitViewModel.shared
-    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
-    let openAIActor = OpenAIActor()
+    do {
+        let container = try ModelContainer(for: VectorEntity.self)
+        let context = ModelContext(container)
 
-    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
-    let networkManager = NetworkManager()
+        let pineconeActor = PineconeActor()
+        let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
+        pineconeViewModel.updateModelContext(to: context)
+        let networkManager = NetworkManager()
 
-    KVault()
-        .environmentObject(pineconeViewModel)
-        .environmentObject(networkManager)
+        return KVault()
+            .environmentObject(pineconeViewModel)
+            .environmentObject(networkManager)
+            .modelContainer(container)
+    } catch {
+        return Text("Failed to initialize preview: \(error.localizedDescription)")
+    }
 }
-
 
 
 

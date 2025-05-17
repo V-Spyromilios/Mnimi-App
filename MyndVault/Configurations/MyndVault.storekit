@@ -1,0 +1,145 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "7A34B73A",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6482981941",
+    "_developerTeamID" : "H4TST29A3U",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 769163557.50695002,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21474417",
+      "localizations" : [
+
+      ],
+      "name" : "sub group 1",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "22.99",
+          "familyShareable" : false,
+          "groupNumber" : 5,
+          "internalID" : "6745216614",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Annual Subscription",
+              "displayName" : "Annual Subscription",
+              "locale" : "en_GB"
+            }
+          ],
+          "productID" : "kioku_annual_2990_id",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "kioku_annual_2499",
+          "subscriptionGroupID" : "21474417",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 4,
+          "internalID" : "6745216462",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Monthly Subscription",
+              "displayName" : "Monthly Subscription",
+              "locale" : "en_GB"
+            }
+          ],
+          "productID" : "kioku_monthly_299_id",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "kioku_monthly_299",
+          "subscriptionGroupID" : "21474417",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

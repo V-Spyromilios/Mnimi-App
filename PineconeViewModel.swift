@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import SwiftData
 
 
 enum PineconeError: DisplayableError {
@@ -67,6 +68,8 @@ extension PineconeError: Hashable {
 @MainActor
 class PineconeViewModel: ObservableObject {
 
+    private let namespaceKey = "pineconeUserNamespace"
+    private var modelContext: ModelContext?
     @Published var pineconeErrorFromEdit: PineconeError?
     @Published var pineconeErrorFromAdd: PineconeError?
     @Published var pineconeErrorFromRefreshNamespace: PineconeError?
@@ -77,16 +80,30 @@ class PineconeViewModel: ObservableObject {
     @Published var pineconeIDResponse: PineconeIDResponse?
     @Published var pineconeIDs: [String] = []
     @Published var pineconeFetchedVectors: [Vector] = []
-    @Published var upsertSuccessful: Bool = false
+    
+    @Published var namespace: String
     
     let pineconeActor: PineconeActor
-    private let CKviewModel: CloudKitViewModel
     var cancellables = Set<AnyCancellable>()
     
-    init(pineconeActor: PineconeActor, CKviewModel: CloudKitViewModel) {
+    init(pineconeActor: PineconeActor) {
         self.pineconeActor = pineconeActor
-        self.CKviewModel = CKviewModel
-        self.updateAccountDeletedFromUserDefaults()
+
+        
+        // Get or create namespace
+        if let saved = UserDefaults.standard.string(forKey: namespaceKey) {
+            self.namespace = saved
+        } else {
+            let new = UUID().uuidString
+            self.namespace = new
+            UserDefaults.standard.set(new, forKey: namespaceKey)
+        }
+        
+        updateAccountDeletedFromUserDefaults()
+    }
+    
+    func updateModelContext(to newContext: ModelContext) {
+        self.modelContext = newContext
     }
     
     func updateAccountDeletedFromUserDefaults() {
@@ -100,30 +117,58 @@ class PineconeViewModel: ObservableObject {
         self.cancellables.insert(cancellable)
     }
     
+    func loadLocalVectors() {
+        debugLog("loadLocalVectors CALLED")
+        let fetchDescriptor = FetchDescriptor<VectorEntity>(
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+        if modelContext == nil {
+            debugLog("modelContext is nil in loadLocalVectors")
+        }
+        do {
+            let entities = try modelContext?.fetch(fetchDescriptor) ?? []
+            let vectors = entities.map { $0.toVector }
+            DispatchQueue.main.async {
+                self.pineconeFetchedVectors = vectors
+            }
+        } catch {
+            debugLog("Failed to load local vectors: \(error.localizedDescription)")
+            self.pineconeErrorFromRefreshNamespace = .refreshFailed(error)
+        }
+    }
+    
     func clearManager() {
         self.pineconeErrorFromAdd = nil
         self.pineconeErrorFromRefreshNamespace = nil
         self.pineconeErrorFromEdit = nil
         self.pineconeErrorFromQ = nil
         self.pineconeQueryResponse = nil
-        self.upsertSuccessful = false
+       
     }
     
     func deleteVector(withId id: String) {
-        print("deleteVector called")
+        debugLog("deleteVector called")
+        // localy
         self.pineconeFetchedVectors.removeAll { $0.id == id }
+        
+        //swiftData
+        let descriptor = FetchDescriptor<VectorEntity>(predicate: #Predicate { $0.id == id })
+        
+        do {
+            if let entity = try modelContext?.fetch(descriptor).first {
+                modelContext?.delete(entity)
+                try modelContext?.save()
+            }
+        } catch {
+            debugLog("Failed to delete vector from SwiftData: \(error.localizedDescription)")
+        }
     }
-    
-//    func updateUpsertSuccessful(_ success: Bool) {
-//        self.upsertSuccessful = success
-//    }
-    
 
     //MARK: - Methods for the Views
     func refreshNamespacesIDs() {
         Task {
             do {
-                let vectors = try await pineconeActor.refreshNamespacesIDs()
+                let vectors = try await pineconeActor.refreshNamespacesIDs(namespaceKey: namespace)
                 DispatchQueue.main.async {
                     self.pineconeFetchedVectors = vectors
                 }
@@ -143,42 +188,29 @@ class PineconeViewModel: ObservableObject {
     }
     
     @MainActor
-    func upsertData(id: String, vector: [Float], metadata: [String: Any], from sender: senderView) {
-#if DEBUG
+    func upsertData(id: String, vector: [Float], metadata: [String: String], from sender: senderView) async -> Bool {
+    #if DEBUG
         print("upsertData called")
-#endif
-        Task {
-            do {
-                try await pineconeActor.upsertDataToPinecone(id: id, vector: vector, metadata: metadata)
-                await MainActor.run {
-                    if sender == .editInfo {
-                        self.upsertSuccessful = true
-                        
-                    } else if sender == .KView {
-                        debugLog("Upsert successful from KView")
-                        self.upsertSuccessful = true
-                    }
-                }
-                debugLog("upsertSuccess: \(self.upsertSuccessful)")
-            } catch {
-                await MainActor.run {
-                    debugLog("from upsertData() Error: \(error.localizedDescription)")
-                    self.upsertSuccessful = false
-                    if sender == .editInfo {
-                        self.pineconeErrorFromEdit = .upsertFailed(error)
-                    }
-                    else if sender == .KView {
-                        self.pineconeErrorFromAdd = .upsertFailed(error)
-                    }
-                }
+    #endif
+        do {
+            let safeMetadata = metadata.mapValues { String(describing: $0) }
+            try await pineconeActor.upsertDataToPinecone(id: id, vector: vector, metadata: safeMetadata, namespaceKey: namespace)
+            return true
+        } catch {
+            debugLog("from upsertData() Error: \(error.localizedDescription)")
+            if sender == .editInfo {
+                self.pineconeErrorFromEdit = .upsertFailed(error)
+            } else if sender == .KView {
+                self.pineconeErrorFromAdd = .upsertFailed(error)
             }
+            return false
         }
     }
     
     func deleteVectorFromPinecone(id: String) async -> Bool {
         debugLog("deleteVectorFromPinecone CALLED")
         do {
-            try await pineconeActor.deleteVectorFromPinecone(id: id)
+            try await pineconeActor.deleteVectorFromPinecone(id: id, namespaceKey: namespace)
             return true
         } catch {
             if pineconeErrorFromEdit == nil {
@@ -191,7 +223,7 @@ class PineconeViewModel: ObservableObject {
     func deleteAllVectorsInNamespace() async -> Bool {
 
             do {
-                try await pineconeActor.deleteAllVectorsInNamespace()
+                try await pineconeActor.deleteAllVectorsInNamespace(namespaceKey: namespace)
                 
                 self.pineconeFetchedVectors = []
                 self.pineconeIDs = []
@@ -207,7 +239,7 @@ class PineconeViewModel: ObservableObject {
         debugLog("queryPinecone CALLED")
         Task {
             do {
-                let response = try await pineconeActor.queryPinecone(vector: vector, topK: topK, includeValues: includeValues)
+                let response = try await pineconeActor.queryPinecone(vector: vector, topK: topK, includeValues: includeValues, namespaceKey: namespace)
                 self.pineconeQueryResponse = response
             } catch {
                 self.pineconeErrorFromQ = .queryFailed(error)
