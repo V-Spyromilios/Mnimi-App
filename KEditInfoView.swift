@@ -6,18 +6,21 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct KEditInfoView: View {
-
+    
     @EnvironmentObject var pineconeVm: PineconeViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @ObservedObject var viewModel: KEditInfoViewModel
+    @Environment(\.modelContext) private var modelContext
+    
     @State private var isReady: Bool = false
     var onSave: () -> Void
     var onCancel: () -> Void
     
     var body: some View {
-
+        
         GeometryReader { geo in
             ZStack(alignment: .top) {
                 // Background
@@ -41,7 +44,7 @@ struct KEditInfoView: View {
                     else if let error = pineconeVm.pineconeErrorFromEdit {
                         KErrorView(
                             title: error.title,
-                            message: error.localizedDescription,
+                            message: error.message,
                             retryAction: retrySaving
                         )
                         .transition(.scale.combined(with: .opacity))
@@ -96,17 +99,17 @@ struct KEditInfoView: View {
                     isReady = true
                 }
             }
-           
+            
             .hideKeyboardOnTap()
         }  .ignoresSafeArea(.keyboard)
             .statusBarHidden()
-           
+        
     }
-
+    
     private func delete() {
         Task {
             let success = await pineconeVm.deleteVectorFromPinecone(id: viewModel.id)
-
+            
             if success {
                 pineconeVm.deleteVector(withId: viewModel.id)
                 await MainActor.run {
@@ -117,6 +120,7 @@ struct KEditInfoView: View {
             }
         }
     }
+    
     private func retrySaving() {
         pineconeVm.pineconeErrorFromEdit = nil
         Task {
@@ -130,54 +134,88 @@ struct KEditInfoView: View {
             await upsertEditedInfo()
         }
     }
-
+    
     
     
     @MainActor
     private func upsertEditedInfo() async {
-
+        
         let metadata = toDictionary(desc: viewModel.description)
         do {
+            // 1.make embeddings and upsert to Pinecone
             try await openAiManager.requestEmbeddings(for: metadata["description"] ?? "Default from upsertEditedInfo", isQuestion: false)
             if !openAiManager.embeddings.isEmpty {
-                pineconeVm.upsertData(id: viewModel.id, vector: openAiManager.embeddings, metadata: metadata, from: .editInfo)
+                let success = await pineconeVm.upsertData(id: viewModel.id, vector: openAiManager.embeddings, metadata: metadata, from: .editInfo)
                 
-                //Update the local fetched vectors
-                if let index = pineconeVm.pineconeFetchedVectors.firstIndex(where: { $0.id == viewModel.id }) {
-                    withAnimation {
-                        pineconeVm.pineconeFetchedVectors[index].metadata = metadata }
+                if success {
+                    // 2. Update the local fetched vectors
+                    if let index = pineconeVm.pineconeFetchedVectors.firstIndex(where: { $0.id == viewModel.id }) {
+                        withAnimation {
+                            pineconeVm.pineconeFetchedVectors[index].metadata = metadata }
+                    }
+                    
+                    // 3. save to SwiftData
+                    let targetID = viewModel.id
+                    let fetch = FetchDescriptor<VectorEntity>(
+                        predicate: #Predicate { $0.id == targetID }
+                    )
+                    if let entity = try? modelContext.fetch(fetch).first {
+                        entity.descriptionText = metadata["description"] ?? ""
+                        entity.timestamp = metadata["timestamp"] ?? ""
+                    } else {
+                        let new = VectorEntity(
+                            id: viewModel.id,
+                            descriptionText: metadata["description"] ?? "",
+                            timestamp: metadata["timestamp"] ?? ""
+                        )
+                        modelContext.insert(new)
+                    }
+                    
+                    // 4. Save SwiftData context
+                    try await MainActor.run {
+                        try modelContext.save()
+                    }
+                    onSave()
                 }
-                onSave()
             } else {
-                debugLog("KEDitInfoView: No embeddings...")
+                debugLog("KEDitInfoView: upsertEditedInfo :: No embeddings...")
             }
         } catch {
             debugLog(error.localizedDescription)
-           
+            
         }
     }
 }
 
+
 #Preview {
-    let vector = Vector(
-        id: UUID().uuidString,
-        metadata: [
-            "description": "Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday.Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday .Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday .Lunch with Leo next Friday.",
-            "timestamp": ISO8601DateFormatter().string(from: Date())
-        ]
-    )
-    let cloudKit = CloudKitViewModel.shared
-
-    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
-    let openAIActor = OpenAIActor()
-
-    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
-    
-    let viewModel = KEditInfoViewModel(vector: vector)
-    
-    return KEditInfoView(
-        viewModel: viewModel,
-        onSave: {},
-        onCancel: {}
-    ).environmentObject(pineconeViewModel)
+    do {
+        let vector = Vector(
+            id: UUID().uuidString,
+            metadata: [
+                "description": "Lunch with Leo next Friday. Lunch with Leo next Friday. Lunch with Leo next Friday.",
+                "timestamp": ISO8601DateFormatter().string(from: Date())
+            ]
+        )
+        
+        let container = try ModelContainer(for: VectorEntity.self)
+        let context = ModelContext(container)
+        
+        let pineconeActor = PineconeActor()
+        let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
+        pineconeViewModel.updateModelContext(to: context) // ⬅️ inject context
+        
+        let viewModel = KEditInfoViewModel(vector: vector)
+        
+        return KEditInfoView(
+            viewModel: viewModel,
+            onSave: {},
+            onCancel: {}
+        )
+        .environmentObject(pineconeViewModel)
+        .modelContainer(container)
+        
+    } catch {
+        return Text("Preview failed: \(error.localizedDescription)")
+    }
 }

@@ -7,26 +7,20 @@
 
 import Foundation
 import Combine
-import CloudKit
 import SwiftUI
 
 actor PineconeActor {
-    // MARK: - Properties
-    private let ckViewModel: CloudKitViewModel
+   
     private var cancellables = Set<AnyCancellable>()
 
-    // MARK: - Initializer
-    init(cloudKitViewModel: CloudKitViewModel = .shared) {
-        self.ckViewModel = cloudKitViewModel
-    }
 
     // MARK: - Methods
 
     // Refresh Namespaces and IDs
-    func refreshNamespacesIDs() async throws -> [Vector] {
+    func refreshNamespacesIDs(namespaceKey: String) async throws -> [Vector] {
         do {
-            let pineconeIDs = try await fetchAllNamespaceIDs()
-            let pineconeFetchedVectors = try await fetchDataForIds(pineconeIDs: pineconeIDs)
+            let pineconeIDs = try await fetchAllNamespaceIDs(namespaceKey: namespaceKey)
+            let pineconeFetchedVectors = try await fetchDataForIds(pineconeIDs: pineconeIDs, namespaceKey: namespaceKey)
             return pineconeFetchedVectors
         } catch {
             throw error
@@ -34,22 +28,18 @@ actor PineconeActor {
     }
 
     // Fetch All Namespace IDs
-    private func fetchAllNamespaceIDs() async throws -> [String] {
+    private func fetchAllNamespaceIDs(namespaceKey: String) async throws -> [String] {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
 
         while attempts < maxAttempts {
             do {
-                guard let namespace = await ckViewModel.fetchedNamespaceDict.first?.value.namespace else {
-                    throw AppCKError.UnableToGetNameSpace
-                }
-
                 guard let apiKey = ApiConfiguration.pineconeKey else {
                     throw AppNetworkError.apiKeyNotFound
                 }
 
-                guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/list?namespace=\(namespace)") else {
+                guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/list?namespace=\(namespaceKey)") else {
                     throw AppNetworkError.unknownError("Invalid URL")
                 }
 
@@ -76,17 +66,13 @@ actor PineconeActor {
     }
 
     // Fetch Data for IDs
-    func fetchDataForIds(pineconeIDs: [String]) async throws -> [Vector] {
+    func fetchDataForIds(pineconeIDs: [String], namespaceKey: String) async throws -> [Vector] {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
 
         while attempts < maxAttempts {
             do {
-                guard let namespace = await ckViewModel.fetchedNamespaceDict.first?.value.namespace else {
-                    throw AppCKError.UnableToGetNameSpace
-                }
-
                 guard let apiKey = ApiConfiguration.pineconeKey else {
                     throw AppNetworkError.apiKeyNotFound
                 }
@@ -95,7 +81,7 @@ actor PineconeActor {
 
                 var urlComponents = URLComponents(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/fetch")!
                 urlComponents.queryItems = queryItems
-                urlComponents.queryItems?.append(URLQueryItem(name: "namespace", value: namespace))
+                urlComponents.queryItems?.append(URLQueryItem(name: "namespace", value: namespaceKey))
 
                 guard let url = urlComponents.url else {
                     throw URLError(.badURL)
@@ -123,7 +109,7 @@ actor PineconeActor {
                 }
 
                 // Update token usage
-                let readUnits = sortedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
+//                let readUnits = sortedVectors.count / 10 // A fetch request uses 1 RU for every 10 fetched records.
 //                updateTokenUsage(api: APIs.pinecone, tokensUsed: readUnits, read: true)
 
                 return sortedVectors
@@ -136,7 +122,7 @@ actor PineconeActor {
     }
 
     // Upsert Data to Pinecone
-    func upsertDataToPinecone(id: String, vector: [Float], metadata: [String: Any]) async throws {
+    func upsertDataToPinecone(id: String, vector: [Float], metadata: [String: Any], namespaceKey: String) async throws {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
@@ -154,10 +140,6 @@ actor PineconeActor {
                     throw AppNetworkError.apiKeyNotFound
                 }
 
-                guard let namespace = await ckViewModel.fetchedNamespaceDict.first?.value.namespace else {
-                    throw AppCKError.UnableToGetNameSpace
-                }
-
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -172,7 +154,7 @@ actor PineconeActor {
                             "metadata": metadata
                         ]
                     ],
-                    "namespace": namespace
+                    "namespace": namespaceKey
                 ]
 
                 #if DEBUG
@@ -209,11 +191,6 @@ actor PineconeActor {
                     #endif
                     throw AppNetworkError.invalidResponse
                 }
-
-                // Update token usage
-//                updateTokenUsage(api: APIs.pinecone, tokensUsed: 7, read: false)
-
-                // If the operation is successful, return
                 return
 
             } catch {
@@ -232,7 +209,7 @@ actor PineconeActor {
     }
 
     // Delete Vector from Pinecone
-    func deleteVectorFromPinecone(id: String) async throws {
+    func deleteVectorFromPinecone(id: String, namespaceKey: String) async throws {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
@@ -244,16 +221,12 @@ actor PineconeActor {
                     let namespace: String
                 }
 
-                guard let namespace = await ckViewModel.fetchedNamespaceDict.first?.value.namespace else {
-                    throw AppCKError.UnableToGetNameSpace
-                }
-
                 guard let apiKey = ApiConfiguration.pineconeKey else {
                     throw AppNetworkError.apiKeyNotFound
                 }
                 
                 guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/delete") else {
-                    throw AppCKError.unknownError(message: "DeleteVector :: Unable to create URL")
+                    throw PineconeError.deleteFailed(AppNetworkError.unknownError("Unable to create URL for delete endpoint"))
                 }
 
                 var request = URLRequest(url: url)
@@ -262,7 +235,7 @@ actor PineconeActor {
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.addValue("2024-10", forHTTPHeaderField: "X-Pinecone-API-Version")
 
-                let deleteRequest = DeleteVectorsRequest(ids: [id], namespace: namespace)
+                let deleteRequest = DeleteVectorsRequest(ids: [id], namespace: namespaceKey)
                 let requestData = try JSONEncoder().encode(deleteRequest)
                 request.httpBody = requestData
 
@@ -292,7 +265,7 @@ actor PineconeActor {
     }
 
     // Delete All Vectors in Namespace
-    func deleteAllVectorsInNamespace() async throws {
+    func deleteAllVectorsInNamespace(namespaceKey: String) async throws {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
@@ -304,17 +277,15 @@ actor PineconeActor {
                     let namespace: String
                 }
 
-                guard let namespace = await ckViewModel.fetchedNamespaceDict.first?.value.namespace else {
-                    throw AppCKError.UnableToGetNameSpace
-                }
-
                 guard let apiKey = ApiConfiguration.pineconeKey else {
                     throw AppNetworkError.apiKeyNotFound
                 }
                 
                 guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/delete") else {
-                    throw AppCKError.unknownError(message: "DeleteAllVectors :: Unable to create URL")
+                    throw PineconeError.deleteFailed(AppNetworkError.unknownError("Unable to create URL for delete endpoint"))
                 }
+                
+                // "DeleteAllVectors :: Unable to create URL"
 
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
@@ -322,7 +293,7 @@ actor PineconeActor {
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.addValue("2024-07", forHTTPHeaderField: "X-Pinecone-API-Version")
 
-                let deleteRequest = DeleteAllVectorsRequest(deleteAll: true, namespace: namespace)
+                let deleteRequest = DeleteAllVectorsRequest(deleteAll: true, namespace: namespaceKey)
                 let requestData = try JSONEncoder().encode(deleteRequest)
                 request.httpBody = requestData
 
@@ -332,23 +303,18 @@ actor PineconeActor {
                     throw AppNetworkError.unknownError("Unable to delete Vectors (bad Response).")
                 }
 
-                // Update token usage
-//                updateTokenUsage(api: APIs.pinecone, tokensUsed: 10, read: false)
-
-                // If successful, return
                 return
             } catch {
                 attempts += 1
                 lastError = error
             }
         }
-
         // If all attempts fail, throw the last encountered error
         throw lastError ?? AppNetworkError.unknownError("Failed to delete all vectors after multiple attempts.")
     }
 
     // Query Pinecone
-    func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) async throws -> PineconeQueryResponse {
+    func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false, namespaceKey: String) async throws -> PineconeQueryResponse {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
@@ -363,10 +329,6 @@ actor PineconeActor {
                     throw AppNetworkError.apiKeyNotFound
                 }
 
-                guard let namespace = await ckViewModel.fetchedNamespaceDict.first?.value.namespace else {
-                    throw AppCKError.UnableToGetNameSpace
-                }
-
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
                 request.addValue(apiKey, forHTTPHeaderField: "Api-Key")
@@ -378,7 +340,7 @@ actor PineconeActor {
                     "topK": topK,
                     "includeValues": includeValues,
                     "includeMetadata": true,
-                    "namespace": namespace
+                    "namespace": namespaceKey
                 ]
 
                 let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
@@ -392,9 +354,6 @@ actor PineconeActor {
 
                 let decoder = JSONDecoder()
                 let pineconeResponse = try decoder.decode(PineconeQueryResponse.self, from: data)
-
-                // Update token usage
-//                updateTokenUsage(api: APIs.pinecone, tokensUsed: pineconeResponse.usage.readUnits, read: true)
 
                 return pineconeResponse
             } catch {
@@ -434,22 +393,18 @@ actor PineconeActor {
 //    }
     
     
-    func fetchVectorByID(_ id: String) async throws -> Vector {
+    func fetchVectorByID(_ id: String, namespaceKey: String) async throws -> Vector {
         let maxAttempts = 3
         var attempts = 0
         var lastError: Error?
 
         while attempts < maxAttempts {
             do {
-                guard let namespace = await ckViewModel.fetchedNamespaceDict.first?.value.namespace else {
-                    throw AppCKError.UnableToGetNameSpace
-                }
-
                 guard let apiKey = ApiConfiguration.pineconeKey else {
                     throw AppNetworkError.apiKeyNotFound
                 }
 
-                guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/fetch?ids=\(id)&namespace=\(namespace)") else {
+                guard let url = URL(string: "https://memoryindex-g24xjwl.svc.apw5-4e34-81fa.pinecone.io/vectors/fetch?ids=\(id)&namespace=\(namespaceKey)") else {
                     throw AppNetworkError.unknownError("Invalid URL")
                 }
 

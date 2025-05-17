@@ -14,7 +14,6 @@
 		E81AABDE2DB8FC4300BF7C1A /* KVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81AABDD2DB8FC4300BF7C1A /* KVault.swift */; };
 		E81E2E4A2DCE587C000647CA /* RevenueCatManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81E2E492DCE587C000647CA /* RevenueCatManager.swift */; };
 		E81E2E4C2DCE59E4000647CA /* CustomPayWall.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81E2E4B2DCE59E4000647CA /* CustomPayWall.swift */; };
-		E81E2E4E2DCF684D000647CA /* MyndVault.storekit in Resources */ = {isa = PBXBuildFile; fileRef = E81E2E4D2DCF684D000647CA /* MyndVault.storekit */; };
 		E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */ = {isa = PBXBuildFile; fileRef = E82F454B2BC2A6D100945312 /* OpenAIKey.plist */; };
 		E82F45592BC2A72100945312 /* CloudKitViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F454F2BC2A72100945312 /* CloudKitViewModel.swift */; };
 		E82F455D2BC2A72100945312 /* OpenAIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82F45552BC2A72100945312 /* OpenAIManager.swift */; };
@@ -41,6 +40,10 @@
 		E8459ECA2BC1E3BE00CE34A7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */; };
 		E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */; };
 		E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */; };
+		E847077F2DD88122008B9EA4 /* MyndVault.storekit in Resources */ = {isa = PBXBuildFile; fileRef = E847077E2DD88122008B9EA4 /* MyndVault.storekit */; };
+		E84707812DD885F0008B9EA4 /* KErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84707802DD885F0008B9EA4 /* KErrorView.swift */; };
+		E84707832DD89723008B9EA4 /* VectorEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84707822DD89723008B9EA4 /* VectorEntity.swift */; };
+		E84707852DD89E76008B9EA4 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84707842DD89E76008B9EA4 /* AppRootView.swift */; };
 		E85BB4012C020DB7002A2480 /* HideKeyboardLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */; };
 		E85EE47B2D6F69DF00737A97 /* testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85EE47A2D6F69DF00737A97 /* testing.swift */; };
 		E85EE47D2D6F7BE100737A97 /* AudioRecordingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */; };
@@ -142,6 +145,10 @@
 		E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E8459ED02BC1E3BE00CE34A7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		E847077E2DD88122008B9EA4 /* MyndVault.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = MyndVault.storekit; sourceTree = "<group>"; };
+		E84707802DD885F0008B9EA4 /* KErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KErrorView.swift; sourceTree = "<group>"; };
+		E84707822DD89723008B9EA4 /* VectorEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorEntity.swift; sourceTree = "<group>"; };
+		E84707842DD89E76008B9EA4 /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
 		E85BB4002C020DB7002A2480 /* HideKeyboardLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboardLabel.swift; sourceTree = "<group>"; };
 		E85EE47A2D6F69DF00737A97 /* testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testing.swift; sourceTree = "<group>"; };
 		E85EE47C2D6F7BE100737A97 /* AudioRecordingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingManager.swift; sourceTree = "<group>"; };
@@ -241,6 +248,7 @@
 				E82F45652BC2A77E00945312 /* NamespaceItem.swift */,
 				E82F45662BC2A77E00945312 /* ResponseModel.swift */,
 				E8AD72442C2E03BC0049FC11 /* ImageItem.swift */,
+				E847077E2DD88122008B9EA4 /* MyndVault.storekit */,
 			);
 			path = Configurations;
 			sourceTree = "<group>";
@@ -274,6 +282,8 @@
 		E8459EBB2BC1E3BE00CE34A7 = {
 			isa = PBXGroup;
 			children = (
+				E84707842DD89E76008B9EA4 /* AppRootView.swift */,
+				E84707822DD89723008B9EA4 /* VectorEntity.swift */,
 				E81E2E4F2DCF6A99000647CA /* MyndVault.entitlements */,
 				E81E2E4D2DCF684D000647CA /* MyndVault.storekit */,
 				E81E2E4B2DCE59E4000647CA /* CustomPayWall.swift */,
@@ -301,6 +311,7 @@
 				E8459B2A2C45AC020039BFA7 /* ErrorView.swift */,
 				E816E7B42CA4002A0045CEE1 /* LoadingDotsView.swift */,
 				E8CFEAF92C3D5064005A2630 /*  openSettingsView.swift */,
+				E84707802DD885F0008B9EA4 /* KErrorView.swift */,
 				E8A37F622BD00675004A98C9 /* Info */,
 				E8B4D5022BF8C07400F2A174 /* Log in */,
 				E8FA7F082BC5BC320012EBF6 /* Settings */,
@@ -479,8 +490,8 @@
 				E84203E72DBBA15500DFCFE2 /* NewYorkItalic.ttf in Resources */,
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
 				E86AD9A62DC5639600AD434C /* Launch Screen.storyboard in Resources */,
+				E847077F2DD88122008B9EA4 /* MyndVault.storekit in Resources */,
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
-				E81E2E4E2DCF684D000647CA /* MyndVault.storekit in Resources */,
 				E8BDF9C42CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf in Resources */,
 				E8CFEAFC2C3D5CF1005A2630 /* SF-Mono-Semibold.otf in Resources */,
 				E8CFEAFE2C3D5D52005A2630 /* NewYork.ttf in Resources */,
@@ -535,8 +546,10 @@
 				E82F45712BC2A77E00945312 /* LanguageCode.swift in Sources */,
 				E87530922DB7BD6C0020BFDD /* KSettings.swift in Sources */,
 				E85EE47D2D6F7BE100737A97 /* AudioRecordingManager.swift in Sources */,
+				E84707852DD89E76008B9EA4 /* AppRootView.swift in Sources */,
 				E82F45752BC2A77E00945312 /* NotificationEditView.swift in Sources */,
 				E81E2E4C2DCE59E4000647CA /* CustomPayWall.swift in Sources */,
+				E84707832DD89723008B9EA4 /* VectorEntity.swift in Sources */,
 				E8DA57AD2BE25BC200EB2013 /* NotificationsListCell.swift in Sources */,
 				E8FFCD3A2D732DA20067B57F /* EventEditView.swift in Sources */,
 				E82F456F2BC2A77E00945312 /* Errors.swift in Sources */,
@@ -545,6 +558,7 @@
 				E878FA892CCD169900CEA8EA /* PineconeViewModel.swift in Sources */,
 				E82F456D2BC2A77E00945312 /* ApiConfiguration.swift in Sources */,
 				E8A450E12DCA64FA008E86B7 /* ApiCallUsageManager.swift in Sources */,
+				E84707812DD885F0008B9EA4 /* KErrorView.swift in Sources */,
 				E82F455F2BC2A72100945312 /* SpeechRecognizerManager.swift in Sources */,
 				E8FA7F0D2BC5BC320012EBF6 /* InfoViewModel.swift in Sources */,
 				E8AD72452C2E03BC0049FC11 /* ImageItem.swift in Sources */,
@@ -749,7 +763,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.2.4;
+				MARKETING_VERSION = 4.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -789,7 +803,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.2.4;
+				MARKETING_VERSION = 4.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

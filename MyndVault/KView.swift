@@ -24,6 +24,7 @@
 
 import SwiftUI
 import EventKit
+import SwiftData
 
 struct KView: View {
     
@@ -440,21 +441,7 @@ struct InputView: View {
             .foregroundColor(.black)
             .italic()
     }
-    
-//    private func errorView(_ error: Error) -> some View {
-//        KErrorView(
-//            title: "Something went wrong",
-//            message: message,
-//            retryAction: {
-//                withAnimation {
-//                    kViewState = .input
-//                }
-//            }
-//        )
-//        .padding(.top, 40)
-//        .transition(.scale.combined(with: .opacity))
-//        .animation(.easeOut(duration: 0.2), value: kViewState)
-//    }
+
     
     private var successView: some View {
         Group {
@@ -590,6 +577,7 @@ struct InputView: View {
         @EnvironmentObject var pineconeManager: PineconeViewModel
         @EnvironmentObject var networkManager: NetworkManager
         @EnvironmentObject var usageManager: ApiCallUsageManager
+        @Environment(\.modelContext) private var modelContext
         @Binding var textEditorsText: String
         
         func body(content: Content) -> some View {
@@ -602,7 +590,35 @@ struct InputView: View {
                         let metadata = toDictionary(desc: textEditorsText)
                         let uniqueID = UUID().uuidString
                         debugLog("About to upsert To Pinecone: \(textEditorsText)")
-                        pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .KView)
+                        Task {
+                            let ok = await pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .KView)
+                        
+                        if ok {
+                            // ✅ Save to SwiftData
+                            let newVector = VectorEntity(
+                                id: uniqueID,
+                                descriptionText: metadata["description"] ?? "No description",
+                                timestamp: metadata["timestamp"] ?? ISO8601DateFormatter().string(from: Date())
+                            )
+                            
+                            do {
+                                modelContext.insert(newVector)
+                                try await MainActor.run {
+                                    try modelContext.save()
+                                }
+                                debugLog("Saved VectorEntity to SwiftData: \(uniqueID)")
+                            } catch {
+                                debugLog("Failed to save vector locally: \(error.localizedDescription)")
+                            }
+                            withAnimation {
+                                kViewState = .onSuccess
+                                
+                            }
+                            let fetch = FetchDescriptor<VectorEntity>()
+                            let count = try? modelContext.fetch(fetch).count
+                            debugLog("Current saved vectors count after saving: \(count ?? -1)")
+                        }
+                    }
                     }
                 }
                 .onChange(of: pineconeManager.pineconeQueryResponse) { _, newValue in
@@ -623,15 +639,6 @@ struct InputView: View {
                     if let error = error {
                         withAnimation {
                             kViewState = .onError(AnyDisplayableError(error))
-                        }
-                    }
-                }
-                .onChange(of: pineconeManager.upsertSuccessful) { _, success in
-                    if success {
-                        debugLog("✅ Successfully saved to Pinecone")
-                        withAnimation {
-                            kViewState = .onSuccess
-                            
                         }
                     }
                 }
@@ -660,11 +667,11 @@ struct InputView: View {
 
 //#Preview {
 //
-//    let cloudKit = CloudKitViewModel.shared
-//    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
+//
+//    let pineconeActor = PineconeActor()
 //    let openAIActor = OpenAIActor()
 //    let languageSettings = LanguageSettings.shared
-//    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
+//    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
 //    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
 //    let networkManager = NetworkManager()
 //    KView()
@@ -849,20 +856,27 @@ func randomBackgroundName() -> String {
 //}
 
 
-// For the KView!
 #Preview {
+    do {
+        let container = try ModelContainer(for: VectorEntity.self)
+        let context = ModelContext(container)
 
-    let cloudKit = CloudKitViewModel.shared
-    let pineconeActor = PineconeActor(cloudKitViewModel: cloudKit)
-    let openAIActor = OpenAIActor()
+        let pineconeActor = PineconeActor()
+        let openAIActor = OpenAIActor()
+        let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
+        pineconeViewModel.updateModelContext(to: context)
 
-    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor, CKviewModel: cloudKit)
-    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-    let networkManager = NetworkManager()
-    KView()
-        .environmentObject(openAIViewModel)
-        .environmentObject(pineconeViewModel)
-          .environmentObject(networkManager)
+        let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
+        let networkManager = NetworkManager()
+
+        return KView()
+            .environmentObject(openAIViewModel)
+            .environmentObject(pineconeViewModel)
+            .environmentObject(networkManager)
+            .modelContainer(container)
+    } catch {
+        return Text("Preview failed: \(error.localizedDescription)")
+    }
 }
 
 //For the Calendar Sheet

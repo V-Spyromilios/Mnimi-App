@@ -410,17 +410,3 @@ struct Vector: Codable, Hashable, Identifiable {
         self.metadata = try container.decode([String: String].self, forKey: .metadata)
     }
 }
-
-//struct SparseValues: Codable {
-//    let indices: [Int]
-//    let values: [Double]
-//}
-//    
-//    // Define the structure for usage
-//    struct FetchResponseUsage: Codable {
-//        let readUnits: Int
-//        
-//        enum CodingKeys: String, CodingKey {
-//            case readUnits
-//        }
-//    }

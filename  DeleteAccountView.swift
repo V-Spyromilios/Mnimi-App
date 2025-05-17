@@ -88,7 +88,7 @@ struct KDeleteAccountView: View {
                     }.disabled(isDeleting)
                     
                     if showError, let error = pineconeManager.pineconeErrorOnDel {
-                        Text(error.localizedDescription)
+                        Text(error.message)
                             .font(.custom("New York", size: 16))
                             .foregroundColor(.red)
                             .multilineTextAlignment(.center)

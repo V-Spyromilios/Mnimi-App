@@ -64,9 +64,11 @@ struct CustomPaywallView: View {
                                 .foregroundColor(.black)
                                 .padding()
                                 .frame(maxWidth: .infinity)
-//                                .background(.ultraThinMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .multilineTextAlignment(.center)
+                                .lineLimit(1)
                         }
+                        .opacity(isPurchasing ? 0.5 : 1.0)
+                        .animation(.easeInOut, value: isPurchasing)
                     }
 
                     if let monthly = monthly {
@@ -80,9 +82,11 @@ struct CustomPaywallView: View {
                                 .foregroundColor(.black)
                                 .padding()
                                 .frame(maxWidth: .infinity)
-//                                .background(.ultraThinMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .multilineTextAlignment(.center)
+                                .lineLimit(1)
                         }
+                        .opacity(isPurchasing ? 0.5 : 1.0)
+                        .animation(.easeInOut, value: isPurchasing)
                     }
 
                     Button(action: {
