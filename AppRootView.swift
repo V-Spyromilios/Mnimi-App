@@ -22,11 +22,6 @@ struct AppRootView: View {
         KView()
             .environmentObject(pineconeViewModel)
             .onAppear {
-                if !didInitializeViewModel {
-                    pineconeViewModel.updateModelContext(to: modelContext)
-                    didInitializeViewModel = true
-                }
-
                 if !hasSeenOnboarding {
                     showOnboarding = true
                 }

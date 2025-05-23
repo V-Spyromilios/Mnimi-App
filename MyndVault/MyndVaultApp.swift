@@ -8,6 +8,7 @@
 import SwiftUI
 import RevenueCat
 import RevenueCatUI
+import SwiftData
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -34,30 +35,34 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MyndVaultApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
-       @StateObject private var openAiManager = OpenAIViewModel(openAIActor: OpenAIActor())
-       @StateObject private var apiCallUsageManager = ApiCallUsageManager()
-       @StateObject private var speechManager = SpeechRecognizerManager()
-       @StateObject private var networkManager = NetworkManager()
-       @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
-       @State private var showOnboarding: Bool = false
-
+    
+    @StateObject private var openAiManager = OpenAIViewModel(openAIActor: OpenAIActor())
+    @StateObject private var apiCallUsageManager = ApiCallUsageManager()
+    @StateObject private var speechManager = SpeechRecognizerManager()
+    @StateObject private var networkManager = NetworkManager()
+    @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
+    @State private var showOnboarding: Bool = false
+    
+    static let sharedContainer: ModelContainer = {
+        try! ModelContainer(for: VectorEntity.self)
+    }()
+    
     init() {
         configureRevenueCat()
-
+        
     }
     
     var body: some Scene {
         WindowGroup {
             AppRootView(
-                            showOnboarding: $showOnboarding,
-                            hasSeenOnboarding: $hasSeenOnboarding
-                        )
-                        .modelContainer(for: VectorEntity.self)
-                        .environmentObject(openAiManager)
-                        .environmentObject(networkManager)
-                        .environmentObject(apiCallUsageManager)
-                        .environmentObject(speechManager)
+                showOnboarding: $showOnboarding,
+                hasSeenOnboarding: $hasSeenOnboarding
+            )
+            .modelContainer(Persistence.container)
+            .environmentObject(openAiManager)
+            .environmentObject(networkManager)
+            .environmentObject(apiCallUsageManager)
+            .environmentObject(speechManager)
         }
     }
     
@@ -76,5 +81,5 @@ struct MyndVaultApp: App {
         }
         Purchases.shared.delegate = PurchasesDelegateHandler.shared
     }
-
+    
 }

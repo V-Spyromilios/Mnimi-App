@@ -10,6 +10,7 @@ import SwiftUI
 import UIKit
 import Combine
 import EventKit
+import SwiftData
 
 @MainActor
 struct Constants {
@@ -235,6 +236,19 @@ func localizedBrightness(of image: UIImage, relativeRect: CGRect) -> CGFloat {
                       0.587 * CGFloat(bitmap[1]) +
                       0.114 * CGFloat(bitmap[2])) / 255.0
     return brightness
+}
+
+
+
+enum Persistence {
+    static let container: ModelContainer = {
+        let config = ModelConfiguration(cloudKitDatabase: .none)   // .none for local store
+        do {
+            return try ModelContainer(for: VectorEntity.self, configurations: config)
+        } catch {
+            fatalError("⚠️ SwiftData container failed: \(error)")
+        }
+    }()
 }
 
 

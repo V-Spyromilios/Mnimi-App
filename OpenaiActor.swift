@@ -335,7 +335,7 @@ actor OpenAIActor {
     - Be clear, concise, and helpful.
     - Avoid unnecessary details or mentioning the database.
     - Today is \(readableDateString). Current ISO 8601 time: \(isoDateString) (use only if helpful).
-    - Respond using the same language detected in the user's question.
+    - Always Respond using the same language detected in the user's question.
     - If multiple languages are detected, use the dominant one.
     - Never switch languages inside your reply.
 

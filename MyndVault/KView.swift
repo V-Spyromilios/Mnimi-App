@@ -203,6 +203,7 @@ struct KView: View {
                                     }
                                 }
                         )
+                        .modelContainer(Persistence.container)
                 }
             }
         }
@@ -485,6 +486,7 @@ struct InputView: View {
         .bold()
         .foregroundColor(.black)
         .padding(.top, 20)
+        .padding(.bottom, 20)
     }
     
     private var saveButton: some View {
@@ -569,6 +571,8 @@ struct InputView: View {
         debugLog("handleQuestionEmbeddingsCompleted CALLED" )
         pineconeManager.queryPinecone(vector: openAiManager.embeddingsFromQuestion)
     }
+    
+    //  timestamp: metadata["timestamp"] ?? ISO8601DateFormatter().string(from: Date())
 
     //MARK: InputViewChangeHandler
     struct InputViewChangeHandler: ViewModifier {
@@ -590,35 +594,36 @@ struct InputView: View {
                         let metadata = toDictionary(desc: textEditorsText)
                         let uniqueID = UUID().uuidString
                         debugLog("About to upsert To Pinecone: \(textEditorsText)")
-                        Task {
-                            let ok = await pineconeManager.upsertData(id: uniqueID, vector: openAiManager.embeddings, metadata: metadata, from: .KView)
-                        
-                        if ok {
-                            // ✅ Save to SwiftData
-                            let newVector = VectorEntity(
+                        Task {                // still fine to stay async
+                            let ok = await pineconeManager.upsertData(
                                 id: uniqueID,
-                                descriptionText: metadata["description"] ?? "No description",
-                                timestamp: metadata["timestamp"] ?? ISO8601DateFormatter().string(from: Date())
+                                vector: openAiManager.embeddings,
+                                metadata: metadata,
+                                from: .KView
                             )
-                            
-                            do {
-                                modelContext.insert(newVector)
-                                try await MainActor.run {
-                                    try modelContext.save()
+
+                            guard ok else { return }
+
+                            // All SwiftData work stays on MainActor
+                           
+                                let newVector = VectorEntity(
+                                    id: uniqueID,
+                                    descriptionText: metadata["description"] ?? "No description",
+                                    timestamp: metadata["timestamp"] ?? ISO8601DateFormatter().string(from: Date())
+                                )
+
+                            await MainActor.run {
+                                do {
+                                    modelContext.insert(newVector)
+                                    try modelContext.save()           // synchronous; no extra await
+                                    debugLog("Saved VectorEntity to SwiftData: \(uniqueID)")
+                                } catch {
+                                    debugLog("Failed to save vector locally: \(error.localizedDescription)")
                                 }
-                                debugLog("Saved VectorEntity to SwiftData: \(uniqueID)")
-                            } catch {
-                                debugLog("Failed to save vector locally: \(error.localizedDescription)")
+
+                                withAnimation { kViewState = .onSuccess }
                             }
-                            withAnimation {
-                                kViewState = .onSuccess
-                                
-                            }
-                            let fetch = FetchDescriptor<VectorEntity>()
-                            let count = try? modelContext.fetch(fetch).count
-                            debugLog("Current saved vectors count after saving: \(count ?? -1)")
                         }
-                    }
                     }
                 }
                 .onChange(of: pineconeManager.pineconeQueryResponse) { _, newValue in
@@ -864,7 +869,6 @@ func randomBackgroundName() -> String {
         let pineconeActor = PineconeActor()
         let openAIActor = OpenAIActor()
         let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
-        pineconeViewModel.updateModelContext(to: context)
 
         let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
         let networkManager = NetworkManager()

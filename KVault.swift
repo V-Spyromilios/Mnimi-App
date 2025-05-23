@@ -13,7 +13,9 @@ struct KVault: View {
     @EnvironmentObject var pineconeVm: PineconeViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var usageManager: ApiCallUsageManager
-    @State private var vectorsAreLoading: Bool = true
+    
+    @Environment(\.modelContext) private var ctx
+    
     @State private var showEmpty: Bool = false
     @State private var showNoInternet = false
     @State private var searchText: String = ""
@@ -24,18 +26,26 @@ struct KVault: View {
     @StateObject var editViewModel = KEditInfoViewModel.empty
     @State private var isEditing = false
     
-    var filteredVectors: [Vector] {
-        if searchText.isEmpty {
-            return pineconeVm.pineconeFetchedVectors
-        } else {
-            return pineconeVm.pineconeFetchedVectors.filter { vector in
-                if let description = vector.metadata["description"] {
-                    return description.lowercased().contains(searchText.lowercased())
-                }
-                return false
-            }
-        }
+    @Query(sort: \VectorEntity.timestamp, order: .reverse)
+    private var entities: [VectorEntity] {
+        didSet {              // ← prints every time the query updates
+               debugLog("KVault now sees \(entities.count) entities")
+           }
     }
+
+    
+//    var filteredVectors: [Vector] {
+//        if searchText.isEmpty {
+//            return pineconeVm.pineconeFetchedVectors
+//        } else {
+//            return pineconeVm.pineconeFetchedVectors.filter { vector in
+//                if let description = vector.metadata["description"] {
+//                    return description.lowercased().contains(searchText.lowercased())
+//                }
+//                return false
+//            }
+//        }
+//    }
     
     var body: some View {
         
@@ -65,36 +75,48 @@ struct KVault: View {
         .frame(width: UIScreen.main.bounds.width)
         .animation(.easeOut(duration: 0.2), value: showNoInternet)
         .onAppear {
-            Task {
-                if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
-                    vectorsAreLoading = true
-                    pineconeVm.loadLocalVectors()
-                    withAnimation {
-                        vectorsAreLoading = false
-                    }
-                    usageManager.trackApiCall()
-                }
+            do {
+                // Try a 1-row fetch just to prove the context is alive.
+                let probe = try ctx.fetch(
+                    FetchDescriptor<VectorEntity>()
+                )
+                debugLog("KVault context fetch succeeded, \(probe.count) row(s) found")
+            } catch {
+                debugLog("KVault context fetch FAILED → \(error.localizedDescription)")
             }
         }
-        .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
-            withAnimation {
-                vectorsAreLoading = false }
-            showEmpty = vectors.isEmpty
-        }
-        .onReceive(pineconeVm.$pineconeErrorFromEdit) { error in
-            if error != nil {
-                withAnimation {
-                    vectorsAreLoading = false
-                }
-            }
-        }
-        .onReceive(pineconeVm.$pineconeErrorFromRefreshNamespace) { error in
-            if error != nil {
-                withAnimation {
-                    vectorsAreLoading = false
-                }
-            }
-        }
+        
+//        .onAppear {
+//            Task {
+//                if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
+//                    vectorsAreLoading = true
+////                    pineconeVm.loadLocalVectors()
+//                    withAnimation {
+//                        vectorsAreLoading = false
+//                    }
+//                    usageManager.trackApiCall()
+//                }
+//            }
+//        }
+//        .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
+//            withAnimation {
+//                vectorsAreLoading = false }
+//            showEmpty = vectors.isEmpty
+//        }
+//        .onReceive(pineconeVm.$pineconeErrorFromEdit) { error in
+//            if error != nil {
+//                withAnimation {
+//                    vectorsAreLoading = false
+//                }
+//            }
+//        }
+//        .onReceive(pineconeVm.$pineconeErrorFromRefreshNamespace) { error in
+//            if error != nil {
+//                withAnimation {
+//                    vectorsAreLoading = false
+//                }
+//            }
+//        }
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
                 withAnimation {
@@ -104,11 +126,11 @@ struct KVault: View {
         }
     }
     
-    private func fetchPineconeEntries() {
-        if pineconeVm.accountDeleted { return }
-        vectorsAreLoading = true
-        pineconeVm.refreshNamespacesIDs()
-    }
+//    private func fetchPineconeEntries() {
+//        if pineconeVm.accountDeleted { return }
+//        vectorsAreLoading = true
+//        pineconeVm.refreshNamespacesIDs()
+//    }
     private func errorView(_ message: String) -> some View {
         VStack {
             Text(message).multilineTextAlignment(.leading) .padding(.top, 40)
@@ -138,9 +160,8 @@ struct KVault: View {
     private var contentView: some View {
         ScrollView {
             VStack(alignment: .center, spacing: 24) {
-                if vectorsAreLoading {
-                    loadingView().padding(.top, 42)
-                } else if !pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
+               
+                if !allVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil {
                     KSearchBar(text: $searchText)
                         .frame(maxWidth: 380)
                     ForEach(Array(filteredVectors.enumerated()), id: \.element.id) { _, data in
@@ -153,7 +174,7 @@ struct KVault: View {
                         }
                         .buttonStyle(.plain)
                     }
-                } else if pineconeVm.pineconeFetchedVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil && pineconeVm.pineconeErrorFromRefreshNamespace == nil {
+                } else if allVectors.isEmpty && pineconeVm.pineconeErrorFromEdit == nil && pineconeVm.pineconeErrorFromRefreshNamespace == nil {
                     emptyView()
                 }
                 if let error = pineconeVm.pineconeErrorFromRefreshNamespace {
@@ -168,6 +189,7 @@ struct KVault: View {
             }
             .padding(.top, 32)
             .transition(.opacity)
+            .animation(.easeOut(duration: 0.25), value: entities.count)
             
         }.scrollIndicators(.hidden)
             .frame(maxWidth: UIScreen.main.bounds.width)
@@ -190,12 +212,30 @@ struct KVault: View {
                     editViewModel.update(with: .empty)
                 }
             }
+            .onChange(of: entities) {_, entities in
+                debugLog("The KVaultView entities changed: \(entities.count)")
+            }
     }
     
     private func retryLoading() {
         pineconeVm.pineconeErrorFromEdit = nil
         pineconeVm.pineconeErrorFromRefreshNamespace = nil
         pineconeVm.refreshNamespacesIDs()
+    }
+}
+
+// MARK: helpers
+private extension KVault {
+
+    var allVectors: [Vector] { entities.map(\.toVector) }
+
+    /// Your old `filteredVectors`, rewritten to use `allVectors`
+    var filteredVectors: [Vector] {
+        guard !searchText.isEmpty else { return allVectors }
+        return allVectors.filter {
+            $0.metadata["description"]?
+                .localizedCaseInsensitiveContains(searchText) ?? false
+        }
     }
 }
 
@@ -297,7 +337,6 @@ struct KSearchBar: View {
 
         let pineconeActor = PineconeActor()
         let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
-        pineconeViewModel.updateModelContext(to: context)
         let networkManager = NetworkManager()
 
         return KVault()
