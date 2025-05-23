@@ -106,18 +106,29 @@ struct KEditInfoView: View {
         
     }
     
+    @MainActor
     private func delete() {
         Task {
-            let success = await pineconeVm.deleteVectorFromPinecone(id: viewModel.id)
-            
-            if success {
-                pineconeVm.deleteVector(withId: viewModel.id)
-                await MainActor.run {
-                    onSave()
-                }
-            } else {
-                debugLog("Error deleting vector")
+            guard await pineconeVm.deleteVectorFromPinecone(id: viewModel.id) else {
+                debugLog("Delete failed on Pinecone")
+                return
             }
+
+            // ───────── SwiftData delete ─────────
+            let targetID = viewModel.id         // ← plain String value
+
+            let fetch = FetchDescriptor<VectorEntity>(
+                predicate: #Predicate<VectorEntity> { entity in
+                    entity.id == targetID       // key-path == value
+                }
+            )
+
+            if let entity = try? modelContext.fetch(fetch).first {
+                modelContext.delete(entity)
+                try? modelContext.save()
+            }
+
+            onSave()    // close sheet / refresh UI
         }
     }
     
@@ -139,50 +150,48 @@ struct KEditInfoView: View {
     
     @MainActor
     private func upsertEditedInfo() async {
-        
+        // 1. Prepare metadata
         let metadata = toDictionary(desc: viewModel.description)
+        let targetID = viewModel.id
+
+        // 2. Upsert to Pinecone
         do {
-            // 1.make embeddings and upsert to Pinecone
-            try await openAiManager.requestEmbeddings(for: metadata["description"] ?? "Default from upsertEditedInfo", isQuestion: false)
-            if !openAiManager.embeddings.isEmpty {
-                let success = await pineconeVm.upsertData(id: viewModel.id, vector: openAiManager.embeddings, metadata: metadata, from: .editInfo)
-                
-                if success {
-                    // 2. Update the local fetched vectors
-                    if let index = pineconeVm.pineconeFetchedVectors.firstIndex(where: { $0.id == viewModel.id }) {
-                        withAnimation {
-                            pineconeVm.pineconeFetchedVectors[index].metadata = metadata }
-                    }
-                    
-                    // 3. save to SwiftData
-                    let targetID = viewModel.id
-                    let fetch = FetchDescriptor<VectorEntity>(
-                        predicate: #Predicate { $0.id == targetID }
-                    )
-                    if let entity = try? modelContext.fetch(fetch).first {
-                        entity.descriptionText = metadata["description"] ?? ""
-                        entity.timestamp = metadata["timestamp"] ?? ""
-                    } else {
-                        let new = VectorEntity(
-                            id: viewModel.id,
-                            descriptionText: metadata["description"] ?? "",
-                            timestamp: metadata["timestamp"] ?? ""
-                        )
-                        modelContext.insert(new)
-                    }
-                    
-                    // 4. Save SwiftData context
-                    try await MainActor.run {
-                        try modelContext.save()
-                    }
-                    onSave()
-                }
-            } else {
-                debugLog("KEDitInfoView: upsertEditedInfo :: No embeddings...")
+            try await openAiManager.requestEmbeddings(
+                for: metadata["description"] ?? "Default",
+                isQuestion: false
+            )
+
+            guard !openAiManager.embeddings.isEmpty else {
+                debugLog("upsertEditedInfo: No embeddings")
+                return
             }
+            guard await pineconeVm.upsertData(
+                id: targetID,
+                vector: openAiManager.embeddings,
+                metadata: metadata,
+                from: .editInfo
+            ) else { return }
+
+            // 3. Upsert locally (SwiftData)
+            let fetch = FetchDescriptor<VectorEntity>(
+                predicate: #Predicate { $0.id == targetID }
+            )
+            if let entity = try modelContext.fetch(fetch).first {
+                entity.descriptionText = metadata["description"] ?? ""
+                entity.timestamp       = metadata["timestamp"] ?? ""
+            } else {
+                let newEntity = VectorEntity(
+                    id: targetID,
+                    descriptionText: metadata["description"] ?? "",
+                    timestamp: metadata["timestamp"] ?? ""
+                )
+                modelContext.insert(newEntity)
+            }
+
+            try modelContext.save()     // 4. Commit once
+            onSave()                    // 5. Dismiss sheet
         } catch {
-            debugLog(error.localizedDescription)
-            
+            debugLog("Edit-upsert failed: \(error.localizedDescription)")
         }
     }
 }
@@ -200,11 +209,8 @@ struct KEditInfoView: View {
         
         let container = try ModelContainer(for: VectorEntity.self)
         let context = ModelContext(container)
-        
         let pineconeActor = PineconeActor()
         let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
-        pineconeViewModel.updateModelContext(to: context) // ⬅️ inject context
-        
         let viewModel = KEditInfoViewModel(vector: vector)
         
         return KEditInfoView(

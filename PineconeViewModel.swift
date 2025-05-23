@@ -102,9 +102,9 @@ class PineconeViewModel: ObservableObject {
         updateAccountDeletedFromUserDefaults()
     }
     
-    func updateModelContext(to newContext: ModelContext) {
-        self.modelContext = newContext
-    }
+//    func updateModelContext(to newContext: ModelContext) {
+//        self.modelContext = newContext
+//    }
     
     func updateAccountDeletedFromUserDefaults() {
         self.accountDeleted = UserDefaults.standard.bool(forKey: "accountDeleted")
@@ -117,25 +117,23 @@ class PineconeViewModel: ObservableObject {
         self.cancellables.insert(cancellable)
     }
     
-    func loadLocalVectors() {
-        debugLog("loadLocalVectors CALLED")
-        let fetchDescriptor = FetchDescriptor<VectorEntity>(
-            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
-        )
-        if modelContext == nil {
-            debugLog("modelContext is nil in loadLocalVectors")
-        }
-        do {
-            let entities = try modelContext?.fetch(fetchDescriptor) ?? []
-            let vectors = entities.map { $0.toVector }
-            DispatchQueue.main.async {
-                self.pineconeFetchedVectors = vectors
-            }
-        } catch {
-            debugLog("Failed to load local vectors: \(error.localizedDescription)")
-            self.pineconeErrorFromRefreshNamespace = .refreshFailed(error)
-        }
-    }
+//    @MainActor
+//    func loadLocalVectors() {
+//        debugLog("loadLocalVectors CALLED")
+//
+//        let fetch = FetchDescriptor<VectorEntity>(
+//            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+//        )
+//
+//        do {
+//            let entities = try modelContext?.fetch(fetch) ?? []
+//            pineconeFetchedVectors = entities.map(\.toVector)
+//            debugLog("loadLocalVectors: Loaded \(pineconeFetchedVectors.count) vectors")
+//        } catch {
+//            debugLog("loadLocalVectors: Failed to load local vectors: \(error.localizedDescription)")
+//            pineconeErrorFromRefreshNamespace = .refreshFailed(error)
+//        }
+//    }
     
     func clearManager() {
         self.pineconeErrorFromAdd = nil
