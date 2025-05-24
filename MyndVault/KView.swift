@@ -311,7 +311,7 @@ struct InputView: View {
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @State private var userIntentType: IntentType = .unknown
     @Binding var showPaywall: Bool
-    @StateObject var revenueCat = RevenueCatManager()
+//    @StateObject var revenueCat = RevenueCatManager()
     @Binding var delay: Double
     @Binding var duration: Double
     

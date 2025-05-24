@@ -6,23 +6,28 @@
 //
 
 import SwiftUI
+import RevenueCat
 
 struct KSettings: View {
-
+    
     @State private var canShowAppSettings: Bool = true
     @State private var canShowSubscription: Bool = true
     @EnvironmentObject var pineconeManager: PineconeViewModel
+    @EnvironmentObject var usageManager: ApiCallUsageManager
+    @State private var isActiveSubscriber: Bool = false
     
     enum SettingsSheet: Identifiable {
         case aboutUs
         case kEmbarkationView
         case deleteAccount
-
+        case paywall
+        
         var id: Int {
             switch self {
             case .aboutUs: return 1
             case .kEmbarkationView: return 2
             case .deleteAccount: return 3
+            case .paywall: return 4
             }
         }
     }
@@ -50,8 +55,20 @@ struct KSettings: View {
                         }.kiokuButton()
                     }
                     
+                    if !usageManager.canMakeApiCall() {
+                        Button {
+                            showPaywall()
+                        } label: {
+                            HStack {
+                                Text("Subscribe")
+                                Spacer()
+                            }.padding(.top, 45)
+                            
+                        }.kiokuButton()
+                    }
+                    
                     //MARK: Manage Subsription
-                    if canShowSubscription {
+                    if isActiveSubscriber {
                         Button {
                             openSubscriptionManagement()
                         } label: {
@@ -62,6 +79,7 @@ struct KSettings: View {
                             
                         }.kiokuButton()
                     }
+                    
                     //MARK: Privacy Policy
                     Button {
                         openPrivacyPolicy()
@@ -137,14 +155,19 @@ struct KSettings: View {
                             self.activeSheet = nil
                         })
                     case .deleteAccount:
-                        KDeleteAccountView(onCancel: {self.activeSheet = nil})
+                        KDeleteAccountView(onCancel: {self.activeSheet = nil} )
+                    case .paywall:
+                        CustomPaywallView(onCancel: {self.activeSheet = nil} )
                     }
                 }
             }.scrollIndicators(.hidden)
-            .padding(.horizontal, 20)
-            .frame(width: UIScreen.main.bounds.width)
+                .padding(.horizontal, 20)
+                .frame(width: UIScreen.main.bounds.width)
         }
         .onAppear {
+            Task {
+                await checkSubscriptionStatus()
+            }
             checkOpeningSettings()
             checkOpeningSubscriptions()
         }
@@ -159,6 +182,10 @@ struct KSettings: View {
         }
     }
     
+    private func showPaywall() {
+        activeSheet = .paywall
+    }
+    
     private func checkOpeningSubscriptions() {
         guard let url = URL(string: "https://apps.apple.com/account/subscriptions"),
               UIApplication.shared.canOpenURL(url)
@@ -167,6 +194,23 @@ struct KSettings: View {
             return
         }
     }
+    
+    private func checkSubscriptionStatus() async {
+        do {
+            let customerInfo = try await Purchases.shared.customerInfo()
+            if customerInfo.entitlements[Constants.entitlementID]?.isActive == true {
+                withAnimation {
+                    isActiveSubscriber = true }
+            } else {
+                withAnimation {
+                    isActiveSubscriber = false }
+            }
+        } catch {
+            // Handle error
+            debugLog("KSettings :: Error fetching customer info: \(error)")
+        }
+    }
+    
     private func eula() {
         if let url = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/") {
             UIApplication.shared.open(url)
@@ -201,8 +245,8 @@ struct KSettings: View {
             
         }
     }
-
-    }
+    
+}
 extension View {
     func kiokuButton() -> some View {
         self.modifier(KiokuButtonStyle())
