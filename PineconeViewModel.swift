@@ -233,14 +233,16 @@ class PineconeViewModel: ObservableObject {
     }
   
     
-    func queryPinecone(vector: [Float], topK: Int = 1, includeValues: Bool = false) {
+    func queryPinecone(vector: [Float], topK: Int = 5, includeValues: Bool = false) {
         debugLog("queryPinecone CALLED")
         Task {
             do {
                 let response = try await pineconeActor.queryPinecone(vector: vector, topK: topK, includeValues: includeValues, namespaceKey: namespace)
+                debugLog("queryPinecone :: response: \(response)")
                 self.pineconeQueryResponse = response
             } catch {
                 self.pineconeErrorFromQ = .queryFailed(error)
+                debugLog("Error querying Pinecone: \(error)")
             }
         }
     }

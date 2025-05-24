@@ -12,9 +12,10 @@ struct KEditInfoView: View {
     
     @EnvironmentObject var pineconeVm: PineconeViewModel
     @EnvironmentObject var openAiManager: OpenAIViewModel
+    @EnvironmentObject var usageManager: ApiCallUsageManager
     @ObservedObject var viewModel: KEditInfoViewModel
     @Environment(\.modelContext) private var modelContext
-    
+    @State private var showPaywall: Bool = false
     @State private var isReady: Bool = false
     var onSave: () -> Void
     var onCancel: () -> Void
@@ -83,6 +84,14 @@ struct KEditInfoView: View {
                         Button("Save", action: upsert)
                             .font(.custom("New York", size: 18))
                             .foregroundColor(.black)
+                        #if DEBUG
+                        Spacer()
+                        
+                        
+                        Button("Paywall", action: showDebugPaywall)
+                            .font(.custom("New York", size: 18))
+                            .foregroundColor(.black)
+                        #endif
                     }
                     .padding(.horizontal, 32)
                     .padding(.top, 24)
@@ -99,11 +108,18 @@ struct KEditInfoView: View {
                     isReady = true
                 }
             }
+            .fullScreenCover(isPresented: $showPaywall) {
+                CustomPaywallView(onCancel: {} )
+            }
             
             .hideKeyboardOnTap()
         }  .ignoresSafeArea(.keyboard)
             .statusBarHidden()
         
+    }
+    @MainActor
+    private func showDebugPaywall() {
+        showPaywall = true
     }
     
     @MainActor
@@ -150,8 +166,17 @@ struct KEditInfoView: View {
     
     @MainActor
     private func upsertEditedInfo() async {
+       
+#if !DEBUG
+            if !usageManager.canMakeApiCall() {
+                showPaywall = true
+                return
+            }
+#endif
+        
         // 1. Prepare metadata
-        let metadata = toDictionary(desc: viewModel.description)
+        let cleanText = clean(text: viewModel.description)
+        let metadata = toDictionary(desc: cleanText)
         let targetID = viewModel.id
 
         // 2. Upsert to Pinecone
@@ -190,6 +215,7 @@ struct KEditInfoView: View {
 
             try modelContext.save()     // 4. Commit once
             onSave()                    // 5. Dismiss sheet
+            usageManager.trackApiCall()
         } catch {
             debugLog("Edit-upsert failed: \(error.localizedDescription)")
         }
