@@ -24,7 +24,7 @@ final class ApiCallUsageManager: ObservableObject {
         }
     }
 
-    func canMakeApiCall(limit: Int = 15) -> Bool {
+    func canMakeApiCall(limit: Int = 16) -> Bool {
         resetMonthlyIfNeeded()
         return apiCallCount < limit
     }

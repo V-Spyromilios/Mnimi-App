@@ -113,11 +113,10 @@ struct KView: View {
                             )
                             .ignoresSafeArea(.keyboard, edges: .all)
                             .transition(.opacity)
-                            .frame(height: geo.size.height)
                         }
                     }
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    Spacer()
+                    .frame(height: UIScreen.main.bounds.height)
+                    .transition(.opacity)
                 }
                 .scrollIndicators(.hidden)
                 .ignoresSafeArea()
@@ -303,6 +302,7 @@ func showNextImage() {
 // MARK: - InputView
 
 struct InputView: View {
+    @EnvironmentObject var usageManager: ApiCallUsageManager
     @Binding var kViewState: KView.ViewState
     @Binding var text: String
     @FocusState var isEditorFocused: Bool
@@ -323,13 +323,18 @@ struct InputView: View {
                 if kViewState == .response {
                     responseTextView
                         .transition(.opacity)
+                    stateContent
+                        .transition(.opacity)
+                        .padding(.top, 40)
                 } else {
                     textEditor
                         .transition(.opacity)
+                    stateContent
+                        .transition(.opacity)
                 }
-                stateContent
-                    .transition(.opacity)
+               Spacer()
             }.padding(.top, 15)
+                .frame(height: UIScreen.main.bounds.height)
         }
         .onChange(of: openAiManager.userIntent) { _, intent in
             debugLog("✅ Trigger received — handle intent")
@@ -382,15 +387,16 @@ struct InputView: View {
     }
     
     private var responseTextView: some View {
-        ScrollView {
+//        ScrollView {
             Text(text)
                 .font(.custom("New York", size: 20))
                 .foregroundColor(.black)
                 .multilineTextAlignment(.leading)
-                .padding(.top, 40)
+                .padding(.top, 45)
                 .padding(.horizontal, 30)
                 .frame(maxWidth: .infinity, alignment: .leading)
-        }.scrollIndicators(.hidden)
+                .fixedSize(horizontal: false, vertical: true)
+//        }.scrollIndicators(.hidden)
     }
     
     private var textEditor: some View {
@@ -428,7 +434,7 @@ struct InputView: View {
         case .onSuccess:
             successView
         case .response:
-            responseView
+            responseOKButtonView
         case .input:
             saveButton
         default:
@@ -460,18 +466,18 @@ struct InputView: View {
             withAnimation {
                 text = ""
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 toinputStateFromState()
             }
         }
     }
     
-    private var responseView: some View {
+    private var responseOKButtonView: some View {
         Button("OK") {
             withAnimation {
-                text = ""
                 openAiManager.clearManager()
                 pineconeManager.clearManager()
+                text = ""
             }
             isEditorFocused = false
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
@@ -485,14 +491,20 @@ struct InputView: View {
         .font(.custom("New York", size: 22))
         .bold()
         .foregroundColor(.black)
-        .padding(.top, 20)
-        .padding(.bottom, 20)
     }
     
     private var saveButton: some View {
         Button("Go") {
+            
+#if !DEBUG
+            if !usageManager.canMakeApiCall() {
+                showPaywall = true
+                return
+            }
+#endif
             Task {
-                await openAiManager.getTranscriptAnalysis(transcrpit: text)
+                let cleanText = clean(text: text)
+                await openAiManager.getTranscriptAnalysis(transcrpit: cleanText)
             }
             withAnimation {
                 kViewState = .onApiCall
@@ -507,6 +519,7 @@ struct InputView: View {
         .transition(.opacity)
         .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
+
     
     private func apiCallLabel(for type: IntentType) -> String {
         switch type {
@@ -562,7 +575,7 @@ struct InputView: View {
         
         debugLog("Started processIntetn: \(intent.type)")
         userIntentType = intent.type
-        debugLog("is on main thread: \(Thread.isMainThread)")
+        
         debugLog(" processIntetn: about to call openAiManager.handleClassifiedIntent()")
         openAiManager.handleClassifiedIntent(intent)
     }
@@ -620,7 +633,7 @@ struct InputView: View {
                                 } catch {
                                     debugLog("Failed to save vector locally: \(error.localizedDescription)")
                                 }
-
+                                usageManager.trackApiCall()
                                 withAnimation { kViewState = .onSuccess }
                             }
                         }
@@ -670,19 +683,20 @@ struct InputView: View {
     }
 }
 
-//#Preview {
-//
-//
-//    let pineconeActor = PineconeActor()
-//    let openAIActor = OpenAIActor()
-//    let languageSettings = LanguageSettings.shared
-//    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
-//    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-//    let networkManager = NetworkManager()
-//    KView()
-//        .environmentObject(openAIViewModel)
-//        .environmentObject(pineconeViewModel)
-//}
+#Preview {
+
+
+    let pineconeActor = PineconeActor()
+    let openAIActor = OpenAIActor()
+    
+    let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
+    let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
+    let networkManager = NetworkManager()
+    KView()
+        .environmentObject(openAIViewModel)
+        .environmentObject(pineconeViewModel)
+        .environmentObject(networkManager)
+}
 
 extension View {
     func onChangeHandlers(viewState: Binding<KView.ViewState>, text: Binding<String>) -> some View {
@@ -861,27 +875,27 @@ func randomBackgroundName() -> String {
 //}
 
 
-#Preview {
-    do {
-        let container = try ModelContainer(for: VectorEntity.self)
-        let context = ModelContext(container)
-
-        let pineconeActor = PineconeActor()
-        let openAIActor = OpenAIActor()
-        let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
-
-        let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
-        let networkManager = NetworkManager()
-
-        return KView()
-            .environmentObject(openAIViewModel)
-            .environmentObject(pineconeViewModel)
-            .environmentObject(networkManager)
-            .modelContainer(container)
-    } catch {
-        return Text("Preview failed: \(error.localizedDescription)")
-    }
-}
+//#Preview {
+//    do {
+//        let container = try ModelContainer(for: VectorEntity.self)
+//        let context = ModelContext(container)
+//
+//        let pineconeActor = PineconeActor()
+//        let openAIActor = OpenAIActor()
+//        let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
+//
+//        let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
+//        let networkManager = NetworkManager()
+//
+//        return KView()
+//            .environmentObject(openAIViewModel)
+//            .environmentObject(pineconeViewModel)
+//            .environmentObject(networkManager)
+//            .modelContainer(container)
+//    } catch {
+//        return Text("Preview failed: \(error.localizedDescription)")
+//    }
+//}
 
 //For the Calendar Sheet
 //#Preview {

@@ -140,7 +140,7 @@
 		E84203E42DBB853800DFCFE2 /* KEditInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEditInfoView.swift; sourceTree = "<group>"; };
 		E84203E62DBBA15500DFCFE2 /* NewYorkItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NewYorkItalic.ttf; sourceTree = "<group>"; };
 		E8459B2A2C45AC020039BFA7 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
-		E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyndVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E8459EC42BC1E3BE00CE34A7 /* MnimiApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MnimiApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8459EC72BC1E3BE00CE34A7 /* MyndVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyndVaultApp.swift; sourceTree = "<group>"; };
 		E8459EC92BC1E3BE00CE34A7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E8459ECD2BC1E3BE00CE34A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -324,7 +324,7 @@
 		E8459EC52BC1E3BE00CE34A7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */,
+				E8459EC42BC1E3BE00CE34A7 /* MnimiApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -413,9 +413,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E8459EC32BC1E3BE00CE34A7 /* MyndVault */ = {
+		E8459EC32BC1E3BE00CE34A7 /* MnimiApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E8459ED42BC1E3BE00CE34A7 /* Build configuration list for PBXNativeTarget "MyndVault" */;
+			buildConfigurationList = E8459ED42BC1E3BE00CE34A7 /* Build configuration list for PBXNativeTarget "MnimiApp" */;
 			buildPhases = (
 				E8459EC02BC1E3BE00CE34A7 /* Sources */,
 				E8459EC12BC1E3BE00CE34A7 /* Frameworks */,
@@ -427,13 +427,13 @@
 			);
 			dependencies = (
 			);
-			name = MyndVault;
+			name = MnimiApp;
 			packageProductDependencies = (
 				E87874462C70CFD5001299D9 /* RevenueCat */,
 				E87874482C70CFD5001299D9 /* RevenueCatUI */,
 			);
 			productName = MyndVault;
-			productReference = E8459EC42BC1E3BE00CE34A7 /* MyndVault.app */;
+			productReference = E8459EC42BC1E3BE00CE34A7 /* MnimiApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -477,7 +477,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E8459EC32BC1E3BE00CE34A7 /* MyndVault */,
+				E8459EC32BC1E3BE00CE34A7 /* MnimiApp */,
 			);
 		};
 /* End PBXProject section */
@@ -746,7 +746,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyndVault/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
+				INFOPLIST_KEY_CFBundleDisplayName = MnimiApp;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Mnimi is requesting your permission to create events in your Calendar.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mnimi secures the access to your infos with Face ID. ";
@@ -763,7 +764,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.2.5;
+				MARKETING_VERSION = 4.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -786,7 +787,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyndVault/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MyndVault;
+				INFOPLIST_KEY_CFBundleDisplayName = MnimiApp;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Mnimi is requesting your permission to create events in your Calendar.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Mnimi secures the access to your infos with Face ID. ";
@@ -803,7 +805,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.2.5;
+				MARKETING_VERSION = 4.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -826,7 +828,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E8459ED42BC1E3BE00CE34A7 /* Build configuration list for PBXNativeTarget "MyndVault" */ = {
+		E8459ED42BC1E3BE00CE34A7 /* Build configuration list for PBXNativeTarget "MnimiApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E8459ED52BC1E3BE00CE34A7 /* Debug */,

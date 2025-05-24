@@ -290,7 +290,7 @@ actor OpenAIActor {
         throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during GPT response fetch.")
     }
     
-    private func prepareTopMatches(matches: [Match], minScore: Double = 0.75, maxCount: Int = 2) -> [Match] {
+    private func prepareTopMatches(matches: [Match], minScore: Double = 0.3, maxCount: Int = 2) -> [Match] {
         return matches
             .filter { $0.score >= minScore }
             .sorted { $0.score > $1.score }
@@ -311,23 +311,33 @@ actor OpenAIActor {
         let topMatches = prepareTopMatches(matches: matches)
 
             // Format matches for the prompt
-            let formattedMatches = topMatches.map { match in
-                """
-                - Description: \(match.metadata?["description"] ?? "N/A")
-                - Timestamp: \(match.metadata?["timestamp"] ?? "N/A")
-                """
-            }
-            
+        let formattedMatches = topMatches.map { match in
+            let score = String(format: "%.2f", match.score)
+            return """
+            - Description: \(match.metadata?["description"] ?? "N/A")
+            - Timestamp: \(match.metadata?["timestamp"] ?? "N/A")
+            - Score: \(score)
+            """
+        }
+
         let numberOfMatches = topMatches.count
         let hasMatches = !topMatches.isEmpty
         let formattedMatchesString = formattedMatches.joined(separator: "\n\n")
 
+        debugLog("About to form prompt Using \(topMatches.count) match(es) for GPT prompt")
+        debugLog("About to form prompt with these matches: \(formattedMatchesString)")
             return """
     You are an AI assistant. Use the information retrieved from a vector database to answer the user's question.
 
     Inputs:
     - User's Question: \(question)
-    \(hasMatches ? "- Retrieved Information (\(numberOfMatches) match\(numberOfMatches == 1 ? "" : "es")):\nThe following information was found:\n\n\(formattedMatchesString)" : "")
+    """ + (hasMatches ? """
+
+    - Retrieved Information (\(numberOfMatches) match\(numberOfMatches == 1 ? "" : "es")):
+    The following information was found:
+
+    \(formattedMatchesString)
+    """ : "") + """
 
     Instructions:
     - If the retrieved information is relevant, use it in your reply.

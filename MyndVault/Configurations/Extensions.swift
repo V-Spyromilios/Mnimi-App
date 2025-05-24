@@ -251,6 +251,10 @@ enum Persistence {
     }()
 }
 
+func clean(text: String) -> String {
+    text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+}
+
 
 //struct BlurView: UIViewRepresentable {
 //    var style: UIBlurEffect.Style
