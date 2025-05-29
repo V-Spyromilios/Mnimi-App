@@ -95,12 +95,11 @@ actor OpenAIActor {
                 guard let url = URL(string: "https://api.openai.com/v1/audio/transcriptions") else {
                     throw AppNetworkError.invalidOpenAiURL
                 }
-                
+
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
                 request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-                
-                // Swift 6 Improvement: Use `let boundary = UUID().uuidString` inline
+
                 let boundary = UUID().uuidString
                 request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
                 
@@ -110,8 +109,7 @@ actor OpenAIActor {
                 async let (data, response) = URLSession.shared.upload(for: request, from: formData)
                 
                 let (receivedData, receivedResponse) = try await (data, response)
-                
-                //Swift 6: Improved error handling with `.failure`
+
                 guard let httpResponse = receivedResponse as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                     throw AppNetworkError.invalidResponse
                 }

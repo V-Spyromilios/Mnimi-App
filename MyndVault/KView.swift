@@ -100,7 +100,7 @@ struct KView: View {
                         
 #endif
                 }
-
+                
                 ScrollView {
                     VStack {
                         if viewState != .idle {
@@ -113,14 +113,15 @@ struct KView: View {
                             )
                             .ignoresSafeArea(.keyboard, edges: .all)
                             .transition(.opacity)
+                            .frame(height: geo.size.height)
                         }
                     }
-                    .frame(height: UIScreen.main.bounds.height)
-                    .transition(.opacity)
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    Spacer()
                 }
                 .scrollIndicators(.hidden)
                 .ignoresSafeArea()
-                .frame(width: geo.size.width)
+//                .frame(width: geo.size.width)
                 .zIndex(0)
                 .allowsHitTesting(!(showSettings || showVault)) // disable interaction
             }
