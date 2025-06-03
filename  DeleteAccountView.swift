@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct KDeleteAccountView: View {
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @State private var isDeleting = false
     @State private var showError = false
     @State private var deletionSuccess = false
+    @State private var swiftDataError: String? = nil
+    @Environment(\.modelContext) private var context
     var onCancel: () -> Void
 
     var body: some View {
@@ -57,6 +60,24 @@ struct KDeleteAccountView: View {
                         Task {
                             isDeleting = true
                             let success = await pineconeManager.deleteAllVectorsInNamespace()
+                            
+                            if success {
+                                // Delete all VectorEntity objects from SwiftData
+                                do {
+                                    let fetchDescriptor = FetchDescriptor<VectorEntity>()
+                                    let localVectors = try context.fetch(fetchDescriptor)
+                                    for vector in localVectors {
+                                        context.delete(vector)
+                                    }
+                                    try context.save()
+                                } catch {
+                                    await MainActor.run {
+                                        swiftDataError = "Error deleting local data."
+                                    }
+                                    debugLog("DeleteAccountView :: Error deleting local SwiftData vectors: \(error)")
+                                }
+                            }
+                            
                             await MainActor.run {
                                 isDeleting = false
                                 if success {
@@ -76,19 +97,30 @@ struct KDeleteAccountView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                     }
 
-                    Button(action: {
-                        if !isDeleting {
-                            onCancel()
+                    if !deletionSuccess {
+                        Button(action: {
+                            if !isDeleting {
+                                onCancel()
+                            }
+                        }) {
+                            Text("Cancel")
+                                .font(.custom("New York", size: 18))
+                                .foregroundColor(.black)
+                                .padding(.vertical, 16)
                         }
-                    }){
-                        Text("Cancel")
-                            .font(.custom("New York", size: 18))
-                            .foregroundColor(.black)
-                            .padding(.vertical, 16)
-                    }.disabled(isDeleting)
+                        .disabled(isDeleting)
+                    }
                     
                     if showError, let error = pineconeManager.pineconeErrorOnDel {
                         Text(error.message)
+                            .font(.custom("New York", size: 16))
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                            .transition(.opacity)
+                    }
+                    else if let error = swiftDataError {
+                        Text(error)
                             .font(.custom("New York", size: 16))
                             .foregroundColor(.red)
                             .multilineTextAlignment(.center)
