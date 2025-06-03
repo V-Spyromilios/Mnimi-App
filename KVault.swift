@@ -74,17 +74,17 @@ struct KVault: View {
         }
         .frame(width: UIScreen.main.bounds.width)
         .animation(.easeOut(duration: 0.2), value: showNoInternet)
-        .onAppear {
-            do {
-                // Try a 1-row fetch just to prove the context is alive.
-                let probe = try ctx.fetch(
-                    FetchDescriptor<VectorEntity>()
-                )
-                debugLog("KVault context fetch succeeded, \(probe.count) row(s) found")
-            } catch {
-                debugLog("KVault context fetch FAILED → \(error.localizedDescription)")
-            }
-        }
+//        .onAppear {
+//            do {
+//                // Try a 1-row fetch just to prove the context is alive.
+//                let probe = try ctx.fetch(
+//                    FetchDescriptor<VectorEntity>()
+//                )
+//                debugLog("KVault context fetch succeeded, \(probe.count) row(s) found")
+//            } catch {
+//                debugLog("KVault context fetch FAILED → \(error.localizedDescription)")
+//            }
+//        }
         
 //        .onAppear {
 //            Task {
