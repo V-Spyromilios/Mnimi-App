@@ -48,6 +48,7 @@ struct KView: View {
             }
         }
     }
+    @Binding var launchURL: URL?
     
     @State private var viewState: ViewState = .idle
     @State private var selectedImage: String = ""
@@ -159,6 +160,15 @@ struct KView: View {
                     audioRecorder.deleteAudioAndUrl()
                     recordingURL = nil
                     usageManager.trackApiCall()
+                }
+            //MARK: For the Widget
+                .onChange(of: launchURL) { _, url in
+                    guard let url = url else { return }
+                    if url.scheme == "mnimi", url.host == "add" {
+                        print("🚀 Triggering input mode from widget")
+                        viewState = .input
+                        launchURL = nil // Reset after handling
+                    }
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 140)
@@ -693,7 +703,7 @@ struct InputView: View {
     let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
     let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
     let networkManager = NetworkManager()
-    KView()
+    KView(launchURL: .constant(nil))  // OR .constant(URL(string: "mnimi://add")) for the widget
         .environmentObject(openAIViewModel)
         .environmentObject(pineconeViewModel)
         .environmentObject(networkManager)
