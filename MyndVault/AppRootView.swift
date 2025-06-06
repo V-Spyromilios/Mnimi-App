@@ -17,9 +17,10 @@ struct AppRootView: View {
     @State private var didInitializeViewModel = false
     @StateObject private var pineconeViewModel = PineconeViewModel(
         pineconeActor: PineconeActor())
+    @State private var launchURL: URL? = nil
 
     var body: some View {
-        KView()
+        KView(launchURL: $launchURL)
             .environmentObject(pineconeViewModel)
             .onAppear {
                 if !hasSeenOnboarding {
@@ -28,6 +29,10 @@ struct AppRootView: View {
             }
             .fullScreenCover(isPresented: $showOnboarding) {
                 onboardingSheet
+            }
+            .onOpenURL { url in
+                debugLog("📬 Received URL: \(url)")
+                launchURL = url // 👈 forward URL
             }
     }
 

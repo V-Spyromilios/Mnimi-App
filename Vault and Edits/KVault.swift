@@ -124,6 +124,9 @@ struct KVault: View {
                 }
             }
         }
+        .onChange(of: entities) { _, newEntities in
+            updateRecentNotesSharedDefaults(from: newEntities)
+        }
     }
     
 //    private func fetchPineconeEntries() {
@@ -148,6 +151,12 @@ struct KVault: View {
     private func closeSheet() {
         selectedVector = nil
         
+    }
+    
+    private func updateRecentNotesSharedDefaults(from entities: [VectorEntity]) {
+        let notes = entities.prefix(3).map { $0.descriptionText }
+        UserDefaults(suiteName: "group.app.mnimi.shared")?
+            .set(notes, forKey: "recent_notes")
     }
     
     private var backgroundView: some View {
