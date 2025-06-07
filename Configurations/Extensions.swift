@@ -573,38 +573,54 @@ struct KRecordButton: View {
     @State private var pulse = false
     @State private var hasStartedRecording = false
     @State private var recordingTask: Task<Void, Never>? = nil
+    @State private var animateWave = false
     @Binding var micColor: Color
     let maxDuration: TimeInterval = 12
 
     var body: some View {
-        Image(systemName: "mic.circle.fill")
-            .font(.system(size: 60))
-            .foregroundColor(micColor.opacity(0.7))
-            .opacity(pulse ? 1.0 : 0.8)
-            .scaleEffect(isRecording ? 1.15 : 1)
-            .shadow(radius: 10)
-            .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { _ in
-                        if !hasStartedRecording {
-                            hasStartedRecording = true
-                            debugLog("Recording Started")
-                            startRecording()
-                        }
-                    }
-                    .onEnded { _ in
-                        stopRecording()
-                        hasStartedRecording = false
-                        debugLog("Recording Ended")
-                    }
-            )
-            .onChange(of: isRecording) { _, newVal in
-                pulse = newVal
+        ZStack {
+            if isRecording {
+                Image(systemName: "waveform.badge.microphone")
+                    .font(.system(size: 58))
+                    .foregroundColor(micColor.opacity(0.85))
+                    .scaleEffect(animateWave ? 1.1 : 0.95)
+                    .symbolEffect(.variableColor)
+                    .opacity(0.9)
+                    .transition(.opacity.combined(with: .scale))
+            } else {
+                Image(systemName: "mic.circle.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(micColor.opacity(0.7))
+                    .opacity(pulse ? 1.0 : 0.8)
+                    .scaleEffect(isRecording ? 1.15 : 1)
+                    .shadow(radius: 10)
+                    .transition(.opacity.combined(with: .scale))
             }
-            .animation(.easeInOut(duration: 0.8), value: pulse)
+        }
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !hasStartedRecording {
+                        hasStartedRecording = true
+                        debugLog("Recording Started")
+                        startRecording()
+                        animateWave = true
+                    }
+                }
+                .onEnded { _ in
+                    stopRecording()
+                    hasStartedRecording = false
+                    debugLog("Recording Ended")
+                    animateWave = false
+                }
+        )
+        .onChange(of: isRecording) { _, newVal in
+            pulse = newVal
+        }
+        .animation(.easeInOut(duration: 0.8), value: animateWave)
+        .animation(.easeInOut(duration: 0.8), value: pulse)
     }
-
     private func startRecording() {
         guard !isRecording else { return }
         print("⏺ start")
