@@ -6,6 +6,7 @@
 //
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 struct KVault: View {
 
@@ -74,49 +75,6 @@ struct KVault: View {
         }
         .frame(width: UIScreen.main.bounds.width)
         .animation(.easeOut(duration: 0.2), value: showNoInternet)
-//        .onAppear {
-//            do {
-//                // Try a 1-row fetch just to prove the context is alive.
-//                let probe = try ctx.fetch(
-//                    FetchDescriptor<VectorEntity>()
-//                )
-//                debugLog("KVault context fetch succeeded, \(probe.count) row(s) found")
-//            } catch {
-//                debugLog("KVault context fetch FAILED → \(error.localizedDescription)")
-//            }
-//        }
-        
-//        .onAppear {
-//            Task {
-//                if filteredVectors.isEmpty && !pineconeVm.accountDeleted {
-//                    vectorsAreLoading = true
-////                    pineconeVm.loadLocalVectors()
-//                    withAnimation {
-//                        vectorsAreLoading = false
-//                    }
-//                    usageManager.trackApiCall()
-//                }
-//            }
-//        }
-//        .onReceive(pineconeVm.$pineconeFetchedVectors) { vectors in
-//            withAnimation {
-//                vectorsAreLoading = false }
-//            showEmpty = vectors.isEmpty
-//        }
-//        .onReceive(pineconeVm.$pineconeErrorFromEdit) { error in
-//            if error != nil {
-//                withAnimation {
-//                    vectorsAreLoading = false
-//                }
-//            }
-//        }
-//        .onReceive(pineconeVm.$pineconeErrorFromRefreshNamespace) { error in
-//            if error != nil {
-//                withAnimation {
-//                    vectorsAreLoading = false
-//                }
-//            }
-//        }
         .onChange(of: networkManager.hasInternet) { _, hasInternet in
             if !hasInternet {
                 withAnimation {
@@ -128,12 +86,7 @@ struct KVault: View {
             updateRecentNotesSharedDefaults(from: newEntities)
         }
     }
-    
-//    private func fetchPineconeEntries() {
-//        if pineconeVm.accountDeleted { return }
-//        vectorsAreLoading = true
-//        pineconeVm.refreshNamespacesIDs()
-//    }
+
     private func errorView(_ message: String) -> some View {
         VStack {
             Text(message).multilineTextAlignment(.leading) .padding(.top, 40)
@@ -154,9 +107,13 @@ struct KVault: View {
     }
     
     private func updateRecentNotesSharedDefaults(from entities: [VectorEntity]) {
-        let notes = entities.prefix(3).map { $0.descriptionText }
+        let notes = entities
+            .prefix(5)
+            .map { $0.descriptionText }
         UserDefaults(suiteName: "group.app.mnimi.shared")?
             .set(notes, forKey: "recent_notes")
+        
+        WidgetCenter.shared.reloadTimelines(ofKind: "RecentNotesWidget") // refresh homescreen widget
     }
     
     private var backgroundView: some View {
@@ -221,9 +178,6 @@ struct KVault: View {
                     editViewModel.update(with: .empty)
                 }
             }
-            .onChange(of: entities) {_, entities in
-                debugLog("The KVaultView entities changed: \(entities.count)")
-            }
     }
     
     private func retryLoading() {
@@ -238,7 +192,7 @@ private extension KVault {
 
     var allVectors: [Vector] { entities.map(\.toVector) }
 
-    /// Your old `filteredVectors`, rewritten to use `allVectors`
+    // old `filteredVectors`, rewritten to use `allVectors`
     var filteredVectors: [Vector] {
         guard !searchText.isEmpty else { return allVectors }
         return allVectors.filter {

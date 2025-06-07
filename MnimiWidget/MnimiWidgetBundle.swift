@@ -11,10 +11,8 @@ import SwiftUI
 @main
 struct MnimiWidgetBundle: WidgetBundle {
     var body: some Widget {
-//        MnimiWidget()
-         QuickAddWidget()
         
+         QuickAddWidget()
         RecentNotesWidget()
-
     }
 }
