@@ -62,7 +62,7 @@ struct KView: View {
     @State private var micColor: Color = .white
     @State private var viewTransitionDelay: Double = 0.4
     @State private var viewTransitionDuration: Double = 0.4
-    @State private var showVault: Bool = false
+    @Binding var showVault: Bool
     @State private var showSettings: Bool = false
     @State private var showPaywall: Bool = false
     
@@ -703,7 +703,7 @@ struct InputView: View {
     let pineconeViewModel = PineconeViewModel(pineconeActor: pineconeActor)
     let openAIViewModel = OpenAIViewModel(openAIActor: openAIActor)
     let networkManager = NetworkManager()
-    KView(launchURL: .constant(nil))  // OR .constant(URL(string: "mnimi://add")) for the widget
+    KView(launchURL: .constant(nil), showVault: .constant(false))  // OR .constant(URL(string: "mnimi://add")) for the widget
         .environmentObject(openAIViewModel)
         .environmentObject(pineconeViewModel)
         .environmentObject(networkManager)

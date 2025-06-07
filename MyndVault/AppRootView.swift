@@ -17,10 +17,13 @@ struct AppRootView: View {
     @State private var didInitializeViewModel = false
     @StateObject private var pineconeViewModel = PineconeViewModel(
         pineconeActor: PineconeActor())
+    
+    //for widgets:
     @State private var launchURL: URL? = nil
+    @State private var showVault = false
 
     var body: some View {
-        KView(launchURL: $launchURL)
+        KView(launchURL: $launchURL, showVault: $showVault)
             .environmentObject(pineconeViewModel)
             .onAppear {
                 if !hasSeenOnboarding {
@@ -31,8 +34,11 @@ struct AppRootView: View {
                 onboardingSheet
             }
             .onOpenURL { url in
-                debugLog("📬 Received URL: \(url)")
-                launchURL = url // 👈 forward URL
+                if url.absoluteString == "mnimi://add" {
+                    launchURL = url
+                } else if url.absoluteString == "mnimi://vault" {
+                    showVault = true
+                }
             }
     }
 
