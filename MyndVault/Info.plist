@@ -17,7 +17,7 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>Mnimi is requesting your permission to create events in your Calendar.</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
 	<string>Mnimi needs access to your reminders to create tasks when you want to</string>

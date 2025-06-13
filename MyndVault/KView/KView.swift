@@ -12,14 +12,14 @@
  Remind me to call mom tonight              is_reminder             Create reminder, show visual success
  Add lunch with Leo Friday 12              is_calendar              Use EventEditView to create event
  My license plate is AB123              (default -> save info)      Save to Pinecone as embedding
-
+ 
  
  Font Size      Recommended Line Spacing
  17                 4
  18                 5
  20                 7
  22                 8
-
+ 
  */
 
 import SwiftUI
@@ -35,11 +35,11 @@ struct KView: View {
         case onApiCall
         case onSuccess
         case onError(AnyDisplayableError)
-
+        
         static func ==(lhs: ViewState, rhs: ViewState) -> Bool {
             switch (lhs, rhs) {
             case (.idle, .idle), (.input, .input), (.response, .response),
-                 (.onApiCall, .onApiCall), (.onSuccess, .onSuccess):
+                (.onApiCall, .onApiCall), (.onSuccess, .onSuccess):
                 return true
             case (.onError(let e1), .onError(let e2)):
                 return e1.id == e2.id
@@ -55,7 +55,7 @@ struct KView: View {
     @State private var text: String = ""
     @State private var recordingURL: URL?
     @FocusState private var isEditorFocused: Bool
-    @StateObject private var audioRecorder: AudioRecorder = AudioRecorder()
+    @EnvironmentObject var audioRecorder: AudioRecorder
     @EnvironmentObject var openAiManager: OpenAIViewModel
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var usageManager: ApiCallUsageManager
@@ -66,12 +66,14 @@ struct KView: View {
     @State private var showSettings: Bool = false
     @State private var showPaywall: Bool = false
     
+    @AppStorage("microphonePermissionGranted") var micGranted: Bool?
+    
 #if DEBUG
-@State var currentIndex: Int = 0
+    @State var currentIndex: Int = 0
 #endif
     
     @GestureState private var dragOffset: CGFloat = 0
-
+    
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             GeometryReader { geo in
@@ -84,7 +86,7 @@ struct KView: View {
                     
 #if DEBUG
                     Button(action: {
-//                       showNextImage()
+                        //                       showNextImage()
                         showPaywall.toggle()
                         print("Image: \(selectedImage)")
                     }) {
@@ -98,7 +100,7 @@ struct KView: View {
                     }
                     .padding(.bottom, 40)
                     .zIndex(3)
-                        
+                    
 #endif
                 }
                 
@@ -122,7 +124,7 @@ struct KView: View {
                 }
                 .scrollIndicators(.hidden)
                 .ignoresSafeArea()
-//                .frame(width: geo.size.width)
+                //                .frame(width: geo.size.width)
                 .zIndex(0)
                 .allowsHitTesting(!(showSettings || showVault)) // disable interaction
             }
@@ -140,43 +142,45 @@ struct KView: View {
                 CustomPaywallView {
                     showPaywall = false
                 }
-               
+                
             }
-
-            KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
-                .opacity((viewState == .idle && !(showSettings || showVault)) ? 1 : 0)
-                .allowsHitTesting(viewState == .idle && !(showSettings || showVault)) // prevent interaction while overlays are shown
-                .onChange(of: recordingURL) { _, url in
-                    if let url {
-                        Task {
-                            await openAiManager.processAudio(fileURL: url, fromQuestion: true)
-                        }
+            .onChange(of: recordingURL) { _, url in
+                if let url {
+                    Task {
+                        await openAiManager.processAudio(fileURL: url, fromQuestion: true)
                     }
                 }
-                .onChange(of: openAiManager.transcriptionFromWhisper) { _, newTranscript in
-                    guard !newTranscript.isEmpty else { return }
-                    text = newTranscript
-                    showInputView()
-                    audioRecorder.deleteAudioAndUrl()
-                    recordingURL = nil
-                    usageManager.trackApiCall()
-                }
+            }
+            .onChange(of: openAiManager.transcriptionFromWhisper) { _, newTranscript in
+                guard !newTranscript.isEmpty else { return }
+                text = newTranscript
+                showInputView()
+                audioRecorder.deleteAudioAndUrl()
+                recordingURL = nil
+                usageManager.trackApiCall()
+            }
             //MARK: For the Widget
-                .onChange(of: launchURL) { _, url in
-                    guard let url = url else { return }
-                    if url.scheme == "mnimi", url.host == "add" {
-                        print("🚀 Triggering input mode from widget")
-                        viewState = .input
-                        launchURL = nil // Reset after handling
-                    }
+            .onChange(of: launchURL) { _, url in
+                guard let url = url else { return }
+                if url.scheme == "mnimi", url.host == "add" {
+                    print("🚀 Triggering input mode from widget")
+                    viewState = .input
+                    launchURL = nil // Reset after handling
                 }
-                .padding(.trailing, 20)
-                .padding(.bottom, 140)
-
+            }
+            
+            if let micGranted = micGranted, micGranted == true {
+                KRecordButton(recordingURL: $recordingURL, audioRecorder: audioRecorder, micColor: $micColor)
+                    .opacity((viewState == .idle && !(showSettings || showVault)) ? 1 : 0)
+                    .allowsHitTesting(viewState == .idle && !(showSettings || showVault)) // prevent interaction while overlays are shown
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 140)
+            }
+            
             // MARK: - Drag gesture layers
             vaultSwipeGestureLayer
             settingsSwipeGestureLayer
-
+            
             // MARK: - Overlay blocker + views
             if showSettings || showVault {
                 Color.black.opacity(0.001) // absorbs taps
@@ -198,7 +202,7 @@ struct KView: View {
                                 }
                         )
                 }
-
+                
                 if showVault {
                     KVault()
                         .frame(width: UIScreen.main.bounds.width)
@@ -221,7 +225,7 @@ struct KView: View {
         .statusBar(hidden: true)
         .gesture(
             showSettings || showVault ? nil :
-            DragGesture(minimumDistance: 30)
+                DragGesture(minimumDistance: 30)
                 .updating($dragOffset) { value, state, _ in
                     state = value.translation.width
                 }
@@ -246,10 +250,10 @@ struct KView: View {
     }
     
 #if DEBUG
-func showNextImage() {
-    currentIndex = (currentIndex + 1) % backgroundImages.count
-    selectedImage = backgroundImages[currentIndex]
-}
+    func showNextImage() {
+        currentIndex = (currentIndex + 1) % backgroundImages.count
+        selectedImage = backgroundImages[currentIndex]
+    }
 #endif
     
     private func handleTap() {
@@ -265,20 +269,20 @@ func showNextImage() {
         return localizedBrightness(of: image, relativeRect: focusRect)
     }
     private var vaultSwipeGestureLayer: some View {
-            Color.clear
-                .frame(width: 20)
-                .contentShape(Rectangle())
-                .onTapGesture {} // keeps it interactive
-                .offset(x: showVault ? 0 : -UIScreen.main.bounds.width)
-        }
-
-        private var settingsSwipeGestureLayer: some View {
-            Color.clear
-                .frame(width: 20)
-                .contentShape(Rectangle())
-                .onTapGesture {}
-                .offset(x: showSettings ? 0 : UIScreen.main.bounds.width)
-        }
+        Color.clear
+            .frame(width: 20)
+            .contentShape(Rectangle())
+            .onTapGesture {} // keeps it interactive
+            .offset(x: showVault ? 0 : -UIScreen.main.bounds.width)
+    }
+    
+    private var settingsSwipeGestureLayer: some View {
+        Color.clear
+            .frame(width: 20)
+            .contentShape(Rectangle())
+            .onTapGesture {}
+            .offset(x: showSettings ? 0 : UIScreen.main.bounds.width)
+    }
     
     func showInputView() {
         withAnimation(.easeInOut(duration: viewTransitionDuration)) {
@@ -322,9 +326,12 @@ struct InputView: View {
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @State private var userIntentType: IntentType = .unknown
     @Binding var showPaywall: Bool
-//    @StateObject var revenueCat = RevenueCatManager()
     @Binding var delay: Double
     @Binding var duration: Double
+    @AppStorage("calendarPermissionGranted") var calendarPermissionGranted: Bool?
+    @AppStorage("reminderPermissionGranted") var reminderPermissionGranted: Bool?
+    @State private var userWantsReminderButNoPermission: Bool = false
+    @State private var userWantsCalendarButNoPermission: Bool = false
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -332,25 +339,38 @@ struct InputView: View {
             
             VStack {
                 if kViewState == .response {
-                    responseTextView
-                        .transition(.opacity)
+                    ScrollView {
+                        responseTextView
+                            .padding(.top, 45)
+                    }.scrollIndicators(.hidden)
                     stateContent
-                        .transition(.opacity)
                         .padding(.top, 40)
-                } else {
+                }
+                else if userWantsReminderButNoPermission {
+                    KErrorView(title: "Permission Required", message: "Seems that you requested to save a new Reminder but you haven;t granted permission yet. Please go to your device settings and grant permission to save Reminders.", ButtonText: "OK", retryAction: {
+                        withAnimation { text = "" }
+                        toinputStateFromState()
+                    })
+                } else if userWantsCalendarButNoPermission {
+                    KErrorView(title: "Permission Required", message: "Seems that you requested to save a new Calendar Event but you haven;t granted permission yet. Please go to your device settings and grant permission to save to your Calendar.", ButtonText: "OK", retryAction: {
+                        withAnimation { text = "" }
+                        toinputStateFromState()
+                    })
+                }
+                else {
                     textEditor
                         .transition(.opacity)
                     stateContent
                         .transition(.opacity)
                 }
-               Spacer()
+                Spacer()
             }.padding(.top, 15)
                 .frame(height: UIScreen.main.bounds.height)
         }
         .onChange(of: openAiManager.userIntent) { _, intent in
             debugLog("✅ Trigger received — handle intent")
             if let intent = intent {
-                openAiManager.handleClassifiedIntent(intent)
+                processIntent(intent)
             }
         }
         .onChangeHandlers(viewState: $kViewState, text: $text)
@@ -360,54 +380,91 @@ struct InputView: View {
                 toResponseView()
             }
         }
-        .onChange(of: openAiManager.reminderCreated) { _, cuccess in
-            if cuccess {
-                withAnimation { text = "" }
-                toSuccessState()
-            }
-//            else {
-//                kViewState = .onError("Error saving reminder. Please try again.")
-//            } //TODO: Observe the Error instead!
-        }
-        .onChange(of: openAiManager.calendarEventCreated) {_, success in
-            if success {
-                withAnimation {
-                    text = "" }
-                toSuccessState()
+        .sheet(item: $openAiManager.pendingReminder) { wrapper in
+            NavigationStack {
+                
+                ReminderConfirmationView(wrapper: wrapper) {
+                    Task {
+                        let success = await openAiManager.savePendingReminder()
+                        await MainActor.run {
+                            openAiManager.pendingReminder = nil // always clear
+                            
+                            if success {
+                                text = ""
+                                toinputStateFromState()
+                            } else {
+                                if let error = openAiManager.reminderError {
+                                    withAnimation {
+                                        kViewState = .onError(AnyDisplayableError(error))
+                                    }
+                                } else {
+                                    withAnimation {
+                                        kViewState = .onError(AnyDisplayableError(OpenAIError.unknown(NSError(
+                                            domain: "ReminderError",
+                                            code: 0,
+                                            userInfo: [NSLocalizedDescriptionKey: "Reminder could not be saved."]
+                                        ))))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } onCancel: {
+                    openAiManager.pendingReminder = nil
+                    text = ""
+                    toinputStateFromState()
+                }
             }
             
-        }
-        .sheet(item: $openAiManager.pendingReminder) { wrapper in
-            ReminderConfirmationView(wrapper: wrapper) {
-                openAiManager.savePendingReminder()
-            } onCancel: {
-                openAiManager.pendingReminder = nil
-                text = ""
-                toinputStateFromState()
-            }
-        }
+//            .presentationDetents([.medium, .large])
+        }.ignoresSafeArea(.keyboard, edges: .all)
         .sheet(item: $openAiManager.pendingCalendarEvent) { wrapper in
+            NavigationStack {
             CalendarConfirmationView(wrapper: wrapper) {
-                openAiManager.saveCalendarEvent()
+                Task {
+                    let success = await openAiManager.saveCalendarEvent()
+                    
+                    await MainActor.run {
+                        openAiManager.pendingCalendarEvent = nil
+                        
+                        if success {
+                            text = ""
+                            toinputStateFromState()
+                        } else {
+                            if let error = openAiManager.calendarError {
+                                withAnimation {
+                                    kViewState = .onError(AnyDisplayableError(error))
+                                }
+                            } else {
+                                withAnimation {
+                                    kViewState = .onError(AnyDisplayableError(OpenAIError.unknown(
+                                        NSError(domain: "CalendarError", code: 0, userInfo: [
+                                            NSLocalizedDescriptionKey: "Calendar event could not be saved."
+                                        ])
+                                    )))
+                                }
+                            }
+                        }
+                    }
+                }
             } onCancel: {
                 openAiManager.pendingCalendarEvent = nil
                 text = ""
                 toinputStateFromState()
             }
         }
+    }.ignoresSafeArea(.keyboard, edges: .all)
     }
     
     private var responseTextView: some View {
-//        ScrollView {
-            Text(text)
-                .font(.custom("New York", size: 20))
-                .foregroundColor(.black)
-                .multilineTextAlignment(.leading)
-                .padding(.top, 45)
-                .padding(.horizontal, 30)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
-//        }.scrollIndicators(.hidden)
+        Text(text)
+            .font(.custom("New York", size: 20))
+            .foregroundColor(.black)
+            .multilineTextAlignment(.leading)
+            .padding(.top, 45)
+            .padding(.horizontal, 30)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
     }
     
     private var textEditor: some View {
@@ -432,14 +489,17 @@ struct InputView: View {
             apiCallLabelView
         case .onError(let error):
             KErrorView(
-                    title: error.title,
-                    message: error.message,
-                    retryAction: {
-                        withAnimation {
-                            kViewState = .input
-                        }
+                title: error.title,
+                message: error.message, ButtonText: "Retry",
+                retryAction: {
+                    withAnimation {
+                        kViewState = .input
+                        text = ""
                     }
-                )
+                    openAiManager.reminderError = nil
+                    openAiManager.calendarError = nil
+                }
+            )
             .transition(.scale.combined(with: .opacity))
             .animation(.easeOut(duration: 0.2), value: error.title)
         case .onSuccess:
@@ -459,7 +519,7 @@ struct InputView: View {
             .foregroundColor(.black)
             .italic()
     }
-
+    
     
     private var successView: some View {
         Group {
@@ -530,7 +590,7 @@ struct InputView: View {
         .transition(.opacity)
         .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
-
+    
     
     private func apiCallLabel(for type: IntentType) -> String {
         switch type {
@@ -580,11 +640,22 @@ struct InputView: View {
             kViewState = .onSuccess
         }
     }
-
+    
     
     private func processIntent(_ intent: IntentClassificationResponse) {
         
         debugLog("Started processIntetn: \(intent.type)")
+        
+        //Check Permission for Calendard and Reminder
+        if intent.type == .isCalendar && calendarPermissionGranted != true {
+            userWantsCalendarButNoPermission = true
+        }
+        
+        if intent.type == .isReminder && reminderPermissionGranted != true {
+            userWantsReminderButNoPermission = true
+        }
+        
+        
         userIntentType = intent.type
         
         debugLog(" processIntetn: about to call openAiManager.handleClassifiedIntent()")
@@ -597,7 +668,7 @@ struct InputView: View {
     }
     
     //  timestamp: metadata["timestamp"] ?? ISO8601DateFormatter().string(from: Date())
-
+    
     //MARK: InputViewChangeHandler
     struct InputViewChangeHandler: ViewModifier {
         @Binding var kViewState: KView.ViewState
@@ -625,17 +696,17 @@ struct InputView: View {
                                 metadata: metadata,
                                 from: .KView
                             )
-
+                            
                             guard ok else { return }
-
+                            
                             // All SwiftData work stays on MainActor
-                           
-                                let newVector = VectorEntity(
-                                    id: uniqueID,
-                                    descriptionText: metadata["description"] ?? "No description",
-                                    timestamp: metadata["timestamp"] ?? ISO8601DateFormatter().string(from: Date())
-                                )
-
+                            
+                            let newVector = VectorEntity(
+                                id: uniqueID,
+                                descriptionText: metadata["description"] ?? "No description",
+                                timestamp: metadata["timestamp"] ?? ISO8601DateFormatter().string(from: Date())
+                            )
+                            
                             await MainActor.run {
                                 do {
                                     modelContext.insert(newVector)
@@ -695,8 +766,8 @@ struct InputView: View {
 }
 
 #Preview {
-
-
+    
+    
     let pineconeActor = PineconeActor()
     let openAIActor = OpenAIActor()
     
@@ -722,68 +793,68 @@ struct ReminderConfirmationView: View {
     var onCancel: () -> Void
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                // Background behind the form
-                let reminderImage = randomBackgroundName()
-                Image(reminderImage)
-                    .resizable()
-                    .scaledToFill()
-                    .blur(radius: 1)
-                    .opacity(0.8)
-                    .ignoresSafeArea()
-                
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
-                    startPoint: .top,
-                    endPoint: .center
-                )
+        ZStack {
+            // Background behind the form
+            let reminderImage = randomBackgroundName()
+            Image(reminderImage)
+                .resizable()
+                .scaledToFill()
+            
+                .opacity(0.9)
                 .ignoresSafeArea()
-                
-                // The form
-                VStack {
-                    Form {
-                        TextField("Title", text: Binding(
-                            get: { wrapper.reminder.title },
-                            set: { wrapper.reminder.title = $0 }
-                        )) .font(.custom("New York", size: 18))
-                        
-                        DatePicker("Alarm Time", selection: Binding(
-                            get: {
-                                wrapper.reminder.alarms?.first?.absoluteDate ?? Date()
-                            },
-                            set: { newDate in
-                                wrapper.reminder.alarms?.removeAll()
-                                wrapper.reminder.addAlarm(EKAlarm(absoluteDate: newDate))
-                            }
-                        ), displayedComponents: [.date, .hourAndMinute])
+            
+            LinearGradient(
+                gradient: Gradient(colors: [Color.gray.opacity(0.9), Color.clear, Color.clear]),
+                startPoint: .top,
+                endPoint: .center
+            )
+            .ignoresSafeArea()
+            
+            // The form
+            ScrollView {
+            VStack(spacing: 0) {
+                Form {
+                    TextField("Title", text: $wrapper.title)
                         .font(.custom("New York", size: 18))
-                    }.formStyle(.automatic)
-                }.frame(maxWidth: 500)
-
+                        .textInputAutocapitalization(.sentences)
+                    
+                    DatePicker(
+                        "Date", selection: Binding(
+                            get: { wrapper.dueDate ?? Date() },
+                            set: { wrapper.dueDate = $0 }
+                        ),
+                        displayedComponents: [.date, .hourAndMinute]
+                    )
+                    
+                    TextField("Notes", text: Binding(
+                        get: { wrapper.notes ?? "" },
+                        set: { wrapper.notes = $0 }
+                    ))
+                    .font(.custom("New York", size: 18))
+                    .textInputAutocapitalization(.sentences)
+                    
+                }
+                .navigationTitle("Confirm Reminder").foregroundStyle(.black)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) { Button("Save", action: onConfirm) }
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel", action: onCancel) }
+                }
+                .formStyle(.automatic)
+                Spacer()
+            }.frame(maxWidth: 500)
+            
                 .scrollContentBackground(.hidden)
-                    .background(Color.clear)
-                    .shadow(radius: 4)
-                    .padding(.horizontal, 42)
+                .background(Color.clear)
+                .shadow(radius: 4)
+                .padding(.horizontal, 42)
+        }.ignoresSafeArea(.keyboard, edges: .all)
             }
+           
             .navigationTitle(Text("Confirm Reminder"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: onConfirm)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        wrapper.reminder.title = ""
-                        openAiManager.pendingReminder = nil
-                    }
-                    .font(.system(size: 18, weight: .regular, design: .rounded))
-                }
-            }
-        }
+        
     }
-
+    
 }
 
 struct CalendarConfirmationView: View {
@@ -791,11 +862,11 @@ struct CalendarConfirmationView: View {
     @ObservedObject var wrapper: EventWrapper
     var onConfirm: () -> Void
     var onCancel: () -> Void
-    
+
     var body: some View {
         NavigationView {
             ZStack {
-                // Background behind the form
+                // Background
                 let calendarImage = randomBackgroundName()
                 Image(calendarImage)
                     .resizable()
@@ -805,48 +876,50 @@ struct CalendarConfirmationView: View {
                     .ignoresSafeArea()
                 
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
+                    gradient: Gradient(colors: [Color.gray.opacity(0.9), .clear]),
                     startPoint: .top,
                     endPoint: .center
                 )
                 .ignoresSafeArea()
                 
-                // The form
                 VStack {
                     Form {
                         TextField("Title", text: Binding(
-                            get: { wrapper.event.title ?? "" },
-                            set: { wrapper.event.title = $0 }
+                            get: { wrapper.title },
+                            set: { wrapper.title = $0 }
                         ))
                         .font(.custom("New York", size: 18))
+                        .textInputAutocapitalization(.sentences)
                         
                         DatePicker("Start", selection: Binding(
-                            get: { wrapper.event.startDate ?? Date() },
-                            set: { wrapper.event.startDate = $0 }
+                            get: { wrapper.startDate },
+                            set: { wrapper.startDate = $0 }
                         ), displayedComponents: [.date, .hourAndMinute])
                         .font(.custom("New York", size: 18))
                         
                         DatePicker("End", selection: Binding(
-                            get: { wrapper.event.endDate ?? Date().addingTimeInterval(3600) },
-                            set: { wrapper.event.endDate = $0 }
+                            get: { wrapper.endDate ?? Date().addingTimeInterval(3600) },
+                            set: { wrapper.endDate = $0 }
                         ), displayedComponents: [.date, .hourAndMinute])
                         .font(.custom("New York", size: 18))
                         
                         TextField("Location", text: Binding(
-                            get: { wrapper.event.location ?? "" },
-                            set: { wrapper.event.location = $0 }
+                            get: { wrapper.location ?? "" },
+                            set: { wrapper.location = $0 }
                         ))
                         .font(.custom("New York", size: 18))
+                        .textInputAutocapitalization(.sentences)
                     }
-                    .formStyle(.automatic)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .frame(maxWidth: 500)
+                    .padding(.horizontal)
+                    
+                    Spacer() // keeps top alignment
                 }
-                .frame(maxWidth: 500)
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                .shadow(radius: 4)
-                .padding(.horizontal, 42)
+                .frame(maxHeight: .infinity, alignment: .top)
             }
-            .navigationTitle(Text("Confirm Event"))
+            .navigationTitle("Confirm Event")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -855,12 +928,12 @@ struct CalendarConfirmationView: View {
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onCancel)
-                    .font(.system(size: 18, weight: .regular, design: .rounded))
+                        .font(.system(size: 18, weight: .regular, design: .rounded))
                 }
             }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
-
 }
 
 func randomBackgroundName() -> String {
@@ -875,10 +948,10 @@ func randomBackgroundName() -> String {
 //    let mockReminder = EKReminder(eventStore: mockEventStore)
 //    mockReminder.title = "Call Alice"
 //    mockReminder.addAlarm(EKAlarm(absoluteDate: Date().addingTimeInterval(3600)))
-//    
+//
 //    let wrapper = ReminderWrapper(reminder: mockReminder)
 //    let mockOpenAI = OpenAIViewModel(openAIActor: OpenAIActor())
-//    
+//
 //    return ReminderConfirmationView(wrapper: wrapper) {
 //        print("Confirmed reminder")
 //    }
@@ -916,14 +989,14 @@ func randomBackgroundName() -> String {
 //    mockEvent.startDate = Date()
 //    mockEvent.endDate = Date().addingTimeInterval(3600)
 //    mockEvent.location = "Italian Café"
-//    
+//
 //    let wrapper = EventWrapper(event: mockEvent)
 //    let mockOpenAI = OpenAIViewModel(openAIActor: OpenAIActor())
 //
 //    return CalendarConfirmationView(wrapper: wrapper) {
 //        mockOpenAI.saveCalendarEvent()
 //    } onCancel: {
-//       
+//
 //    }
 //    .environmentObject(mockOpenAI)
 //}

@@ -6,13 +6,19 @@
 //
 
 import SwiftUI
+import AVFoundation
+import EventKit
 
 
 struct KEmbarkationView: View {
+    @EnvironmentObject var audioRecorder: AudioRecorder
     var onDone: () -> Void
     @State private var animateSwipe: Bool = false
     @State private var animateSwap2: Bool = false
     @State private var step: EmbarkationStep = .welcomeIntro
+    @AppStorage("calendarPermissionGranted") var calendarPermissionGranted: Bool = false
+    @AppStorage("reminderPermissionGranted") var reminderPermissionGranted: Bool = false
+    @AppStorage("microphonePermissionGranted") var microphonePermissionGranted: Bool = false
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -43,8 +49,53 @@ struct KEmbarkationView: View {
     }
     
     private var nextButton: some View {
-        Button(nextButtonTitle) {
-            advanceStep()
+        Group {
+            if step == .requestPermissions {
+                permissionsButton
+            } else {
+                Button(nextButtonTitle) {
+                    advanceStep()
+                }
+                .font(.custom("New York", size: 20))
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                .foregroundColor(.black)
+            }
+        }
+    }
+    
+     var nextButtonTitle: String {
+        step == EmbarkationStep.allCases.last ? "Start Using Mnimi" : "Next"
+    }
+    
+     func advanceStep() {
+        if let next = EmbarkationStep(rawValue: step.rawValue + 1) {
+            step = next
+        } else {
+            onDone()
+        }
+    }
+    
+    @MainActor
+    private var permissionsButton: some View {
+        Button("Grant Permissions") {
+            
+            Task { @MainActor in
+                
+                let micGranted = await audioRecorder.requestPermission()
+                let calendarGranted = await requestCalendarPermission()
+                let reminderGranted = await requestReminderPermission()
+                
+                await MainActor.run {
+                    calendarPermissionGranted = calendarGranted
+                    reminderPermissionGranted = reminderGranted
+                    microphonePermissionGranted = micGranted
+                }
+                
+                advanceStep()
+            }
         }
         .font(.custom("New York", size: 20))
         .padding(.horizontal, 24)
@@ -53,17 +104,26 @@ struct KEmbarkationView: View {
         .clipShape(Capsule())
         .foregroundColor(.black)
     }
-    
-    private var nextButtonTitle: String {
-        step == EmbarkationStep.allCases.last ? "Start Using Mnimi" : "Next"
+
+    @MainActor
+    private func requestCalendarPermission() async -> Bool {
+        let store = EKEventStore()
+        do {
+            // EventKit resumes on arbitrary queue → hop back before returning
+            let granted = try await store.requestFullAccessToEvents()
+            await MainActor.run {}
+            return granted
+        } catch { return false }
     }
-    
-    private func advanceStep() {
-        if let next = EmbarkationStep(rawValue: step.rawValue + 1) {
-            step = next
-        } else {
-            onDone()
-        }
+
+    @MainActor
+    private func requestReminderPermission() async -> Bool {
+        let store = EKEventStore()
+        do {
+            let granted = try await store.requestFullAccessToReminders()
+            await MainActor.run {}
+            return granted
+        } catch { return false }
     }
     
 }
@@ -205,7 +265,19 @@ func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateS
         ZStack {
             KiokuBackgroundView()
             
-            Text("Mnimi helps you remember anything.\n\nSpeak or type, and Mnimi will store your notes, reminders, or calendar events — all searchable and secure.")
+            Text("Mnimi helps you remember anything.\n\nSpeak or type, and Mnimi will store your notes, reminders, or calendar events.")
+                .font(.custom("New York", size: 18))
+                .multilineTextAlignment(.center)
+                .foregroundColor(.black)
+                .kiokuShadow()
+                .padding(.horizontal, 30)
+            
+        }
+    case .requestPermissions:
+        ZStack {
+            KiokuBackgroundView()
+            
+            Text("One last thing!\nWe need your permission to access your microphone, Calendar and Reminders.\n\nThis allows voice input for creating notes, asking questions and creating reminders and callendar events.\n\nTap \"Go\"")
                 .font(.custom("New York", size: 18))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.black)
@@ -229,6 +301,10 @@ private var saveButton: some View {
     .padding(.top, 20)
     .transition(.opacity)
 }
+
+
+
+
 @MainActor
 private func sampleContentView(data: Vector) -> some View {
     
@@ -328,6 +404,8 @@ func annotationText(for step: EmbarkationStep) -> String {
         return "Swipe from the right edge to open Settings.\nFrom there, you can change preferences — or revisit this tour anytime."
     case .welcomeIntro:
         return "Welcome to your Mnimi"
+    case .requestPermissions:
+        return "Request Permissions"
     }
 }
 

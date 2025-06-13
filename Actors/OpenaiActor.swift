@@ -14,6 +14,7 @@ enum OpenAIError: DisplayableError {
     case transriptionFailed(Error)
     case reminderError(Error)
     case unknown(Error)
+    case permissionsMissing(Error)
 
     var id: String { message }
 
@@ -24,16 +25,18 @@ enum OpenAIError: DisplayableError {
         case .transriptionFailed: return "Transcription Error"
         case .reminderError: return "Reminder Error"
         case .unknown: return "Unexpected Error"
+        case .permissionsMissing: return "Check Permissions in Settings"
         }
     }
 
     var message: String {
         switch self {
         case .embeddingsFailed(let e),
-             .gptResponseFailed(let e),
-             .transriptionFailed(let e),
-             .reminderError(let e),
-             .unknown(let e):
+                .gptResponseFailed(let e),
+                .transriptionFailed(let e),
+                .reminderError(let e),
+                .unknown(let e),
+                .permissionsMissing(let e):
             return e.localizedDescription
         }
     }
@@ -65,6 +68,28 @@ extension OpenAIError: Equatable {
 extension OpenAIError: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(localizedDescription)
+    }
+}
+
+extension OpenAIError {
+    static var missingCalendarPermissions: OpenAIError {
+        .permissionsMissing(
+            NSError(
+                domain: "CalendarPermissions",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Access to Calendar was not granted."]
+            )
+        )
+    }
+    
+    static var missingReminderPermissions: OpenAIError {
+        .permissionsMissing(
+            NSError(
+                domain: "ReminderPermissions",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Access to Reminders was not granted."]
+            )
+        )
     }
 }
 

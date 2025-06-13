@@ -10,6 +10,7 @@ import SwiftUI
 struct KErrorView: View {
     let title: String
     let message: String
+    let ButtonText: String
     let retryAction: () -> Void
 
     var body: some View {
@@ -31,7 +32,7 @@ struct KErrorView: View {
                 .padding(.horizontal)
 
             Button(action: retryAction) {
-                           Text("Retry")
+                           Text(ButtonText)
                                .font(.custom("New York", size: 17))
                                .padding(.horizontal, 24)
                                .padding(.vertical, 10)
@@ -56,6 +57,6 @@ struct KErrorView: View {
 }
 #Preview {
     
-    KErrorView(title: "Error while loading and Error while loading", message: "Please check your connection Please check your connection Please check your connection", retryAction: {})
+    KErrorView(title: "Error while loading and Error while loading", message: "Please check your connection Please check your connection Please check your connection", ButtonText: "Retry", retryAction: {})
         .background(KiokuBackgroundView()).ignoresSafeArea()
 }

@@ -18,20 +18,9 @@ final class AudioRecorder: ObservableObject {
 
 
     /// Ask for microphone permission
-       func requestPermission() async -> Bool {
-           let granted = await withCheckedContinuation { continuation in
-               if #available(iOS 17.0, *) {
-                   AVAudioApplication.requestRecordPermission { granted in
-                       continuation.resume(returning: granted)
-                   }
-               } else {
-                   AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                       continuation.resume(returning: granted)
-                   }
-               }
-           }
-           return granted
-       }
+    func requestPermission() async -> Bool {
+        await AVAudioApplication.requestRecordPermission()
+    }
 
     /// Start recording audio
     func startRecording() async throws {
@@ -40,10 +29,10 @@ final class AudioRecorder: ObservableObject {
             return
         } // ✅ Prevent duplicate recordings
         
-        guard await requestPermission() else {
-            debugLog("❌ Microphone permission denied")
-            return
-        }
+//        guard await requestPermission() else {
+//            debugLog("❌ Microphone permission denied")
+//            return
+//        }
         
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])

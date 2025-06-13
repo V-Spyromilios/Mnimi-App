@@ -54,5 +54,5 @@ struct AppRootView: View {
 }
 
 #Preview {
-    AppRootView(showOnboarding: .constant(false), hasSeenOnboarding: .constant(true))
+    AppRootView(showOnboarding: .constant(true), hasSeenOnboarding: .constant(false))
 }

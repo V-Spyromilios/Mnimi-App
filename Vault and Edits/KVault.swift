@@ -146,7 +146,7 @@ struct KVault: View {
                 if let error = pineconeVm.pineconeErrorFromRefreshNamespace {
                     KErrorView(
                         title: error.title,
-                        message: error.message,
+                        message: error.message, ButtonText: "Retry",
                         retryAction: retryLoading
                     )
                     .transition(.opacity.combined(with: .scale))

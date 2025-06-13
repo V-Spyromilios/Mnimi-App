@@ -7,6 +7,8 @@
 
 import SwiftUI
 import RevenueCat
+import EventKit
+import AVFoundation
 
 struct KSettings: View {
     
@@ -54,6 +56,8 @@ struct KSettings: View {
                             
                         }.kiokuButton()
                     }
+                    
+                    PermissionButtonGroup()
                     
                     if !usageManager.canMakeApiCall() {
                         Button {
@@ -245,6 +249,7 @@ struct KSettings: View {
             
         }
     }
+
     
 }
 extension View {
@@ -267,5 +272,76 @@ struct KiokuButtonStyle: ViewModifier {
 }
 
 #Preview {
+    let api = ApiCallUsageManager()
     KSettings()
+        .environmentObject(api)
 }
+
+
+
+// MARK: – PermissionButtonGroup
+@MainActor
+struct PermissionButtonGroup: View {
+    
+    @AppStorage("calendarPermissionGranted") var calendarPermissionGranted: Bool?
+    @AppStorage("reminderPermissionGranted") var reminderPermissionGranted: Bool?
+    @AppStorage("microphonePermissionGranted") var microphonePermissionGranted: Bool?
+    
+    @Environment(\.scenePhase) var scenePhase
+    
+    var body: some View {
+            VStack(spacing: 16) {
+                if calendarPermissionGranted != true {
+                    Button("Enable Calendar Access !") {
+                        openAppSettings()
+                    }
+                    .kiokuButton()
+                }
+                
+                if reminderPermissionGranted != true {
+                    Button("Enable Reminders Access !") {
+                        openAppSettings()
+                    }
+                    .kiokuButton()
+                }
+                
+                if microphonePermissionGranted != true {
+                    Button("Enable Microphone !") {
+                        openAppSettings()
+                    }
+                    .kiokuButton()
+                    
+                }
+            }
+            .onChange(of: scenePhase) { _, newPhase in //Check the permissions again when the app returns from background (user went to settings and returned)
+                if newPhase == .active {
+                    refreshPermissionsFromSystem()
+                }
+            }
+
+    }
+    
+    private func openAppSettings() {
+        if let settingsURL = URL(string: UIApplication.openSettingsURLString),
+                 UIApplication.shared.canOpenURL(settingsURL) {
+                  UIApplication.shared.open(settingsURL)
+              }
+    }
+    
+    @MainActor
+    private func refreshPermissionsFromSystem() {
+        // Microphone
+        let micStatus = AVAudioApplication.shared.recordPermission
+        microphonePermissionGranted = micStatus == .granted
+
+        // Calendar
+        let eventAuth = EKEventStore.authorizationStatus(for: .event)
+        calendarPermissionGranted = eventAuth == .fullAccess
+
+        // Reminders
+        let reminderAuth = EKEventStore.authorizationStatus(for: .reminder)
+        reminderPermissionGranted = reminderAuth == .fullAccess
+    }
+
+}
+

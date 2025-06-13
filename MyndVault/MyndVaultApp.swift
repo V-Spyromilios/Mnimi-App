@@ -40,6 +40,7 @@ struct MyndVaultApp: App {
     @StateObject private var apiCallUsageManager = ApiCallUsageManager()
     @StateObject private var speechManager = SpeechRecognizerManager()
     @StateObject private var networkManager = NetworkManager()
+    @StateObject private var audioRecorder: AudioRecorder = AudioRecorder()
     @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
     @State private var showOnboarding: Bool = false
     
@@ -63,6 +64,7 @@ struct MyndVaultApp: App {
             .environmentObject(networkManager)
             .environmentObject(apiCallUsageManager)
             .environmentObject(speechManager)
+            .environmentObject(audioRecorder)
         }
     }
     
@@ -70,7 +72,7 @@ struct MyndVaultApp: App {
 #if DEBUG
         Purchases.logLevel = .debug
 #else
-        Purchases.logLevel = .verbose
+        Purchases.logLevel = .warn
 #endif
         if let catKey = ApiConfiguration.catKey {
             Purchases.configure(with: .init(withAPIKey: catKey)

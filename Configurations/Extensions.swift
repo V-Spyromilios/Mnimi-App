@@ -546,21 +546,32 @@ func clean(text: String) -> String {
 //    }
 //}
 
+
 final class ReminderWrapper: ObservableObject, Identifiable {
     let id = UUID()
-    @Published var reminder: EKReminder
-
-    init(reminder: EKReminder) {
-        self.reminder = reminder
+    var title: String
+    var dueDate: Date?
+    var notes: String?
+    
+    init(title: String, dueDate: Date?, notes: String?) {
+        self.title = title
+        self.dueDate = dueDate
+        self.notes = notes
     }
 }
 
 final class EventWrapper: ObservableObject, Identifiable {
     let id = UUID()
-    @Published var event: EKEvent
-
-    init(event: EKEvent) {
-        self.event = event
+       var title: String
+       var startDate: Date
+       var endDate: Date
+       var location: String?
+    
+    init(title: String, startDate: Date, endDate: Date, location: String? = nil) {
+        self.title = title
+        self.startDate = startDate
+        self.endDate = endDate
+        self.location = location
     }
 }
 
@@ -828,11 +839,12 @@ enum EmbarkationStep: Int, CaseIterable {
     case settingsSwipeExplanation
     case inputExplanation
     case vaultListExplanation
+    case requestPermissions
 
     /// Determines where the annotation box appears (top or bottom).
     var annotationAlignment: Alignment {
         switch self {
-        case .idleExplanation, .vaultSwipeExplanation, .settingsSwipeExplanation, .welcomeIntro:
+        case .idleExplanation, .vaultSwipeExplanation, .settingsSwipeExplanation, .welcomeIntro, .requestPermissions:
             return .top
         case .inputExplanation, .vaultListExplanation:
             return .bottom

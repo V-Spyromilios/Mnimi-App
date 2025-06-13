@@ -66,9 +66,9 @@ struct IntentClassificationResponse: Codable, Equatable {
     let type: IntentType
     let query: String?
     let task: String?
-    let datetime: String?
-    let title: String?
-    let location: String?
+    var datetime: String?
+    var title: String?
+    var location: String?
     let memory: String?
     
 //    static func == (lhs: IntentClassificationResponse, rhs: IntentClassificationResponse) -> Bool {

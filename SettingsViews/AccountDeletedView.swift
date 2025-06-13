@@ -26,7 +26,7 @@ struct AccountDeletedView: View {
                     .font(.title)
                     .bold()
                 
-                Text("All of your data has been removed.\nWe really value your thoughts—please share any feedback about your experience with MyndVault.")
+                Text("All of your data has been removed.\nWe really value your thoughts—please share any feedback about your experience with Mnimi App.")
                     .font(Font.custom("SF Mono Semibold", size: 16))
                     .fontDesign(.monospaced)
                     .multilineTextAlignment(.center)

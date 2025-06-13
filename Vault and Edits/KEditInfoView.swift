@@ -45,7 +45,7 @@ struct KEditInfoView: View {
                     else if let error = pineconeVm.pineconeErrorFromEdit {
                         KErrorView(
                             title: error.title,
-                            message: error.message,
+                            message: error.message, ButtonText: "Retry",
                             retryAction: retrySaving
                         )
                         .transition(.scale.combined(with: .opacity))
