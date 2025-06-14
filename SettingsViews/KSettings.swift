@@ -175,7 +175,6 @@ struct KSettings: View {
             checkOpeningSettings()
             checkOpeningSubscriptions()
         }
-        .statusBarHidden()
     }
     private func checkOpeningSettings() {
         guard let urlSettings = URL(string: UIApplication.openSettingsURLString),
@@ -290,6 +289,8 @@ struct PermissionButtonGroup: View {
     @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
+        if calendarPermissionGranted != true || reminderPermissionGranted != true || microphonePermissionGranted != true {
+
             VStack(spacing: 16) {
                 if calendarPermissionGranted != true {
                     Button("Enable Calendar Access !") {
@@ -313,11 +314,13 @@ struct PermissionButtonGroup: View {
                     
                 }
             }
+            
             .onChange(of: scenePhase) { _, newPhase in //Check the permissions again when the app returns from background (user went to settings and returned)
                 if newPhase == .active {
                     refreshPermissionsFromSystem()
                 }
             }
+        }
 
     }
     

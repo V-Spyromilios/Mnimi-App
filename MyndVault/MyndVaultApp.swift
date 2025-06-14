@@ -65,6 +65,7 @@ struct MyndVaultApp: App {
             .environmentObject(apiCallUsageManager)
             .environmentObject(speechManager)
             .environmentObject(audioRecorder)
+            .statusBarHidden(true)
         }
     }
     

@@ -44,7 +44,12 @@ class OpenAIViewModel: ObservableObject {
     init(openAIActor: OpenAIActor) {
         self.openAIActor = openAIActor
     }
-    
+
+    ///Reset the ViewModel to a clean state
+    ///1. Clears all embedding data and string responses
+    ///2. Resets transcription and any related errors
+    ///3. Clears pending intent and reminder (but not calendar event)
+    ///4. Used after processing or cancelling a user interaction
     func clearManager() {
         embeddings = []
         embeddingsFromQuestion = []
@@ -64,7 +69,12 @@ class OpenAIViewModel: ObservableObject {
         pendingReminder = nil
     }
     
-    
+
+    ///Transcribe an audio file using Whisper and store result
+       ///1. Saves text to `.transcription` or `.transcriptionFromWhisper` based on `fromQuestion`
+       ///2. Handles errors with matching error fields for each case
+       ///3. Triggers UI update via UUID when transcription fails (non-question only)
+       ///4. Called after recording finishes or voice input is received
     func processAudio(fileURL: URL, fromQuestion: Bool) async {
         
         if !fromQuestion {
@@ -89,15 +99,18 @@ class OpenAIViewModel: ObservableObject {
         }
         
     }
-    
+
+    ///Fetch embeddings from OpenAI for the given text
+       ///1. Uses actor to request embedding vectors from OpenAI API
+       ///2. Stores result in `embeddingsFromQuestion` or `embeddings` based on intent
+       ///3. Triggers UI updates using `embeddingsTrigger` UUID
+       ///4. Sets `.embeddingsCompleted = true` only when saving info (not for questions)
     func requestEmbeddings(for text: String, isQuestion: Bool) async throws {
         //        throw AppNetworkError.unknownError("Debugare")
         do {
             
             let embeddingsResponse: EmbeddingsResponse = try await openAIActor.fetchEmbeddings(for: text)
-            
             debugLog("embeddingsResponse: \(embeddingsResponse.data.first.debugDescription)")
-            
             let embeddingsData = embeddingsResponse.data.flatMap { $0.embedding }
             
             // Update properties
@@ -114,13 +127,16 @@ class OpenAIViewModel: ObservableObject {
             throw error
         }
     }
-    
+
+
+    ///Send question + matched vectors to OpenAI GPT
+        ///1. Asks GPT to generate a response based on user's question and matched info
+        ///2. Saves the response to `stringResponseOnQuestion` and `lastGptResponse`
+        ///3. Clears current `userIntent` after getting response
+        ///4. On failure, sets `gptResponseError` for error handling
     func getGptResponse(queryMatches: [Match], question: String) async {
         
         do {
-            // Access `languageSettings` on the main actor
-            
-            // Perform network call off the main actor
             let response = try await openAIActor.getGptResponse(
                 vectorResponses: queryMatches,
                 question: question
@@ -133,7 +149,13 @@ class OpenAIViewModel: ObservableObject {
             self.gptResponseError = .gptResponseFailed(error)
         }
     }
-    
+
+
+    ///Analyze transcript to classify user intent
+        ///1. Sends transcribed text to OpenAI to detect intent and structured fields
+        ///2. If intent changed, updates `userIntent` and logs the result
+        ///3. If unchanged, skips assignment but still logs for debug
+        ///4. On failure, sets `openAIErrorFromQuestion` for UI to handle
     func getTranscriptAnalysis(transcrpit: String) async {
         
         do {
@@ -158,6 +180,11 @@ class OpenAIViewModel: ObservableObject {
     }
     
     
+    ///Check Calendar permission and prompt or alert as needed
+        ///1. Checks current authorization status for calendar access
+        ///2. If `.notDetermined` and on iOS 17+, requests write-only access
+        ///3. If access is denied or restricted, shows permission alert in UI
+        ///4. Hides alert if user has authorized access
     func checkCalendarPermission() {
         
         let status = EKEventStore.authorizationStatus(for: .event)
@@ -187,7 +214,12 @@ class OpenAIViewModel: ObservableObject {
         }
     }
     
-    /// Processes the classified intent and takes appropriate action
+    
+    ///Dispatch user intent to the appropriate handler
+       ///1. Called after GPT returns a classified `IntentClassificationResponse`
+       ///2. Routes the intent to one of: Reminder, Calendar, Question, or Save Info
+       ///3. Each type has its own handler (e.g. `handleReminderIntent`)
+       ///4. Logs unknown types for debugging
     func handleClassifiedIntent(_ intent: IntentClassificationResponse) {
         debugLog("handleClassifiedIntent called with intent: \(intent)")
         
@@ -206,39 +238,83 @@ class OpenAIViewModel: ObservableObject {
     }
     
     
-    
-    
+    ///Prepare reminder for confirmation sheet
+      ///1. Validate that `task` is present and non-empty
+      ///2. Parse `datetime`, or fallback to `now + 1h` if missing
+      ///3. If parsed datetime is in the past, fallback to `now + 24h`
+      ///4. Pass normalized data to `prepareReminderForConfirmation(...)`
     private func handleReminderIntent(_ intent: IntentClassificationResponse) {
-        
-        //TODO: they both fail without datetime!! Provide default more centrally
-        
-        if let task = intent.task, let dateStr = intent.datetime, let date = parseISO8601(dateStr) {
-            prepareReminderForConfirmation(title: task, date: date)
+        guard let rawTask = intent.task?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !rawTask.isEmpty else {
+            debugLog("❌ Reminder intent missing task description.")
+            return
+        }
+
+        let now = Date()
+        var dueDate: Date
+
+        if let dateStr = intent.datetime,
+           let parsed = parseISO8601(dateStr) {
+            if parsed > now {
+                debugLog("⏰ Parsed reminder datetime: '\(dateStr)' → \(parsed)")
+                dueDate = parsed
+            } else {
+                debugLog("⚠️ Reminder datetime is in the past: '\(dateStr)' → \(parsed). Using now + 24h fallback.")
+                dueDate = Calendar.current.date(byAdding: .day, value: 1, to: now) ?? now.addingTimeInterval(86400)
+            }
         } else {
-            debugLog("❌ Failed to parse reminder intent: Task=\(intent.task ?? "nil"), Date=\(intent.datetime ?? "nil")")
+            debugLog("⚠️ No datetime provided for reminder. Using now + 1h fallback.")
+            dueDate = Calendar.current.date(byAdding: .hour, value: 1, to: now) ?? now.addingTimeInterval(3600)
         }
+
+        prepareReminderForConfirmation(title: rawTask, date: dueDate)
     }
     
     
+    ///Make the new Calendar Event for the .sheet confirmation
+    ///1.    Ensure title is valid (non-empty, trimmed)
+    ///2.   Fallback to now + 1 hour if datetime is missing or invalid
+    ///3.    Ensure endDate = startDate + 1hr by default
+    ///4. if the event was in the past also fallback to now plus 24hrs
     private func handleCalendarIntent(_ intent: IntentClassificationResponse) {
-        
-        if let title = intent.title,
-           let dateStr = intent.datetime,
-           let date = parseISO8601(dateStr) { // already in local time if it has +02:00
-            
-            
-            print("parsed: \(dateStr) → \(date)")
-            print("device time zone: \(TimeZone.current)")
-//            let newEvent = EKEvent(eventStore: self.eventStore)
-//            newEvent.title = title
-//            newEvent.startDate = date
-//            newEvent.endDate = date.addingTimeInterval(3600)
-//            newEvent.location = intent.location
-//            newEvent.calendar = self.eventStore.defaultCalendarForNewEvents
-            self.pendingCalendarEvent = EventWrapper(title: title, startDate: date, endDate: date.addingTimeInterval(3600), location: intent.location)
+        guard let rawTitle = intent.title?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !rawTitle.isEmpty else {
+            debugLog("❌ Calendar intent missing title.")
+            return
         }
+
+        let now = Date()
+        var startDate: Date
+
+        if let dateStr = intent.datetime,
+           let parsed = parseISO8601(dateStr) {
+            if parsed > now {
+                debugLog("📅 Parsed future calendar datetime: '\(dateStr)' → \(parsed)")
+                startDate = parsed
+            } else {
+                debugLog("⚠️ Parsed datetime is in the past: '\(dateStr)' → \(parsed). Using now + 24h fallback.")
+                startDate = Calendar.current.date(byAdding: .day, value: 1, to: now) ?? now.addingTimeInterval(86400)
+            }
+        } else {
+            debugLog("⚠️ No valid datetime found. Using now + 1h fallback.")
+            startDate = Calendar.current.date(byAdding: .hour, value: 1, to: now) ?? now.addingTimeInterval(3600)
+        }
+
+        let endDate = Calendar.current.date(byAdding: .hour, value: 1, to: startDate) ?? startDate.addingTimeInterval(3600)
+
+        self.pendingCalendarEvent = EventWrapper(
+            title: rawTitle,
+            startDate: startDate,
+            endDate: endDate,
+            location: intent.location
+        )
     }
     
+    
+    ///Process a user question by generating embeddings
+       ///1. Ensure `query` field exists in the intent
+       ///2. Launch async task to request OpenAI embeddings for the question
+       ///3. Capture and store any embedding errors for display
     private func handleQuestionIntent(_ intent: IntentClassificationResponse) {
         
         if let userQuestion = intent.query {
@@ -251,7 +327,12 @@ class OpenAIViewModel: ObservableObject {
             }
         }
     }
+
     
+    ///Process a user intent to save information (not a question)
+       ///1. Ensure `memory` field exists in the intent
+       ///2. Launch async task to generate embeddings for the info
+       ///3. Save result for later storage and handle possible errors
     private func handleSaveInfoIntent(_ intent: IntentClassificationResponse) {
         
         if let newInfo = intent.memory {
@@ -265,6 +346,10 @@ class OpenAIViewModel: ObservableObject {
         }
     }
     
+    ///Parses a date string in ISO 8601 format into a `Date` object
+       ///1. Tries standard `.withInternetDateTime` format first (no fractional seconds)
+       ///2. If that fails, retries with `.withFractionalSeconds` included
+       ///3. Returns a valid `Date` or `nil` if both attempts fail
     private func parseISO8601(_ string: String) -> Date? {
         let formatter = ISO8601DateFormatter()
         
@@ -279,7 +364,12 @@ class OpenAIViewModel: ObservableObject {
         return formatter.date(from: string)
     }
     
-    /// Creates a Reminder using EventKit
+    
+    ///Create a new Reminder and store it in `pendingReminder` for confirmation
+        ///1. Initializes `EKReminder` with title and default calendar
+        ///2. Attaches a single alarm for the specified due date
+        ///3. Wraps into `ReminderWrapper` for use in the UI
+        ///4. Intended for pre-confirmation use before saving to EventKit
     func prepareReminderForConfirmation(title: String, date: Date) {
         debugLog("prepareReminderForConfirmation CALLED")
         let reminder = EKReminder(eventStore: self.eventStore)
@@ -291,6 +381,11 @@ class OpenAIViewModel: ObservableObject {
     }
     
 
+    ///Save a prepared Reminder to the user’s reminders using EventKit
+        ///1. Requests reminder permissions safely using a local `EKEventStore`
+        ///2. Builds a new `EKReminder` from `pendingReminder` wrapper values
+        ///3. Ensures calendar is writable before attempting to save
+        ///4. On success, clears `pendingReminder`; otherwise sets `reminderError`
     @MainActor
     func savePendingReminder() async -> Bool {
         debugLog("savePendingReminder CALLED")
@@ -339,7 +434,13 @@ class OpenAIViewModel: ObservableObject {
             return false
         }
     }
+
     
+    ///Save a prepared Calendar event using EventKit
+       ///1. Requests calendar permission using a local `EKEventStore` to avoid data races
+       ///2. Creates a new `EKEvent` from the `pendingCalendarEvent` wrapper
+       ///3. Ensures a valid, writable calendar is assigned
+       ///4. On success, saves the event and clears `pendingCalendarEvent`; logs error otherwise
     @MainActor
     func saveCalendarEvent() async -> Bool {
         debugLog("saveCalendarEvent CALLED")

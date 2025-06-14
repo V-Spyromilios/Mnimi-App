@@ -27,5 +27,7 @@
 		<string>SF-Mono-Semibold.otf</string>
 		<string>NewYork.ttf</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 </dict>
 </plist>

@@ -15,82 +15,9 @@ import SwiftData
 @MainActor
 struct Constants {
     
-//    static let assemblyCode = """
-//section .data
-//    message db 'LOGIN', 0
-//
-//section .bss
-//    len resb 1
-//
-//section .text
-//    global _start
-//
-//_start:
-//    mov ecx, message
-//    mov ebx, 0
-//get_len:
-//    cmp byte [ecx + ebx], 0
-//    je done
-//    inc ebx
-//    jmp get_len
-//done:
-//    mov [len], ebx
-//    mov eax, 4
-//    mov ebx, 1
-//    mov ecx, message
-//    mov edx, [len]
-//    int 0x80
-//    mov eax, 1
-//    xor ebx, ebx
-//    int 0x80
-//""".trimmingCharacters(in: .whitespacesAndNewlines)
-    
-    
-//    static let rectCornerRad: CGFloat = 50
-//    
-//    static let textEditorHeight: CGFloat = 140
-//    
-//    static let smallTextEditorHeight: CGFloat = 50
-//    
-//    static let contentUnaivalableOffset: CGFloat = 40
-//    
-//    static let buttonHeight: CGFloat = 50
-//    
-//    static let backgroundSpeed: CGFloat = 0.4
-//    
-//    static let standardCardPadding: CGFloat = 16
-//    
-//    static let showLangDuration: CGFloat = 4.5
-    
     static let entitlementID: String = "manager"
 }
 
-
-//extension String {
-//    func deletingPrefix(_ prefix: String) -> String {
-//        guard self.hasPrefix(prefix) else { return self }
-//        return String(self.dropFirst(prefix.count))
-//    }
-//
-//    func deletingSuffix(_ suffix: String) -> String {
-//        guard self.hasSuffix(suffix) else { return self }
-//        return String(self.dropLast(suffix.count))
-//    }
-//}
-
-
-//extension View {
-//    @MainActor
-//    func hideKeyboard() {
-//        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-//    }
-//    @MainActor
-//    func navigationBarTitleView<Content: View>(_ content: @escaping () -> Content) -> some View {
-//        self.navigationBarItems(leading: content())
-//    }
-//    
-//    
-//}
 
 func userDefaultsKeyExists(_ key: String) async -> Bool {
     // running only in a background task
@@ -99,67 +26,8 @@ func userDefaultsKeyExists(_ key: String) async -> Bool {
     }.value // Task returns 'Task<Bool, never>'
 }
 
-//func idealWidth(for availableWidth: CGFloat) -> CGFloat {
-//    
-//    if availableWidth < 800 {
-//        return availableWidth
-//    } else {
-//        
-//        return availableWidth * 0.6
-//    }
-//}
-
-
-@MainActor
-//final class KeyboardResponder: ObservableObject {
-//    
-//    @Published var currentHeight: CGFloat = 0
-//    private var keyboardVisible = false
-//    
-//    private var cancellables = Set<AnyCancellable>()
-//    
-//    init() {
-//        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
-//            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue }
-//            .map { $0.cgRectValue.height }
-//            .receive(on: RunLoop.main)
-//            .sink { [weak self] height in
-//                self?.currentHeight = height
-//                self?.keyboardVisible = true
-//            }
-//            .store(in: &cancellables)
-//        
-//        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
-//            .receive(on: RunLoop.main)
-//            .sink { [weak self] _ in
-//                withAnimation(.easeInOut) {
-//                    self?.currentHeight = 0
-//                    self?.keyboardVisible = false
-//                }
-//            }
-//            .store(in: &cancellables)
-//    }
-//    
-//    @objc func keyboardWillShow(notification: Notification) {
-//        if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
-//            let keyboardHeight = keyboardFrame.cgRectValue.height
-//            self.currentHeight = keyboardHeight
-//            self.keyboardVisible = true
-//            
-//        }
-//    }
-//    
-//    @objc func keyboardWillHide(notification: Notification) {
-//        // no ' DispatchQueue.main.async {' as class marked @MainActor
-//        withAnimation(.easeInOut) {
-//            self.currentHeight = 0
-//            self.keyboardVisible = false
-//        }
-//    }
-//}
 
 // MARK: from ISO8601 to displayed date and time. I use ISO8601 to convert Date() to string for pinecone's timestamp:String.
-
 
 func dateFromISO8601(isoDate: String) -> Date? {
     let formatter = ISO8601DateFormatter()
@@ -256,296 +124,24 @@ func clean(text: String) -> String {
 }
 
 
-//struct BlurView: UIViewRepresentable {
-//    var style: UIBlurEffect.Style
-//    
-//    func makeUIView(context: Context) -> UIVisualEffectView {
-//        return UIVisualEffectView(effect: UIBlurEffect(style: style))
-//    }
-//    
-//    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-//        uiView.effect = UIBlurEffect(style: style)
-//    }
-//}
 
-
-//final class ShakeEffect: GeometryEffect {
-//    private let amount: CGFloat //max movement(displacement)
-//    private let shakesPerUnit: CGFloat // complete back and forth per animation
-//    var animatableData: CGFloat
-//
-//    init(amount: CGFloat = 5, shakesPerUnit: CGFloat = 2, animatableData: CGFloat) {
-//        self.amount = amount
-//        self.shakesPerUnit = shakesPerUnit
-//        self.animatableData = animatableData
-//    }
-//
-//    func effectValue(size: CGSize) -> ProjectionTransform {
-//        let translation = amount * sin(animatableData * .pi * shakesPerUnit)
-//        return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
-//    }
-//}
-
-
-//struct NeumorphicStyle: ViewModifier {
-//    var cornerRadius: CGFloat
-//    var color: Color
-//    
-//    func body(content: Content) -> some View {
-//        content
-//            .padding(20)
-//            .background(
-//                color
-//                    .cornerRadius(cornerRadius)
-//                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 10, y: 10)
-//                    .shadow(color: Color.white.opacity(0.7), radius: 10, x: -5, y: -5)
-//            )
-//    }
-//}
-
-
-@MainActor
-//struct RecordButton: View {
-//
-//    var onPressBegan: () -> Void
-//    var onPressEnded: () -> Void
-//    var onConfirmRecording: (_: URL) -> Void
-//
-//    @State private var isRecording = false
-//    @State private var countdownTime = 15
-//    @State private var timer: Timer?
-//
-//    @Binding var showAlert: Bool
-//    @Binding var isProcessing: Bool
-//    @Binding var showPopup: Bool
-//    @ObservedObject var audioRecorder: AudioRecorder
-//    @Binding var showReminderSuccess: Bool
-//    @State private var animateThumbsUp = false
-//    
-//    var body: some View {
-//        ZStack(alignment: .trailing) {
-//            // Reserve space for pop-up, even when it's hidden
-//            if showPopup {
-//                recordingPopup
-//                    .transition(.opacity.combined(with: .scale)) // ✅ Consistent transition
-//            } else {
-//                Color.clear // ✅ Invisible placeholder to prevent shifting
-//                    .frame(width: 120, height: 100)
-//            }
-//            
-//            recordButton
-//        }
-//        .animation(.spring(), value: showPopup) // ✅ Apply animation globally
-//    }
-//
-//    private var recordingPopup: some View {
-//        VStack {
-//            if isProcessing {
-//                ProgressView()
-//                    .foregroundColor(.white.opacity(0.8))
-//                    .scaleEffect(2.5) // Adjust this to match the thumb image
-//                        .frame(width: 100, height: 100)
-//                    .contentTransition(.opacity)
-//            } else if showReminderSuccess {
-//                Image(systemName: "hand.thumbsup.circle.fill")
-//                    .resizable()
-//                    .scaledToFit()
-//                    .foregroundColor(.white.opacity(0.8))
-//                    .frame(width: 80, height: 80)
-//                    .contentTransition(.symbolEffect(.replace))
-//                    .symbolEffect(.bounce, value: animateThumbsUp)
-//                    .onAppear {
-//                                animateThumbsUp = true
-//                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-//                                    withAnimation {
-//                                        showReminderSuccess = false
-//                                        showPopup = false
-//                                        animateThumbsUp = false
-//                                    }
-//                                }
-//                            }
-////                    .onAppear {
-////                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-////                            withAnimation {
-////                                showReminderSuccess = false
-////                                showPopup = false
-////                            }
-////                        }
-////                    }
-//            }
-//            else {
-//                Text("\(countdownTime) sec")
-//                    .font(.body)
-//                    .fontDesign(.rounded)
-//                    .bold()
-//                    .contentTransition(.numericText())
-//                    .padding(.top, 8)
-//                
-//                HStack(spacing: 10) {
-//                    Button(action: confirmRecording) {
-//                        Image(systemName: "checkmark.circle.fill")
-//                            .resizable()
-//                            .frame(width: 35, height: 35)
-//                            .foregroundColor(.green)
-//                    }
-//                    Button(action: cancelRecording) {
-//                        Image(systemName: "xmark.circle.fill")
-//                            .resizable()
-//                            .frame(width: 35, height: 35)
-//                            .foregroundColor(.red)
-//                    }
-//                }
-//                .padding(.bottom, 8)
-//            }
-//        }
-//        .frame(width: 120, height: 100)
-//        .background(.ultraThinMaterial.opacity(0.7))
-//        .cornerRadius(10)
-//        .shadow(radius: 10)
-//        .offset(x: -110, y: -10)
-//        .transition(.scale.combined(with: .opacity)) // Consistent animation for both appearing and disappearing
-//        .animation(.spring(), value: showPopup)
-//    }
-//    
-//    private var recordButton: some View {
-//        Image(systemName: "mic.circle.fill")
-//            .resizable()
-//            .scaledToFit()
-//            .frame(width: 50, height: 50)
-//            .foregroundColor(.blue)
-//            .scaleEffect(isRecording ? 1.2 : 1.0, anchor: .bottom) // ✅ Scaling from the bottom prevents jumping
-//            .animation(.easeInOut, value: isRecording)
-//            .background(
-//                RoundedRectangle(cornerRadius: 10)
-//                    .fill(
-//                        LinearGradient(
-//                            gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.blue.opacity(0.2), Color.blue.opacity(0.3), Color.blue.opacity(0.4)]),
-//                            startPoint: .top,
-//                            endPoint: .bottom
-//                        )
-//                    )
-//                    .frame(width: 75, height: 75)
-//            )
-//            .scaleEffect(isRecording ? 1.1 : 1.0)
-//            .animation(.easeInOut, value: isRecording)
-//            .gesture(recordGesture)
-//    }
-//    
-//    private var recordGesture: some Gesture {
-//        DragGesture(minimumDistance: 0)
-//            .onChanged { _ in
-//                Task {
-//                    guard !isRecording else { return } // Prevent multiple triggers
-//
-//                        deletePreviousRecording()
-//                        showPopup = true
-//                        try? await audioRecorder.startRecording()
-//                        startCountdown()
-//                        isRecording = true
-//                        onPressBegan()
-//                }
-//            }
-//            .onEnded { _ in
-//                guard isRecording else { return } // Ensure recording is active before stopping
-//                stopRecording()
-//            }
-//    }
-//    
-//    private func confirmRecording() {
-//        
-//        guard let recordedFile = audioRecorder.audioURL else { // Use stored URL instead of stopping again
-//            debugLog("❌ No recorded file found")
-//            return
-//        }
-//        debugLog("✅ Recording confirmed: \(recordedFile)")
-//        withAnimation {
-//            isProcessing = true
-//        }
-//        
-//         onConfirmRecording(recordedFile)
-//        resetState()
-//    }
-//    
-//    
-//    
-//    
-//    private func cancelRecording() {
-//        
-//        debugLog("❌ Audio discarded.")
-//        if audioRecorder.audioURL != nil {
-//            _ = audioRecorder.stopRecording()
-//            audioRecorder.deleteAudioAndUrl()
-//        }
-//        showPopup = false
-//        resetState()
-//    }
-//    
-//    private func resetState() {
-//        withAnimation {
-//            isRecording = false }
-//        timer?.invalidate()
-//        timer = nil
-//        countdownTime = 15
-//    }
-//    
-//    private func deletePreviousRecording() {
-//        if let url = audioRecorder.audioURL {
-//            try? FileManager.default.removeItem(at: url) // Delete previous recording
-//            debugLog("🗑 Deleted previous recording: \(url)")
-//
-//        }
-//    }
-//    
-//    private func startCountdown() {
-//        withAnimation {
-//            countdownTime = 15 }
-//        timer?.invalidate()
-//        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//            DispatchQueue.main.async {
-//                
-//                if countdownTime > 0 {
-//                    withAnimation {
-//                        countdownTime -= 1 }
-//                } else {
-//                    timer?.invalidate()
-//                    stopRecording()
-//                    withAnimation {
-//                        timer = nil
-//                        countdownTime = 0 }
-//                }
-//            }
-//        }
-//    }
-//    
-//    private func stopRecording() {
-//        timer?.invalidate()
-//        timer = nil
-//        
-//        guard isRecording else {
-//            debugLog("⚠️ stopRecording() called, but no active recording.")
-//            return
-//        }
-//        
-//        if audioRecorder.isRecording {
-//            let _ = audioRecorder.stopRecording()
-//            
-//            DispatchQueue.main.async {
-////                if let recordedFile = recordedFile {
-////                    self.recordingURL = recordedFile
-////                    print("⏳ Recording ended, file saved: \(recordedFile)")
-////                } else {
-////                    print("❌ stopRecording() failed to retrieve a valid file URL")
-////                }
-//                withAnimation {
-//                    isRecording = false
-//                    countdownTime = countdownTime
-//                }
-//                onPressEnded()
-//            }
-//        }
-//    }
-//}
-
+func withTimeout<T: Sendable>(
+    seconds: Double,
+    operation: @MainActor @escaping () async throws -> T
+) async throws -> T {
+    try await withThrowingTaskGroup(of: T.self) { group in
+        group.addTask {
+            try await operation()
+        }
+        group.addTask {
+            try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            throw AppNetworkError.timeout("Operation timed out after \(seconds) seconds.")
+        }
+        let result = try await group.next()!
+        group.cancelAll()
+        return result
+    }
+}
 
 final class ReminderWrapper: ObservableObject, Identifiable {
     let id = UUID()
@@ -835,16 +431,18 @@ struct AnyDisplayableError: DisplayableError {
 enum EmbarkationStep: Int, CaseIterable {
     case welcomeIntro
     case idleExplanation
-    case vaultSwipeExplanation
-    case settingsSwipeExplanation
+    case micExplanation
     case inputExplanation
+    case inputExplanationRemindersCalendar
+    case vaultSwipeExplanation
     case vaultListExplanation
+    case settingsSwipeExplanation
     case requestPermissions
 
     /// Determines where the annotation box appears (top or bottom).
     var annotationAlignment: Alignment {
         switch self {
-        case .idleExplanation, .vaultSwipeExplanation, .settingsSwipeExplanation, .welcomeIntro, .requestPermissions:
+        case .idleExplanation, .vaultSwipeExplanation, .settingsSwipeExplanation, .welcomeIntro, .requestPermissions, .micExplanation, .inputExplanationRemindersCalendar:
             return .top
         case .inputExplanation, .vaultListExplanation:
             return .bottom

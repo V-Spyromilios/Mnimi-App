@@ -20,9 +20,11 @@ struct KEmbarkationView: View {
     @AppStorage("reminderPermissionGranted") var reminderPermissionGranted: Bool = false
     @AppStorage("microphonePermissionGranted") var microphonePermissionGranted: Bool = false
     
+    @State private var pulse: Bool = false //for demo the mic explanation
+    
     var body: some View {
         ZStack(alignment: .bottom) {
-            KMockedView(for: step, animateSwap: $animateSwipe, animateSwap2: $animateSwap2)
+            KMockedView(for: step, animateSwap: $animateSwipe, animateSwap2: $animateSwap2, pulse: $pulse)
                 .transition(.opacity)
             VStack {
                 if step.annotationAlignment == .top {
@@ -134,7 +136,7 @@ struct KEmbarkationView: View {
 
 @MainActor
 @ViewBuilder
-func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateSwap2: Binding<Bool>) -> some View {
+func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateSwap2: Binding<Bool>, pulse: Binding<Bool>) -> some View {
     let audioRecorder = AudioRecorder()
     switch step {
     case .idleExplanation:
@@ -149,13 +151,55 @@ func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateS
                 .padding(.trailing, 100)
                 .disabled(true)
         }
-    case .inputExplanation:
+    case .micExplanation:
+        ZStack(alignment: .bottomTrailing) {
+            Image("bg10")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+
+            // Animate waveform icon to simulate recording
+            Image(systemName: "waveform.badge.microphone")
+                .font(.system(size: 58))
+                .foregroundColor(.white.opacity(pulse.wrappedValue ? 1.0 : 0.7))
+                .scaleEffect(pulse.wrappedValue ? 1.1 : 0.95)
+                .symbolEffect(.variableColor)
+                .shadow(radius: 10)
+                .padding(.bottom, 140)
+                .padding(.trailing, 100)
+                .onAppear {
+                    withAnimation(
+                        .easeInOut(duration: 0.8)
+                        .repeatForever(autoreverses: true)
+                    ) {
+                        pulse.wrappedValue = true
+                    }
+                }
+        }
+    case .inputExplanation: //Keep it for question
         ZStack {
             KiokuBackgroundView()
             VStack {
-                TextEditor(text: .constant("Remind me to call Jane tomorrow"))
+                TextEditor(text: .constant("What was the proposed title of my thesis?"))
                     .font(.custom("New York", size: 20))
                 
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .foregroundStyle(.black)
+                    .lineSpacing(7)
+                    .padding(.top, 40)
+                    .padding(.leading, 30)
+                    .frame(height: 150)
+                saveButton
+                Spacer()
+            }.frame(width: UIScreen.main.bounds.width)
+        }
+    case .inputExplanationRemindersCalendar:
+        ZStack {
+            KiokuBackgroundView()
+            VStack {
+                TextEditor(text: .constant("Add to my Calendar: Rust meetup in Berlin next Thursday at 19:00"))
+                    .font(.custom("New York", size: 20))
                     .scrollContentBackground(.hidden)
                     .background(Color.clear)
                     .foregroundStyle(.black)
@@ -277,12 +321,18 @@ func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateS
         ZStack {
             KiokuBackgroundView()
             
-            Text("One last thing!\nWe need your permission to access your microphone, Calendar and Reminders.\n\nThis allows voice input for creating notes, asking questions and creating reminders and callendar events.\n\nTap \"Go\"")
-                .font(.custom("New York", size: 18))
-                .multilineTextAlignment(.center)
-                .foregroundColor(.black)
-                .kiokuShadow()
-                .padding(.horizontal, 30)
+            Text("""
+    One last thing!
+    
+    Mnimi needs permission to access your microphone, Calendar, and Reminders.
+
+    This allows you to use voice input to create notes, ask questions, and add calendar events or reminders.
+    """)
+            .font(.custom("New York", size: 18))
+            .multilineTextAlignment(.center)
+            .foregroundColor(.black)
+            .kiokuShadow()
+            .padding(.horizontal, 30)
             
         }
     }
@@ -349,7 +399,7 @@ private var demoVectors: [Vector] {
         Vector(
             id: UUID().uuidString,
             metadata: [
-                "description": "Idea for the next app: microservices with Go and grpc on private cloud - focus on ios and visionOS",
+                "description": "Idea for the next app: microservices with Rust and grpc on private cloud - focus on ios and visionOS",
                 "timestamp": formatter.string(from: now.addingTimeInterval(+86500 * 3)) // 3 days ago
             ]
         ),
@@ -389,23 +439,48 @@ private var demoVectors: [Vector] {
 func annotationText(for step: EmbarkationStep) -> String {
     switch step {
     case .idleExplanation:
-        return "This is your starting screen.\nPress and hold the microphone to speak and save:\nNotes, Reminders, or Calendar events.\n\nPrefer typing?\nJust tap anywhere on the main screen to bring up the keyboard and write instead."
-        
+        return """
+    This is your starting screen.
+
+    Press and hold the microphone to speak and save notes, reminders, or calendar events.
+
+    Prefer typing? Just tap anywhere to bring up the input view.
+    """
+
     case .inputExplanation:
-        return "Type a new info, a reminder or calendar event and press Go. Mnimi will remember it for you."
+        return "Ask Mnimi questions like: ‘What did I save about my thesis?`\nMnimi remembers everything you've entered and will try to answer it for you."
         
     case .vaultSwipeExplanation:
-        return "In the starting screen swipe from the left edge to reveal your Vault.\nIt holds everything you've saved."
+        return "Swipe left to open your Vault — everything you’ve saved lives there."
         
     case .vaultListExplanation:
         return "This is your Vault.\nHere you can review, edit, or delete anything you’ve saved.\nJust tap an item to manage it."
         
     case .settingsSwipeExplanation:
-        return "Swipe from the right edge to open Settings.\nFrom there, you can change preferences — or revisit this tour anytime."
+        return "Swipe right to open Settings and revisit this tour."
     case .welcomeIntro:
-        return "Welcome to your Mnimi"
+        return "Welcome to Mnimi.\n\nYour second brain: just speak or type to save anything you want to remember — and Mnimi will help you recall it later."
     case .requestPermissions:
         return "Request Permissions"
+    case .inputExplanationRemindersCalendar:
+        return """
+Add a Reminder or Calendar Event by speaking or typing.
+
+You can say or write things like:
+“Remind me to call Alex tomorrow at 10.”
+or
+“Add to my Calendar: The museum holds a photo exhibition on Saturday at 3 PM.”
+
+Mnimi will understand and help you save it.
+"""
+    case .micExplanation:
+        return """
+        Press and hold the mic to record your thoughts or add reminders and calendar events.
+
+        Mnimi will transcribe your voice and save it instantly.
+
+        (Microphone access is required for this to work.)
+        """
     }
 }
 

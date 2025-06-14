@@ -18,6 +18,7 @@ enum AppNetworkError: Error {
     case noDataReceived
     case serializationError(String)
     case unknownError(String)
+    case timeout(String)
     
     var errorDescription: String {
         switch self {
@@ -39,6 +40,8 @@ enum AppNetworkError: Error {
             return "Invalid DB-P URL."
         case .noDataReceived:
             return "No Data received."
+        case .timeout(let message):
+            return "Api call takes too long. \(message)"
         }
     }
 }

@@ -94,19 +94,32 @@ extension OpenAIError {
 }
 
 
+/// `OpenAIActor` is responsible for making network requests to OpenAI APIs
+/// including Whisper for transcription, and GPT-based endpoints for embeddings and chat responses.
+/// It encapsulates all OpenAI-related logic in a thread-safe, async environment.
 actor OpenAIActor {
-    
+
     private let apiKey: String?
+    private let requestTimeoutSeconds: Double = 6
     
     // MARK: - Initializer
     init() {
         self.apiKey = ApiConfiguration.openAIKey
-       // debugLog("OpenAI Actor Initialized with apiKey: \(String(describing: apiKey))")
     }
     
     // MARK: - Methods
-    
-    /// Calls OpenAI Whisper API with retry mechanism
+
+    /// Transcribes audio from a local file using the OpenAI Whisper API.
+        ///
+        /// - Parameter fileURL: The URL of the audio file to transcribe (e.g., .m4a or .wav).
+        /// - Returns: A `WhisperResponse` containing the transcribed text.
+        /// - Throws:
+        ///   - `AppNetworkError.apiKeyNotFound` if the API key is missing.
+        ///   - `AppNetworkError.invalidOpenAiURL` if the Whisper endpoint URL is malformed.
+        ///   - `AppNetworkError.invalidResponse` if the server returns a non-200 status.
+        ///   - Any decoding or upload error from `URLSession`.
+        ///
+        /// Includes a retry mechanism (3 attempts with delay) to handle transient failures.
     func transcribeAudio(fileURL: URL) async throws -> WhisperResponse {
         let maxAttempts = 3
         var attempts = 0
@@ -130,10 +143,10 @@ actor OpenAIActor {
                 
                 let formData = try createMultipartFormData(fileURL: fileURL, boundary: boundary)
                 
-                // Swift 6: Improved structured concurrency (async let for request)
-                async let (data, response) = URLSession.shared.upload(for: request, from: formData)
-                
-                let (receivedData, receivedResponse) = try await (data, response)
+                // Swift 6: Improved structured concurrency (async let for request) and timeout check
+                let (receivedData, receivedResponse): (Data, URLResponse) = try await withTimeout(seconds: requestTimeoutSeconds) {
+                    try await URLSession.shared.upload(for: request, from: formData)
+                }
 
                 guard let httpResponse = receivedResponse as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                     throw AppNetworkError.invalidResponse
@@ -152,7 +165,18 @@ actor OpenAIActor {
         throw lastError ?? AppNetworkError.unknownError("Failed to transcribe audio.")
     }
     
-    /// Creates a multipart/form-data body for the Whisper API request
+   
+    /// Constructs multipart/form-data body for an audio transcription request to OpenAI Whisper API.
+       ///
+       /// - Parameters:
+       ///   - fileURL: The local file URL of the audio to be uploaded (e.g., .m4a, .wav).
+       ///   - boundary: A unique boundary string used to separate parts in the multipart form.
+       /// - Returns: A `Data` object representing the full multipart request body.
+       /// - Throws: An error if the file data cannot be read from disk.
+       ///
+       /// Includes:
+       /// - The audio file under the `"file"` field.
+       /// - The model name (`"gpt-4o-transcribe"`) under the `"model"` field.
     private func createMultipartFormData(fileURL: URL, boundary: String) throws -> Data {
 
         var body = Data()
@@ -186,7 +210,15 @@ actor OpenAIActor {
         return body
     }
     
-    // Fetch Embeddings
+    
+    /// Sends a text input to the OpenAI Embeddings API and returns the resulting vector representation.
+        ///
+        /// - Parameter inputText: The string to embed (e.g., a user query or memory).
+        /// - Returns: A decoded `EmbeddingsResponse` containing one or more float vectors.
+        /// - Throws: An error if the request fails, the response is invalid, or decoding fails.
+        ///
+        /// Retries up to 3 times on transient network or decoding errors.
+        /// Uses the `text-embedding-3-large` model and application/json payload.
     func fetchEmbeddings(for inputText: String) async throws -> EmbeddingsResponse {
         
         let maxAttempts = 3
@@ -215,11 +247,9 @@ actor OpenAIActor {
                 let jsonData = try JSONSerialization.data(withJSONObject: requestBody, options: [])
                 request.httpBody = jsonData
                 
-                debugLog("Fetching Embeddings jsonData")
-                
-                let (data, response) = try await URLSession.shared.data(for: request)
-                
-                debugLog("Fetching Embeddings URLSession")
+                let (data, response): (Data, URLResponse) = try await withTimeout(seconds: requestTimeoutSeconds) {
+                    try await URLSession.shared.data(for: request)
+                }
                 
                 let httpresponse = response as? HTTPURLResponse
                 let code = httpresponse?.statusCode
@@ -230,13 +260,8 @@ actor OpenAIActor {
                     
                     throw AppNetworkError.invalidResponse
                 }
-                debugLog("Fetching Embeddings Before decoder")
-                
-                
+
                 let decoder = JSONDecoder()
-                
-                debugLog("Fetching Embeddings Will decode")
-                
                 let embeddingsResponse = try decoder.decode(EmbeddingsResponse.self, from: data)
 
                 return embeddingsResponse
@@ -257,7 +282,18 @@ actor OpenAIActor {
         throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during embeddings fetch.")
     }
     
-    /// Get GPT Response after question
+
+
+    /// Sends a user's question along with Pinecone-matched context to OpenAI GPT for a conversational answer.
+        ///
+        /// - Parameters:
+        ///   - vectorResponses: A list of `Match` objects retrieved from vector search (e.g., Pinecone).
+        ///   - question: The user's original query in plain text.
+        /// - Returns: A `String` containing the generated response from GPT.
+        /// - Throws: An error if the API call fails or if decoding the response fails.
+        ///
+        /// Uses the `gpt-4o` model with a low temperature (0.2) and retry logic (2 attempts).
+        /// Prepends a system prompt via `getGptPrompt()` to inject relevant memory before querying.
     func getGptResponse(vectorResponses: [Match], question: String) async throws -> String {
         let maxAttempts = 2
         var attempts = 0
@@ -285,7 +321,9 @@ actor OpenAIActor {
                 
                 request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
                 
-                let (data, response) = try await URLSession.shared.data(for: request)
+                let (data, response): (Data, URLResponse) = try await withTimeout(seconds: requestTimeoutSeconds) {
+                    try await URLSession.shared.data(for: request)
+                }
                 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                     throw AppNetworkError.invalidResponse
@@ -312,7 +350,18 @@ actor OpenAIActor {
         
         throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during GPT response fetch.")
     }
-    
+
+
+
+    /// Filters and sorts vector search matches by relevance score.
+       ///
+       /// - Parameters:
+       ///   - matches: An array of `Match` results from the vector database.
+       ///   - minScore: Minimum score threshold for inclusion (default is 0.3).
+       ///   - maxCount: Maximum number of top matches to return (default is 2).
+       /// - Returns: An array of the top `Match` objects sorted by descending score.
+       ///
+       /// Used to reduce noisy or low-confidence results before passing context to GPT.
     private func prepareTopMatches(matches: [Match], minScore: Double = 0.3, maxCount: Int = 2) -> [Match] {
         return matches
             .filter { $0.score >= minScore }
@@ -320,7 +369,21 @@ actor OpenAIActor {
             .prefix(maxCount)
             .map { $0 }
     }
+
+
+
+
     
+
+    /// Constructs a GPT prompt combining user query and top-ranked vector search matches.
+        ///
+        /// - Parameters:
+        ///   - matches: Raw matches from vector similarity search (e.g. Pinecone).
+        ///   - question: The user’s natural language question.
+        /// - Returns: A formatted prompt string to be used in a GPT chat completion.
+        ///
+        /// Includes ISO 8601 and human-readable date, embeds top matches if available,
+        /// and sets detailed GPT instructions for language consistency and clarity.
     private func getGptPrompt(matches: [Match], question: String) -> String {
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.timeZone = TimeZone.current
@@ -337,7 +400,7 @@ actor OpenAIActor {
         let formattedMatches = topMatches.map { match in
             let score = String(format: "%.2f", match.score)
             return """
-            - Description: \(match.metadata?["description"] ?? "N/A")
+            - Saved info: \(match.metadata?["description"] ?? "N/A")
             - Timestamp: \(match.metadata?["timestamp"] ?? "N/A")
             - Score: \(score)
             """
@@ -361,13 +424,15 @@ actor OpenAIActor {
 
     \(formattedMatchesString)
     """ : "") + """
-
+    
     Instructions:
     - If the retrieved information is relevant, use it in your reply.
     - If not relevant, answer from general knowledge. Optionally suggest that providing more specific information can improve future answers.
     - Be clear, concise, and helpful.
     - Avoid unnecessary details or mentioning the database.
     - Today is \(readableDateString). Current ISO 8601 time: \(isoDateString) (use only if helpful).
+    - You must treat "today", "tomorrow", "yesterday", or any weekday (e.g. "Saturday") relative to the current date provided.
+    - For example: If today is Saturday, then "tomorrow" is Sunday.
     - Always Respond using the same language detected in the user's question.
     - If multiple languages are detected, use the dominant one.
     - Never switch languages inside your reply.
@@ -380,10 +445,15 @@ actor OpenAIActor {
     
     
     
-    /// Ask GPT to classify the provided transcript into: is_question, is_reminder, or is_calendar.
-    /// - If it's a question, `getGptResponse()` should be used for the reply.
-    /// - If it's calendar-related, EventKit should be used.
-    /// - If it should be added to the calendar, `EKEvent` should be used.
+    
+    /// Sends transcribed voice input to GPT for intent classification.
+    ///
+    /// - Parameter transcript: The user’s voice input, already transcribed into plain text.
+    /// - Returns: A strongly typed `IntentClassificationResponse` representing the detected intent and extracted metadata.
+    ///
+    /// Uses a custom prompt to instruct GPT on extracting structured fields.
+    /// Retries up to 2 times and ensures extracted JSON is parsed safely.
+    /// If classification fails or response is `unknown`, throws an error.
     func analyzeTranscript(transcript: String) async throws -> IntentClassificationResponse {
         let maxAttempts = 2
         var attempts = 0
@@ -413,7 +483,9 @@ actor OpenAIActor {
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.httpBody = try JSONSerialization.data(withJSONObject: requestBody, options: [])
                 
-                let (data, response) = try await URLSession.shared.data(for: request)
+                let (data, response): (Data, URLResponse) = try await withTimeout(seconds: requestTimeoutSeconds) {
+                    try await URLSession.shared.data(for: request)
+                }
                 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                     throw AppNetworkError.invalidResponse
@@ -439,7 +511,10 @@ actor OpenAIActor {
                 debugLog("📝 Extracted JSON from OpenAI:\n\(rawJSON)")
                 
                 // Step 3: Decode the extracted JSON into IntentClassificationResponse
-                let jsonData = rawJSON.data(using: .utf8)!
+                guard let jsonData = rawJSON.data(using: .utf8) else {
+                    throw AppNetworkError.unknownError("Failed to encode raw JSON for decoding")
+                }
+                
                 let gptResponse = try JSONDecoder().decode(IntentClassificationResponse.self, from: jsonData)
                 
                 // Ensure response contains a valid intent type
@@ -459,9 +534,17 @@ actor OpenAIActor {
         
         throw lastError ?? AppNetworkError.unknownError("An unknown error occurred during GPT transcript type fetch.")
     }
-    
-    
-    ///Get the actual prompt for asking the gpt to check the type of question user asked.
+
+
+
+
+    /// Builds the prompt for GPT to classify user intent from  input.
+    ///
+    /// - Returns: A detailed system prompt that defines intent types and extraction rules for GPT.
+    ///
+    /// Includes instructions to return only raw JSON, in a fixed schema,
+    /// with ISO 8601 date parsing for natural language time expressions.
+    /// Also provides the current time for grounding vague expressions like "tomorrow".
     private func getGptPromptForTranscript() -> String {
         let formatter = ISO8601DateFormatter()
         formatter.timeZone = TimeZone.current

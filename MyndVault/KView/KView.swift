@@ -104,7 +104,7 @@ struct KView: View {
 #endif
                 }
                 
-                ScrollView {
+//                ScrollView {
                     VStack {
                         if viewState != .idle {
                             InputView(
@@ -120,9 +120,9 @@ struct KView: View {
                         }
                     }
                     .frame(width: geo.size.width, height: geo.size.height)
-                    Spacer()
-                }
-                .scrollIndicators(.hidden)
+//                    Spacer()
+//                }
+//                .scrollIndicators(.hidden)
                 .ignoresSafeArea()
                 //                .frame(width: geo.size.width)
                 .zIndex(0)
@@ -339,12 +339,38 @@ struct InputView: View {
             
             VStack {
                 if kViewState == .response {
-                    ScrollView {
-                        responseTextView
-                            .padding(.top, 45)
-                    }.scrollIndicators(.hidden)
-                    stateContent
-                        .padding(.top, 40)
+                    VStack(spacing: 24) {
+                        ScrollView {
+                            Text(text)
+                                .font(.custom("New York", size: 20))
+                                .foregroundColor(.black)
+                                .multilineTextAlignment(.leading)
+                                .padding(.horizontal, 30)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        Button("OK") {
+                            withAnimation {
+                                openAiManager.clearManager()
+                                pineconeManager.clearManager()
+                                text = ""
+                            }
+                            isEditorFocused = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                                withAnimation(.easeInOut(duration: duration)) {
+                                    kViewState = .idle
+                                }
+                            }
+                        }
+                        .font(.custom("New York", size: 22))
+                        .bold()
+                        .foregroundColor(.black)
+                        .padding(.bottom, 30)
+                    }
+                    .padding(.top, 50)
+                    .padding(.horizontal)
+                    .frame(maxHeight: .infinity, alignment: .top)
                 }
                 else if userWantsReminderButNoPermission {
                     KErrorView(title: "Permission Required", message: "Seems that you requested to save a new Reminder but you haven;t granted permission yet. Please go to your device settings and grant permission to save Reminders.", ButtonText: "OK", retryAction: {
@@ -365,7 +391,7 @@ struct InputView: View {
                 }
                 Spacer()
             }.padding(.top, 15)
-                .frame(height: UIScreen.main.bounds.height)
+//                .frame(height: UIScreen.main.bounds.height)
         }
         .onChange(of: openAiManager.userIntent) { _, intent in
             debugLog("✅ Trigger received — handle intent")
@@ -380,7 +406,7 @@ struct InputView: View {
                 toResponseView()
             }
         }
-        .sheet(item: $openAiManager.pendingReminder) { wrapper in
+        .fullScreenCover(item: $openAiManager.pendingReminder) { wrapper in
             NavigationStack {
                 
                 ReminderConfirmationView(wrapper: wrapper) {
@@ -415,10 +441,10 @@ struct InputView: View {
                     toinputStateFromState()
                 }
             }
-            
-//            .presentationDetents([.medium, .large])
         }.ignoresSafeArea(.keyboard, edges: .all)
-        .sheet(item: $openAiManager.pendingCalendarEvent) { wrapper in
+        
+        
+        .fullScreenCover(item: $openAiManager.pendingCalendarEvent) { wrapper in
             NavigationStack {
             CalendarConfirmationView(wrapper: wrapper) {
                 Task {
@@ -791,70 +817,67 @@ struct ReminderConfirmationView: View {
     @ObservedObject var wrapper: ReminderWrapper
     var onConfirm: () -> Void
     var onCancel: () -> Void
-    
+
     var body: some View {
-        ZStack {
-            // Background behind the form
-            let reminderImage = randomBackgroundName()
-            Image(reminderImage)
-                .resizable()
-                .scaledToFill()
-            
-                .opacity(0.9)
-                .ignoresSafeArea()
-            
-            LinearGradient(
-                gradient: Gradient(colors: [Color.gray.opacity(0.9), Color.clear, Color.clear]),
-                startPoint: .top,
-                endPoint: .center
-            )
-            .ignoresSafeArea()
-            
-            // The form
-            ScrollView {
-            VStack(spacing: 0) {
-                Form {
-                    TextField("Title", text: $wrapper.title)
-                        .font(.custom("New York", size: 18))
-                        .textInputAutocapitalization(.sentences)
-                    
-                    DatePicker(
-                        "Date", selection: Binding(
-                            get: { wrapper.dueDate ?? Date() },
-                            set: { wrapper.dueDate = $0 }
-                        ),
-                        displayedComponents: [.date, .hourAndMinute]
-                    )
-                    
-                    TextField("Notes", text: Binding(
-                        get: { wrapper.notes ?? "" },
-                        set: { wrapper.notes = $0 }
-                    ))
+        VStack(spacing: 0) {
+            Form {
+                TextField("Title", text: $wrapper.title)
                     .font(.custom("New York", size: 18))
                     .textInputAutocapitalization(.sentences)
-                    
-                }
-                .navigationTitle("Confirm Reminder").foregroundStyle(.black)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) { Button("Save", action: onConfirm) }
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel", action: onCancel) }
-                }
-                .formStyle(.automatic)
-                Spacer()
-            }.frame(maxWidth: 500)
-            
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                .shadow(radius: 4)
-                .padding(.horizontal, 42)
-        }.ignoresSafeArea(.keyboard, edges: .all)
+
+                DatePicker(
+                    "Date", selection: Binding(
+                        get: { wrapper.dueDate ?? Date() },
+                        set: { wrapper.dueDate = $0 }
+                    ),
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                .font(.custom("New York", size: 18))
+
+                TextField("Notes", text: Binding(
+                    get: { wrapper.notes ?? "" },
+                    set: { wrapper.notes = $0 }
+                ))
+                .font(.custom("New York", size: 18))
+                .textInputAutocapitalization(.sentences)
             }
-           
-            .navigationTitle(Text("Confirm Reminder"))
-            .navigationBarTitleDisplayMode(.inline)
-        
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            .frame(maxWidth: 500)
+            .padding(.horizontal)
+        }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background {
+            ZStack {
+                let reminderImage = randomBackgroundName()
+                Image(reminderImage)
+                    .resizable()
+                    .scaledToFill()
+                    .opacity(0.9)
+                    .ignoresSafeArea()
+
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.gray.opacity(0.9), .clear, .clear]),
+                    startPoint: .top,
+                    endPoint: .center
+                )
+                .ignoresSafeArea()
+            }
+        }
+        .navigationTitle("Confirm Reminder")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save", action: onConfirm)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+            }
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel", action: onCancel)
+                    .font(.system(size: 18, weight: .regular, design: .rounded))
+            }
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
-    
 }
 
 struct CalendarConfirmationView: View {
@@ -864,9 +887,43 @@ struct CalendarConfirmationView: View {
     var onCancel: () -> Void
 
     var body: some View {
-        NavigationView {
+        VStack(spacing: 0) {
+            // FORM
+            Form {
+                TextField("Title", text: Binding(
+                    get: { wrapper.title },
+                    set: { wrapper.title = $0 }
+                ))
+                .font(.custom("New York", size: 18))
+                .textInputAutocapitalization(.sentences)
+
+                DatePicker("Start", selection: Binding(
+                    get: { wrapper.startDate },
+                    set: { wrapper.startDate = $0 }
+                ), displayedComponents: [.date, .hourAndMinute])
+                .font(.custom("New York", size: 18))
+
+                DatePicker("End", selection: Binding(
+                    get: { wrapper.endDate },
+                    set: { wrapper.endDate = $0 }
+                ), displayedComponents: [.date, .hourAndMinute])
+                .font(.custom("New York", size: 18))
+
+                TextField("Location", text: Binding(
+                    get: { wrapper.location ?? "" },
+                    set: { wrapper.location = $0 }
+                ))
+                .font(.custom("New York", size: 18))
+                .textInputAutocapitalization(.sentences)
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            .frame(maxWidth: 500)
+            .padding(.horizontal)
+        }
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background {
             ZStack {
-                // Background
                 let calendarImage = randomBackgroundName()
                 Image(calendarImage)
                     .resizable()
@@ -874,65 +931,29 @@ struct CalendarConfirmationView: View {
                     .blur(radius: 1)
                     .opacity(0.8)
                     .ignoresSafeArea()
-                
+
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.gray.opacity(0.9), .clear]),
+                    gradient: Gradient(colors: [Color.gray.opacity(0.9), .clear, .clear]),
                     startPoint: .top,
                     endPoint: .center
                 )
                 .ignoresSafeArea()
-                
-                VStack {
-                    Form {
-                        TextField("Title", text: Binding(
-                            get: { wrapper.title },
-                            set: { wrapper.title = $0 }
-                        ))
-                        .font(.custom("New York", size: 18))
-                        .textInputAutocapitalization(.sentences)
-                        
-                        DatePicker("Start", selection: Binding(
-                            get: { wrapper.startDate },
-                            set: { wrapper.startDate = $0 }
-                        ), displayedComponents: [.date, .hourAndMinute])
-                        .font(.custom("New York", size: 18))
-                        
-                        DatePicker("End", selection: Binding(
-                            get: { wrapper.endDate ?? Date().addingTimeInterval(3600) },
-                            set: { wrapper.endDate = $0 }
-                        ), displayedComponents: [.date, .hourAndMinute])
-                        .font(.custom("New York", size: 18))
-                        
-                        TextField("Location", text: Binding(
-                            get: { wrapper.location ?? "" },
-                            set: { wrapper.location = $0 }
-                        ))
-                        .font(.custom("New York", size: 18))
-                        .textInputAutocapitalization(.sentences)
-                    }
-                    .scrollContentBackground(.hidden)
-                    .background(Color.clear)
-                    .frame(maxWidth: 500)
-                    .padding(.horizontal)
-                    
-                    Spacer() // keeps top alignment
-                }
-                .frame(maxHeight: .infinity, alignment: .top)
             }
-            .navigationTitle("Confirm Event")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: onConfirm)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .font(.system(size: 18, weight: .regular, design: .rounded))
-                }
+        }
+        .navigationTitle("Confirm Event")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save", action: onConfirm)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+            }
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel", action: onCancel)
+                    .font(.system(size: 18, weight: .regular, design: .rounded))
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        
     }
 }
 
