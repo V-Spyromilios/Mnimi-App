@@ -465,7 +465,7 @@ struct InputView: View {
                                 withAnimation {
                                     kViewState = .onError(AnyDisplayableError(OpenAIError.unknown(
                                         NSError(domain: "CalendarError", code: 0, userInfo: [
-                                            NSLocalizedDescriptionKey: "Calendar event could not be saved."
+                                            NSLocalizedDescriptionKey: "Sorry, something went wrong while saving your calendar event.\nPlease try again."
                                         ])
                                     )))
                                 }
@@ -496,7 +496,7 @@ struct InputView: View {
     private var textEditor: some View {
         TextEditor(text: $text)
             .focused($isEditorFocused)
-            .font(.custom("New York", size: 20))
+            .font(.custom(NewYorkFont.regular.rawValue, size: 20))
             .if(userIntentType == .saveInfo) { $0.italic() }
             .foregroundColor(.black)
             .scrollContentBackground(.hidden)
@@ -518,12 +518,7 @@ struct InputView: View {
                 title: error.title,
                 message: error.message, ButtonText: "Retry",
                 retryAction: {
-                    withAnimation {
-                        kViewState = .input
-                        text = ""
-                    }
-                    openAiManager.reminderError = nil
-                    openAiManager.calendarError = nil
+                   resetToInputState()
                 }
             )
             .transition(.scale.combined(with: .opacity))
@@ -537,6 +532,16 @@ struct InputView: View {
         default:
             EmptyView()
         }
+    }
+    private func resetToInputState() {
+        withAnimation {
+            kViewState = .input
+            text = ""
+        }
+        openAiManager.clearManager()
+        pineconeManager.clearManager()
+        
+        isEditorFocused = true
     }
     
     private var apiCallLabelView: some View {
@@ -570,7 +575,7 @@ struct InputView: View {
     }
     
     private var responseOKButtonView: some View {
-        Button("OK") {
+        Button {
             withAnimation {
                 openAiManager.clearManager()
                 pineconeManager.clearManager()
@@ -582,12 +587,16 @@ struct InputView: View {
                     kViewState = .idle
                 }
             }
+        } label: {
+                Text("Ask or save something else?")
+                .font(.custom(NewYorkFont.italic.rawValue, size: 20))
+                    .bold()
+                    .foregroundColor(.black)
+                    .underline()
         }
         .buttonStyle(.plain)
-        .underline()
-        .font(.custom("New York", size: 22))
-        .bold()
-        .foregroundColor(.black)
+        .accessibilityLabel("Confirm response")
+        .accessibilityHint("Returns to the input screen so you can continue")
     }
     
     private var saveButton: some View {
@@ -609,12 +618,14 @@ struct InputView: View {
         }
         .buttonStyle(.plain)
         .underline()
-        .font(.custom("New York", size: 22))
+        .font(.custom(NewYorkFont.regular.rawValue, size: 22))
         .bold()
         .foregroundColor(.black)
         .padding(.top, 20)
         .transition(.opacity)
         .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        .accessibilityLabel("Submit your text")
+        .accessibilityHint("Starts the process of saving or answering your request")
     }
     
     
@@ -775,6 +786,28 @@ struct InputView: View {
                         }
                     }
                 }
+                .onChange(of: openAiManager.gptResponseError) { _, error in
+                    if let error = error {
+                        withAnimation {
+                            kViewState = .onError(AnyDisplayableError(error))
+                        }
+                    }
+                }
+                .onChange(of: openAiManager.transriptionError) { _, error in
+                    if let error = error {
+                        withAnimation {
+                            kViewState = .onError(AnyDisplayableError(error))
+                        }
+                    }
+                }
+                .onChange(of: openAiManager.openAIErrorFromQuestion) { _, error in
+                    if let error = error {
+                        withAnimation {
+                            kViewState = .onError(AnyDisplayableError(error))
+                        }
+                    }
+                }
+            
                 .onChange(of: networkManager.hasInternet) { _, hasInternet in
                     if !hasInternet {
                         kViewState = .onError(AnyDisplayableError(PineconeError.networkUnavailable))

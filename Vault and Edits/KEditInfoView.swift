@@ -31,7 +31,7 @@ struct KEditInfoView: View {
                     // Description
                     if isReady && !viewModel.description.isEmpty {
                         TextEditor(text: $viewModel.description)
-                            .font(.custom("New York", size: 18))
+                            .font(.custom(NewYorkFont.italic.rawValue, size: 19))
                             .padding(.leading)
                             .scrollContentBackground(.hidden)
                             .background(Color.clear)
@@ -55,7 +55,7 @@ struct KEditInfoView: View {
                     
                     // Timestamp (non-editable)
                     Text(viewModel.timestamp)
-                        .font(.custom("New York", size: 14))
+                        .font(.custom(NewYorkFont.italic.rawValue, size: 14))
                         .italic()
                         .foregroundColor(.gray)
                         .frame(maxWidth: UIScreen.main.bounds.width * 0.6, alignment: .trailing)
@@ -69,20 +69,20 @@ struct KEditInfoView: View {
                 VStack(spacing: 0) {
                     HStack {
                         Button("Cancel", action: onCancel)
-                            .font(.custom("New York", size: 19))
+                            .font(.custom(NewYorkFont.regular.rawValue, size: 19))
                             .foregroundColor(.black)
                         
                         Spacer()
                         
                         Button("Delete", action: delete)
-                            .font(.custom("New York", size: 18))
+                            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
                             .foregroundColor(.black)
                         
                         Spacer()
                         
                         
                         Button("Save", action: upsert)
-                            .font(.custom("New York", size: 18))
+                            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
                             .foregroundColor(.black)
                         
                         #if DEBUG
@@ -90,7 +90,7 @@ struct KEditInfoView: View {
                         
                         
                         Button("Paywall", action: showDebugPaywall)
-                            .font(.custom("New York", size: 18))
+                            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
                             .foregroundColor(.black)
                         #endif
                     }
@@ -110,7 +110,9 @@ struct KEditInfoView: View {
                 }
             }
             .fullScreenCover(isPresented: $showPaywall) {
-                CustomPaywallView(onCancel: {} )
+                CustomPaywallView(onCancel: {
+                    showPaywall.toggle()
+                } )
             }
             
             .hideKeyboardOnTap()

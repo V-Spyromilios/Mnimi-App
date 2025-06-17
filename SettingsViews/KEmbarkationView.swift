@@ -28,17 +28,13 @@ struct KEmbarkationView: View {
                 .transition(.opacity)
             VStack {
                 if step.annotationAlignment == .top {
-                    annotationBox(
-                        annotationText(for: step),
-                        fontWeight: step == .welcomeIntro ? .semibold : .regular,
-                        fontSize: step == .welcomeIntro ? 22 : 18
-                    )
-                    .padding(.top, step.annotationPadding)
+                    annotationText(for: step)
+                        .padding(.top, step.annotationPadding)
                     Spacer()
                     nextButton
                 } else {
                     Spacer()
-                    annotationBox(annotationText(for: step))
+                    annotationText(for: step)
                         .padding(.bottom, step.annotationPadding)
                     nextButton
                         .padding(.bottom, 20)
@@ -58,12 +54,13 @@ struct KEmbarkationView: View {
                 Button(nextButtonTitle) {
                     advanceStep()
                 }
-                .font(.custom("New York", size: 20))
+                .font(.custom(NewYorkFont.italic.rawValue, size: 22))
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
                 .background(.ultraThinMaterial)
                 .clipShape(Capsule())
                 .foregroundColor(.black)
+                .kiokuShadow()
             }
         }
     }
@@ -105,6 +102,7 @@ struct KEmbarkationView: View {
         .background(.ultraThinMaterial)
         .clipShape(Capsule())
         .foregroundColor(.black)
+        .kiokuShadow()
     }
 
     @MainActor
@@ -309,10 +307,11 @@ func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateS
         ZStack {
             KiokuBackgroundView()
             
-            Text("Mnimi helps you remember anything.\n\nSpeak or type, and Mnimi will store your notes, reminders, or calendar events.")
-                .font(.custom("New York", size: 18))
+            Text("Mnimi helps you remember anything.\nSpeak or type, and Mnimi will store your notes, reminders, or calendar events.")
+                .font(.custom(NewYorkFont.italic.rawValue, size: 19))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.black)
+                .lineSpacing(8)
                 .kiokuShadow()
                 .padding(.horizontal, 30)
             
@@ -328,7 +327,7 @@ func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateS
 
     This allows you to use voice input to create notes, ask questions, and add calendar events or reminders.
     """)
-            .font(.custom("New York", size: 18))
+            .font(.custom(NewYorkFont.italic.rawValue, size: 19))
             .multilineTextAlignment(.center)
             .foregroundColor(.black)
             .kiokuShadow()
@@ -436,60 +435,99 @@ private var demoVectors: [Vector] {
 }
 
 
-func annotationText(for step: EmbarkationStep) -> String {
+@MainActor
+@ViewBuilder
+func annotationText(for step: EmbarkationStep) -> some View {
     switch step {
     case .idleExplanation:
-        return """
-    This is your starting screen.
+        annotationBox {
+            Text("""
+            This is your starting screen.
 
-    Press and hold the microphone to speak and save notes, reminders, or calendar events.
+            Press and hold the microphone to speak and save notes, reminders, or calendar events.
 
-    Prefer typing? Just tap anywhere to bring up the input view.
-    """
+            Prefer typing? Just tap anywhere to bring up the input view.
+            """)
+            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+        }
 
     case .inputExplanation:
-        return "Ask Mnimi questions like: ‘What did I save about my thesis?`\nMnimi remembers everything you've entered and will try to answer it for you."
-        
+        annotationBox {
+            Text("""
+            Ask Mnimi questions like: “What did I save about my thesis?”
+
+            Mnimi remembers everything you've entered and will try to answer it for you.
+            """)
+            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+        }
+
     case .vaultSwipeExplanation:
-        return "Swipe left to open your Vault — everything you’ve saved lives there."
-        
+        annotationBox {
+            Text("Swipe left to open your Vault — everything you’ve saved lives there.")
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+        }
+
     case .vaultListExplanation:
-        return "This is your Vault.\nHere you can review, edit, or delete anything you’ve saved.\nJust tap an item to manage it."
-        
+        annotationBox {
+            Text("""
+            This is your Vault.
+
+            Here you can review, edit, or delete anything you’ve saved.
+            Just tap an item to manage it.
+            """)
+            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+        }
+
     case .settingsSwipeExplanation:
-        return "Swipe right to open Settings and revisit this tour."
+        annotationBox {
+            Text("Swipe right to open Settings and revisit this tour.")
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+        }
+
     case .welcomeIntro:
-        return "Welcome to Mnimi.\n\nYour second brain: just speak or type to save anything you want to remember — and Mnimi will help you recall it later."
+        annotationBox {
+            Text("Welcome to Mnimi.\n\n")
+                .font(.custom(NewYorkFont.heavy.rawValue, size: 22))
+            +
+            Text("Your second brain: just speak or type to save anything you want to remember — and Mnimi will help you recall it later.")
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+        }
+
     case .requestPermissions:
-        return "Request Permissions"
+        EmptyView()
+
     case .inputExplanationRemindersCalendar:
-        return """
-Add a Reminder or Calendar Event by speaking or typing.
+        annotationBox {
+            Text("""
+            Add a Reminder or Calendar Event by speaking or typing.
 
-You can say or write things like:
-“Remind me to call Alex tomorrow at 10.”
-or
-“Add to my Calendar: The museum holds a photo exhibition on Saturday at 3 PM.”
+            You can say or write things like:
+            “Remind me to call Alex tomorrow at 10.”
+            or
+            “Add to my Calendar: The museum holds a photo exhibition on Saturday at 3 PM.”
 
-Mnimi will understand and help you save it.
-"""
+            Mnimi will understand and help you save it.
+            """)
+            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+        }
+
     case .micExplanation:
-        return """
-        Press and hold the mic to record your thoughts or add reminders and calendar events.
+        annotationBox {
+            Text("""
+            Press and hold the mic to record your thoughts or add reminders and calendar events.
 
-        Mnimi will transcribe your voice and save it instantly.
+            Mnimi will transcribe your voice and save it instantly.
 
-        (Microphone access is required for this to work.)
-        """
+            (Microphone access is required for this to work.)
+            """)
+            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+        }
     }
 }
 
 @MainActor
-func annotationBox(_ text: String, fontWeight: Font.Weight = .regular, fontSize: CGFloat = 18) -> some View {
-    Text(text)
-        .font(.custom("New York", size: fontSize))
-        .fontWeight(fontWeight)
-        .kiokuShadow()
+func annotationBox<Content: View>(_ content: @escaping () -> Content) -> some View {
+    content()
         .padding()
         .background(.ultraThinMaterial)
         .cornerRadius(20)
@@ -497,4 +535,5 @@ func annotationBox(_ text: String, fontWeight: Font.Weight = .regular, fontSize:
         .multilineTextAlignment(.center)
         .foregroundColor(.black)
         .frame(width: UIScreen.main.bounds.width - 10)
+        .kiokuShadow()
 }

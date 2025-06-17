@@ -45,6 +45,8 @@
 		E8A450DF2DCA51B3008E86B7 /*  DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A450DE2DCA51B3008E86B7 /*  DeleteAccountView.swift */; };
 		E8A450E12DCA64FA008E86B7 /* ApiCallUsageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A450E02DCA64FA008E86B7 /* ApiCallUsageManager.swift */; };
 		E8AE7BEC2DC62E21002CBCF1 /* KEmbarkationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */; };
+		E8B480F72E017E4D00C36A2E /* NewYorkMedium-Heavy.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8B480F62E017E4D00C36A2E /* NewYorkMedium-Heavy.otf */; };
+		E8B480F92E01820600C36A2E /* NewYork.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E8B480F82E01820600C36A2E /* NewYork.ttf */; };
 		E8BD3DEB2DF324E800165BAD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8BD3DEA2DF324E700165BAD /* WidgetKit.framework */; };
 		E8BD3DEC2DF324E800165BAD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E86BE7632C5684550030C81B /* SwiftUI.framework */; };
 		E8BD3DF72DF324E800165BAD /* MnimiWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E8BD3DE92DF324E700165BAD /* MnimiWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -121,6 +123,8 @@
 		E8A450DE2DCA51B3008E86B7 /*  DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " DeleteAccountView.swift"; sourceTree = "<group>"; };
 		E8A450E02DCA64FA008E86B7 /* ApiCallUsageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallUsageManager.swift; sourceTree = "<group>"; };
 		E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEmbarkationView.swift; sourceTree = "<group>"; };
+		E8B480F62E017E4D00C36A2E /* NewYorkMedium-Heavy.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NewYorkMedium-Heavy.otf"; sourceTree = "<group>"; };
+		E8B480F82E01820600C36A2E /* NewYork.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NewYork.ttf; sourceTree = "<group>"; };
 		E8B72E902BC93B9600E0C90D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E8BD3DE92DF324E700165BAD /* MnimiWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MnimiWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8BD3DEA2DF324E700165BAD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -228,10 +232,9 @@
 		E8459EC62BC1E3BE00CE34A7 /* MyndVault */ = {
 			isa = PBXGroup;
 			children = (
+				E8B480FA2E01823100C36A2E /* Fonts */,
 				E84707842DD89E76008B9EA4 /* AppRootView.swift */,
-				E8BDF9C32CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf */,
 				E8B72E902BC93B9600E0C90D /* Info.plist */,
-				E84203E62DBBA15500DFCFE2 /* NewYorkItalic.ttf */,
 				E8FA7F182BC5D3C60012EBF6 /* MyndVault.entitlements */,
 				E82F45582BC2A72100945312 /* Managers */,
 				E82F454B2BC2A6D100945312 /* OpenAIKey.plist */,
@@ -258,6 +261,17 @@
 				E8BD3DEA2DF324E700165BAD /* WidgetKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E8B480FA2E01823100C36A2E /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				E8B480F82E01820600C36A2E /* NewYork.ttf */,
+				E8B480F62E017E4D00C36A2E /* NewYorkMedium-Heavy.otf */,
+				E8BDF9C32CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf */,
+				E84203E62DBBA15500DFCFE2 /* NewYorkItalic.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		E8BD3DFC2DF329F700165BAD /* Errors- Error Views */ = {
@@ -442,6 +456,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E8B480F92E01820600C36A2E /* NewYork.ttf in Resources */,
+				E8B480F72E017E4D00C36A2E /* NewYorkMedium-Heavy.otf in Resources */,
 				E84203E72DBBA15500DFCFE2 /* NewYorkItalic.ttf in Resources */,
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
 				E86AD9A62DC5639600AD434C /* Launch Screen.storyboard in Resources */,
@@ -697,7 +713,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.3.2;
+				MARKETING_VERSION = 4.3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -738,7 +754,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.3.2;
+				MARKETING_VERSION = 4.3.3;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

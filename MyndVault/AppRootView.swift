@@ -10,6 +10,8 @@ import SwiftData
 
 struct AppRootView: View {
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var usageManager: ApiCallUsageManager
+    @Environment(\.scenePhase) private var scenePhase
 
     @Binding var showOnboarding: Bool
     @Binding var hasSeenOnboarding: Bool
@@ -21,14 +23,19 @@ struct AppRootView: View {
     //for widgets:
     @State private var launchURL: URL? = nil
     @State private var showVault = false
+    
+    @AppStorage("accountDeleted") private var accountDeleted: Bool = false
 
     var body: some View {
+        if !accountDeleted {
+
         KView(launchURL: $launchURL, showVault: $showVault)
             .environmentObject(pineconeViewModel)
             .onAppear {
                 if !hasSeenOnboarding {
                     showOnboarding = true
                 }
+                usageManager.refresh()
             }
             .fullScreenCover(isPresented: $showOnboarding) {
                 onboardingSheet
@@ -40,6 +47,14 @@ struct AppRootView: View {
                     showVault = true
                 }
             }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    usageManager.refresh()
+                }
+            }
+        } else {
+            KAccountDeletedView()
+        }
     }
 
     @ViewBuilder

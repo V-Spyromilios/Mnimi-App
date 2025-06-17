@@ -134,14 +134,19 @@ struct CustomPaywallView: View {
 
     private func purchase(package: Package) {
         isPurchasing = true
-        Purchases.shared.purchase(package: package) { _, _, error, userCancelled in
+        Purchases.shared.purchase(package: package) { transaction, info, error, userCancelled in
             DispatchQueue.main.async {
                 isPurchasing = false
+
                 if let error = error {
                     purchaseError = error.localizedDescription
-                }
-                else if  userCancelled {
+                } else if userCancelled {
                     purchaseError = "Purchase cancelled."
+                } else if let transaction = transaction, let info = info {
+                    // Purchase successful
+                    onCancel() // Dismiss paywall
+                } else {
+                    purchaseError = "Unknown issue during purchase."
                 }
             }
         }

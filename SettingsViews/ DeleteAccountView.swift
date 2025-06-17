@@ -14,6 +14,9 @@ struct KDeleteAccountView: View {
     @State private var showError = false
     @State private var deletionSuccess = false
     @State private var swiftDataError: String? = nil
+    
+    @AppStorage("accountDeleted") private var accountDeleted: Bool = false
+    
     @Environment(\.modelContext) private var context
     var onCancel: () -> Void
 
@@ -27,7 +30,7 @@ struct KDeleteAccountView: View {
 
                 if deletionSuccess == false {
                     Text("Are you sure?")
-                        .font(.custom("New York", size: 24))
+                        .font(.custom("NewYorkMedium-Heavy", size: 24))
                         .fontWeight(.semibold)
                         .foregroundColor(.black)
                         .kiokuShadow()
@@ -42,7 +45,7 @@ struct KDeleteAccountView: View {
                     Spacer()
                 } else {
                     Text("Your account was deleted.")
-                        .font(.custom("New York", size: 24))
+                        .font(.custom("NewYorkMedium-Heavy", size: 24))
                         .fontWeight(.semibold)
                         .foregroundColor(.black)
                         .kiokuShadow()
@@ -56,64 +59,69 @@ struct KDeleteAccountView: View {
                     Spacer()
                 }
                 VStack(spacing: 16) {
-                    Button(action: {
-                        Task {
-                            isDeleting = true
-                            let success = await pineconeManager.deleteAllVectorsInNamespace()
-                            
-                            if success {
-                                // Delete all VectorEntity objects from SwiftData
-                                do {
-                                    let fetchDescriptor = FetchDescriptor<VectorEntity>()
-                                    let localVectors = try context.fetch(fetchDescriptor)
-                                    for vector in localVectors {
-                                        context.delete(vector)
-                                    }
-                                    try context.save()
-                                } catch {
-                                    await MainActor.run {
-                                        swiftDataError = "Error deleting local data."
-                                    }
-                                    debugLog("DeleteAccountView :: Error deleting local SwiftData vectors: \(error)")
-                                }
-                            }
-                            
-                            await MainActor.run {
-                                isDeleting = false
+                    if !deletionSuccess && !accountDeleted {
+                        Button(action: {
+                            Task {
+                                isDeleting = true
+                                let success = await pineconeManager.deleteAllVectorsInNamespace()
+                                
                                 if success {
-                                    deletionSuccess = true
-                                } else {
-                                    showError = true
+                                    // Delete all VectorEntity objects from SwiftData
+                                    do {
+                                        let fetchDescriptor = FetchDescriptor<VectorEntity>()
+                                        let localVectors = try context.fetch(fetchDescriptor)
+                                        for vector in localVectors {
+                                            context.delete(vector)
+                                        }
+                                        try context.save()
+                                    } catch {
+                                        await MainActor.run {
+                                            swiftDataError = "Error deleting local data."
+                                        }
+                                        debugLog("DeleteAccountView :: Error deleting local SwiftData vectors: \(error)")
+                                    }
+                                }
+                                
+                                await MainActor.run {
+                                    isDeleting = false
+                                    if success {
+                                        deletionSuccess = true
+                                        accountDeleted = true
+                                    } else {
+                                        showError = true
+                                    }
                                 }
                             }
-                        }
-                    }) {
-                        Text("Delete My Account")
-                            .font(.custom("New York", size: 20))
-                            .foregroundColor(.black)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                    }
+                        }) {
+                            Text("Delete My Account")
+                                .font(.custom(NewYorkFont.italic.rawValue, size: 20))
+                                .foregroundColor(.black)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .accessibilityLabel("Delete my account")
+                                .accessibilityHint("This will erase all your saved data from Mnimi permanently")
 
-                    if !deletionSuccess {
+                        }
+                    }
+                    if !deletionSuccess && !isDeleting {
                         Button(action: {
                             if !isDeleting {
                                 onCancel()
                             }
                         }) {
                             Text("Cancel")
-                                .font(.custom("New York", size: 18))
+                                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
                                 .foregroundColor(.black)
                                 .padding(.vertical, 16)
                         }
                         .disabled(isDeleting)
+                        .accessibilityLabel("Cancel deletion")
+                        .accessibilityHint("Go back without deleting your account")
                     }
                     
                     if showError, let error = pineconeManager.pineconeErrorOnDel {
                         Text(error.message)
-                            .font(.custom("New York", size: 16))
+                            .font(.custom(NewYorkFont.regular.rawValue, size: 17))
                             .foregroundColor(.red)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
@@ -121,7 +129,7 @@ struct KDeleteAccountView: View {
                     }
                     else if let error = swiftDataError {
                         Text(error)
-                            .font(.custom("New York", size: 16))
+                            .font(.custom(NewYorkFont.regular.rawValue, size: 17))
                             .foregroundColor(.red)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
@@ -131,12 +139,6 @@ struct KDeleteAccountView: View {
                 .padding(.horizontal, 40)
                 .padding(.bottom, 60)
             }
-//            .onAppear {
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-//                    withAnimation {
-//                        deletionSuccess.toggle() }
-//                }
-//            }
             .transition(.opacity)
         }
         .statusBarHidden()
@@ -147,4 +149,29 @@ struct KDeleteAccountView: View {
     KDeleteAccountView(onCancel: {
         
     })
+//    KAccountDeletedView()
+}
+
+
+struct KAccountDeletedView: View {
+    var body: some View {
+        ZStack {
+            KiokuBackgroundView()
+            VStack(spacing: 20) {
+                Spacer()
+                Text("Your account has been deleted.")
+                    .font(.custom(NewYorkFont.heavy.rawValue, size: 24))
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
+                Text("You can safely uninstall the app.")
+                    .font(.custom(NewYorkFont.regular.rawValue, size: 18))
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                Spacer()
+            }
+            .padding()
+        }
+    }
 }

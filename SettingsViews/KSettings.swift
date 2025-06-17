@@ -16,7 +16,6 @@ struct KSettings: View {
     @State private var canShowSubscription: Bool = true
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var usageManager: ApiCallUsageManager
-    @State private var isActiveSubscriber: Bool = false
     
     enum SettingsSheet: Identifiable {
         case aboutUs
@@ -50,29 +49,19 @@ struct KSettings: View {
                             openAppSettings()
                         } label: {
                             HStack {
-                                Text("App General Settings")
+                                Text("Open System Settings")
                                 Spacer()
                             }.padding(.top, 45)
                             
                         }.kiokuButton()
+                            .accessibilityLabel("Open system settings")
+                            .accessibilityHint("Opens the iOS settings for Mnimi")
                     }
                     
                     PermissionButtonGroup()
                     
-                    if !usageManager.canMakeApiCall() {
-                        Button {
-                            showPaywall()
-                        } label: {
-                            HStack {
-                                Text("Subscribe")
-                                Spacer()
-                            }.padding(.top, 45)
-                            
-                        }.kiokuButton()
-                    }
-                    
                     //MARK: Manage Subsription
-                    if isActiveSubscriber {
+                    if usageManager.isProUser {
                         Button {
                             openSubscriptionManagement()
                         } label: {
@@ -80,8 +69,22 @@ struct KSettings: View {
                                 Text("Manage Subscription")
                                 Spacer()
                             }
+                        }.kiokuButton()
+                            .accessibilityLabel("Manage subscription")
+                                .accessibilityHint("Opens your Apple subscription settings")
+                    } else {
+                        Button {
+                            showPaywall()
+                        } label: {
+                            HStack {
+                                Text("Get Unlimited Mnimi")
+                                Spacer()
+                            }
+                           
                             
                         }.kiokuButton()
+                            .accessibilityLabel("Get Unlimited Mnimi")
+                               .accessibilityHint("Subscribe for unlimited usage and faster responses")
                     }
                     
                     //MARK: Privacy Policy
@@ -95,6 +98,8 @@ struct KSettings: View {
                         }
                     }
                     .kiokuButton()
+                    .accessibilityLabel("Privacy policy")
+                    .accessibilityHint("Opens Mnimi’s privacy policy in your browser")
                     
                     
                     //MARK: Terms of Use
@@ -102,43 +107,51 @@ struct KSettings: View {
                         eula()
                     } label: {
                         HStack {
-                            Text("Terms of use")
+                            Text("Terms of Use")
                             Spacer()
                         }
                         //                        Image(systemName: "chevron.right")
                     } .kiokuButton()
+                        .accessibilityLabel("Terms of use")
+                        .accessibilityHint("Opens the Apple standard end user license agreement")
                     
                     //MARK: Open Support request
                     Button {
                         openSupportRequest()
                     } label: {
                         HStack {
-                            Text("Support Request")
+                            Text(" Get Help")
                             Spacer()
                         }
                         //                        Image(systemName: "chevron.right")
                     }.kiokuButton()
+                        .accessibilityLabel("Contact support")
+                        .accessibilityHint("Opens a support form to request help")
                     
                     //MARK: About Us
                     Button {
                         activeSheet = .aboutUs
                     } label: {
                         HStack {
-                            Text("About us")
+                            Text("About Us")
                             Spacer()
                         }
                     }
                     .kiokuButton()
+                    .accessibilityLabel("About us")
+                    .accessibilityHint("Learn about the story behind Mnimi")
                     
                     
                     Button {
                         activeSheet = .kEmbarkationView
                     } label: {
                         HStack {
-                            Text("See the Embarkation")
+                            Text("How Mnimi Works")
                             Spacer()
                         }
                     }.kiokuButton()
+                        .accessibilityLabel("How Mnimi works")
+                        .accessibilityHint("Replay the onboarding and learn how to use Mnimi")
                     
                     Button {
                         activeSheet = .deleteAccount
@@ -148,6 +161,8 @@ struct KSettings: View {
                             Spacer()
                         }
                     }.kiokuButton()
+                        .accessibilityLabel("Delete account")
+                        .accessibilityHint("Permanently delete your data and account from Mnimi")
                 }
                 .sheet(item: $activeSheet) { item in
                     switch item {
@@ -169,9 +184,7 @@ struct KSettings: View {
                 .frame(width: UIScreen.main.bounds.width)
         }
         .onAppear {
-            Task {
-                await checkSubscriptionStatus()
-            }
+            
             checkOpeningSettings()
             checkOpeningSubscriptions()
         }
@@ -198,21 +211,21 @@ struct KSettings: View {
         }
     }
     
-    private func checkSubscriptionStatus() async {
-        do {
-            let customerInfo = try await Purchases.shared.customerInfo()
-            if customerInfo.entitlements[Constants.entitlementID]?.isActive == true {
-                withAnimation {
-                    isActiveSubscriber = true }
-            } else {
-                withAnimation {
-                    isActiveSubscriber = false }
-            }
-        } catch {
-            // Handle error
-            debugLog("KSettings :: Error fetching customer info: \(error)")
-        }
-    }
+//    private func checkSubscriptionStatus() async {
+//        do {
+//            let customerInfo = try await Purchases.shared.customerInfo()
+//            if customerInfo.entitlements[Constants.entitlementID]?.isActive == true {
+//                withAnimation {
+//                    isActiveSubscriber = true }
+//            } else {
+//                withAnimation {
+//                    isActiveSubscriber = false }
+//            }
+//        } catch {
+//            // Handle error
+//            debugLog("KSettings :: Error fetching customer info: \(error)")
+//        }
+//    }
     
     private func eula() {
         if let url = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/") {
@@ -260,7 +273,7 @@ extension View {
 struct KiokuButtonStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .font(.custom("New York", size: 18))
+            .font(.custom(NewYorkFont.regular.rawValue, size: 18))
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.clear)

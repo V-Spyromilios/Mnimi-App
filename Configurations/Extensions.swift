@@ -442,9 +442,9 @@ enum EmbarkationStep: Int, CaseIterable {
     /// Determines where the annotation box appears (top or bottom).
     var annotationAlignment: Alignment {
         switch self {
-        case .idleExplanation, .vaultSwipeExplanation, .settingsSwipeExplanation, .welcomeIntro, .requestPermissions, .micExplanation, .inputExplanationRemindersCalendar:
+        case .idleExplanation, .vaultSwipeExplanation, .settingsSwipeExplanation, .welcomeIntro, .requestPermissions, .micExplanation:
             return .top
-        case .inputExplanation, .vaultListExplanation:
+        case .inputExplanation, .vaultListExplanation, .inputExplanationRemindersCalendar:
             return .bottom
         }
     }
@@ -513,4 +513,11 @@ extension View {
             }
         )
     }
+}
+
+
+enum NewYorkFont: String {
+    case regular = "NewYork-Regular"
+    case italic = "NewYork-RegularItalic"
+    case heavy = "NewYorkMedium-Heavy"
 }

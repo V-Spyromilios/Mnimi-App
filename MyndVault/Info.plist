@@ -26,6 +26,7 @@
 		<string>NewYorkItalic.ttf</string>
 		<string>SF-Mono-Semibold.otf</string>
 		<string>NewYork.ttf</string>
+		<string>NewYorkMedium-Heavy.otf</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>

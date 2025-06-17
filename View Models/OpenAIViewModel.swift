@@ -1,6 +1,6 @@
 //
 //  OpenAIViewModel.swift
-//  MyndVault
+//  Mnimi App
 //
 //  Created by Evangelos Spyromilios on 31.10.24.
 //
@@ -49,12 +49,12 @@ class OpenAIViewModel: ObservableObject {
     ///1. Clears all embedding data and string responses
     ///2. Resets transcription and any related errors
     ///3. Clears pending intent and reminder (but not calendar event)
-    ///4. Used after processing or cancelling a user interaction
+    ///4. Used after  cancelling a user interaction or error
     func clearManager() {
         embeddings = []
         embeddingsFromQuestion = []
         embeddingsCompleted = false
-        
+        openAIErrorFromQuestion = nil
         stringResponseOnQuestion = ""
         
         gptResponseError = nil
@@ -67,6 +67,8 @@ class OpenAIViewModel: ObservableObject {
             userIntent = nil
         }
         pendingReminder = nil
+        calendarError = nil
+        reminderError = nil
     }
     
 

@@ -6,9 +6,17 @@
 //
 
 import SwiftUI
+import Combine
 
 struct AboutUsView: View {
+    
+    @State private var cursorCancellable: AnyCancellable?
+    
     private let linkedInURL: URL = URL(string: "https://www.linkedin.com/in/evangelos-spyromilios/")!
+    
+    @State private var typewriterText = ""
+    @State private var showCursor = true
+    private let fullTypewriterText = "Quietly building? Me too. LinkedIn"
     
     var body: some View {
         ZStack {
@@ -16,27 +24,65 @@ struct AboutUsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     Text("The Developer")
-                        .font(.custom("New York", size: 28))
+                        .font(.custom(NewYorkFont.heavy.rawValue, size: 22))
                         .foregroundColor(.gray)
                         .fontWeight(.bold)
-                        .padding(.top, 30)
+                        .padding(.top, 25)
                         .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
+                    
 
-                    Text("This app is more than just a project—it’s a reflection of my journey.\n\nTransitioning into software development later in life wasn’t easy, but it was driven by a desire to create meaningful, distraction-free tools in a world of digital noise.\nMnimi was built with digital minimalism in mind, designed to help you store and retrieve your thoughts effortlessly, without stealing your attention.\n\nNo ads, no notifications, no personal data collection. - Just a simple, elegant interface that empowers you to remember what matters.\n\nCurious to connect? I’d love to hear from you.")
-                        .font(.custom("NewYork-RegularItalic", size: 17))
-                        .foregroundColor(.black)
-                        .multilineTextAlignment(.leading)
-                        .lineSpacing(4)
-                        .kiokuShadow()
+                    Text("""
+                    I didn’t set out to build yet another app.
 
-                    Button {
-                        openLinkedInProfile()
-                    } label: {
-                        Text("LinkedIn").underline().italic().fontWeight(.light).foregroundColor(.black)
-                            .font(.custom("NewYork-RegularItalic", size: 17))
+                    In 2021, I saw an ad for a coding school called 42 Wolfsburg. I got accepted and within weeks, I had packed my life and moved to Germany. That decision changed everything.
+                    
+                    Mnimi started because I kept forgetting things — ideas, details, appointments. Most note-taking apps are bloated, distracting, or built to harvest your data. I wanted something quieter. Something that respected my time and memory.
+
+                    I’m not a big company. I’m a solo developer, self-taught, building this between raising my kids and learning as I go.
+
+                    There are no investors here. No ads. No dark patterns. Just a clear goal: help people think better, remember more, and stay focused in a noisy world.
+                    """)
+                    .font(.custom(NewYorkFont.regular.rawValue, size: 17))
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(5)
+                    .kiokuShadow()
+
+                    Group {
+                        if typewriterText.contains("LinkedIn") {
+                            Button {
+                                openLinkedInProfile()
+                            } label: {
+                                (
+                                    Text("Quietly building? Me too. ")
+                                        .font(.custom(NewYorkFont.italic.rawValue, size: 17))
+                                        .foregroundColor(.black)
+                                    +
+                                    Text("LinkedIn")
+                                        .font(.custom(NewYorkFont.italic.rawValue, size: 17))
+                                        .italic()
+                                        .underline()
+                                        .foregroundColor(.black)
+                                )
+                                .kiokuShadow()
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Quietly building? Me too. I'm on LinkedIn.")
+                            .accessibilityHint("Opens the developer's LinkedIn profile in Safari")
+                        } else {
+                            HStack(spacing: 0) {
+                                Text(typewriterText)
+                                    .font(.custom(NewYorkFont.italic.rawValue, size: 17))
+                                    .italic()
+                                    .foregroundColor(.black)
+                                Text(showCursor ? "|" : " ")
+                                    .font(.custom(NewYorkFont.italic.rawValue, size: 17))
+                                    .foregroundColor(.black)
+                                    .transition(.opacity)
+                            }
                             .kiokuShadow()
+                        }
                     }
-                    .buttonStyle(.plain)
 
                     HStack {
                         Spacer()
@@ -47,17 +93,25 @@ struct AboutUsView: View {
                             }
                         }) {
                             (
-                                Text("Natively built with Apple's ")
-                                    .font(.custom("NewYork-RegularItalic", size: 14))
+                                Text("Built from scratch with Apple's ")
+                                    .font(.custom(NewYorkFont.italic.rawValue, size: 14))
                                     .italic()
                                     .foregroundColor(.black)
                                 +
-                                Text("SwiftUI")
-                                    .font(.custom("NewYork-RegularItalic", size: 14))
+                                Text("SwiftUI.")
+                                    .font(.custom(NewYorkFont.italic.rawValue, size: 14))
                                     .italic()
                                     .underline()
                                     .foregroundColor(.black)
-                            )
+                            
+                                +
+                                Text("\nNo templates. Just code, caffeine, and stubbornness.")
+                                    .font(.custom(NewYorkFont.italic.rawValue, size: 14))
+                                .italic()
+                               
+                                .foregroundColor(.black)
+                                )
+                            .lineSpacing(5)
                             .kiokuShadow()
                         }
                         .buttonStyle(.plain)
@@ -69,6 +123,25 @@ struct AboutUsView: View {
                 .padding(.horizontal, 24)
                 .frame(maxWidth: UIScreen.main.bounds.width, alignment: .leading)
             }.scrollIndicators(.hidden)
+                .onAppear {
+                    typewriterText = ""
+                    showCursor = true
+
+                    // Typewriter animation
+                    let characters = Array(fullTypewriterText)
+                    for i in characters.indices {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2 + Double(i) * 0.1) {
+                            typewriterText.append(characters[i])
+                        }
+                    }
+
+                    // Start blinking cursor safely on main actor
+                    cursorCancellable = Timer.publish(every: 0.4, on: .main, in: .common)
+                        .autoconnect()
+                        .sink { _ in
+                            showCursor.toggle()
+                        }
+                }
         }
        
     }

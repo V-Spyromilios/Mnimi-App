@@ -85,6 +85,7 @@ struct KVault: View {
         .onChange(of: entities) { _, newEntities in
             updateRecentNotesSharedDefaults(from: newEntities)
         }
+        .ignoresSafeArea(.keyboard, edges: .all)
     }
 
     private func errorView(_ message: String) -> some View {
@@ -266,13 +267,22 @@ struct KSearchBar: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
             
-            TextField("Search saved info...", text: $text)
-                .font(.custom("NewYork-RegularItalic", size: 15))
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                .foregroundColor(.black)
-                .focused($isFocused)
-                .submitLabel(.done)
+            ZStack(alignment: .leading) {
+                if text.isEmpty {
+                    Text("Search saved info...")
+                        .font(.custom(NewYorkFont.italic.rawValue, size: 15))
+                        .foregroundColor(.gray)
+                        .padding(.leading, 5)
+                }
+
+                TextField("", text: $text)
+                    .font(.custom(NewYorkFont.italic.rawValue, size: 15))
+                    .foregroundColor(.black)
+                    .scrollContentBackground(.hidden)
+                    .focused($isFocused)
+                    .background(Color.clear)
+                    .submitLabel(.done)
+            }
             
             if !text.isEmpty {
                 Button(action: { text = "" }) {
@@ -280,7 +290,7 @@ struct KSearchBar: View {
                         .foregroundColor(.gray)
                 }
             }
-        }
+        }.ignoresSafeArea(.keyboard, edges: .all)
         .padding(12)
         .onTapGesture {
             withAnimation {
