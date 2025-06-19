@@ -497,7 +497,7 @@ struct InputView: View {
         TextEditor(text: $text)
             .focused($isEditorFocused)
             .font(.custom(NewYorkFont.regular.rawValue, size: 20))
-            .if(userIntentType == .saveInfo) { $0.italic() }
+//            .if(userIntentType == .saveInfo) { $0.italic() }
             .foregroundColor(.black)
             .scrollContentBackground(.hidden)
             .background(Color.clear)

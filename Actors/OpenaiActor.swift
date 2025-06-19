@@ -427,15 +427,25 @@ actor OpenAIActor {
     
     Instructions:
     - If the retrieved information is relevant, use it in your reply.
-    - If not relevant, answer from general knowledge. Optionally suggest that providing more specific information can improve future answers.
-    - Be clear, concise, and helpful.
-    - Avoid unnecessary details or mentioning the database.
-    - Today is \(readableDateString). Current ISO 8601 time: \(isoDateString) (use only if helpful).
-    - You must treat "today", "tomorrow", "yesterday", or any weekday (e.g. "Saturday") relative to the current date provided.
+    - Only use retrieved information that clearly and directly relates to the user's question. Do not combine unrelated items.
+    - Do not infer or guess details that are not present in the retrieved info. If uncertain, state that the answer is incomplete.
+    - If the retrieved info lacks a date or full context, clearly state this in the reply rather than making assumptions.
+    - If retrieved info includes relative time expressions (e.g. “in 3 days”, “next week”), interpret them based on the associated timestamp.
+    - Use the provided timestamp to resolve when the note was written, and calculate the actual date if possible.
+    - If the timestamp is missing or unclear, explain the uncertainty instead of guessing.
+    - If the retrieved info is not relevant, answer from general knowledge. Optionally suggest that providing more specific information can improve future answers.
+    - Do not add general knowledge unless the retrieved information is clearly insufficient or unrelated.
+
+    - If the user’s question refers to time-based availability (e.g. "Can I go tomorrow morning?"), check if the saved info includes opening hours and compare it to the date/time in question.
+    - Interpret "morning" as 06:00 to 12:00, "afternoon" as 12:00 to 18:00, and "evening" as 18:00 to 00:00.
+    - Treat relative time phrases ("today", "tomorrow", "yesterday", or weekdays like "Saturday") based on the current date: \(readableDateString). ISO 8601 time is: \(isoDateString) (use only if helpful).
     - For example: If today is Saturday, then "tomorrow" is Sunday.
-    - Always Respond using the same language detected in the user's question.
+
+    - Avoid unnecessary details or mentioning the database.
+    - Always respond using the same language detected in the user's question.
     - If multiple languages are detected, use the dominant one.
     - Never switch languages inside your reply.
+    - Be clear, concise, and helpful.
 
     Output:
     A natural, complete, and helpful answer to the user's question.
