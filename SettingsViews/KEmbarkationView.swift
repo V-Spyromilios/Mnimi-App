@@ -22,6 +22,8 @@ struct KEmbarkationView: View {
     
     @State private var pulse: Bool = false //for demo the mic explanation
     
+    let isDemo: Bool
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             KMockedView(for: step, animateSwap: $animateSwipe, animateSwap2: $animateSwap2, pulse: $pulse)
@@ -48,7 +50,7 @@ struct KEmbarkationView: View {
     
     private var nextButton: some View {
         Group {
-            if step == .requestPermissions {
+            if step == .requestPermissions && !isDemo {
                 permissionsButton
             } else {
                 Button(nextButtonTitle) {
@@ -69,8 +71,17 @@ struct KEmbarkationView: View {
         step == EmbarkationStep.allCases.last ? "Start Using Mnimi" : "Next"
     }
     
-     func advanceStep() {
-        if let next = EmbarkationStep(rawValue: step.rawValue + 1) {
+    //TODO: UPDATE check that works correctly, should skip the permissions inDemo mode.
+    func advanceStep() {
+        var nextRawValue = step.rawValue + 1
+
+        // If the next step would be `.requestPermissions`, and we're in demo mode, skip it
+        if isDemo, EmbarkationStep(rawValue: nextRawValue) == .requestPermissions {
+            nextRawValue += 1
+        }
+
+        // Try to get the next step. Fails for .permissions + 1 in demo mode
+        if let next = EmbarkationStep(rawValue: nextRawValue) {
             step = next
         } else {
             onDone()
@@ -129,7 +140,7 @@ struct KEmbarkationView: View {
 }
 
 #Preview {
-    KEmbarkationView(onDone: {})
+    KEmbarkationView(onDone: {}, isDemo: false)
 }
 
 @MainActor
@@ -178,9 +189,8 @@ func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateS
         ZStack {
             KiokuBackgroundView()
             VStack {
-                TextEditor(text: .constant("What was the proposed title of my thesis?"))
+                Text("What was the proposed title of my thesis?")
                     .font(.custom("New York", size: 20))
-                
                     .scrollContentBackground(.hidden)
                     .background(Color.clear)
                     .foregroundStyle(.black)
@@ -196,7 +206,7 @@ func KMockedView(for step: EmbarkationStep, animateSwap: Binding<Bool>, animateS
         ZStack {
             KiokuBackgroundView()
             VStack {
-                TextEditor(text: .constant("Add to my Calendar: Rust meetup in Berlin next Thursday at 19:00"))
+                Text("Add to my Calendar: Rust meetup in Berlin next Thursday at 19:00")
                     .font(.custom("New York", size: 20))
                     .scrollContentBackground(.hidden)
                     .background(Color.clear)
@@ -486,7 +496,7 @@ func annotationText(for step: EmbarkationStep) -> some View {
 
     case .welcomeIntro:
         annotationBox {
-            Text("Welcome to Mnimi.\n\n")
+            Text("Welcome to Mnimi. \n\n")
                 .font(.custom(NewYorkFont.heavy.rawValue, size: 22))
             +
             Text("Your second brain: just speak or type to save anything you want to remember — and Mnimi will help you recall it later.")

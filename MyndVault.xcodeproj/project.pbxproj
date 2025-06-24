@@ -44,6 +44,7 @@
 		E88B34D32DB3A99A002B43C2 /* BrightnessChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88B34D22DB3A99A002B43C2 /* BrightnessChecker.swift */; };
 		E8A450DF2DCA51B3008E86B7 /*  DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A450DE2DCA51B3008E86B7 /*  DeleteAccountView.swift */; };
 		E8A450E12DCA64FA008E86B7 /* ApiCallUsageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A450E02DCA64FA008E86B7 /* ApiCallUsageManager.swift */; };
+		E8AD98EA2E06BF7A007C947F /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = E8AD98E92E06BF7A007C947F /* Localizable.xcstrings */; };
 		E8AE7BEC2DC62E21002CBCF1 /* KEmbarkationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */; };
 		E8B480F72E017E4D00C36A2E /* NewYorkMedium-Heavy.otf in Resources */ = {isa = PBXBuildFile; fileRef = E8B480F62E017E4D00C36A2E /* NewYorkMedium-Heavy.otf */; };
 		E8B480F92E01820600C36A2E /* NewYork.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E8B480F82E01820600C36A2E /* NewYork.ttf */; };
@@ -122,6 +123,7 @@
 		E88B34D22DB3A99A002B43C2 /* BrightnessChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrightnessChecker.swift; sourceTree = "<group>"; };
 		E8A450DE2DCA51B3008E86B7 /*  DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " DeleteAccountView.swift"; sourceTree = "<group>"; };
 		E8A450E02DCA64FA008E86B7 /* ApiCallUsageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiCallUsageManager.swift; sourceTree = "<group>"; };
+		E8AD98E92E06BF7A007C947F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		E8AE7BEB2DC62E21002CBCF1 /* KEmbarkationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KEmbarkationView.swift; sourceTree = "<group>"; };
 		E8B480F62E017E4D00C36A2E /* NewYorkMedium-Heavy.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NewYorkMedium-Heavy.otf"; sourceTree = "<group>"; };
 		E8B480F82E01820600C36A2E /* NewYork.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NewYork.ttf; sourceTree = "<group>"; };
@@ -189,6 +191,7 @@
 				E82F45612BC2A77E00945312 /* Codables.swift */,
 				E82F45632BC2A77E00945312 /* Extensions.swift */,
 				E847077E2DD88122008B9EA4 /* MyndVault.storekit */,
+				E8AD98E92E06BF7A007C947F /* Localizable.xcstrings */,
 			);
 			path = Configurations;
 			sourceTree = "<group>";
@@ -462,6 +465,7 @@
 				E82F454D2BC2A6D100945312 /* OpenAIKey.plist in Resources */,
 				E86AD9A62DC5639600AD434C /* Launch Screen.storyboard in Resources */,
 				E847077F2DD88122008B9EA4 /* MyndVault.storekit in Resources */,
+				E8AD98EA2E06BF7A007C947F /* Localizable.xcstrings in Resources */,
 				E8459ED12BC1E3BE00CE34A7 /* Preview Assets.xcassets in Resources */,
 				E8BDF9C42CFC905B0026BAE2 /* SF-Compact-Display-Regular.otf in Resources */,
 				E8459ECE2BC1E3BE00CE34A7 /* Assets.xcassets in Resources */,
@@ -618,6 +622,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -677,6 +682,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -689,7 +695,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = MyndVault/MyndVault.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"MyndVault/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
@@ -713,7 +719,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.3.3;
+				MARKETING_VERSION = 4.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -731,7 +737,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = MyndVault/MyndVault.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MyndVault/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -754,7 +760,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.3.3;
+				MARKETING_VERSION = 4.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.chillvibes.MyndVault;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

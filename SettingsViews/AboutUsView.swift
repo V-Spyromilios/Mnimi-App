@@ -16,7 +16,7 @@ struct AboutUsView: View {
     
     @State private var typewriterText = ""
     @State private var showCursor = true
-    private let fullTypewriterText = "Quietly building? Me too. LinkedIn"
+    private let fullTypewriterText = "Quietly building? Me too. Let's talk."
     
     var body: some View {
         ZStack {
@@ -40,7 +40,7 @@ struct AboutUsView: View {
 
                     I’m not a big company. I’m a solo developer, self-taught, building this between raising my kids and learning as I go.
 
-                    There are no investors here. No ads. No dark patterns. Just a clear goal: help people think better, remember more, and stay focused in a noisy world.
+                    There are no investors here. No ads. No dark patterns. No sneaky data collection. Just a clear goal: help people think better, remember more, and stay focused in a noisy world.
                     """)
                     .font(.custom(NewYorkFont.regular.rawValue, size: 17))
                     .foregroundColor(.black)
@@ -49,7 +49,7 @@ struct AboutUsView: View {
                     .kiokuShadow()
 
                     Group {
-                        if typewriterText.contains("LinkedIn") {
+                        if typewriterText.contains("talk") {
                             Button {
                                 openLinkedInProfile()
                             } label: {
@@ -58,7 +58,7 @@ struct AboutUsView: View {
                                         .font(.custom(NewYorkFont.italic.rawValue, size: 17))
                                         .foregroundColor(.black)
                                     +
-                                    Text("LinkedIn")
+                                    Text("Let's talk.")
                                         .font(.custom(NewYorkFont.italic.rawValue, size: 17))
                                         .italic()
                                         .underline()
@@ -67,8 +67,8 @@ struct AboutUsView: View {
                                 .kiokuShadow()
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("Quietly building? Me too. I'm on LinkedIn.")
-                            .accessibilityHint("Opens the developer's LinkedIn profile in Safari")
+                            .accessibilityLabel("Quietly building? Me too. Let's talk.")
+                            .accessibilityHint("Opens the developer's LinkedIn profile in the browser.")
                         } else {
                             HStack(spacing: 0) {
                                 Text(typewriterText)

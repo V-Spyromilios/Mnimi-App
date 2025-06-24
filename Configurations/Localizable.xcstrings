@@ -1,0 +1,925 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "\nNo templates. Just code, caffeine, and stubbornness." : {
+
+    },
+    " " : {
+
+    },
+    " Get Help" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Help"
+          }
+        }
+      }
+    },
+    "\"%@\"" : {
+
+    },
+    "(%@)" : {
+
+    },
+    "|" : {
+
+    },
+    "About us" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About Us"
+          }
+        }
+      }
+    },
+    "About Us" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About Us"
+          }
+        }
+      }
+    },
+    "Add a Reminder or Calendar Event by speaking or typing.\n\nYou can say or write things like:\n“Remind me to call Alex tomorrow at 10.”\nor\n“Add to my Calendar: The museum holds a photo exhibition on Saturday at 3 PM.”\n\nMnimi will understand and help you save it." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a Reminder or Calendar Event by speaking or typing.\n\nYou can say or write things like:\n“Remind me to call Alex tomorrow at 10.”\nor\n“Add to my Calendar: The museum holds a photo exhibition on Saturday at 3 PM.”\n\nMnimi will understand and help you save it."
+          }
+        }
+      }
+    },
+    "Add to my Calendar: Rust meetup in Berlin next Thursday at 19:00" : {
+
+    },
+    "Are you sure?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure?"
+          }
+        }
+      }
+    },
+    "Ask Mnimi questions like: “What did I save about my thesis?”\n\nMnimi remembers everything you've entered and will try to answer it for you." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask Mnimi questions like: “What did I save about my thesis?”\n\nMnimi remembers everything you've entered and will try to answer it for you."
+          }
+        }
+      }
+    },
+    "Ask or save something else?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask or save something else?"
+          }
+        }
+      }
+    },
+    "Built from scratch with Apple's " : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Built from scratch with Apple's "
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "Cancel deletion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel deletion"
+          }
+        }
+      }
+    },
+    "Confirm Event" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm Event"
+          }
+        }
+      }
+    },
+    "Confirm Reminder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm Reminder"
+          }
+        }
+      }
+    },
+    "Confirm response" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm response"
+          }
+        }
+      }
+    },
+    "Contact support" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contact support"
+          }
+        }
+      }
+    },
+    "Date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Delete account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete account"
+          }
+        }
+      }
+    },
+    "Delete Account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Account"
+          }
+        }
+      }
+    },
+    "Delete my account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete my account"
+          }
+        }
+      }
+    },
+    "Delete My Account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete My Account"
+          }
+        }
+      }
+    },
+    "Enable Calendar Access !" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Calendar Access !"
+          }
+        }
+      }
+    },
+    "Enable Microphone !" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Microphone !"
+          }
+        }
+      }
+    },
+    "Enable Reminders Access !" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Reminders Access !"
+          }
+        }
+      }
+    },
+    "End" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End"
+          }
+        }
+      }
+    },
+    "Error completing purchase." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error completing purchase."
+          }
+        }
+      }
+    },
+    "Get Unlimited Mnimi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Unlimited Mnimi"
+          }
+        }
+      }
+    },
+    "Go" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go"
+          }
+        }
+      }
+    },
+    "Go back without deleting your account" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go back without deleting your account"
+          }
+        }
+      }
+    },
+    "Grant Permissions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grant Permissions"
+          }
+        }
+      }
+    },
+    "How Mnimi works" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How Mnimi works"
+          }
+        }
+      }
+    },
+    "How Mnimi Works" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How Mnimi Works"
+          }
+        }
+      }
+    },
+    "I didn’t set out to build yet another app.\n\nIn 2021, I saw an ad for a coding school called 42 Wolfsburg. I got accepted and within weeks, I had packed my life and moved to Germany. That decision changed everything.\n\nMnimi started because I kept forgetting things — ideas, details, appointments. Most note-taking apps are bloated, distracting, or built to harvest your data. I wanted something quieter. Something that respected my time and memory.\n\nI’m not a big company. I’m a solo developer, self-taught, building this between raising my kids and learning as I go.\n\nThere are no investors here. No ads. No dark patterns. No sneaky data collection. Just a clear goal: help people think better, remember more, and stay focused in a noisy world." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I didn’t set out to build yet another app.\n\nIn 2021, I saw an ad for a coding school called 42 Wolfsburg. I got accepted and within weeks, I had packed my life and moved to Germany. That decision changed everything.\n\nMnimi started because I kept forgetting things — ideas, details, appointments. Most note-taking apps are bloated, distracting, or built to harvest your data. I wanted something quieter. Something that respected my time and memory.\n\nI’m not a big company. I’m a solo developer, self-taught, building this between raising my kids and learning as I go.\n\nThere are no investors here. No ads. No dark patterns. No sneaky data collection. Just a clear goal: help people think better, remember more, and stay focused in a noisy world."
+          }
+        }
+      }
+    },
+    "Key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key"
+          }
+        }
+      }
+    },
+    "Learn about the story behind Mnimi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn about the story behind Mnimi"
+          }
+        }
+      }
+    },
+    "Let's talk." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let's talk."
+          }
+        }
+      }
+    },
+    "Loading..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading..."
+          }
+        }
+      }
+    },
+    "Location" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Location"
+          }
+        }
+      }
+    },
+    "Manage subscription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage subscription"
+          }
+        }
+      }
+    },
+    "Manage Subscription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage Subscription"
+          }
+        }
+      }
+    },
+    "Maybe Later" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maybe Later"
+          }
+        }
+      }
+    },
+    "Mnimi helps you remember anything.\nSpeak or type, and Mnimi will store your notes, reminders, or calendar events." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mnimi helps you remember anything.\nSpeak or type, and Mnimi will store your notes, reminders, or calendar events."
+          }
+        }
+      }
+    },
+    "Notes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "One last thing!\n\nMnimi needs permission to access your microphone, Calendar, and Reminders.\n\nThis allows you to use voice input to create notes, ask questions, and add calendar events or reminders." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One last thing!\n\nMnimi needs permission to access your microphone, Calendar, and Reminders.\n\nThis allows you to use voice input to create notes, ask questions, and add calendar events or reminders."
+          }
+        }
+      }
+    },
+    "Open system settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Settings"
+          }
+        }
+      }
+    },
+    "Open System Settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Settings"
+          }
+        }
+      }
+    },
+    "Opens a support form to request help" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens a support form to request help"
+          }
+        }
+      }
+    },
+    "Opens Mnimi’s privacy policy in your browser" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens Mnimi’s privacy policy in your browser"
+          }
+        }
+      }
+    },
+    "Opens the Apple standard end user license agreement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the Apple standard end user license agreement"
+          }
+        }
+      }
+    },
+    "Opens the developer's LinkedIn profile in the browser." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the developer's LinkedIn profile in the browser."
+          }
+        }
+      }
+    },
+    "Opens the iOS settings for Mnimi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the iOS settings for Mnimi"
+          }
+        }
+      }
+    },
+    "Opens your Apple subscription settings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens your Apple subscription settings"
+          }
+        }
+      }
+    },
+    "Paywall" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paywall"
+          }
+        }
+      }
+    },
+    "Permanently delete your data and account from Mnimi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently delete your data and account from Mnimi"
+          }
+        }
+      }
+    },
+    "Press and hold the mic to record your thoughts or add reminders and calendar events.\n\nMnimi will transcribe your voice and save it instantly.\n\n(Microphone access is required for this to work.)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press and hold the mic to record your thoughts or add reminders and calendar events.\n\nMnimi will transcribe your voice and save it instantly.\n\n(Microphone access is required for this to work.)"
+          }
+        }
+      }
+    },
+    "Privacy policy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy policy"
+          }
+        }
+      }
+    },
+    "Privacy Policy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        }
+      }
+    },
+    "Quietly building? Me too. " : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quietly building? Me too. "
+          }
+        }
+      }
+    },
+    "Quietly building? Me too. Let's talk." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quietly building? Me too. Let's talk."
+          }
+        }
+      }
+    },
+    "Replay the onboarding and learn how to use Mnimi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replay the onboarding and learn how to use Mnimi"
+          }
+        }
+      }
+    },
+    "Returns to the input screen so you can continue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Returns to the input screen so you can continue"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "Saved information will appear here." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved information will appear here."
+          }
+        }
+      }
+    },
+    "Search saved info..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search saved info..."
+          }
+        }
+      }
+    },
+    "Start" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
+          }
+        }
+      }
+    },
+    "Starts the process of saving or answering your request" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starts the process of saving or answering your request"
+          }
+        }
+      }
+    },
+    "Submit your text" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submit your text"
+          }
+        }
+      }
+    },
+    "Subscribe for unlimited usage and faster responses" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subscribe for unlimited usage and faster responses"
+          }
+        }
+      }
+    },
+    "SwiftUI." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SwiftUI."
+          }
+        }
+      }
+    },
+    "Swipe left to open your Vault — everything you’ve saved lives there." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe left to open your Vault — everything you’ve saved lives there."
+          }
+        }
+      }
+    },
+    "Swipe right to open Settings and revisit this tour." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe right to open Settings and revisit this tour."
+          }
+        }
+      }
+    },
+    "Terms of use" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of use"
+          }
+        }
+      }
+    },
+    "Terms of Use" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Use"
+          }
+        }
+      }
+    },
+    "The Developer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Developer"
+          }
+        }
+      }
+    },
+    "This is your starting screen.\n\nPress and hold the microphone to speak and save notes, reminders, or calendar events.\n\nPrefer typing? Just tap anywhere to bring up the input view." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is your starting screen.\n\nPress and hold the microphone to speak and save notes, reminders, or calendar events.\n\nPrefer typing? Just tap anywhere to bring up the input view."
+          }
+        }
+      }
+    },
+    "This is your Vault.\n\nHere you can review, edit, or delete anything you’ve saved.\nJust tap an item to manage it." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This is your Vault.\n\nHere you can review, edit, or delete anything you’ve saved.\nJust tap an item to manage it."
+          }
+        }
+      }
+    },
+    "This will erase all your saved data from Mnimi permanently" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will erase all your saved data from Mnimi permanently"
+          }
+        }
+      }
+    },
+    "This will permanently delete all your saved information from Mnimi." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will permanently delete all your saved information from Mnimi."
+          }
+        }
+      }
+    },
+    "Title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title"
+          }
+        }
+      }
+    },
+    "Upgrade to Annual for %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upgrade to Annual for %@"
+          }
+        }
+      }
+    },
+    "Upgrade to Mnimi Pro for unlimited usage and priority AI responses." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upgrade to Mnimi Pro for unlimited usage and priority AI responses."
+          }
+        }
+      }
+    },
+    "Upgrade to Monthly for %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upgrade to Monthly for %@"
+          }
+        }
+      }
+    },
+    "Welcome to Mnimi.\n\n" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Mnimi."
+          }
+        }
+      }
+    },
+    "Welcome to Mnimi. \n\n" : {
+
+    },
+    "What was the proposed title of my thesis?" : {
+
+    },
+    "You can safely uninstall the app" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can safely uninstall the app"
+          }
+        }
+      }
+    },
+    "You can safely uninstall the app." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can safely uninstall the app."
+          }
+        }
+      }
+    },
+    "You've reached your free limit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You've reached your free limit."
+          }
+        }
+      }
+    },
+    "Your account has been deleted." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your account has been deleted."
+          }
+        }
+      }
+    },
+    "Your account was deleted." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your account was deleted."
+          }
+        }
+      }
+    },
+    "Your second brain: just speak or type to save anything you want to remember — and Mnimi will help you recall it later." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your second brain: just speak or type to save anything you want to remember — and Mnimi will help you recall it later."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

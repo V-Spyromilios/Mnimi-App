@@ -60,10 +60,10 @@ struct AppRootView: View {
     @ViewBuilder
     var onboardingSheet: some View {
         if showOnboarding {
-            KEmbarkationView {
+
+            KEmbarkationView(onDone: {
                 hasSeenOnboarding = true
-                showOnboarding = false
-            }
+                showOnboarding = false }, isDemo: false)
         }
     }
 }

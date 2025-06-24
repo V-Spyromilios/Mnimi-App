@@ -178,8 +178,12 @@ struct KView: View {
             }
             
             // MARK: - Drag gesture layers
-            vaultSwipeGestureLayer
-            settingsSwipeGestureLayer
+            //TODO: UPDATE Check that stops the keyboard being presented at the settings/ vault !!!
+            if viewState == .idle {
+                vaultSwipeGestureLayer
+                settingsSwipeGestureLayer
+                
+            }
             
             // MARK: - Overlay blocker + views
             if showSettings || showVault {
