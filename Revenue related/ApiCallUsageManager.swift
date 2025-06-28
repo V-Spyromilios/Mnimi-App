@@ -55,7 +55,7 @@ final class ApiCallUsageManager: ObservableObject {
         store.synchronize()
         
 #if DEBUG
-        debugLog("Skipping review evaluation in debug mode")
+        debugLog("Skipping AppStore review evaluation in debug mode")
 #else
         evaluateReviewPromptCondition()
 #endif

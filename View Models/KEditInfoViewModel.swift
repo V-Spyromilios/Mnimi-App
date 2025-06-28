@@ -15,7 +15,7 @@ final class KEditInfoViewModel: ObservableObject {
 
     init(vector: Vector) {
         self.id = vector.id
-        self.description = vector.metadata["description"] ?? "Default desc from init"
+        self.description = vector.metadata["description"] ?? ""
         self.timestamp =  dateFromISO8601(isoDate: vector.metadata["timestamp"] ?? "").map { formatDateForDisplay(date: $0) } ?? ""
     }
 }
@@ -26,7 +26,7 @@ extension KEditInfoViewModel {
     }
 
     func update(with vector: Vector) {
-        self.description = vector.metadata["description"] ?? "Default desc from update"
+        self.description = vector.metadata["description"] ?? ""
         self.timestamp = dateFromISO8601(isoDate: vector.metadata["timestamp"] ?? "")
             .map { formatDateForDisplay(date: $0) } ?? ""
         self.id = vector.id

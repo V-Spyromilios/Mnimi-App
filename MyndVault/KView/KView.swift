@@ -62,7 +62,7 @@ struct KView: View {
     @EnvironmentObject var pineconeManager: PineconeViewModel
     @EnvironmentObject var usageManager: ApiCallUsageManager
     @State private var micColor: Color = .white
-    @State private var viewTransitionDelay: Double = 0.4
+    @State private var viewTransitionDelay: Double = 0.3
     @State private var viewTransitionDuration: Double = 0.4
     @Binding var showVault: Bool
     @State private var showSettings: Bool = false
@@ -73,11 +73,13 @@ struct KView: View {
     @AppStorage("shouldAskForReview") var shouldAskForReview: Bool = false
     @AppStorage("hasRequestedReview") var hasRequestedReview: Bool = false //for app review - see the ApiCAllUsageManager
     
+    let screenWidth: CGFloat = UIScreen.main.bounds.width
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    
 #if DEBUG
     @State var currentIndex: Int = 0
 #endif
-    
-    @GestureState private var dragOffset: CGFloat = 0
+
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -107,7 +109,6 @@ struct KView: View {
                     .zIndex(3)
 #endif
                 }
-
                     VStack {
                         if viewState != .idle {
                             InputView(
@@ -176,14 +177,6 @@ struct KView: View {
                     .padding(.bottom, 140)
             }
             
-            // MARK: - Drag gesture layers
-
-            if viewState == .idle {
-                vaultSwipeGestureLayer
-                settingsSwipeGestureLayer
-                
-            }
-            
             // MARK: - Overlay blocker + views
             if showSettings || showVault {
                 Color.black.opacity(0.001) // absorbs taps
@@ -196,34 +189,60 @@ struct KView: View {
                         .transition(.move(edge: .trailing).combined(with: .opacity))
                         .animation(.easeInOut(duration: 0.35), value: showSettings)
                         .zIndex(3)
-                        .gesture(
-                            DragGesture(minimumDistance: 20)
-                                .onEnded { value in
-                                    if value.translation.width > 80 {
-                                        withAnimation { showSettings = false }
-                                    }
-                                }
-                        )
                 }
                 
                 if showVault {
                     KVault()
-                        .frame(width: UIScreen.main.bounds.width)
+                        .frame(width: screenWidth)
                         .transition(.move(edge: .leading).combined(with: .opacity))
                         .animation(.easeInOut(duration: 0.35), value: showVault)
                         .zIndex(3)
-                        .gesture(
-                            DragGesture(minimumDistance: 20)
-                                .onEnded { value in
-                                    if value.translation.width < -80 {
-                                        withAnimation { showVault = false }
-                                    }
-                                }
-                        )
                         .modelContainer(Persistence.container)
                 }
             }
         }
+        .highPriorityGesture(
+            DragGesture(minimumDistance: 20)
+                .onEnded { value in
+                    guard viewState == .idle else { return } // No swipes outside .idle
+
+                    let dx = value.translation.width
+                    let startX = value.startLocation.x
+                    let width = screenWidth
+
+                    // Swipe left to dismiss Vault
+                    if showVault && dx < -60 {
+                        feedbackGenerator.prepare()
+                        feedbackGenerator.impactOccurred()
+                        withAnimation { showVault = false }
+                        return
+                    }
+
+                    // Swipe right to open Vault
+                    else if !showVault && !showSettings && startX < 30 && dx > 60 {
+                        feedbackGenerator.prepare()
+                        feedbackGenerator.impactOccurred()
+                        withAnimation { showVault = true }
+                        return
+                    }
+
+                    // Swipe right to dismiss Settings
+                    else if showSettings && dx > 60 {
+                        feedbackGenerator.prepare()
+                        feedbackGenerator.impactOccurred()
+                        withAnimation { showSettings = false }
+                        return
+                    }
+
+                    // Swipe left to open Settings
+                    else if !showVault && !showSettings && startX > width - 30 && dx < -60 {
+                        feedbackGenerator.prepare()
+                        feedbackGenerator.impactOccurred()
+                        withAnimation { showSettings = true }
+                        return
+                    }
+                }
+        )
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 requestReviewIfNeeded()
@@ -231,20 +250,6 @@ struct KView: View {
         }
         .ignoresSafeArea()
         .statusBar(hidden: true)
-        .gesture(
-            showSettings || showVault ? nil :
-                DragGesture(minimumDistance: 30)
-                .updating($dragOffset) { value, state, _ in
-                    state = value.translation.width
-                }
-                .onEnded { value in
-                    if value.startLocation.x < 20 && value.translation.width > 100 {
-                        withAnimation { showVault = true }
-                    } else if value.startLocation.x > UIScreen.main.bounds.width - 20 && value.translation.width < -100 {
-                        withAnimation { showSettings = true }
-                    }
-                }
-        )
         .onTapGesture {
             if !showSettings && !showVault {
                 handleTap()
@@ -286,21 +291,6 @@ struct KView: View {
         let focusRect = CGRect(x: 0.8, y: 0.0, width: 0.2, height: 0.3)
         return localizedBrightness(of: image, relativeRect: focusRect)
     }
-    private var vaultSwipeGestureLayer: some View {
-        Color.clear
-            .frame(width: 20)
-            .contentShape(Rectangle())
-            .onTapGesture {} // keeps it interactive
-            .offset(x: showVault ? 0 : -UIScreen.main.bounds.width)
-    }
-    
-    private var settingsSwipeGestureLayer: some View {
-        Color.clear
-            .frame(width: 20)
-            .contentShape(Rectangle())
-            .onTapGesture {}
-            .offset(x: showSettings ? 0 : UIScreen.main.bounds.width)
-    }
     
     func showInputView() {
         withAnimation(.easeInOut(duration: viewTransitionDuration)) {
@@ -311,7 +301,6 @@ struct KView: View {
         }
     }
     
-    
     private func toIdleView() {
         isEditorFocused = false
         DispatchQueue.main.asyncAfter(deadline: .now() + viewTransitionDelay) { //    If you prefer the keyboard to finish before the overlay starts fading
@@ -320,6 +309,7 @@ struct KView: View {
             }
         }
     }
+
     let backgroundImages = [
         "bg1", "bg2", "bg3", "bg4", "bg5",
         "bg6", "bg7", "bg8", "bg9", "bg10",
@@ -360,7 +350,7 @@ struct InputView: View {
                     VStack(spacing: 24) {
                         ScrollView {
                             Text(text)
-                                .font(.custom("New York", size: 20))
+                                .font(.custom(NewYorkFont.regular.rawValue, size: 20))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.leading)
                                 .padding(.horizontal, 30)
@@ -381,7 +371,7 @@ struct InputView: View {
                                 }
                             }
                         }
-                        .font(.custom("New York", size: 22))
+                        .font(.custom(NewYorkFont.regular.rawValue, size: 22))
                         .bold()
                         .foregroundColor(.black)
                         .padding(.bottom, 30)
@@ -411,6 +401,7 @@ struct InputView: View {
             }.padding(.top, 15)
 //                .frame(height: UIScreen.main.bounds.height)
         }
+        
         .onChange(of: openAiManager.userIntent) { _, intent in
             debugLog("✅ Trigger received — handle intent")
             if let intent = intent {
@@ -502,7 +493,7 @@ struct InputView: View {
     
     private var responseTextView: some View {
         Text(text)
-            .font(.custom("New York", size: 20))
+            .font(.custom(NewYorkFont.regular.rawValue, size: 20))
             .foregroundColor(.black)
             .multilineTextAlignment(.leading)
             .padding(.top, 45)
@@ -564,7 +555,7 @@ struct InputView: View {
     
     private var apiCallLabelView: some View {
         Text(apiCallLabel(for: userIntentType))
-            .font(.custom("New York", size: 20))
+            .font(.custom(NewYorkFont.regular.rawValue, size: 20))
             .foregroundColor(.black)
             .italic()
     }
@@ -574,7 +565,7 @@ struct InputView: View {
         Group {
             
             Text(successLabel(for: userIntentType))
-                .font(.custom("New York", size: 20))
+                .font(.custom(NewYorkFont.regular.rawValue, size: 20))
                 .foregroundColor(.black)
                 .italic()
                 .padding(.bottom, 20)
@@ -872,7 +863,7 @@ struct ReminderConfirmationView: View {
         VStack(spacing: 0) {
             Form {
                 TextField("Title", text: $wrapper.title)
-                    .font(.custom("New York", size: 18))
+                    .font(.custom(NewYorkFont.regular.rawValue, size: 18))
                     .textInputAutocapitalization(.sentences)
 
                 DatePicker(
@@ -882,13 +873,13 @@ struct ReminderConfirmationView: View {
                     ),
                     displayedComponents: [.date, .hourAndMinute]
                 )
-                .font(.custom("New York", size: 18))
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
 
                 TextField("Notes", text: Binding(
                     get: { wrapper.notes ?? "" },
                     set: { wrapper.notes = $0 }
                 ))
-                .font(.custom("New York", size: 18))
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
                 .textInputAutocapitalization(.sentences)
             }
             .scrollContentBackground(.hidden)
@@ -944,26 +935,26 @@ struct CalendarConfirmationView: View {
                     get: { wrapper.title },
                     set: { wrapper.title = $0 }
                 ))
-                .font(.custom("New York", size: 18))
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
                 .textInputAutocapitalization(.sentences)
 
                 DatePicker("Start", selection: Binding(
                     get: { wrapper.startDate },
                     set: { wrapper.startDate = $0 }
                 ), displayedComponents: [.date, .hourAndMinute])
-                .font(.custom("New York", size: 18))
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
 
                 DatePicker("End", selection: Binding(
                     get: { wrapper.endDate },
                     set: { wrapper.endDate = $0 }
                 ), displayedComponents: [.date, .hourAndMinute])
-                .font(.custom("New York", size: 18))
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
 
                 TextField("Location", text: Binding(
                     get: { wrapper.location ?? "" },
                     set: { wrapper.location = $0 }
                 ))
-                .font(.custom("New York", size: 18))
+                .font(.custom(NewYorkFont.regular.rawValue, size: 18))
                 .textInputAutocapitalization(.sentences)
             }
             .scrollContentBackground(.hidden)
