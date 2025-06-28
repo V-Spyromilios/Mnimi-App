@@ -11,6 +11,7 @@ import Combine
 
 import Foundation
 import RevenueCat
+import SwiftUI
 
 @MainActor
 final class ApiCallUsageManager: ObservableObject {
@@ -20,14 +21,17 @@ final class ApiCallUsageManager: ObservableObject {
     private let apiCallCountKey = "apiCallCount"
     private let lastResetDateKey = "lastResetDate"
     private let isProUserKey = "isProUser"
-
+    
     @Published var apiCallCount: Int = 0
     @Published var isProUser: Bool = false
-
+    
+    @AppStorage("shouldAskForReview") var shouldAskForReview: Bool = false
+    @AppStorage("hasRequestedReview") var hasRequestedReview: Bool = false //for app review in the appStore
+    
     init() {
         // Sync from iCloud when launched
         syncFromCloud()
-
+        
         // Listen for external iCloud changes
         NotificationCenter.default.addObserver(
             self,
@@ -36,19 +40,25 @@ final class ApiCallUsageManager: ObservableObject {
             object: store
         )
     }
-
+    
     // MARK: - API Tracking
-
+    
     func canMakeApiCall(limit: Int = 20) -> Bool {
         resetMonthlyIfNeeded()
         return isProUser || apiCallCount < limit
     }
-
+    
     func trackApiCall() {
         resetMonthlyIfNeeded()
         apiCallCount += 1
         store.set(apiCallCount, forKey: apiCallCountKey)
         store.synchronize()
+        
+#if DEBUG
+        debugLog("Skipping review evaluation in debug mode")
+#else
+        evaluateReviewPromptCondition()
+#endif
     }
 
     func currentCount() -> Int {
@@ -67,6 +77,12 @@ final class ApiCallUsageManager: ObservableObject {
             store.set(0, forKey: apiCallCountKey)
             store.set(currentMonth, forKey: lastResetDateKey)
             store.synchronize()
+        }
+    }
+    
+    private func evaluateReviewPromptCondition() {
+        if !hasRequestedReview && apiCallCount >= 6 {
+            shouldAskForReview = true
         }
     }
     

@@ -25,6 +25,7 @@
 import SwiftUI
 import EventKit
 import SwiftData
+import StoreKit
 
 struct KView: View {
     
@@ -48,6 +49,7 @@ struct KView: View {
             }
         }
     }
+    
     @Binding var launchURL: URL?
     
     @State private var viewState: ViewState = .idle
@@ -67,6 +69,9 @@ struct KView: View {
     @State private var showPaywall: Bool = false
     
     @AppStorage("microphonePermissionGranted") var micGranted: Bool?
+    
+    @AppStorage("shouldAskForReview") var shouldAskForReview: Bool = false
+    @AppStorage("hasRequestedReview") var hasRequestedReview: Bool = false //for app review - see the ApiCAllUsageManager
     
 #if DEBUG
     @State var currentIndex: Int = 0
@@ -100,11 +105,9 @@ struct KView: View {
                     }
                     .padding(.bottom, 40)
                     .zIndex(3)
-                    
 #endif
                 }
-                
-//                ScrollView {
+
                     VStack {
                         if viewState != .idle {
                             InputView(
@@ -120,11 +123,7 @@ struct KView: View {
                         }
                     }
                     .frame(width: geo.size.width, height: geo.size.height)
-//                    Spacer()
-//                }
-//                .scrollIndicators(.hidden)
                 .ignoresSafeArea()
-                //                .frame(width: geo.size.width)
                 .zIndex(0)
                 .allowsHitTesting(!(showSettings || showVault)) // disable interaction
             }
@@ -178,7 +177,7 @@ struct KView: View {
             }
             
             // MARK: - Drag gesture layers
-            //TODO: UPDATE Check that stops the keyboard being presented at the settings/ vault !!!
+
             if viewState == .idle {
                 vaultSwipeGestureLayer
                 settingsSwipeGestureLayer
@@ -225,6 +224,11 @@ struct KView: View {
                 }
             }
         }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                requestReviewIfNeeded()
+            }
+        }
         .ignoresSafeArea()
         .statusBar(hidden: true)
         .gesture(
@@ -264,6 +268,16 @@ struct KView: View {
         switch viewState {
         case .idle:  showInputView()
         default:     toIdleView()
+        }
+    }
+    
+    private func requestReviewIfNeeded() {
+        guard shouldAskForReview, !hasRequestedReview else { return }
+        if let scene = UIApplication.shared.connectedScenes
+            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+            SKStoreReviewController.requestReview(in: scene)
+            shouldAskForReview = false
+            hasRequestedReview = true
         }
     }
     
@@ -829,7 +843,6 @@ struct InputView: View {
 }
 
 #Preview {
-    
     
     let pineconeActor = PineconeActor()
     let openAIActor = OpenAIActor()

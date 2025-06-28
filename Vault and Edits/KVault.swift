@@ -190,9 +190,11 @@ struct KVault: View {
 
 // MARK: helpers
 private extension KVault {
-
+    
     var allVectors: [Vector] { entities.map(\.toVector) }
-
+    
+//    var allVectorsCounter: Int { allVectors.count }
+    
     // old `filteredVectors`, rewritten to use `allVectors`
     var filteredVectors: [Vector] {
         guard !searchText.isEmpty else { return allVectors }
@@ -201,6 +203,7 @@ private extension KVault {
                 .localizedCaseInsensitiveContains(searchText) ?? false
         }
     }
+
 }
 
 private func loadingView() -> some View {

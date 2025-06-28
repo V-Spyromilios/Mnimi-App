@@ -136,7 +136,6 @@ struct KEmbarkationView: View {
             return granted
         } catch { return false }
     }
-    
 }
 
 #Preview {
