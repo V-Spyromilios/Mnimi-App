@@ -67,22 +67,27 @@ struct KEmbarkationView: View {
         }
     }
     
-     var nextButtonTitle: String {
-        step == EmbarkationStep.allCases.last ? "Start Using Mnimi" : "Next"
+    var nextButtonTitle: String {
+        let steps = isDemo
+            ? EmbarkationStep.allCases.filter { $0 != .requestPermissions }
+            : EmbarkationStep.allCases
+
+        if step == steps.last {
+            return isDemo ? "Close" : "Start Using Mnimi"
+        } else {
+            return "Next"
+        }
     }
     
     //TODO: UPDATE check that works correctly, should skip the permissions inDemo mode.
     func advanceStep() {
-        var nextRawValue = step.rawValue + 1
+        let allSteps = isDemo
+            ? EmbarkationStep.allCases.filter { $0 != .requestPermissions }
+            : EmbarkationStep.allCases
 
-        // If the next step would be `.requestPermissions`, and we're in demo mode, skip it
-        if isDemo, EmbarkationStep(rawValue: nextRawValue) == .requestPermissions {
-            nextRawValue += 1
-        }
-
-        // Try to get the next step. Fails for .permissions + 1 in demo mode
-        if let next = EmbarkationStep(rawValue: nextRawValue) {
-            step = next
+        if let currentIndex = allSteps.firstIndex(of: step),
+           currentIndex + 1 < allSteps.count {
+            step = allSteps[currentIndex + 1]
         } else {
             onDone()
         }

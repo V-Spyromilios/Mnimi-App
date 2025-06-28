@@ -171,7 +171,7 @@ struct KSettings: View {
                         AboutUsView()
                     case .kEmbarkationView:
                         KEmbarkationView(onDone: {
-                           activeSheet = nil }, isDemo: false)
+                           activeSheet = nil }, isDemo: true)
                     case .deleteAccount:
                         KDeleteAccountView(onCancel: {self.activeSheet = nil} )
                     case .paywall:
