@@ -9,7 +9,6 @@
 
 ##  Features
 - **AI-Powered Recall** – Ask questions naturally and get instant answers from your saved data.
-- **Voice Input with Whisper** – Capture information hands-free.
 - **Calendar & Reminders Integration** – Create events and reminders directly from your queries.
 - **Secure Storage** – Notes and embeddings are stored in private Namespace (Pinecone).
 - **Minimal Design** – A distraction-free, paper-like interface.
